@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.Amplitude;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
@@ -16,6 +17,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public float StartPosOffset = 4;
 
+    public float PosOffset = 0f;
+
     /// <summary>
     /// the Y position of the camera
     /// </summary>
@@ -30,7 +33,7 @@ public class PlayerController : MonoBehaviour
     public TracksController TracksController;
     List<Track> trackList;
     Catcher[] catchers = new Catcher[3];
-
+    public AmplitudeConductor conductor { get { return GameObject.Find("AMPController").GetComponent<AmplitudeConductor>(); } }
     Transform catcherTransform;
     AudioSource src;
 
@@ -55,10 +58,14 @@ public class PlayerController : MonoBehaviour
         if (StartTrack == null)
             StartTrack = TracksController.GetDefaultTrack();
 
-        StartPosOffset -= (60f / 110f);
+        //StartPosOffset -= (60f / 110f);
 
         // Position player!
-        transform.position = new Vector3(0, YPosition, -StartPosOffset);
+        //transform.position = new Vector3(0, YPosition, -StartPosOffset);
+
+        // Push player backwards instead so that we can set initial player position in editor
+        // TODO: automate this so it isn't predetermined!
+        transform.Translate(Vector3.back * StartPosOffset); // negative
         SwitchToTrack(StartTrack);
 
         // Create catchers!
@@ -76,9 +83,6 @@ public class PlayerController : MonoBehaviour
         await System.Threading.Tasks.Task.Delay(10000);
 
         IsTrackActive = true;
-
-        var amp_trackctrl = (AmplitudeTracksController)TracksController;
-        src = amp_trackctrl.src_bgclick;
     }
 
     void CreateCatchers()
@@ -89,6 +93,7 @@ public class PlayerController : MonoBehaviour
             obj.transform.parent = gameObject.transform;
 
             obj.GetComponent<MeshRenderer>().material = (Material)Resources.Load("Materials/CatcherMaterial", typeof(Material));
+            obj.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             Destroy(obj.GetComponent<BoxCollider>());
 
             float xPos = TrackLane.GetLocalXPosFromLaneType((TrackLane.LaneType)i);
@@ -146,8 +151,59 @@ public class PlayerController : MonoBehaviour
     public AudioClip catcher_empty;
     public AudioClip catcher_miss;
 
+    int prevSongBeat = 0;
     void Update()
     {
+        if (IsPlayerMoving)
+        {
+            /*
+            Vector3 movement = Vector3.forward * conductor.songPosition / conductor.songBpm * movementSpeed; //* (110f / 60f)
+            gameObject.transform.Translate(movement);
+            */
+
+            //float zPos = (conductor.songPosition * movementSpeed) - StartPosOffset;
+            float zPos = conductor.songPosition * movementSpeed;
+            gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, zPos - (PosOffset) - (StartPosOffset));
+            //gameObject.transform.Translate(Vector3.forward * zPos);
+
+            //Debug.LogFormat("songPosition: {0} | songPositionInBeats: {1}", conductor.songPosition, conductor.songPositionInBeats);
+
+
+            /*
+            // PLAYER SHOULD BE Z -10.5
+            float zPos = (Time.deltaTime * movementSpeed);
+            gameObject.transform.Translate(Vector3.forward * zPos);
+            //gameObject.transform.Translate(Vector3.forward * (100f / 4f));
+            */
+
+            if (Time.time >= nextTime)
+            {
+                nextTime += interval;
+                //Debug.LogFormat("Time: {0} | Position: {1}", nextTime, gameObject.transform.position.z);
+                //src.PlayOneShot(catcher_empty);
+            }
+
+
+
+            //Debug.Log(conductor.songPosition + " | " + movement);
+        }
+
+        /*
+        if (Mathf.RoundToInt(conductor.songPositionInBeats) != prevSongBeat & IsPlayerMoving)
+        {
+            src.PlayOneShot(catcher_empty);
+            prevSongBeat = Mathf.RoundToInt(conductor.songPositionInBeats);
+        }
+        */
+
+        if (Input.GetKeyDown(KeyCode.Return) & !IsPlayerMoving)
+        {
+            Destroy(GameObject.Find("Intro Text"));
+            conductor.PlayMusic();
+            IsPlayerMoving = true;
+        }
+
+        #region input
         foreach (KeyCode key in keycodes)
         {
             if (Input.GetKeyDown(key))
@@ -223,19 +279,14 @@ public class PlayerController : MonoBehaviour
 
         //if (Input.GetKeyUp(KeyCode.DownArrow))
         //    transform.position += Vector3.back;
+        #endregion
     }
 
-    private void LateUpdate()
-    {
-
-    }
+    float interval = 1;
+    float nextTime = 0;
     private void FixedUpdate()
     {
-        if (IsPlayerMoving)
-        {
-            Vector3 movement = Vector3.forward * Time.deltaTime * movementSpeed; //* (110f / 60f)
-            gameObject.transform.Translate(movement);
-        }
+        
 
         if (Input.GetKey(KeyCode.Keypad2))
         {

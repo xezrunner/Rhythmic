@@ -51,8 +51,8 @@ public class MidiReader : MonoBehaviour
         ticks = midi.DeltaTicksPerQuarterNote;
 
         Debug.LogFormat(string.Format("MidiReader: MIDI loaded: \n" +
-            "BPM: {0} | Tracks: {1} | Ticks: {2}",
-            bpm, midi.Tracks, ticks));
+            "BPM: {0} | Tracks: {1} | Ticks: {2} | PPQ: {3}",
+            bpm, midi.Tracks, ticks, midi.DeltaTicksPerQuarterNote));
     }
 
     public int GetMidiTrackCount()

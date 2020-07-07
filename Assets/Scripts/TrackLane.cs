@@ -22,10 +22,11 @@ public class TrackLane : MonoBehaviour
         obj.transform.parent = gameObject.transform;
         obj.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, zPosition);
         obj.AddComponent<BoxCollider>();
+        obj.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
         // create and assign Note to GameObject
         Note note = obj.AddComponent<Note>();
-        note.name = noteName;
+        note.name = noteName + "_" + obj.transform.position.z;
         note.noteType = noteType;
         note.noteLane = noteLane;
 

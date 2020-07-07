@@ -1,4 +1,5 @@
-﻿using NAudio.Wave;
+﻿using Assets.Scripts.Amplitude;
+using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
 using System.Collections;
@@ -10,8 +11,9 @@ using UnityEngine.SceneManagement;
 
 public class AmplitudeTracksController : TracksController
 {
-    MidiReader midireader;
-    
+    MidiReader reader;
+    AmplitudeConductor conductor { get { return GameObject.Find("AMPController").GetComponent<AmplitudeConductor>(); } }
+
     public int BPM;
 
     /// <summary>
@@ -25,25 +27,25 @@ public class AmplitudeTracksController : TracksController
 
         // TODO: init MidiReader properly, with arguments
         // for now, it inits with default props inside of itself
-        midireader = gameObject.AddComponent<MidiReader>();
-        midireader.OnNoteEvent += Midireader_OnNoteEvent;
+        reader = gameObject.AddComponent<MidiReader>();
+        reader.OnNoteEvent += Midireader_OnNoteEvent;
         Debug.LogFormat("MidiReader: created");
 
-        midireader.LoadMIDI();
-        BPM = midireader.bpm;
+        src_drums = conductor.src_drums;
+        src_bass = conductor.src_bass;
+        src_synth = conductor.src_synth;
+        src_bgclick = conductor.src_bgclick;
+
+        reader.LoadMIDI();
+        BPM = reader.bpm;
 
         PopulateTracks();
         AMP_PopulateTracks();
-
-        src_drums = gameObject.AddComponent<AudioSource>();
-        src_bass = gameObject.AddComponent<AudioSource>();
-        src_synth = gameObject.AddComponent<AudioSource>();
-        src_bgclick = gameObject.AddComponent<AudioSource>();
     }
 
     public void AMP_PopulateTracks()
     {
-        Debug.LogFormat(string.Format("AMP_TRACKS [{0}]: Populating tracks...", midireader.songName)); // TODO: songName should be in TracksController!
+        Debug.LogFormat(string.Format("AMP_TRACKS [{0}]: Populating tracks...", reader.songName)); // TODO: songName should be in TracksController!
 
         int counter = 1; // TODO: CATCH tracks are offset by +1 in the mid
         foreach (AmplitudeTrack track in trackList)
@@ -62,10 +64,10 @@ public class AmplitudeTracksController : TracksController
 
             // init midi properties inside Track from MidiReader
             track.ID = trackID - 1;
-            track.ticks = midireader.ticks;
-            track.bpm = midireader.bpm;
-            track.TrackMidiEvents = midireader.GetNoteOnEventsFromTrack(trackID);
-            track.reader = midireader;
+            track.ticks = reader.ticks;
+            track.bpm = reader.bpm;
+            track.TrackMidiEvents = reader.GetNoteOnEventsFromTrack(trackID);
+            track.reader = reader;
 
             // Create the notes!
             track.AMP_PopulateLanes();
@@ -73,38 +75,6 @@ public class AmplitudeTracksController : TracksController
             Debug.LogFormat("AMP_TRACKS/PopulateTracks(): Finished populating track! ({0} notes)", track.TrackMidiEvents.Count);
             counter++;
         }
-    }
-
-    AudioSource src_drums;
-    AudioSource src_bass;
-    AudioSource src_synth;
-    public AudioSource src_bgclick;
-
-    public AudioClip drums;
-    public AudioClip bass;
-    public AudioClip synth;
-    public AudioClip bgclick;
-
-    public void PlayMusic()
-    {
-        src_drums.clip = drums;
-        src_drums.PlayScheduled(AudioSettings.dspTime);
-        src_bass.PlayOneShot(bass);
-        src_synth.PlayOneShot(synth);
-        src_bgclick.clip = bgclick;
-        src_bgclick.PlayScheduled(AudioSettings.dspTime);
-
-        /*
-        var drums = new CachedSound(@"H:\HMXAMPLITUDE\Extractions\amplitude_ps3_extraction\ps3\songs\tut0\tut0_drums.wav");
-        var bass = new CachedSound(@"H:\HMXAMPLITUDE\Extractions\amplitude_ps3_extraction\ps3\songs\tut0\tut0_bass.wav");
-        var synth = new CachedSound(@"H:\HMXAMPLITUDE\Extractions\amplitude_ps3_extraction\ps3\songs\tut0\tut0_synth.wav");
-        var bg_click = new CachedSound(@"H:\HMXAMPLITUDE\Extractions\amplitude_ps3_extraction\ps3\songs\tut0\tut0_bgclick.wav");
-
-        AudioPlaybackEngine.Instance.PlaySound(drums);
-        AudioPlaybackEngine.Instance.PlaySound(bass);
-        AudioPlaybackEngine.Instance.PlaySound(synth);
-        AudioPlaybackEngine.Instance.PlaySound(bg_click);
-        */
     }
 
     bool m_playStarted = false;
@@ -121,9 +91,24 @@ public class AmplitudeTracksController : TracksController
             float bps = (float)BPM / 60f;
             float sbm = 1f / bps;
             //playerctrl.movementSpeed = 10f;
-            PlayMusic();
-            midireader.StartPlayback(1);
+            //PlayMusic();
+            //midireader.StartPlayback(1);
         }
+    }
+
+    AudioSource src_drums;
+    AudioSource src_bass;
+    AudioSource src_synth;
+    AudioSource src_bgclick;
+
+    public AudioClip drums;
+    public AudioClip bass;
+    public AudioClip synth;
+    public AudioClip bgclick;
+
+    public void PlayBGClick()
+    {
+        src_bgclick.PlayScheduled(AudioSettings.dspTime);
     }
 
     public void ChangeVoumeByID(int id, float volume)

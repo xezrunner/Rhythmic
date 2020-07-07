@@ -5,11 +5,12 @@ using NAudio.Midi;
 using System.Linq.Expressions;
 using System;
 using System.Threading.Tasks;
+using CSCore.Codecs;
 
 public class AmplitudeTrack : Track
 {
     public float ticks { get; set; }
-    public int bpm { get; set; }
+    public float bpm { get; set; }
     public List<NoteOnEvent> TrackMidiEvents { get; set; }
     public MidiReader reader;
 
@@ -22,6 +23,7 @@ public class AmplitudeTrack : Track
     /// TODO: possibly rename to AMP_PopulateNotes()?
     /// </summary>
     float zPos = 0f;
+    public float tickInMs { get { return 60000f / ((float)reader.bpm * (float)reader.midi.DeltaTicksPerQuarterNote); } }
     public void AMP_PopulateLanes()
     {
         int counter = 0;
@@ -58,12 +60,15 @@ public class AmplitudeTrack : Track
             zPos = (float)note.AbsoluteTime / (float)bpm - (float)firstZOffset;
             */
             //zPos = (float)note.AbsoluteTime / (float)bpm;
-            //zPos = (float)note.AbsoluteTime / bpm;
+            zPos = (tickInMs * (float)note.AbsoluteTime) / (1000f + 0.6667f) * 4f - 1;
+            //zPos = (tickInMs * note.AbsoluteTime) / 1000 * 4;
+            /*
             float tick = (60000f / ((float)bpm * (float)reader.midi.DeltaTicksPerQuarterNote) * 200);
             zPos = ((float)note.AbsoluteTime / tick) + ((float)note.NoteLength * 0.001f);
             Debug.Log(note.NoteLength);
+            */
 
-
+            //Debug.Log(note.AbsoluteTime + " | " + zPos);
             //Debug.Log(zPos);
 
             //float time = note.NoteLength / 10;

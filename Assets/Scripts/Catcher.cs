@@ -72,6 +72,9 @@ public class Catcher : MonoBehaviour
         RaycastHit hitPoint;
         if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hitPoint, 150f))
         {
+            if (hitPoint.collider.gameObject.GetComponents<Note>().Length < 1)
+                return false;
+
             Note note = hitPoint.collider.gameObject.GetComponent<Note>();
             if (pressedKey == LaneToKey(note.noteLane))
             {
