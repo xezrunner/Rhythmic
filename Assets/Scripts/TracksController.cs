@@ -7,13 +7,16 @@ public class TracksController : MonoBehaviour
 {
     public List<Track> trackList = new List<Track>();
 
+    /// <summary>
+    /// The current active track.
+    /// </summary>
     public Track ActiveTrack;
 
     void Start()
     {
         Debug.LogFormat("TRACKS: Using RHYTMHIC track controller!");
 
-        if (trackList.Count == 0)
+        if (trackList.Count == 0) // if tracks aren't populated yet
             PopulateTracks();
     }
 
@@ -49,6 +52,9 @@ public class TracksController : MonoBehaviour
         return GetDefaultTrack().gameObject;
     }
 
+    /// <summary>
+    /// Create lanes and populate them with CATCH notes.
+    /// </summary>
     public void PopulateTracks()
     {
         if (transform.childCount == 0) // if there are no pre-determined tracks in the Scene

@@ -7,10 +7,13 @@ using UnityEngine;
 
 namespace Assets.Scripts.Amplitude
 {
-    public class AmplitudeConductor : MonoBehaviour
+    public class AmplitudeSongController : MonoBehaviour
     {
-        //Song beats per minute
-        //This is determined by the song you're trying to sync up to
+        /// <summary>
+        /// TODO: Implement better functionality
+        /// </summary>
+
+        //Song beats per minute - this is determined by the song you're trying to sync up to
         public float songBpm;
 
         //The number of seconds for each song beat
@@ -25,14 +28,14 @@ namespace Assets.Scripts.Amplitude
         //How many seconds have passed since the song started
         public float dspSongTime;
 
-        //an AudioSource attached to this GameObject that will play the music.
+        //The offset to the first beat of the song in seconds
+        public float firstBeatOffset;
+
+        //An AudioSource attached to this GameObject that will play the music.
         public AudioSource src_drums;
         public AudioSource src_bass;
         public AudioSource src_synth;
         public AudioSource src_bgclick;
-
-        //The offset to the first beat of the song in seconds
-        public float firstBeatOffset;
 
         public AudioClip drums;
         public AudioClip bass;
@@ -46,12 +49,7 @@ namespace Assets.Scripts.Amplitude
             src_synth = gameObject.AddComponent<AudioSource>();
             src_bgclick = gameObject.AddComponent<AudioSource>();
 
-            src_drums.clip = drums;
-            src_bass.clip = bass;
-            src_synth.clip = synth;
-            src_bgclick.clip = bgclick;
-
-            //Load the AudioSource attached to the Conductor GameObject
+            //Load the AudioSource attached to the ampctrl GameObject
             //src_bgclick = GetComponent<AudioSource>();
 
             //Calculate the number of seconds in each beat
@@ -60,6 +58,12 @@ namespace Assets.Scripts.Amplitude
 
         public void PlayMusic()
         {
+            // Assign clips to AudioSources
+            src_drums.clip = drums;
+            src_bass.clip = bass;
+            src_synth.clip = synth;
+            src_bgclick.clip = bgclick;
+
             //Record the time when the music starts
             dspSongTime = (float)AudioSettings.dspTime;
 

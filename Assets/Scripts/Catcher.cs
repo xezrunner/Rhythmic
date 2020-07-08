@@ -1,94 +1,75 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class Catcher : MonoBehaviour
 {
-    AudioSource src { get { return GameObject.FindGameObjectWithTag("Player").GetComponent<AudioSource>(); } }
+    /// <summary>
+    /// TODO: KeyCodes based on user input settings
+    /// </summary>
 
-    public AudioClip catcher_empty;
-    public AudioClip catcher_miss;
-    public AudioClip streak_lose;
+    public KeyCode[] keycodes = new KeyCode[] { KeyCode.LeftArrow, KeyCode.UpArrow, KeyCode.RightArrow };
+    public KeyCode[] keycodes_left = new KeyCode[] { KeyCode.LeftArrow, };
+    public KeyCode[] keycodes_center = new KeyCode[] { KeyCode.UpArrow, };
+    public KeyCode[] keycodes_right = new KeyCode[] { KeyCode.RightArrow };
+
+    /// <summary>
+    /// Failure means the wrong input was pressed.
+    /// Empty means that there was no note.
+    /// Unknown is an unknown GameObject with no Note (CATCH) object on it.
+    /// </summary>
+    public enum CatchResult { Success = 0, Powerup = 1, Failure = 2, Empty = 3, Unknown = 4 }
 
     public TrackLane.LaneType laneType;
 
-    KeyCode[] keycodes;
-    KeyCode[] keycodes_left;
-    KeyCode[] keycodes_center;
-    KeyCode[] keycodes_right;
-    private void Start()
-    {
-        catcher_empty = (AudioClip)Resources.Load("Sounds/catcher_empty");
-        catcher_miss = (AudioClip)Resources.Load("Sounds/catcher_miss");
-        streak_lose = (AudioClip)Resources.Load("Sounds/streak_lose");
-
-        keycodes = new KeyCode[] { KeyCode.LeftArrow, KeyCode.UpArrow, KeyCode.RightArrow };
-        keycodes_left = new KeyCode[] { KeyCode.LeftArrow, };
-        keycodes_center = new KeyCode[] { KeyCode.UpArrow, };
-        keycodes_right = new KeyCode[] { KeyCode.RightArrow };
-    }
-
     private void Update()
     {
-        /*
-        if (m_pressingButton == false)
-        {
-            foreach (KeyCode key in keycodes)
-            {
-                if (Input.GetKeyDown(key))
-                {
-                    pressedKey = key;
-                    break;
-                }
-            }
-        }
 
-        if (pressedKey != KeyCode.None & !Input.GetKey(pressedKey))
-        {
-            m_pressingButton = false;
-            pressedKey = KeyCode.None;
-        }
-
-        if (!m_pressingButton & pressedKey != KeyCode.None)
-        {
-            RaycastHit hitPoint;
-            if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hitPoint, 150f))
-            {
-                Note note = hitPoint.collider.gameObject.GetComponent<Note>();
-                if (pressedKey == LaneToKey(note.noteLane))
-                    Destroy(hitPoint.collider.gameObject);
-                else
-                    src.PlayOneShot(catcher_miss);
-            }
-            else
-                src.PlayOneShot(catcher_empty);
-
-            m_pressingButton = true;
-        }
-        */
     }
 
-    public bool PerformCatch(KeyCode pressedKey)
+    public event EventHandler<Note.NoteType> OnCatch;
+
+    /*
+    public void OnDrawGizmosSelected()
     {
-        RaycastHit hitPoint;
-        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hitPoint, 150f))
-        {
-            if (hitPoint.collider.gameObject.GetComponents<Note>().Length < 1)
-                return false;
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, 0.35f);
+    }
+    */
 
-            Note note = hitPoint.collider.gameObject.GetComponent<Note>();
-            if (pressedKey == LaneToKey(note.noteLane))
+    public CatchResult PerformCatch(KeyCode pressedKey)
+    {
+        // Perform a raycast downwards from the catcher
+        foreach (Collider hitPoint in Physics.OverlapSphere(transform.position, 0.35f)) // if we hit
+        {
+            if (hitPoint.gameObject.GetComponents<Note>().Length < 1) // if the GameObject we hit doesn't have a Note (CATCH) component
+                return CatchResult.Unknown; // unknown object
+
+            // get the Note (CATCH) object from the hit object
+            Note note = hitPoint.gameObject.GetComponent<Note>();
+
+            // if the pressed input was the correct key for this catcher
+            if (pressedKey == LaneToKeyCode(note.noteLane))
             {
-                Destroy(hitPoint.collider.gameObject);
-                return true;
+                Destroy(hitPoint.gameObject); // destroy the note
+                OnCatch?.Invoke(null, note.noteType);
+
+                if (note.noteType != Note.NoteType.Generic)
+                    return CatchResult.Powerup;
+                else
+                    return CatchResult.Success; // return TRUE for successful catch!
             }
             else
-                return false;
+                return CatchResult.Failure; // invalid key
         }
-        else
-            return false;
+        return CatchResult.Empty; // nothing
     }
 
-    KeyCode LaneToKey(TrackLane.LaneType lane)
+    /// <summary>
+    /// Gives back the appropriate key for the lane type.
+    /// </summary>
+    /// <param name="lane">The lane in question</param>
+    KeyCode LaneToKeyCode(TrackLane.LaneType lane)
     {
         switch (lane)
         {
@@ -101,6 +82,25 @@ public class Catcher : MonoBehaviour
 
             default:
                 return KeyCode.None;
+        }
+    }
+    /// <summary>
+    /// Gives back the appropriate track for the input key
+    /// </summary>
+    /// <param name="key">The key that was pressed.</param>
+    TrackLane.LaneType KeyCodeToLane(KeyCode key)
+    {
+        switch (key)
+        {
+            default:
+                return TrackLane.LaneType.Center;
+
+            case KeyCode.LeftArrow:
+                return TrackLane.LaneType.Left;
+            case KeyCode.UpArrow:
+                return TrackLane.LaneType.Center;
+            case KeyCode.RightArrow:
+                return TrackLane.LaneType.Right;
         }
     }
 }

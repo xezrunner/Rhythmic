@@ -1,36 +1,35 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using NAudio.Midi;
-using System.Linq.Expressions;
-using System;
-using System.Threading.Tasks;
-using CSCore.Codecs;
 
 public class AmplitudeTrack : Track
 {
-    public float ticks { get; set; }
-    public float bpm { get; set; }
     public List<NoteOnEvent> TrackMidiEvents { get; set; }
     public MidiReader reader;
 
-    private void Update()
-    {
-    }
+    public float ticks { get; set; }
+    public float bpm { get; set; }
+    public float fudgefactor { get; set; }
 
     /// <summary>
     /// Populate lanes with Note (CATCH) objects from the list of MIDI events
     /// TODO: possibly rename to AMP_PopulateNotes()?
     /// </summary>
     float zPos = 0f;
-    public float tickInMs { get { return 60000f / ((float)reader.bpm * (float)reader.midi.DeltaTicksPerQuarterNote); } }
-    public void AMP_PopulateLanes()
+    float tickInMs { get { return 60000f / ((float)reader.bpm * (float)reader.midi.DeltaTicksPerQuarterNote); } }
+    public void AMP_PopulateLanes(List<NoteOnEvent> noteEvents = null)
     {
+        if (TrackMidiEvents == null & noteEvents != null)
+            TrackMidiEvents = noteEvents;
+        else if (TrackMidiEvents == null & noteEvents == null)
+            Debug.LogErrorFormat("TRACK/AMP_PopulateLanes() [{0}]: Note ON events are null!", name);
+
         int counter = 0;
         foreach (NoteOnEvent note in TrackMidiEvents) // go through the midi events in the list and create notes
         {
+            // get the lane this note is for
             TrackLane lane;
-
             switch (note.NoteNumber)
             {
                 case 114: // left
@@ -44,44 +43,21 @@ public class AmplitudeTrack : Track
                     continue;
             }
 
+            // assign name and type
+            string noteName = string.Format("AMP_CATCH_{0}_{1}_{2}", lane.laneType, Instrument.ToString(), counter);
             Note.NoteType noteType = Note.NoteType.Generic; // TODO: AMP note types for powerups?!
 
-            //float time = (60 * note.AbsoluteTime) / (bpm * ticks);
+            // get note Z position in track lane
+            //zPos = ((tickInMs * (float)note.AbsoluteTime) / (1000f + bpm / 60f) * 4f - 1);
+            //      1t in ms        note tick time = ms      to s      bps      qnote      scale
+            // zPos = (tickInMs * (float)note.AbsoluteTime) / (1000f + (bpm/60f) - 1) * 4f;
+            zPos = ((tickInMs * (float)note.AbsoluteTime) / 1000f * 4f + (bpm / 60f - 1f)) * (1f + fudgefactor);
 
-            //zPos = (long)((note.AbsoluteTime / (float)reader.midi.DeltaTicksPerQuarterNote) * reader.tempo);
-            /*
-            if (counter == 0)
-            {
-                firstZOffset = (float)note.AbsoluteTime / (float)bpm;
-                zPos = (float)note.AbsoluteTime / (float)bpm - (float)firstZOffset;
-                firstZOffsetMinusFirstNote = zPos;
-            }
-            else
-            zPos = (float)note.AbsoluteTime / (float)bpm - (float)firstZOffset;
-            */
-            //zPos = (float)note.AbsoluteTime / (float)bpm;
-            zPos = (tickInMs * (float)note.AbsoluteTime) / (1000f + 0.6667f) * 4f - 1;
-            //zPos = (tickInMs * note.AbsoluteTime) / 1000 * 4;
-            /*
-            float tick = (60000f / ((float)bpm * (float)reader.midi.DeltaTicksPerQuarterNote) * 200);
-            zPos = ((float)note.AbsoluteTime / tick) + ((float)note.NoteLength * 0.001f);
-            Debug.Log(note.NoteLength);
-            */
-
-            //Debug.Log(note.AbsoluteTime + " | " + zPos);
-            //Debug.Log(zPos);
-
-            //float time = note.NoteLength / 10;
-            //Debug.Log(note.NoteLength);
-
-            //zPos += time;
-            string noteName = string.Format("AMP_CATCH_{0}_{1}_{2}", lane.laneType, Instrument.ToString(), counter);
-
+            // create the note!
             lane.CreateNoteObject(zPos, noteName, noteType, lane.laneType);
 
             if (RhythmicGame.DebugNoteCreationEvents)
                 Debug.LogFormat(string.Format("TRACK [{0}]: Created new note: {1}", TrackName, noteName));
-
             counter++;
         }
     }

@@ -10,17 +10,29 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
-    // TODO: BPM calculations for offset!
+    public AmplitudeSongController amp_ctrl { get { return GameObject.Find("AMPController").GetComponent<AmplitudeSongController>(); } }
+    public TracksController TracksController;
+    public AmplitudeTracksController AMP_TracksController { get; set; }
+    List<Track> trackList;
+    Transform catcherTransform;
+    AudioSource src;
+
+    public AudioClip catcher_empty;
+    public AudioClip catcher_miss;
+
     /// <summary>
-    /// the offset for starting, in "seconds"
+    /// The offset for starting, in "seconds"
     /// Amplitude usually uses 4, sometimes 5
     /// </summary>
     public float StartPosOffset = 4;
 
+    /// <summary>
+    /// Player Z position offset
+    /// </summary>
     public float PosOffset = 0f;
 
     /// <summary>
-    /// the Y position of the camera
+    /// the Y position (elevation) of the camera
     /// </summary>
     public float YPosition = 2.05f;
 
@@ -28,17 +40,8 @@ public class PlayerController : MonoBehaviour
     /// The track to start with.
     /// </summary>
     public Track StartTrack;
-    public bool IsPlayerMoving = false;
-    public float movementSpeed = 5f;
-    public TracksController TracksController;
-    List<Track> trackList;
-    Catcher[] catchers = new Catcher[3];
-    public AmplitudeConductor conductor { get { return GameObject.Find("AMPController").GetComponent<AmplitudeConductor>(); } }
-    Transform catcherTransform;
-    AudioSource src;
 
     bool IsTrackActive = false;
-
     async void Start()
     {
         // Get tracks controller
@@ -50,6 +53,9 @@ public class PlayerController : MonoBehaviour
             else
                 TracksController = controller.GetComponent<TracksController>();
         }
+
+        if (RhythmicGame.GameType == RhythmicGame._GameType.AMPLITUDE)
+            AMP_TracksController = (AmplitudeTracksController)TracksController;
 
         trackList = TracksController.trackList;
 
@@ -81,16 +87,16 @@ public class PlayerController : MonoBehaviour
 
         // TODO: detect whether a track is active - this is TEMP for now
         await System.Threading.Tasks.Task.Delay(10000);
-
         IsTrackActive = true;
     }
 
+    Catcher[] catchers = new Catcher[3];
     void CreateCatchers()
     {
         for (int i = 0; i < 3; i++) // create 3 catchers!
         {
-            GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            obj.transform.parent = gameObject.transform;
+            GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //obj.transform.parent = gameObject.transform;
 
             obj.GetComponent<MeshRenderer>().material = (Material)Resources.Load("Materials/CatcherMaterial", typeof(Material));
             obj.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -99,8 +105,12 @@ public class PlayerController : MonoBehaviour
             float xPos = TrackLane.GetLocalXPosFromLaneType((TrackLane.LaneType)i);
 
             obj.name = string.Format("CATCHER_{0}", (TrackLane.LaneType)i);
-            obj.transform.localPosition = new Vector3(xPos, -1.4f, 2.5f);
+            obj.transform.parent = null;
             obj.transform.localScale = new Vector3(1f, 0.01f, 1f);
+            obj.transform.SetParent(gameObject.transform, true);
+
+            obj.transform.localPosition = new Vector3(xPos, -1.98f, 2.5f);
+            //obj.transform.localScale = new Vector3(1f, 0.01f, 1f);
 
             obj.AddComponent<Catcher>();
 
@@ -108,29 +118,30 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public Track CurrentTrack;
-    public void SwitchToTrack(Track track)
+    public Track currentTrack;
+    public void SwitchToTrack(Track targetTrack)
     {
         // get the position of the track
-        float xPos = track.gameObject.transform.position.x; // get the track position on the X axis
+        float xPos = targetTrack.gameObject.transform.position.x; // get the track position on the X axis
 
         // position the player
         PositionPlayerOnX(xPos);
 
-        CurrentTrack = track;
         if (RhythmicGame.GameType == RhythmicGame._GameType.AMPLITUDE)
         {
             AmplitudeTracksController ctrl = (AmplitudeTracksController)TracksController;
-            ctrl.UpdateTracksVolume(track);
+            ctrl.UpdateTracksVolume(targetTrack);
+            ctrl.ActiveTrack = targetTrack;
+            currentTrack = targetTrack;
         }
     }
     public void SwitchToTrack(int id)
     {
         if (id > trackList.Count - 1)
-            throw new Exception("PLAYER/SwitchToTrack(): exceeded track count!");
+            Debug.LogWarning("PLAYER/SwitchToTrack(): trying to go above track count!");
 
         if (id < 0)
-            throw new Exception("PLAYER/SwitchToTrack(): trying to go below track count!");
+            Debug.LogWarning("PLAYER/SwitchToTrack(): trying to go below track count!");
 
         SwitchToTrack(trackList[id]);
     }
@@ -140,70 +151,50 @@ public class PlayerController : MonoBehaviour
         transform.position = new Vector3(xPos, transform.position.y, transform.position.z);
     }
 
+    // Game loop
+
     // TODO: mouse flick controls
-    /*
-    bool mouseFlicked = false;
-    public float FlickSensitivity = 10f;
-    */
+    // TODO: major code cleanup / improvements / explanations
+
     KeyCode[] keycodes = new KeyCode[] { KeyCode.LeftArrow, KeyCode.UpArrow, KeyCode.RightArrow };
     bool m_pressingButton = false;
     KeyCode pressedKey = KeyCode.None;
-    public AudioClip catcher_empty;
-    public AudioClip catcher_miss;
+    public bool IsPlayerMoving = false;
+    public float movementSpeed = 4f;
+    //bool mouseFlicked = false;
+    //public float FlickSensitivity = 10f;
 
-    int prevSongBeat = 0;
     void Update()
     {
+        // PLAYER MOVEMENT
         if (IsPlayerMoving)
         {
-            /*
-            Vector3 movement = Vector3.forward * conductor.songPosition / conductor.songBpm * movementSpeed; //* (110f / 60f)
-            gameObject.transform.Translate(movement);
-            */
-
-            //float zPos = (conductor.songPosition * movementSpeed) - StartPosOffset;
-            float zPos = conductor.songPosition * movementSpeed;
+            float zPos = ((amp_ctrl.songPosition * movementSpeed) + (AMP_TracksController.bpm / 60f)) * (1f + AMP_TracksController.fudgeFactor);
             gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, zPos - (PosOffset) - (StartPosOffset));
-            //gameObject.transform.Translate(Vector3.forward * zPos);
 
-            //Debug.LogFormat("songPosition: {0} | songPositionInBeats: {1}", conductor.songPosition, conductor.songPositionInBeats);
+            if (RhythmicGame.DebugPlayerMovementEvents)
+                Debug.LogFormat("songPosition: {0} | songPositionInBeats: {1}", amp_ctrl.songPosition, amp_ctrl.songPositionInBeats);
 
-
-            /*
-            // PLAYER SHOULD BE Z -10.5
-            float zPos = (Time.deltaTime * movementSpeed);
-            gameObject.transform.Translate(Vector3.forward * zPos);
-            //gameObject.transform.Translate(Vector3.forward * (100f / 4f));
-            */
-
+            /* EXPERIMENTAL METRONOME CODE
             if (Time.time >= nextTime)
             {
                 nextTime += interval;
                 //Debug.LogFormat("Time: {0} | Position: {1}", nextTime, gameObject.transform.position.z);
                 //src.PlayOneShot(catcher_empty);
             }
-
-
-
-            //Debug.Log(conductor.songPosition + " | " + movement);
+            */
         }
 
-        /*
-        if (Mathf.RoundToInt(conductor.songPositionInBeats) != prevSongBeat & IsPlayerMoving)
-        {
-            src.PlayOneShot(catcher_empty);
-            prevSongBeat = Mathf.RoundToInt(conductor.songPositionInBeats);
-        }
-        */
-
+        // TEMP START MOVEMENT
         if (Input.GetKeyDown(KeyCode.Return) & !IsPlayerMoving)
         {
             Destroy(GameObject.Find("Intro Text"));
-            conductor.PlayMusic();
+            amp_ctrl.PlayMusic();
             IsPlayerMoving = true;
         }
 
-        #region input
+        // INPUT
+        #region CATCHER
         foreach (KeyCode key in keycodes)
         {
             if (Input.GetKeyDown(key))
@@ -222,7 +213,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // 
         if (!m_pressingButton & Input.GetKey(pressedKey))
         {
             /*
@@ -233,11 +223,14 @@ public class PlayerController : MonoBehaviour
             bool successfulCatch = false;
             foreach (Catcher catcher in catchers)
             {
-                if (catcher.PerformCatch(pressedKey))
+                Catcher.CatchResult result = catcher.PerformCatch(pressedKey);
+                if (result == Catcher.CatchResult.Success || result == Catcher.CatchResult.Powerup)
                 {
                     successfulCatch = true;
                     break;
                 }
+                else
+                    successfulCatch = false;
             }
 
             if (!successfulCatch)
@@ -247,12 +240,11 @@ public class PlayerController : MonoBehaviour
         }
 
         if (!Input.GetKey(pressedKey))
-        {
-            //m_pressingButton = false;
             pressedKey = KeyCode.None;
-        }
+        #endregion
 
-        /*
+        #region TRACK SWITCHING
+        /* EXPERIMENTAL MOUSE FLICK CODE
         float mouseX = Input.GetAxis("Mouse X");
         if (!mouseFlicked)
         {
@@ -273,27 +265,21 @@ public class PlayerController : MonoBehaviour
         */
 
         if (Input.GetKeyUp(KeyCode.A))
-            SwitchToTrack(CurrentTrack.ID.Value - 1);
+            SwitchToTrack(currentTrack.ID.Value - 1);
         if (Input.GetKeyUp(KeyCode.D))
-            SwitchToTrack(CurrentTrack.ID.Value + 1);
-
-        //if (Input.GetKeyUp(KeyCode.DownArrow))
-        //    transform.position += Vector3.back;
+            SwitchToTrack(currentTrack.ID.Value + 1);
         #endregion
     }
 
-    float interval = 1;
-    float nextTime = 0;
-    private void FixedUpdate()
+    // TEMP TIMESCALE CODE
+    private void LateUpdate()
     {
-        
-
         if (Input.GetKey(KeyCode.Keypad2))
         {
             if (Time.timeScale > 0.1f)
             {
                 Time.timeScale -= 0.1f;
-                foreach (AudioSource src in GameObject.Find("TRACKS").GetComponents<AudioSource>())
+                foreach (AudioSource src in amp_ctrl.GetComponents<AudioSource>())
                 {
                     src.pitch -= 0.1f;
                 }
@@ -305,7 +291,7 @@ public class PlayerController : MonoBehaviour
             if (Time.timeScale < 5f)
             {
                 Time.timeScale += 0.1f;
-                foreach (AudioSource src in GameObject.Find("TRACKS").GetComponents<AudioSource>())
+                foreach (AudioSource src in amp_ctrl.GetComponents<AudioSource>())
                 {
                     src.pitch += 0.1f;
                 }
@@ -316,42 +302,10 @@ public class PlayerController : MonoBehaviour
         {
             Time.timeScale = 1f;
 
-            foreach (AudioSource src in GameObject.Find("TRACKS").GetComponents<AudioSource>())
+            foreach (AudioSource src in amp_ctrl.GetComponents<AudioSource>())
             {
                 src.pitch = 1f;
             }
-        }
-    }
-
-    KeyCode LaneToKeyCode(TrackLane.LaneType lane)
-    {
-        switch (lane)
-        {
-            case TrackLane.LaneType.Left:
-                return KeyCode.LeftArrow;
-            case TrackLane.LaneType.Center:
-                return KeyCode.UpArrow;
-            case TrackLane.LaneType.Right:
-                return KeyCode.RightArrow;
-
-            default:
-                return KeyCode.None;
-        }
-    }
-
-    TrackLane.LaneType KeyCodeToLane(KeyCode key)
-    {
-        switch (key)
-        {
-            default:
-                return TrackLane.LaneType.Center;
-
-            case KeyCode.LeftArrow:
-                return TrackLane.LaneType.Left;
-            case KeyCode.UpArrow:
-                return TrackLane.LaneType.Center;
-            case KeyCode.RightArrow:
-                return TrackLane.LaneType.Right;
         }
     }
 }

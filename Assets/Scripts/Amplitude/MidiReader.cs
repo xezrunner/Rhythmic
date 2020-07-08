@@ -8,21 +8,23 @@ using System;
 // Source: https://gist.github.com/CustomPhase/033829c5c30f872d250a79e3d35b7048
 public class MidiReader : MonoBehaviour
 {
-    public MidiFile midi;
+    public MidiFile midi { get; set; }
 
-    //The bpm(tempo) of the track
+    // The bpm(tempo) of the track
     // TODO: read BPM from moggsong!
-    public int bpm = 110;
-
-    public int tempo = 110;
+    public int bpm;
 
     public int ticks;
     public int offset;
 
-    public string songName = "perfectbrain";
-    public string songFolder = "H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs";
+    public string songName = "tut0";
+    public string songFolder = RhythmicGame.AMP_songFolder;
 
-    string GetSongPath()
+    /// <summary>
+    /// This returns the path based on the songName and songFolder variables.
+    /// </summary>
+    /// <returns></returns>
+    string GetMIDIPath()
     {
         return string.Format("{0}//{1}//{1}.mid", songFolder, songName);
     }
@@ -30,66 +32,107 @@ public class MidiReader : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        if (midi == null)
-        {
-            LoadMIDI();
-            Debug.LogWarning("MidiReader: Couldn't find manual initialization - loading default MIDI");
-        }
+        if (midi != null)
+            return;
+
+        // Load MIDI if it hasn't been pre-assigned
+        LoadMIDI(GetMIDIPath());
+        Debug.LogWarning("MidiReader: Couldn't find manual initialization - loading default MIDI");
     }
 
-    public void LoadMIDI()
+    public void LoadMIDI(string song)
     {
-        //Loading midi file from resources folder
-        Debug.LogFormat(string.Format("MidiReader: Loading MIDI from {0}", GetSongPath()));
-        byte[] asset = File.ReadAllBytes(GetSongPath());
+        // Set song name
+        songName = song;
+        // Get path for MIDI
+        string midiPath = GetMIDIPath();
+
+        // Load midi file from resources folder
+        Debug.LogFormat(string.Format("MidiReader: Loading MIDI from {0}", midiPath));
+
+        byte[] asset = File.ReadAllBytes(midiPath);
         Stream s = new MemoryStream(asset);
 
-        //Read the file
+        // Read the file
         midi = new MidiFile(s, true);
 
-        //Ticks needed for timing calculations
+        // Ticks needed for timing calculations
         ticks = midi.DeltaTicksPerQuarterNote;
+        bpm = GetBPMfromMidi();
 
         Debug.LogFormat(string.Format("MidiReader: MIDI loaded: \n" +
             "BPM: {0} | Tracks: {1} | Ticks: {2} | PPQ: {3}",
             bpm, midi.Tracks, ticks, midi.DeltaTicksPerQuarterNote));
     }
 
+    /// <summary>
+    /// Returns the amount of tracks in the MIDI file.
+    /// </summary>
     public int GetMidiTrackCount()
     {
         return midi.Tracks;
     }
 
+    // TODO: get BPM from moggsong instead!
+    public int GetBPMfromMidi()
+    {
+        int finalBPM = 0;
+
+        foreach (MidiEvent midevent in midi.Events[0])
+        {
+            if (midevent is TempoEvent) // tempo was found!
+            {
+                var tEvent = (TempoEvent)midevent;
+                finalBPM = 60000 / (tEvent.MicrosecondsPerQuarterNote / 1000); // assign tempo
+            }
+        }
+
+        if (finalBPM != 0)
+            return finalBPM;
+        else
+            throw new Exception("MidiReader: Tempo not found or BPM is 0!");
+    }
+
+    /// <summary>
+    /// Get the Note ON events from a given track ID.
+    /// It also gets and assigns the tempo from the MIDI file when found.
+    /// </summary>
+    /// <param name="track">The track ID to get the note events from</param>
     public List<NoteOnEvent> GetNoteOnEventsFromTrack(int track)
     {
         List<NoteOnEvent> list = new List<NoteOnEvent>();
+
         foreach (MidiEvent midevent in midi.Events[track])
         {
-            if (midevent is TempoEvent)
-            {
-                var tEvent = (TempoEvent)midevent;
-                tempo = tEvent.MicrosecondsPerQuarterNote / 1000;
-            }
-            else if (midevent.CommandCode == MidiCommandCode.NoteOn)
-                list.Add((NoteOnEvent)midevent);
+            if (midevent.CommandCode == MidiCommandCode.NoteOn) // note ON event was found!
+                list.Add((NoteOnEvent)midevent); // add the note to list
         }
+
         return list;
     }
 
-    public void StartPlayback(int track)
+    /// <summary>
+    /// Starts playing back a track from the MIDI.
+    /// </summary>
+    /// <param name="track">The track to play</param>
+    public void StartTrackPlayback(int track)
     {
-        foreach (MidiEvent note in midi.Events[track])
+        foreach (MidiEvent note in midi.Events[track]) // go through MIDI events in track
         {
-            //If its the start of the note event
-            if (note.CommandCode == MidiCommandCode.NoteOn)
+            if (note.CommandCode == MidiCommandCode.NoteOn) // If it's a note on event
             {
-                //Cast to note event and process it
-                NoteOnEvent noe = (NoteOnEvent)note;
-                NoteEvent(noe);
+                NoteOnEvent noe = (NoteOnEvent)note; // Cast to note ON event and process it
+                NoteEvent(noe); // fire event
             }
         }
     }
 
+    public event EventHandler OnNoteEvent;
+
+    /// <summary>
+    /// This fires off a Note ON event
+    /// </summary>
+    /// <param name="noe"></param>
     public void NoteEvent(NoteOnEvent noe)
     {
         //Time until the start of the note in seconds
@@ -104,10 +147,7 @@ public class MidiReader : MonoBehaviour
         //Really awful way to do stuff, but its simple
         // TODO: revise this! (?)
         StartCoroutine(CreateAction(time, noteNumber, noe.NoteLength));
-        //Debug.LogWarning("MIDI: hit!");
     }
-
-    public event EventHandler OnNoteEvent;
 
     public bool DebugOnEvent = false;
     IEnumerator CreateAction(float t, int noteNumber, float length)
