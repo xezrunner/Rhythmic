@@ -14,14 +14,13 @@ public class TrackLane : MonoBehaviour
     /// </summary>
     /// <param name="zPosition">The Z axis offset of the note (distance)</param>
     /// <param name="noteName">The name of the note object</param>
-    public void CreateNoteObject(float zPosition, string noteName = "", Note.NoteType noteType = Note.NoteType.Generic, LaneType noteLane = LaneType.Center)
+    public void CreateNoteObject(float zPosition, string noteName = "", Note.NoteType noteType = Note.NoteType.Generic, LaneType noteLane = LaneType.Center, Track track = null)
     {
         // create GameObject for Note
         GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        obj.transform.parent = null;
-        obj.transform.localScale = new Vector3(0.5f, 0.1f, 0.5f);
-        obj.transform.SetParent(gameObject.transform, true);
+        obj.transform.localScale = new Vector3(0.45f, 0.1f, 0.45f);
         obj.transform.position = new Vector3(gameObject.transform.position.x, 0.01f, zPosition);
+        obj.transform.parent = gameObject.transform;
         obj.GetComponent<MeshRenderer>().material = (Material)Resources.Load("Materials/NoteMaterial");
         obj.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         obj.AddComponent<BoxCollider>();
@@ -31,6 +30,7 @@ public class TrackLane : MonoBehaviour
         note.name = noteName + "_" + obj.transform.position.z;
         note.noteType = noteType;
         note.noteLane = noteLane;
+        note.noteTrack = track;
 
         // Add note to Notes list
         LaneNotes.Add(note);
@@ -48,11 +48,11 @@ public class TrackLane : MonoBehaviour
                 return 0f;
 
             case LaneType.Left:
-                return -1f;
+                return -0.7666666666666667f;
             case LaneType.Center:
                 return 0f;
             case LaneType.Right:
-                return 1f;
+                return 0.7666666666666667f;
         }
     }
 }

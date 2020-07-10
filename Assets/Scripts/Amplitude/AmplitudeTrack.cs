@@ -7,6 +7,7 @@ public class AmplitudeTrack : Track
 {
     public List<NoteOnEvent> TrackMidiEvents { get; set; }
     public MidiReader reader;
+    PlayerController player { get { return GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>(); } }
 
     public float ticks { get; set; }
     public float bpm { get; set; }
@@ -48,17 +49,65 @@ public class AmplitudeTrack : Track
             Note.NoteType noteType = Note.NoteType.Generic; // TODO: AMP note types for powerups?!
 
             // get note Z position in track lane
-            //zPos = ((tickInMs * (float)note.AbsoluteTime) / (1000f + bpm / 60f) * 4f - 1);
-            //      1t in ms        note tick time = ms      to s      bps      qnote      scale
-            // zPos = (tickInMs * (float)note.AbsoluteTime) / (1000f + (bpm/60f) - 1) * 4f;
-            zPos = ((tickInMs * (float)note.AbsoluteTime) / 1000f * 4f + (bpm / 60f - 1f)) * (1f + fudgefactor);
+            //     |      note tick time in ms         | -> |to s| |unit| |tempo correction|  |     scale     |
+            zPos = ((tickInMs * (float)note.AbsoluteTime) / 1000f * 4f + (bpm / 60f - 1)) * (1f + fudgefactor);
 
             // create the note!
-            lane.CreateNoteObject(zPos, noteName, noteType, lane.laneType);
+            lane.CreateNoteObject(zPos, noteName, noteType, lane.laneType, gameObject.GetComponent<Track>());
 
             if (RhythmicGame.DebugNoteCreationEvents)
                 Debug.LogFormat(string.Format("TRACK [{0}]: Created new note: {1}", TrackName, noteName));
             counter++;
+        }
+    }
+
+    public void DisableForMeasures(int measures)
+    {
+        DisablingMeasure = true;
+
+        IsTrackActive = false;
+
+        gameObject.GetComponent<MeshRenderer>().enabled = false;
+        Lanes[0].gameObject.SetActive(false);
+        Lanes[1].gameObject.SetActive(false);
+        Lanes[2].gameObject.SetActive(false);
+        measuretarget = measures;
+        beatcounter = 0;
+
+        gameObject.GetComponent<TrackEdgeLightController>().IsTrackActive = false;
+    }
+
+    bool DisablingMeasure = false;
+    bool reachedtarget = false;
+    int prevBeatPos = 4;
+    int measuretarget = 0;
+    int beatcounter = 0;
+    private void Update()
+    {
+        if (Mathf.RoundToInt(player.amp_ctrl.songPositionInBeats) - prevBeatPos == 0)
+        {
+            prevBeatPos = prevBeatPos + 4;
+            beatcounter++;
+        }
+
+        if (beatcounter == measuretarget)
+            reachedtarget = true;
+        else
+            reachedtarget = false;
+
+        //Debug.LogFormat("beatcounter: {0} | measuretarget: {1} | prevBeatPos: {2} | DisablingMeasure: {3} | songPosInBeats: {4}", beatcounter, measuretarget, prevBeatPos, DisablingMeasure, Mathf.RoundToInt(player.amp_ctrl.songPositionInBeats));
+
+        if (reachedtarget & DisablingMeasure)
+        {
+            IsTrackActive = true;
+            DisablingMeasure = false;
+            gameObject.GetComponent<MeshRenderer>().enabled = true;
+            Lanes[0].gameObject.SetActive(true);
+            Lanes[1].gameObject.SetActive(true);
+            Lanes[2].gameObject.SetActive(true);
+            beatcounter = 0;
+
+            gameObject.GetComponent<TrackEdgeLightController>().IsTrackActive = true;
         }
     }
 }

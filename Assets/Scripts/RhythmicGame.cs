@@ -8,6 +8,12 @@ public class RhythmicGame : MonoBehaviour
         Debug.LogFormat("GAME [init]: Game type is {0}", GameType.ToString());
     }
 
+    private void Awake()
+    {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 100;
+    }
+
     /// <summary>
     /// The game supports playing Amplitude songs. By using AMPLITUDE, the game will use a different
     /// logic compared to the default RHYTHMIC song format.
@@ -36,8 +42,9 @@ public class RhythmicGame : MonoBehaviour
 
     public static bool DebugPlayerMovementEvents = false;
 
-    // Debug drawing
+    // Draw debug
     public static bool DebugDrawLanes = false;
+    public static bool DebugCatcherCasting = false;
 
     // AMPLITUDE properties
     public static string AMP_songFolder = "H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs";

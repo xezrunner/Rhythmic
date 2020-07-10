@@ -1381,7 +1381,7 @@ MonoBehaviour:
     value: 0.12
   fastMode:
     overrideState: 1
-    value: 0
+    value: 1
 --- !u!114 &7240994514121386441
 MonoBehaviour:
   m_ObjectHideFlags: 3

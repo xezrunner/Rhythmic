@@ -7,7 +7,7 @@ public class Note : MonoBehaviour
 {   
     //public string noteName { get { return gameObject.name; } set { gameObject.name = value; } }
     public NoteType noteType;
-
+    public Track noteTrack;
     public TrackLane.LaneType noteLane;
 
     /// <summary>

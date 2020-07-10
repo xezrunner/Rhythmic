@@ -3,7 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.SceneManagement;
@@ -17,8 +19,12 @@ public class PlayerController : MonoBehaviour
     Transform catcherTransform;
     AudioSource src;
 
+    public AudioClip streak_lose;
     public AudioClip catcher_empty;
     public AudioClip catcher_miss;
+
+    public GameObject MissText;
+    public GameObject ScoreText;
 
     /// <summary>
     /// The offset for starting, in "seconds"
@@ -41,7 +47,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public Track StartTrack;
 
-    bool IsTrackActive = false;
+    bool IsTrackActive = false; // TODO: temp
     async void Start()
     {
         // Get tracks controller
@@ -72,6 +78,8 @@ public class PlayerController : MonoBehaviour
         // Push player backwards instead so that we can set initial player position in editor
         // TODO: automate this so it isn't predetermined!
         transform.Translate(Vector3.back * StartPosOffset); // negative
+
+        currentTrack = StartTrack;
         SwitchToTrack(StartTrack);
 
         // Create catchers!
@@ -84,13 +92,14 @@ public class PlayerController : MonoBehaviour
         src = GetComponent<AudioSource>();
         catcher_empty = (AudioClip)Resources.Load("Sounds/catcher_empty");
         catcher_miss = (AudioClip)Resources.Load("Sounds/catcher_miss");
+        streak_lose = (AudioClip)Resources.Load("Sounds/streak_lose");
 
         // TODO: detect whether a track is active - this is TEMP for now
         await System.Threading.Tasks.Task.Delay(10000);
         IsTrackActive = true;
     }
 
-    Catcher[] catchers = new Catcher[3];
+    public Catcher[] catchers = new Catcher[3];
     void CreateCatchers()
     {
         for (int i = 0; i < 3; i++) // create 3 catchers!
@@ -105,34 +114,99 @@ public class PlayerController : MonoBehaviour
             float xPos = TrackLane.GetLocalXPosFromLaneType((TrackLane.LaneType)i);
 
             obj.name = string.Format("CATCHER_{0}", (TrackLane.LaneType)i);
-            obj.transform.parent = null;
-            obj.transform.localScale = new Vector3(1f, 0.01f, 1f);
-            obj.transform.SetParent(gameObject.transform, true);
+            obj.transform.localScale = new Vector3(0.4f, 0.01f, 0.4f);
+            obj.transform.parent = gameObject.transform;
+            obj.transform.localPosition = new Vector3(xPos, -1.95f, 2.5f);
 
-            obj.transform.localPosition = new Vector3(xPos, -1.98f, 2.5f);
-            //obj.transform.localScale = new Vector3(1f, 0.01f, 1f);
+            Catcher catcher = obj.AddComponent<Catcher>();
+            catcher.OnCatch += Catcher_OnCatch;
 
-            obj.AddComponent<Catcher>();
-
-            catchers[i] = obj.GetComponent<Catcher>();
+            catchers[i] = catcher;
         }
+    }
+
+    public int[] TrackCatchCounter = new int[6];
+    public Note ExpectedNote { get; set; }
+    public int Score;
+    private void Catcher_OnCatch(object sender, Catcher.CatchEventResult e)
+    {
+        // On Success / Powerup:
+        switch (e.catchresult)
+        {
+            default:
+                break;
+
+            case Catcher.CatchResult.Success: // if successfully caught a Note
+            case Catcher.CatchResult.Powerup:
+            {
+                Score++;
+                ScoreText.GetComponent<TextMeshProUGUI>().text = Score.ToString();
+
+                int notetrackID = e.note.noteTrack.ID.Value;
+                TrackCatchCounter[notetrackID] += 1;
+
+                break;
+            }
+            case Catcher.CatchResult.Failure: // if we pressed the wrong button
+            {
+                src.PlayOneShot(catcher_miss);
+                DeclareNoteMiss(e.note, Catcher.NoteMissType.Mispress);
+
+                break;
+            }
+            case Catcher.CatchResult.Empty: // if we pressed on an empty space
+            {
+                src.PlayOneShot(currentTrack.IsTrackActive ? catcher_miss : catcher_empty);
+                if (currentTrack.IsTrackFocused & currentTrack.IsTrackActive) // if a track is focused / being played, declare miss
+                    DeclareNoteMiss(e.note, Catcher.NoteMissType.EmptyMispress);
+
+                break;
+            }
+            case Catcher.CatchResult.Unknown:
+                break;
+        }
+    }
+
+    public bool shouldReactToNoteMiss { get; set; } = false;
+    public async void DeclareNoteMiss(Note note = null, Catcher.NoteMissType? misstype = null)
+    {
+        if (!shouldReactToNoteMiss)
+            return;
+
+        src.PlayOneShot(streak_lose);
+        shouldReactToNoteMiss = false;
+
+        if (note != null)
+        {
+            int notetrackID = note.noteTrack.ID.Value;
+            TrackCatchCounter[notetrackID] = 0;
+        }
+
+        MissText.SetActive(true);
+        await Task.Delay(3000);
+        MissText.SetActive(false);
     }
 
     public Track currentTrack;
     public void SwitchToTrack(Track targetTrack)
     {
-        // get the position of the track
-        float xPos = targetTrack.gameObject.transform.position.x; // get the track position on the X axis
-
         // position the player
-        PositionPlayerOnX(xPos);
+        PositionPlayer(targetTrack.gameObject.transform.position.x, targetTrack.gameObject.transform.position.y);
 
         if (RhythmicGame.GameType == RhythmicGame._GameType.AMPLITUDE)
         {
             AmplitudeTracksController ctrl = (AmplitudeTracksController)TracksController;
             ctrl.UpdateTracksVolume(targetTrack);
             ctrl.ActiveTrack = targetTrack;
+
+            TrackCatchCounter[currentTrack.ID.Value] = 0;
+
+
+            currentTrack.gameObject.GetComponent<TrackEdgeLightController>().IsTrackFocused = false;
+            currentTrack.IsTrackFocused = false;
             currentTrack = targetTrack;
+            currentTrack.gameObject.GetComponent<TrackEdgeLightController>().IsTrackFocused = true;
+            targetTrack.IsTrackFocused = true;
         }
     }
     public void SwitchToTrack(int id)
@@ -146,9 +220,9 @@ public class PlayerController : MonoBehaviour
         SwitchToTrack(trackList[id]);
     }
 
-    public void PositionPlayerOnX(float xPos)
+    public void PositionPlayer(float xPos, float yPos)
     {
-        transform.position = new Vector3(xPos, transform.position.y, transform.position.z);
+        transform.position = new Vector3(xPos, yPos + YPosition, transform.position.z);
     }
 
     // Game loop
@@ -164,6 +238,8 @@ public class PlayerController : MonoBehaviour
     //bool mouseFlicked = false;
     //public float FlickSensitivity = 10f;
 
+    float prevBeatPos = 8;
+    bool twomeasures = false;
     void Update()
     {
         // PLAYER MOVEMENT
@@ -185,6 +261,33 @@ public class PlayerController : MonoBehaviour
             */
         }
 
+        // MEASURE CHECKING
+        if (IsPlayerMoving)
+        {
+            if (float.Parse(amp_ctrl.songPositionInBeats.ToString().Substring(0, amp_ctrl.songPositionInBeats.ToString().IndexOf(','))) - prevBeatPos == 0 & IsPlayerMoving)
+            {
+                prevBeatPos = prevBeatPos + 4;
+                twomeasures = true;
+            }
+            else
+                twomeasures = false;
+
+            Debug.LogFormat("prevBeatPos: {0} | twomeasures: {1} | songPosInBeats (int): {2} TrackCatchCounter: {3}", prevBeatPos, twomeasures, amp_ctrl.songPositionInBeats, TrackCatchCounter[currentTrack.ID.Value]);
+
+            if (TrackCatchCounter[currentTrack.ID.Value] == 0)
+                twomeasures = false;
+
+            if (TrackCatchCounter[currentTrack.ID.Value] != 0 & twomeasures & currentTrack.IsTrackActive)
+            {
+                var track = (AmplitudeTrack)currentTrack;
+                track.DisableForMeasures(2);
+                TrackCatchCounter[currentTrack.ID.Value] = 0;
+            }
+
+            twomeasures = false;
+        }
+
+
         // TEMP START MOVEMENT
         if (Input.GetKeyDown(KeyCode.Return) & !IsPlayerMoving)
         {
@@ -192,6 +295,7 @@ public class PlayerController : MonoBehaviour
             amp_ctrl.PlayMusic();
             IsPlayerMoving = true;
         }
+
 
         // INPUT
         #region CATCHER
@@ -215,30 +319,11 @@ public class PlayerController : MonoBehaviour
 
         if (!m_pressingButton & Input.GetKey(pressedKey))
         {
-            /*
-            Catcher catcher = catchers[(int)(KeyCodeToLane(pressedKey))];
-            catcher.PerformCatch(pressedKey);
-            */
-
-            bool successfulCatch = false;
-            foreach (Catcher catcher in catchers)
-            {
-                Catcher.CatchResult result = catcher.PerformCatch(pressedKey);
-                if (result == Catcher.CatchResult.Success || result == Catcher.CatchResult.Powerup)
-                {
-                    successfulCatch = true;
-                    break;
-                }
-                else
-                    successfulCatch = false;
-            }
-
-            if (!successfulCatch)
-                src.PlayOneShot(IsTrackActive ? catcher_miss : catcher_empty);
-
+            Catcher targetCatcher = catchers[(int)Catcher.KeyCodeToLane(pressedKey)];
+            targetCatcher.PerformCatch(pressedKey);
             m_pressingButton = true;
-        }
 
+        }
         if (!Input.GetKey(pressedKey))
             pressedKey = KeyCode.None;
         #endregion

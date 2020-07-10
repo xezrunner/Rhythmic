@@ -31,7 +31,7 @@ public class AmplitudeTracksController : TracksController
                 default:
                 case "tut0":
                 case "perfectbrain":
-                    return 0f;
+                    return 1f;
                 case "dalatecht":
                     return 0.85f;
             }

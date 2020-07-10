@@ -10,6 +10,7 @@ public class Track : MonoBehaviour
     public int? ID;
     public TrackType Instrument;
     public bool IsTrackActive = false; // TODO: Active and Inactive tracks (Regeneration)
+    public bool IsTrackFocused { get; set; } = false;
     public TrackLane[] Lanes; // Lanes in this Track
 
     public string TrackName { get { return gameObject.name; } }
@@ -30,7 +31,13 @@ public class Track : MonoBehaviour
         Material finalMat = (Material)Resources.Load(materialPath, typeof(Material));
 
         if (finalMat != null)
+        {
             gameObject.GetComponent<Renderer>().material = finalMat;
+            if (gameObject.GetComponent<TrackEdgeLightController>() != null)
+            {
+                gameObject.GetComponent<TrackEdgeLightController>().Color = Colors.ColorFromTrackType(Instrument);
+            }
+        }
         else
             Debug.LogErrorFormat("TRACK [{0}]: Cannot load material {1}", TrackName, materialPath);
     }
@@ -38,6 +45,11 @@ public class Track : MonoBehaviour
     public void SetTrackMaterialByInstrument(TrackType type)
     {
         gameObject.GetComponent<Renderer>().material = GetTrackMaterial(type);
+        if (gameObject.GetComponent<TrackEdgeLightController>() != null)
+        {
+            gameObject.GetComponent<TrackEdgeLightController>().Color = Colors.ConvertColor(Colors.ColorFromTrackType(Instrument));
+            gameObject.GetComponent<TrackEdgeLightController>().ApplyMaterial();
+        }
     }
 
     public string TrackMaterialPath = "Materials/Tracks/";
