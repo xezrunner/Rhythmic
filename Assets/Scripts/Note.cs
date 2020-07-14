@@ -8,7 +8,9 @@ public class Note : MonoBehaviour
     //public string noteName { get { return gameObject.name; } set { gameObject.name = value; } }
     public NoteType noteType;
     public Track noteTrack;
-    public TrackLane.LaneType noteLane;
+    public Track.LaneType noteLane;
+    public TrackMeasure noteMeasure;
+    public int measureNum;
 
     /// <summary>
     /// This event is invoked when the note is blasted.

@@ -11,7 +11,7 @@ public class RhythmicGame : MonoBehaviour
     private void Awake()
     {
         QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 100;
+        Application.targetFrameRate = 120;
     }
 
     /// <summary>
@@ -47,5 +47,11 @@ public class RhythmicGame : MonoBehaviour
     public static bool DebugCatcherCasting = false;
 
     // AMPLITUDE properties
-    public static string AMP_songFolder = "H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs";
+    public static string AMP_songFolder = @"H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs";
+    public static string AMP_GetSongFilePath(string songName, AMP_FileExtension extension)
+    {
+        return string.Format("{0}//{1}//{1}.{2}", AMP_songFolder, songName, extension);
+    }
+
+    public enum AMP_FileExtension { mid, mogg, moggsong }
 }

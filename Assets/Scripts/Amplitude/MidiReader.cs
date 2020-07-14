@@ -26,7 +26,8 @@ public class MidiReader : MonoBehaviour
     /// <returns></returns>
     string GetMIDIPath()
     {
-        return string.Format("{0}//{1}//{1}.mid", songFolder, songName);
+        return RhythmicGame.AMP_GetSongFilePath(songName, RhythmicGame.AMP_FileExtension.mid);
+        //return string.Format("{0}//{1}//{1}.mid", songFolder, songName);
     }
 
     // Use this for initialization
@@ -98,11 +99,11 @@ public class MidiReader : MonoBehaviour
     /// It also gets and assigns the tempo from the MIDI file when found.
     /// </summary>
     /// <param name="track">The track ID to get the note events from</param>
-    public List<NoteOnEvent> GetNoteOnEventsFromTrack(int track)
+    public List<NoteOnEvent> GetNoteOnEventsForTrack(int track)
     {
         List<NoteOnEvent> list = new List<NoteOnEvent>();
 
-        foreach (MidiEvent midevent in midi.Events[track])
+        foreach (MidiEvent midevent in midi.Events[track + 1])
         {
             if (midevent.CommandCode == MidiCommandCode.NoteOn) // note ON event was found!
                 list.Add((NoteOnEvent)midevent); // add the note to list

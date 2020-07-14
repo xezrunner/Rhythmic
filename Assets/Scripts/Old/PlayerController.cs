@@ -47,7 +47,6 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public Track StartTrack;
 
-    bool IsTrackActive = false; // TODO: temp
     async void Start()
     {
         // Get tracks controller
@@ -96,7 +95,6 @@ public class PlayerController : MonoBehaviour
 
         // TODO: detect whether a track is active - this is TEMP for now
         await System.Threading.Tasks.Task.Delay(10000);
-        IsTrackActive = true;
     }
 
     public Catcher[] catchers = new Catcher[3];
@@ -111,9 +109,9 @@ public class PlayerController : MonoBehaviour
             obj.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             Destroy(obj.GetComponent<BoxCollider>());
 
-            float xPos = TrackLane.GetLocalXPosFromLaneType((TrackLane.LaneType)i);
+            float xPos = Track.GetLocalXPosFromLaneType((Track.LaneType)i);
 
-            obj.name = string.Format("CATCHER_{0}", (TrackLane.LaneType)i);
+            obj.name = string.Format("CATCHER_{0}", (Track.LaneType)i);
             obj.transform.localScale = new Vector3(0.4f, 0.01f, 0.4f);
             obj.transform.parent = gameObject.transform;
             obj.transform.localPosition = new Vector3(xPos, -1.95f, 2.5f);
@@ -156,8 +154,8 @@ public class PlayerController : MonoBehaviour
             }
             case Catcher.CatchResult.Empty: // if we pressed on an empty space
             {
-                src.PlayOneShot(currentTrack.IsTrackActive ? catcher_miss : catcher_empty);
-                if (currentTrack.IsTrackFocused & currentTrack.IsTrackActive) // if a track is focused / being played, declare miss
+                src.PlayOneShot(currentTrack.IsTrackFocused ? catcher_miss : catcher_empty);
+                if (currentTrack.IsTrackFocused & currentTrack.IsTrackFocused) // if a track is focused / being played, declare miss
                     DeclareNoteMiss(e.note, Catcher.NoteMissType.EmptyMispress);
 
                 break;
@@ -196,16 +194,13 @@ public class PlayerController : MonoBehaviour
         if (RhythmicGame.GameType == RhythmicGame._GameType.AMPLITUDE)
         {
             AmplitudeTracksController ctrl = (AmplitudeTracksController)TracksController;
-            ctrl.UpdateTracksVolume(targetTrack);
+            //ctrl.UpdateTracksVolume(targetTrack);
             ctrl.ActiveTrack = targetTrack;
 
             TrackCatchCounter[currentTrack.ID.Value] = 0;
 
-
-            currentTrack.gameObject.GetComponent<TrackEdgeLightController>().IsTrackFocused = false;
             currentTrack.IsTrackFocused = false;
             currentTrack = targetTrack;
-            currentTrack.gameObject.GetComponent<TrackEdgeLightController>().IsTrackFocused = true;
             targetTrack.IsTrackFocused = true;
         }
     }
@@ -245,7 +240,7 @@ public class PlayerController : MonoBehaviour
         // PLAYER MOVEMENT
         if (IsPlayerMoving)
         {
-            float zPos = ((amp_ctrl.songPosition * movementSpeed) + (AMP_TracksController.bpm / 60f)) * (1f + AMP_TracksController.fudgeFactor);
+            float zPos = ((amp_ctrl.songPosition * movementSpeed) + (amp_ctrl.songBpm / 60f)) * (1f + amp_ctrl.fudgeFactor);
             gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, zPos - (PosOffset) - (StartPosOffset));
 
             if (RhythmicGame.DebugPlayerMovementEvents)
@@ -272,15 +267,14 @@ public class PlayerController : MonoBehaviour
             else
                 twomeasures = false;
 
-            Debug.LogFormat("prevBeatPos: {0} | twomeasures: {1} | songPosInBeats (int): {2} TrackCatchCounter: {3}", prevBeatPos, twomeasures, amp_ctrl.songPositionInBeats, TrackCatchCounter[currentTrack.ID.Value]);
+            //Debug.LogFormat("prevBeatPos: {0} | twomeasures: {1} | songPosInBeats (int): {2} TrackCatchCounter: {3}", prevBeatPos, twomeasures, amp_ctrl.songPositionInBeats, TrackCatchCounter[currentTrack.ID.Value]);
 
             if (TrackCatchCounter[currentTrack.ID.Value] == 0)
                 twomeasures = false;
 
-            if (TrackCatchCounter[currentTrack.ID.Value] != 0 & twomeasures & currentTrack.IsTrackActive)
+            if (TrackCatchCounter[currentTrack.ID.Value] != 0 & twomeasures & currentTrack.IsTrackFocused)
             {
                 var track = (AmplitudeTrack)currentTrack;
-                track.DisableForMeasures(2);
                 TrackCatchCounter[currentTrack.ID.Value] = 0;
             }
 
@@ -294,6 +288,12 @@ public class PlayerController : MonoBehaviour
             Destroy(GameObject.Find("Intro Text"));
             amp_ctrl.PlayMusic();
             IsPlayerMoving = true;
+        }
+
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            GameObject trckmeasure = GameObject.Find("MeasurePlane");
+            StartCoroutine(trckmeasure.GetComponent<TriangleExplosion>().SplitMesh(true));
         }
 
 

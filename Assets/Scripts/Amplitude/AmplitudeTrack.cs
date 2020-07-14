@@ -2,112 +2,112 @@
 using System.Collections.Generic;
 using UnityEngine;
 using NAudio.Midi;
+using Assets.Scripts.Amplitude;
 
 public class AmplitudeTrack : Track
 {
-    public List<NoteOnEvent> TrackMidiEvents { get; set; }
-    public MidiReader reader;
-    PlayerController player { get { return GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>(); } }
+    AmplitudeSongController amp_ctrl { get { return GameObject.Find("AMPController").GetComponent<AmplitudeSongController>(); } }
 
-    public float ticks { get; set; }
-    public float bpm { get; set; }
-    public float fudgefactor { get; set; }
+    public List<NoteOnEvent> AMP_NoteOnEvents;
 
-    /// <summary>
-    /// Populate lanes with Note (CATCH) objects from the list of MIDI events
-    /// TODO: possibly rename to AMP_PopulateNotes()?
-    /// </summary>
-    float zPos = 0f;
-    float tickInMs { get { return 60000f / ((float)reader.bpm * (float)reader.midi.DeltaTicksPerQuarterNote); } }
-    public void AMP_PopulateLanes(List<NoteOnEvent> noteEvents = null)
+    public void AMP_PopulateNotes()
     {
-        if (TrackMidiEvents == null & noteEvents != null)
-            TrackMidiEvents = noteEvents;
-        else if (TrackMidiEvents == null & noteEvents == null)
-            Debug.LogErrorFormat("TRACK/AMP_PopulateLanes() [{0}]: Note ON events are null!", name);
+        // get midi note on event for track
+        if (ID.HasValue)
+            AMP_NoteOnEvents = amp_ctrl.GetNoteOnEventsForTrack(ID.Value);
+
+        if (AMP_NoteOnEvents == null)
+            throw new Exception("AMP_TRACK: Note on events are null!");
 
         int counter = 0;
-        foreach (NoteOnEvent note in TrackMidiEvents) // go through the midi events in the list and create notes
+        foreach (NoteOnEvent note in AMP_NoteOnEvents)
         {
-            // get the lane this note is for
-            TrackLane lane;
-            switch (note.NoteNumber)
-            {
-                case 114: // left
-                    lane = Lanes[0]; break;
-                case 116: // center
-                    lane = Lanes[1]; break;
-                case 118: // right
-                    lane = Lanes[2]; break;
+            // get lane object
+            LaneType laneType = GetLaneTypeFromNoteNumber(note.NoteNumber);
+            if (laneType == LaneType.UNKNOWN)
+                continue;
 
-                default: // if it isn't either of these notes, go to next note
-                    continue;
-            }
+            GameObject lane = GetLaneObjectForLaneType(laneType);
 
             // assign name and type
-            string noteName = string.Format("AMP_CATCH_{0}_{1}_{2}", lane.laneType, Instrument.ToString(), counter);
+            string noteName = string.Format("AMP_CATCH_{0}_{1}_{2}", laneType, Instrument.ToString(), counter);
             Note.NoteType noteType = Note.NoteType.Generic; // TODO: AMP note types for powerups?!
 
-            // get note Z position in track lane
-            //     |      note tick time in ms         | -> |to s| |unit| |tempo correction|  |     scale     |
-            zPos = ((tickInMs * (float)note.AbsoluteTime) / 1000f * 4f + (bpm / 60f - 1)) * (1f + fudgefactor);
+            // get zPosition and measure number
+            float zPos = amp_ctrl.GetzPosForNote(note.AbsoluteTime);
+            int measureNum = amp_ctrl.GetMeasureNumForzPos(zPos);
 
-            // create the note!
-            lane.CreateNoteObject(zPos, noteName, noteType, lane.laneType, gameObject.GetComponent<Track>());
+            // create note!
+            CreateNote(lane, zPos, noteName, noteType, laneType, this, measureNum);
 
-            if (RhythmicGame.DebugNoteCreationEvents)
-                Debug.LogFormat(string.Format("TRACK [{0}]: Created new note: {1}", TrackName, noteName));
             counter++;
         }
     }
 
-    public void DisableForMeasures(int measures)
+    UnityEngine.Object notePrefab;
+    void CreateNote(GameObject lane, float zPosition, string noteName = "", Note.NoteType noteType = Note.NoteType.Generic, LaneType noteLane = LaneType.Center, Track track = null, int measureNum = 0)
     {
-        DisablingMeasure = true;
+        if (notePrefab == null)
+            notePrefab = Resources.Load("Prefabs/Note");
 
-        IsTrackActive = false;
+        Vector3 position = new Vector3(lane.transform.position.x, 0.01f, zPosition);
+        Vector3 scale = new Vector3(0.45f, 0.1f, 0.45f);
 
-        gameObject.GetComponent<MeshRenderer>().enabled = false;
-        Lanes[0].gameObject.SetActive(false);
-        Lanes[1].gameObject.SetActive(false);
-        Lanes[2].gameObject.SetActive(false);
-        measuretarget = measures;
-        beatcounter = 0;
+        // create GameObject for Note
+        GameObject obj = (GameObject)GameObject.Instantiate(notePrefab, position, new Quaternion());
+        obj.transform.parent = lane.transform;
 
-        gameObject.GetComponent<TrackEdgeLightController>().IsTrackActive = false;
+        // create and assign Note to GameObject
+        AmplitudeNote note = obj.AddComponent<AmplitudeNote>();
+        note.name = noteName + "_" + obj.transform.position.z;
+        note.noteType = noteType;
+        note.noteLane = noteLane;
+        note.noteTrack = track;
+        note.measureNum = measureNum;
+
+        // Add note to Notes list
+        trackNotes.Add(note);
     }
 
-    bool DisablingMeasure = false;
-    bool reachedtarget = false;
-    int prevBeatPos = 4;
-    int measuretarget = 0;
-    int beatcounter = 0;
-    private void Update()
+    public static LaneType GetLaneTypeFromNoteNumber(int num)
     {
-        if (Mathf.RoundToInt(player.amp_ctrl.songPositionInBeats) - prevBeatPos == 0)
+        switch (num)
         {
-            prevBeatPos = prevBeatPos + 4;
-            beatcounter++;
-        }
+            case 114: // left
+                return LaneType.Left;
+            case 116: // center
+                return LaneType.Center;
+            case 118: // right
+                return LaneType.Right;
 
-        if (beatcounter == measuretarget)
-            reachedtarget = true;
-        else
-            reachedtarget = false;
-
-        //Debug.LogFormat("beatcounter: {0} | measuretarget: {1} | prevBeatPos: {2} | DisablingMeasure: {3} | songPosInBeats: {4}", beatcounter, measuretarget, prevBeatPos, DisablingMeasure, Mathf.RoundToInt(player.amp_ctrl.songPositionInBeats));
-
-        if (reachedtarget & DisablingMeasure)
-        {
-            IsTrackActive = true;
-            DisablingMeasure = false;
-            gameObject.GetComponent<MeshRenderer>().enabled = true;
-            Lanes[0].gameObject.SetActive(true);
-            Lanes[1].gameObject.SetActive(true);
-            Lanes[2].gameObject.SetActive(true);
-            beatcounter = 0;
-
-            gameObject.GetComponent<TrackEdgeLightController>().IsTrackActive = true;
+            default: // if it isn't either of these notes, go to next note
+                return LaneType.UNKNOWN;
         }
     }
+
+    /*
+    // Track types
+    public enum AMP_TrackType
+    {
+        Drums = 0,
+        Bass = 1,
+        Synth = 2,
+        Guitar = 3,
+        gtr = 3,
+        Vocals = 4,
+        vox = 4,
+        FREESTYLE = 5,
+        bg_click = 6
+    }
+
+    public static AMP_TrackType AMPTrackTypeFromString(string s)
+    {
+        foreach (string type in Enum.GetNames(typeof(AMP_TrackType)))
+        {
+            if (s.Contains(type.ToString().ToLower()))
+                return (AMP_TrackType)Enum.Parse((typeof(AMP_TrackType)), type);
+        }
+        throw new Exception("MoggSong: Invalid track string! " + s);
+    }
+    */
 }

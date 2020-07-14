@@ -25,7 +25,7 @@ public class Catcher : MonoBehaviour
     public enum CatchResult { Success = 0, Powerup = 1, Failure = 2, Empty = 3, Unknown = 4 }
     public enum NoteMissType { Ignore, Mispress, EmptyMispress };
 
-    public TrackLane.LaneType laneType;
+    public Track.LaneType laneType;
 
     public Note IgnoreNote { get; set; }
     Note ShouldHit;
@@ -136,15 +136,15 @@ public class Catcher : MonoBehaviour
     /// Gives back the appropriate key for the lane type.
     /// </summary>
     /// <param name="lane">The lane in question</param>
-    public static KeyCode LaneToKeyCode(TrackLane.LaneType lane)
+    public static KeyCode LaneToKeyCode(Track.LaneType lane)
     {
         switch (lane)
         {
-            case TrackLane.LaneType.Left:
+            case Track.LaneType.Left:
                 return KeyCode.LeftArrow;
-            case TrackLane.LaneType.Center:
+            case Track.LaneType.Center:
                 return KeyCode.UpArrow;
-            case TrackLane.LaneType.Right:
+            case Track.LaneType.Right:
                 return KeyCode.RightArrow;
 
             default:
@@ -155,19 +155,19 @@ public class Catcher : MonoBehaviour
     /// Gives back the appropriate track for the input key
     /// </summary>
     /// <param name="key">The key that was pressed.</param>
-    public static TrackLane.LaneType KeyCodeToLane(KeyCode key)
+    public static Track.LaneType KeyCodeToLane(KeyCode key)
     {
         switch (key)
         {
             default:
-                return TrackLane.LaneType.Center;
+                return Track.LaneType.Center;
 
             case KeyCode.LeftArrow:
-                return TrackLane.LaneType.Left;
+                return Track.LaneType.Left;
             case KeyCode.UpArrow:
-                return TrackLane.LaneType.Center;
+                return Track.LaneType.Center;
             case KeyCode.RightArrow:
-                return TrackLane.LaneType.Right;
+                return Track.LaneType.Right;
         }
     }
 }
