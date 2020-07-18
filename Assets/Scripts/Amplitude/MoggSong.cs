@@ -35,6 +35,7 @@ public class MoggSong : MonoBehaviour
 
     // TODO: Metadata!
 
+    // TODO: IMPROVE THIS BY USING TOKENS FOR EVERYTHING!
     public void LoadMoggSong(string songName)
     {
         string finalPath = RhythmicGame.AMP_GetSongFilePath(songName, RhythmicGame.AMP_FileExtension.moggsong);
@@ -47,13 +48,23 @@ public class MoggSong : MonoBehaviour
         foreach (string line in fileLines) // TODO: re-do to use tokens / use TrimStart as well?
         {
             if (line.Contains("length "))
-                songLengthInMeasures = int.Parse(line.Substring(line.IndexOf("length ") + 7, 3));
+            {
+                string[] tokens = line.Substring(11).Split(':');
+                songLengthInMeasures = int.Parse(tokens[0]);
+            }
             else if (line.Contains("countin "))
                 songCountInTime = int.Parse(line.Substring(line.IndexOf("countin ") + 8, 1));
             else if (line.Contains("tunnel_scale ")) // fudge factor!
                 songFudgeFactor = float.Parse(line.Substring(14, 3), CultureInfo.InvariantCulture.NumberFormat);
-            else if (line.Contains("bpm "))
-                songBpm = float.Parse(line.Substring(5, 3));
+            else if (line.Contains("bpm ")) // TODO: this is really hacky!
+            {
+                string finalBPM = line.Substring(5, 3);
+
+                if (finalBPM.EndsWith(")"))
+                    finalBPM = line.Substring(5, 2);
+
+                songBpm = float.Parse(finalBPM);
+            }
             else if (line.Contains("boss_level "))
                 songBossLevel = int.Parse(line.Substring(12, 1));
 

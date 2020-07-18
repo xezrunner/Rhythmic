@@ -1,22 +1,11 @@
-﻿using Assets.Scripts.Amplitude;
-using JetBrains.Annotations;
-using NAudio.Midi;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class AmplitudeTracksController : TracksController
 {
-    AmplitudeSongController amp_ctrl { get { return GameObject.Find("AMPController").GetComponent<AmplitudeSongController>(); } }
-    public List<string> songTracks { get { return amp_ctrl.songTracks; } } // list of tracks in string form - for initialization use only!
+    AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
 
-    public List<AmplitudeTrack> Tracks = new List<AmplitudeTrack>(); // list of tracks
+    public List<string> songTracks { get { return amp_ctrl.songTracks; } } // list of tracks in string form - for initialization use only!
 
     UnityEngine.Object trackPrefab;
     public void CreateTracks()

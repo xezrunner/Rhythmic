@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using NAudio.Midi;
 using System;
 using System.Linq.Expressions;
-using Assets.Scripts.Amplitude;
 using UnityEditor;
 
 public class Track : MonoBehaviour
 {
-    AmplitudeSongController amp_ctrl { get { return GameObject.Find("AMPController").GetComponent<AmplitudeSongController>(); } }
+    AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
     public GameObject LaneContainer
     {
         get
@@ -37,17 +36,20 @@ public class Track : MonoBehaviour
     }
     public TrackType? Instrument;
 
-    //public bool IsTrackActive = true; // Is the track enabled?
-    bool _isTrackFocused = false;
+    bool _isTrackFocused = false; //  TODO: also enable/disable the track coloring material when it's in the game!
     public bool IsTrackFocused
     {
         get { return _isTrackFocused; }
-        set { _isTrackFocused = value; EdgeLightsActive = value; }
+        set
+        {
+            _isTrackFocused = value; EdgeLightsActive = value;
+        }
     } // Is the track focused by the player?
     public bool IsTrackCaptured; // Is this track in its captured state right now?
     public bool IsTrackBeingCaptured; // Is this track being played right now?
     public bool IsTrackConstant = false; // Should this track remain active even after capturing?
     public bool IsTrackConstantCaptureNotes = false; // Should the notes be captured when you capture a constant track?
+    public bool DisableEmptyMeasures = true; // Whether empty measures should leave a hole instead
 
     public List<Note> trackNotes = new List<Note>();
     public List<GameObject> trackLanes
@@ -60,7 +62,7 @@ public class Track : MonoBehaviour
             return finalList;
         }
     }
-    public List<TrackMeasure> trackMeasures = new List<TrackMeasure>();
+    public List<Measure> trackMeasures = new List<Measure>();
 
     void Start()
     {
@@ -124,6 +126,7 @@ public class Track : MonoBehaviour
         //    Debug.LogFormat(string.Format("TRACK [{0}]: Created new note: {1}", TrackName, noteName));
     }
 
+    // Measures
     UnityEngine.Object subBeatPrefab;
     public void CreateMeasures(List<AmplitudeSongController.MeasureInfo> MeasureInfoList)
     {
@@ -142,7 +145,7 @@ public class Track : MonoBehaviour
             measureObj.transform.parent = MeasureContainer.transform;
 
             // create Measure script and add component
-            TrackMeasure measure = measureObj.AddComponent<TrackMeasure>();
+            Measure measure = measureObj.AddComponent<Measure>();
             measure.measureNum = counter;
             foreach (Note note in trackNotes) // add notes to measure note list
             {
@@ -151,8 +154,11 @@ public class Track : MonoBehaviour
             }
 
             // deactivate measure if doesn't contain notes
-            if (measure.IsMeasureEmpty)
+            if (measure.IsMeasureEmpty & DisableEmptyMeasures)
                 measure.IsMeasureActive = false;
+
+            measure.startTimeInZPos = MeasureInfo.startTimeInzPos;
+            measure.endTimeInZPos = MeasureInfo.endTimeInzPos;
 
             trackMeasures.Add(measure);
 
@@ -176,6 +182,28 @@ public class Track : MonoBehaviour
 
             counter++;
         }
+    }
+
+    public bool GetIsMeasureActiveForZPos(float zPos)
+    {
+        try
+        {
+            return GetMeasureForZPos(zPos).IsMeasureActive;
+        }
+        catch
+        {
+            return false;
+        }
+
+    }
+    public Measure GetMeasureForZPos(float zPos)
+    {
+        foreach (Measure measure in trackMeasures)
+        {
+            if (measure.measureNum == amp_ctrl.GetMeasureNumForzPos(zPos))
+                return measure;
+        }
+        return null;
     }
 
     // Lanes

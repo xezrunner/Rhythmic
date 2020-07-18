@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using NAudio.Midi;
-using Assets.Scripts.Amplitude;
 
 public class AmplitudeTrack : Track
 {
-    AmplitudeSongController amp_ctrl { get { return GameObject.Find("AMPController").GetComponent<AmplitudeSongController>(); } }
+    AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
 
     public List<NoteOnEvent> AMP_NoteOnEvents;
 
@@ -64,6 +63,8 @@ public class AmplitudeTrack : Track
         note.noteLane = noteLane;
         note.noteTrack = track;
         note.measureNum = measureNum;
+        note.zPos = zPosition;
+        note.DotLightColor = Track.Colors.ColorFromTrackType(track.Instrument.Value);
 
         // Add note to Notes list
         trackNotes.Add(note);

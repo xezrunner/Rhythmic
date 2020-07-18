@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TrackMeasure : MonoBehaviour
+public class Measure : MonoBehaviour
 {
     public int measureNum; // measure ID
     public List<Note> noteList = new List<Note>(); // notes in this measure
@@ -19,6 +19,9 @@ public class TrackMeasure : MonoBehaviour
             return finalList;
         }
     }
+
+    public float startTimeInZPos;
+    public float endTimeInZPos;
 
     /// <summary>
     /// If a measure doesn't contain any notes, this returns true.
