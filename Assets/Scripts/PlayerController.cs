@@ -13,7 +13,13 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI ScoreText;
     public TextMeshProUGUI MissText;
 
+    public TextMeshProUGUI SubbeatCounterText;
+    public TextMeshProUGUI MeasureCounterText;
+    public TextMeshProUGUI NextNoteText;
+
     // Props
+    //public float zPos { get { return transform.position.z; } }
+
     public float StartZOffset = 4f; // countin
     public float ZOffset = 0f; // (DEBUG) additional position offset
 
@@ -34,7 +40,7 @@ public class PlayerController : MonoBehaviour
     void Awake()
     {
         // this Instance
-        Instance = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        Instance = this;
     }
     public void Start()
     {
@@ -60,6 +66,8 @@ public class PlayerController : MonoBehaviour
                 AddScore();
                 CanDeclareMiss = true; // allow missing again and ignore the prev. cooldown if we have successfully caught a note
 
+                e.note.noteTrack.IsTrackBeingCaptured = true;
+
                 break;
             }
             case Catcher.CatchResult.Miss: // if we pressed the wrong button or we ignored
@@ -82,37 +90,75 @@ public class PlayerController : MonoBehaviour
 
                 break;
             }
+            case Catcher.CatchResult.Inactive:
+            {
+
+                break;
+            }
             case Catcher.CatchResult.Unknown:
                 break;
         }
     }
 
+    // TODO: cleanup, perhaps move the entire tracks failing thing into TracksController by passing along the note? Maybe this isn't even neccessary?
     public bool CanDeclareMiss = true;
-    public async void DeclareMiss(Note note = null, Catcher.NoteMissType? misstype = null)
+    public void DeclareMiss(Note note = null, Catcher.NoteMissType? misstype = null)
     {
-        if (!CanDeclareMiss)
-            return;
-
         switch (misstype)
         {
-            case Catcher.NoteMissType.Mispress:
-            case Catcher.NoteMissType.Ignore:
+            default:
+            case Catcher.NoteMissType.EmptyMispress:
+                break;
+            case Catcher.NoteMissType.EmptyIgnore:
             {
-                src.PlayOneShot(streak_lose);
-
-                MissText.gameObject.SetActive(true);
-
-                CanDeclareMiss = false;
-                await Task.Delay(1500);
-                CanDeclareMiss = true;
-
-                MissText.gameObject.SetActive(false);
+                // Disable all notes in the note's measures
+                note.noteTrack.IsTrackBeingCaptured = false;
+                TracksController.DisableCurrentMeasures();
 
                 break;
             }
-            case Catcher.NoteMissType.EmptyMispress:
+            case Catcher.NoteMissType.Mispress:
+            {
+                TracksController.CurrentTrack.IsTrackBeingCaptured = false;
+                TracksController.DisableCurrentMeasures();
+
                 break;
+            }
+            case Catcher.NoteMissType.Ignore:
+            {
+                note.noteTrack.IsTrackBeingCaptured = false;
+                TracksController.DisableCurrentMeasures();
+
+                break;
+            }
+
         }
+
+        if (misstype != Catcher.NoteMissType.EmptyMispress)
+            LoseStreak();
+    }
+
+    public async void LoseStreak()
+    {
+        // find next notes again
+        CatcherController.ShouldHit.Clear();
+        CatcherController.FindNextMeasureNotes();
+
+        if (!CanDeclareMiss)
+            return;
+
+        src.PlayOneShot(streak_lose);
+
+        MissText.gameObject.SetActive(true);
+        SetScore(0);
+
+        await Task.Delay(50);
+
+        CanDeclareMiss = false;
+        await Task.Delay(1450);
+        CanDeclareMiss = true;
+
+        MissText.gameObject.SetActive(false);
     }
 
     // Track switching
@@ -141,10 +187,26 @@ public class PlayerController : MonoBehaviour
         OnTrackSwitched?.Invoke(null, id);
     }
 
+    // Measures & subbeats
+    public Measure GetCurrentMeasure()
+    {
+        return TracksController.CurrentTrack.GetMeasureForZPos(transform.position.z);
+    }
+
+    public MeasureSubBeat GetCurrentSubbeat()
+    {
+        return GetCurrentMeasure().GetSubbeatForZpos(transform.position.z);
+    }
+
     // Score / streak system
     public void AddScore(int score = 1)
     {
         Score += score * Multiplier;
+        ScoreText.text = Score.ToString();
+    }
+    public void SetScore(int score = 0)
+    {
+        Score = score;
         ScoreText.text = Score.ToString();
     }
 

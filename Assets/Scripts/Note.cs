@@ -5,6 +5,8 @@ using UnityEngine;
 public class Note : MonoBehaviour
 {
     public enum NoteCatchType { Success = 0, Miss = 1 }
+    public BoxCollider NoteCollider;
+    public MeshRenderer NoteMeshRenderer;
     public MeshRenderer DotLightMeshRenderer;
     public GameObject DotLight;
     Color _dotLightColor;
@@ -13,20 +15,50 @@ public class Note : MonoBehaviour
         get { return _dotLightColor; }
         set { _dotLightColor = value; }
     }
+    Color _color;
+    public Color Color
+    {
+        get { return _color; }
+        set
+        {
+            _color = value;
+            NoteMeshRenderer.material.color = Track.Colors.ConvertColor(value);
+            NoteMeshRenderer.material.DisableKeyword("_Emission");
+        }
+    }
 
     //public string noteName { get { return gameObject.name; } set { gameObject.name = value; } }
     public NoteType noteType;
     public Track noteTrack;
     public Track.LaneType noteLane;
-    public Measure noteMeasure;
+    public Measure noteMeasure { get { return noteTrack.GetMeasureForZPos(zPos); } }
     public int measureNum;
+    public int subbeatNum;
     public float zPos;
 
-    public bool IsNoteActive = true; // Whether the note is greyed out (used when failing)
-    public bool IsNoteCaptured = false;
-
-    void Start()
+    // Whether the note is greyed out (used when failing)
+    bool _isNoteActive = true;
+    public bool IsNoteActive
     {
+        get { return _isNoteActive; }
+        set
+        {
+            _isNoteActive = value;
+            if (value)
+                NoteMeshRenderer.material.color = Track.Colors.ConvertColor(Color.black);
+            else
+                NoteMeshRenderer.material.color = Track.Colors.ConvertColor(Color.white);
+        }
+    }
+
+    public bool IsNoteCaptured = false;
+    public bool IsNoteToBeCaptured = false;
+
+    void Awake()
+    {
+        NoteMeshRenderer = GetComponent<MeshRenderer>();
+        NoteCollider = GetComponent<BoxCollider>();
+
         // TODO: optimize!!!
         // Set up the dot light
         DotLight = transform.GetChild(0).gameObject;
@@ -38,10 +70,18 @@ public class Note : MonoBehaviour
 
         mat.color = finalColor;
 
+        /*
         mat.EnableKeyword("_EMISSION");
         mat.SetColor("_EmissionColor", finalColor * 1f);
+        */
 
         DotLightMeshRenderer.material = mat;
+    }
+
+    private void Update()
+    {
+        if (IsNoteActive == !IsNoteActive)
+            Debug.DebugBreak();
     }
 
     /// <summary>

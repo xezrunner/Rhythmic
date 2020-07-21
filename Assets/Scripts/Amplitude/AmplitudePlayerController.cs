@@ -44,6 +44,8 @@ public class AmplitudePlayerController : PlayerController
             amp_ctrl.PlayMusic();
             // Start player movement
             IsPlayerMoving = true;
+            // TODO: we should switch to the track when the game starts
+            SwitchToTrack(0);
         }
     }
 }

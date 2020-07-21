@@ -35,6 +35,8 @@ public class Track : MonoBehaviour
         set { _trackName = value; }
     }
     public TrackType? Instrument;
+    public Note nearestNote;
+    public int upcomingActiveMeasure = 0;
 
     bool _isTrackFocused = false; //  TODO: also enable/disable the track coloring material when it's in the game!
     public bool IsTrackFocused
@@ -46,7 +48,9 @@ public class Track : MonoBehaviour
         }
     } // Is the track focused by the player?
     public bool IsTrackCaptured; // Is this track in its captured state right now?
-    public bool IsTrackBeingCaptured; // Is this track being played right now?
+    public bool IsTrackBeingCaptured; // Is this track being played right now? TODO: this being a prop and if changed, will update its own volume in SongController
+    public bool IsTrackEmpty { get { return trackNotes.Count == 0 ? true : false; } }
+
     public bool IsTrackConstant = false; // Should this track remain active even after capturing?
     public bool IsTrackConstantCaptureNotes = false; // Should the notes be captured when you capture a constant track?
     public bool DisableEmptyMeasures = true; // Whether empty measures should leave a hole instead
@@ -63,6 +67,7 @@ public class Track : MonoBehaviour
         }
     }
     public List<Measure> trackMeasures = new List<Measure>();
+    public List<Measure> trackActiveMeasures = new List<Measure>();
 
     void Start()
     {
@@ -115,12 +120,14 @@ public class Track : MonoBehaviour
         }
     }
 
+    // Track population
+
     /// <summary>
     /// Populate lanes with Note (CATCH) objects from the list of MIDI events
     /// </summary>
-    public void PopulateLanes()
+    public void PopulateNotes()
     {
-        // TODO: Rhythmic lane population!
+        // TODO: Rhythmic note population!
 
         //if (RhythmicGame.DebugNoteCreationEvents)
         //    Debug.LogFormat(string.Format("TRACK [{0}]: Created new note: {1}", TrackName, noteName));
@@ -133,13 +140,14 @@ public class Track : MonoBehaviour
         if (subBeatPrefab == null)
             subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
 
+        Vector3 subbeatScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos);
+
         int counter = 0;
         foreach (AmplitudeSongController.MeasureInfo MeasureInfo in MeasureInfoList)
         {
-            Vector3 measurePosition = new Vector3(MeasureContainer.transform.position.x, 0, MeasureInfo.startTimeInzPos);
-            Vector3 subbeatScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos);
-
             // create GameObject for measure
+            Vector3 measurePosition = new Vector3(MeasureContainer.transform.position.x, 0, MeasureInfo.startTimeInzPos);
+
             GameObject measureObj = new GameObject() { name = string.Format("MEASURE_{0}", MeasureInfo.measureNum) };
             measureObj.transform.localPosition = measurePosition;
             measureObj.transform.parent = MeasureContainer.transform;
@@ -147,40 +155,62 @@ public class Track : MonoBehaviour
             // create Measure script and add component
             Measure measure = measureObj.AddComponent<Measure>();
             measure.measureNum = counter;
+
+            measure.startTimeInZPos = MeasureInfo.startTimeInzPos;
+            measure.endTimeInZPos = MeasureInfo.endTimeInzPos;
+
             foreach (Note note in trackNotes) // add notes to measure note list
             {
                 if (note.measureNum == counter)
                     measure.noteList.Add(note);
             }
 
-            // deactivate measure if doesn't contain notes
-            if (measure.IsMeasureEmpty & DisableEmptyMeasures)
-                measure.IsMeasureActive = false;
-
-            measure.startTimeInZPos = MeasureInfo.startTimeInzPos;
-            measure.endTimeInZPos = MeasureInfo.endTimeInzPos;
-
-            trackMeasures.Add(measure);
+            if (!measure.IsMeasureEmpty)
+                trackActiveMeasures.Add(measure);
 
             // create subbeats
             float lastSubbeatPosition = MeasureInfo.startTimeInzPos;
             for (int i = 0; i < 8; i++)
             {
                 GameObject obj = (GameObject)GameObject.Instantiate(subBeatPrefab);
-                MeasureSubBeat script = obj.AddComponent<MeasureSubBeat>();
+                MeasureSubBeat script = obj.GetComponent<MeasureSubBeat>();
 
                 obj.name = string.Format("MEASURE{0}_SUBBEAT{1}", counter, i);
                 obj.transform.localScale = subbeatScale;
                 obj.transform.localPosition = new Vector3(MeasureContainer.transform.position.x, 0, lastSubbeatPosition);
                 obj.transform.parent = measureObj.transform;
-                obj.transform.Find("MeasurePlane").GetComponent<MeshRenderer>().material = GetTrackMaterial(Instrument.Value);
-                lastSubbeatPosition += amp_ctrl.subbeatLengthInzPos;
+                obj.transform.GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = GetTrackMaterial(Instrument.Value); // TODO: code cleanup!
+
+                script.subbeatNum = i;
 
                 script.EdgeLightsGlowIntensity = 0.5f;
                 script.EdgeLightsColor = Colors.ColorFromTrackType(Instrument.Value);
+
+                if (i == 0) // measure trigger
+                    script.IsMeasureSubbeat = true;
+
+                script.StartZPos = lastSubbeatPosition;
+
+                measure.subbeatObjectList.Add(obj);
+                measure.subbeatList.Add(script);
+
+                lastSubbeatPosition += amp_ctrl.subbeatLengthInzPos;
+                script.EndZPos = lastSubbeatPosition;
             }
 
+            // deactivate measure if doesn't contain notes
+            if (measure.IsMeasureEmpty & DisableEmptyMeasures)
+                measure.IsMeasureActive = false;
+
+            trackMeasures.Add(measure);
+
             counter++;
+        }
+
+        foreach (Note note in trackNotes)
+        {
+            // TODO: temp, move this to a better place / optimize!!! ?
+            note.subbeatNum = trackMeasures[note.measureNum].GetSubbeatForZpos(note.zPos).subbeatNum;
         }
     }
 
@@ -198,12 +228,11 @@ public class Track : MonoBehaviour
     }
     public Measure GetMeasureForZPos(float zPos)
     {
-        foreach (Measure measure in trackMeasures)
-        {
-            if (measure.measureNum == amp_ctrl.GetMeasureNumForzPos(zPos))
-                return measure;
-        }
-        return null;
+        return trackMeasures[amp_ctrl.GetMeasureNumForzPos(zPos)];
+    }
+    public Measure GetMeasureForID(int id)
+    {
+        return trackMeasures[id];
     }
 
     // Lanes

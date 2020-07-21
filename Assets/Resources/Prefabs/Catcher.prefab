@@ -120,8 +120,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5af01112072ab1c43bb09ee58c50ece9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Lane: 2
-  CollisionRadius: 0.28
+  laneType: 0
+  catchRadius: 0.27
 --- !u!1 &5491892807177101391
 GameObject:
   m_ObjectHideFlags: 0
@@ -132,8 +132,9 @@ GameObject:
   m_Component:
   - component: {fileID: 7299747217390401641}
   - component: {fileID: 6236332102543390599}
+  - component: {fileID: 8147593195060547885}
   m_Layer: 0
-  m_Name: CATCHER
+  m_Name: Catcher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -168,8 +169,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70821cf8324cb40469c8b59814e84744, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CurrentMeasureID: 0
   Catchers: []
-  CatcherCollisionRadius: 0.27
+  keycodes: 140100001101000013010000
+  LastHitNote: {fileID: 0}
+  ShouldHit: []
+--- !u!65 &8147593195060547885
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5491892807177101391}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 2.11, y: 1, z: 0.5}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &5623497125467203239
 GameObject:
   m_ObjectHideFlags: 0
@@ -290,8 +307,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5af01112072ab1c43bb09ee58c50ece9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Lane: 1
-  CollisionRadius: 0.28
+  laneType: 0
+  catchRadius: 0.27
 --- !u!1 &8320980251516813637
 GameObject:
   m_ObjectHideFlags: 0
@@ -412,5 +429,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5af01112072ab1c43bb09ee58c50ece9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Lane: 0
-  CollisionRadius: 0.28
+  laneType: 0
+  catchRadius: 0.27

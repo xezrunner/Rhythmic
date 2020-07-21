@@ -5,6 +5,7 @@ using UnityEngine;
 public class TracksController : MonoBehaviour
 {
     public static TracksController Instance;
+    public CatcherController CatcherController { get { return CatcherController.Instance; } }
     public PlayerController Player { get { return PlayerController.Instance; } }
 
     public int StartTrackID = 0; // start track ID
@@ -19,6 +20,7 @@ public class TracksController : MonoBehaviour
         Player.OnTrackSwitched += Player_OnTrackSwitched;
     }
 
+    // Tracks
     /// <summary>
     /// This returns a Track object based on its ID.
     /// </summary>
@@ -54,11 +56,20 @@ public class TracksController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Gets the measure that's directly under the player
-    /// </summary>
-    public Measure GetCurrentMeasure { get { return CurrentTrack.GetMeasureForZPos(Player.transform.position.z); } }
-    public bool GetIsCurrentMeasureActive { get { return CurrentTrack.GetIsMeasureActiveForZPos(Player.transform.position.z); } }
+    public void DisableCurrentMeasures()
+    {
+        foreach (Track track in Tracks)
+            track.GetMeasureForID(CatcherController.CurrentMeasureID).IsMeasureCapturable = false;
+    }
+
+    public void SetCurrentMeasuresNotesToBeCaptured()
+    {
+        foreach (Track track in Tracks)
+            if (track == CurrentTrack)
+                track.GetMeasureForID(CatcherController.CurrentMeasureID).SetMeasureNotesToBeCaptured();
+            else
+                track.GetMeasureForID(CatcherController.CurrentMeasureID).SetMeasureNotesActive(false);
+    }
 
     public event EventHandler<int> OnTrackSwitched;
 
@@ -75,4 +86,12 @@ public class TracksController : MonoBehaviour
 
         OnTrackSwitched?.Invoke(null, e);
     }
+
+    // Measures
+    /// <summary>
+    /// Gets the measure that's directly under the player
+    /// </summary>
+    public Measure CurrentMeasure { get { return CurrentTrack.GetMeasureForZPos(Player.transform.position.z); } }
+    public bool GetIsCurrentMeasureActive { get { return CurrentTrack.GetIsMeasureActiveForZPos(Player.transform.position.z); } }
+
 }

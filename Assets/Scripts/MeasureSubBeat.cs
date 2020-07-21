@@ -4,6 +4,34 @@ using UnityEngine;
 
 public class MeasureSubBeat : MonoBehaviour
 {
+    public GameObject SubbeatTrigger;
+    public GameObject MeasureTrigger;
+    public EdgeLightsController EdgeLights;
+
+    bool _isLastSubbeat;
+    public bool IsMeasureSubbeat
+    {
+        get { return _isLastSubbeat; }
+        set
+        {
+            _isLastSubbeat = value;
+            if (value)
+                MeasureTrigger.SetActive(true);
+            else
+                MeasureTrigger.SetActive(false);
+        }
+    }
+
+    public int subbeatNum;
+
+    public float StartZPos;
+    public float EndZPos;
+
+    private void Awake()
+    {
+        EdgeLights = transform.GetChild(0).GetChild(1).gameObject.GetComponent<EdgeLightsController>();
+    }
+
     Color _edgeLightsColor;
     public Color EdgeLightsColor
     {
@@ -11,17 +39,17 @@ public class MeasureSubBeat : MonoBehaviour
         set
         {
             _edgeLightsColor = value;
-            transform.Find("EdgeLights").GetComponent<EdgeLightsController>().Color = value;
+            EdgeLights.Color = value;
         }
     }
 
     float _edgeLightsGlowIntensity;
     public float EdgeLightsGlowIntensity
     {
-        get { return transform.Find("EdgeLights").GetComponent<EdgeLightsController>().GlowIntensity; }
+        get { return EdgeLights.GlowIntensity; }
         set 
         {
-            transform.Find("EdgeLights").GetComponent<EdgeLightsController>().GlowIntensity = value;
+            EdgeLights.GlowIntensity = value;
         }
     }
 
@@ -32,7 +60,7 @@ public class MeasureSubBeat : MonoBehaviour
         set
         {
             _edgeLightsGlow = value;
-                transform.Find("EdgeLights").GetComponent<EdgeLightsController>().EnableGlow = value;
+                EdgeLights.EnableGlow = value;
         }
     }
 }

@@ -29,7 +29,7 @@ public class AmplitudeSongController : MonoBehaviour
     // Song properties
 
     // Song length in measures (1 measure = 4 beats)
-    public int songLengthInMeasures { get { return moggSong.songLengthInMeasures; } }
+    public int songLengthInMeasures { get { return moggSong.songLengthInMeasures + moggSong.songCountInTime; } }
     // Tunnel traversal scale
     public float fudgeFactor { get { return moggSong.songFudgeFactor; } }
     // Song beats per minute - this is determined by the song you're trying to sync up to
@@ -61,6 +61,8 @@ public class AmplitudeSongController : MonoBehaviour
     public float songPosition;
     //Current song position, in beats
     public float songPositionInBeats;
+    //Current song position, in beats
+    public int songPositionInMeasures { get { return (int)songPositionInBeats / 4; } }
     //How many seconds have passed since the song started
     public float dspSongTime;
     //The offset to the first beat of the song in seconds
@@ -108,7 +110,6 @@ public class AmplitudeSongController : MonoBehaviour
 
         reader = gameObject.AddComponent<MidiReader>();
         reader.OnNoteEvent += Reader_OnNoteEvent;
-        Debug.LogFormat("MidiReader: created");
 
         reader.LoadMIDI(songName);
 
@@ -157,6 +158,10 @@ public class AmplitudeSongController : MonoBehaviour
 
             counter++;
         }
+
+        // Get closest notes
+        // TODO: do this somewhere else during init!
+        CatcherController.Instance.FindNextMeasureNotes();
     }
     void Update()
     {
