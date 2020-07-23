@@ -46,7 +46,7 @@ public class RhythmicGame : MonoBehaviour
 
     // Draw debug
     public static bool DebugDrawLanes = false;
-    public static bool DebugCatcherCasting = false;
+    public static bool DebugCatcherCasting = true;
 
     // AMPLITUDE properties
     public static string AMP_songFolder = @"H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs";

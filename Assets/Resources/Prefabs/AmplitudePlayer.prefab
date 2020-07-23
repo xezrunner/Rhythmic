@@ -57,7 +57,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 180
+  far clip plane: 150
   field of view: 80
   orthographic: 0
   orthographic size: 5
@@ -291,10 +291,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2594426827c32e845925fc884f8e3bd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ScoreText: {fileID: 0}
+  MissText: {fileID: 0}
+  SubbeatCounterText: {fileID: 0}
+  MeasureCounterText: {fileID: 0}
+  NextNoteText: {fileID: 0}
   StartZOffset: 4
   ZOffset: 0
   IsPlayerMoving: 0
   PlayerSpeed: 8
+  Score: 0
+  Multiplier: 1
+  CanDeclareMiss: 1
 --- !u!1001 &1163137473501249540
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -36,7 +36,7 @@ public class Track : MonoBehaviour
     }
     public TrackType? Instrument;
     public Note nearestNote;
-    public int upcomingActiveMeasure = 0;
+    public int activeMeasureNum = -1;
 
     bool _isTrackFocused = false; //  TODO: also enable/disable the track coloring material when it's in the game!
     public bool IsTrackFocused

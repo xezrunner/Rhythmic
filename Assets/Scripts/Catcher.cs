@@ -9,7 +9,8 @@ public class Catcher : MonoBehaviour
     public enum NoteMissType { Mispress, Ignore, EmptyIgnore, EmptyMispress };
 
     public Track.LaneType laneType;
-    public float catchRadius = 0.27f;
+    //public float catchRadius = 0.27f;
+    public float catchRadius = 0.35f;
 
     public event EventHandler<CatcherController.CatchEventArgs> OnCatch;
 

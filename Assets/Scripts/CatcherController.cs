@@ -30,7 +30,8 @@ public class CatcherController : MonoBehaviour
     }
 
     public Note LastHitNote;
-    public List<Note> ShouldHit = new List<Note>();
+    //public List<Note> ShouldHit = new List<Note>();
+    public Note[] ShouldHit;
 
     void Awake()
     {
@@ -87,9 +88,36 @@ public class CatcherController : MonoBehaviour
     // e[0]: measure num | e[1]: subbeat num
     void CatcherController_OnSubbeatTrigger(object sender, int[] e)
     {
-        Note note = nearestNote != null ? nearestNote : ShouldHit[0];
-        if (note != null & LastHitNote != note & e[0] == note.measureNum & e[1] == note.subbeatNum)
-            PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
+        Note note = null;
+        //Note note = nearestNote != null ? nearestNote : ShouldHit[0];
+
+        if (nearestNote != null)
+        {
+            if (nearestNote.noteTrack == CurrentTrack & CurrentMeasure.IsMeasureActive) // If we're on a track and we have a nearestNote set
+                note = nearestNote;
+            else if (nearestNote.noteTrack == CurrentTrack & !CurrentMeasure.IsMeasureActive) // If we're on a track with a nearestNote, but the current measure is a hole
+                Debug.LogWarning("CATCHERCONTROLLER: Current track has a nearest note, but current measure is inactive (hole). Do nothing!");
+            else
+                note = nearestNote;
+        }
+        else
+        {
+            if (CurrentMeasure.IsMeasureActive) // if we don't have a nearestNote but the current track measure is active
+                note = ShouldHit[CurrentTrack.ID.Value];
+            else // if we're on a measure hole without a nearestNote
+                note = ShouldHit[0];
+        }
+
+        try
+        {
+            if (note != null & LastHitNote != note & e[0] >= note.measureNum & e[1] >= note.subbeatNum & (transform.position.z - note.transform.lossyScale.z - 0.1f) > note.zPos)
+                PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
+        }
+        catch
+        {
+            
+            Debug.DebugBreak();
+        }
 
         UpdateSubbeatDebug(e[1]);
     }
@@ -103,14 +131,20 @@ public class CatcherController : MonoBehaviour
         if (!measure.IsMeasureEmpty) // set the notes to 'to be captured' state
             TracksController.SetCurrentMeasuresNotesToBeCaptured();
 
+        string debugText = "";
+
         foreach (Track track in TracksController.Tracks)
         {
             if (!track.trackMeasures[e].IsMeasureEmpty)
-                track.upcomingActiveMeasure++;
+                track.activeMeasureNum++;
+
+            debugText += track.activeMeasureNum.ToString() + " | ";
         }
 
+        //Debug.LogWarning(debugText);
+
         // find ShouldHit notes if there aren't any
-        if (ShouldHit.Count == 0)
+        if (ShouldHit == null)
             FindNextMeasureNotes(); // find the next measure for the [measure that we are on + 1]
 
         // DEBUG
@@ -123,13 +157,16 @@ public class CatcherController : MonoBehaviour
     Note nearestNote;
     public void FindNextMeasureNotes()
     {
+        nearestNote = null;
+
         // Go through each track and try to find 0th note of the upcoming measure
+        ShouldHit = new Note[TracksController.Tracks.Count];
         foreach (Track track in TracksController.Instance.Tracks)
         {
-            Measure measure = null;
+            Measure measure;
 
             if (!track.IsTrackEmpty)
-                measure = track.trackActiveMeasures[track.upcomingActiveMeasure];
+                measure = track.trackActiveMeasures[track.activeMeasureNum == -1 ? 0 : track.activeMeasureNum + 1];
             else
                 continue;
 
@@ -142,16 +179,16 @@ public class CatcherController : MonoBehaviour
             Note note = measure.noteList[0];
             if (note.IsNoteActive & !note.IsNoteCaptured & !note.IsNoteToBeCaptured & !track.IsTrackBeingCaptured)
             {
-                ShouldHit.Add(note);
+                ShouldHit[track.ID.Value] = note;
                 track.nearestNote = note;
             }
         }
 
-        if (ShouldHit.Count == 0)
+        /*
+        if (ShouldHit.Length == 0)
             Debug.LogError("CATCHERCONTROLLER: Couldn't find any upcoming notes! This is bad!");
+        */
 
-        nearestNote = null;
-        ShouldHit = ShouldHit.OrderBy(o => o.zPos).ToList();
 
         // DEBUG
         if (!RhythmicGame.DebugNextNoteCheckEvents)
@@ -161,6 +198,9 @@ public class CatcherController : MonoBehaviour
 
         foreach (Note note in ShouldHit)
         {
+            if (note == null)
+                break;
+
             PlayerController.NextNoteText.text += string.Format("Measure: {0} Subbeat: {1} Track: {2} Lane: {3}\n",
                 note.measureNum, note.subbeatNum, note.noteTrack.trackName, note.noteLane.ToString());
             note.Color = new Color(0, 255, 0);

@@ -64,7 +64,8 @@ public class PlayerController : MonoBehaviour
             case Catcher.CatchResult.Powerup:
             {
                 AddScore();
-                CanDeclareMiss = true; // allow missing again and ignore the prev. cooldown if we have successfully caught a note
+                canLoseStreak = true;
+                streakCounter++;
 
                 e.note.noteTrack.IsTrackBeingCaptured = true;
 
@@ -101,7 +102,6 @@ public class PlayerController : MonoBehaviour
     }
 
     // TODO: cleanup, perhaps move the entire tracks failing thing into TracksController by passing along the note? Maybe this isn't even neccessary?
-    public bool CanDeclareMiss = true;
     public void DeclareMiss(Note note = null, Catcher.NoteMissType? misstype = null)
     {
         switch (misstype)
@@ -138,26 +138,28 @@ public class PlayerController : MonoBehaviour
             LoseStreak();
     }
 
+    bool canLoseStreak = true;
+    int streakCounter = 0;
+
     public async void LoseStreak()
     {
         // find next notes again
-        CatcherController.ShouldHit.Clear();
+        //CatcherController.ShouldHit.Clear();
+        CatcherController.ShouldHit = null;
         CatcherController.FindNextMeasureNotes();
 
-        if (!CanDeclareMiss)
+        if (!canLoseStreak)
             return;
+
+        streakCounter = 0;
+        canLoseStreak = false;
+
+        SetScore(0);
 
         src.PlayOneShot(streak_lose);
 
         MissText.gameObject.SetActive(true);
-        SetScore(0);
-
-        await Task.Delay(50);
-
-        CanDeclareMiss = false;
-        await Task.Delay(1450);
-        CanDeclareMiss = true;
-
+        await Task.Delay(1500);
         MissText.gameObject.SetActive(false);
     }
 

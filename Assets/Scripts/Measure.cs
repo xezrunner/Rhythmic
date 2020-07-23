@@ -66,6 +66,11 @@ public class Measure : MonoBehaviour
     public bool IsMeasureScorable = true; // Should this measure score points?
     public bool IsMeasureStreakable = true; // Should this measure count towards increasing the streak counter?
 
+    public void CaptureMeasure()
+    {
+
+    }
+
     // TODO: optimize!
     public MeasureSubBeat GetSubbeatForZpos(float zPos)
     {
