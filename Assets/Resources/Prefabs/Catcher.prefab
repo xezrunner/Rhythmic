@@ -121,7 +121,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laneType: 0
-  catchRadius: 0.24
+  catchRadiusExtra: 1
+  catchRadiusZOffset: 4
 --- !u!1 &5491892807177101391
 GameObject:
   m_ObjectHideFlags: 0
@@ -186,7 +187,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 2.11, y: 1, z: 1}
+  m_Size: {x: 2.11, y: 1, z: 1.4}
   m_Center: {x: 0, y: 0, z: -0.25}
 --- !u!54 &988171885712930618
 Rigidbody:
@@ -325,7 +326,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laneType: 0
-  catchRadius: 0.24
+  catchRadiusExtra: 1
+  catchRadiusZOffset: 4
 --- !u!1 &8320980251516813637
 GameObject:
   m_ObjectHideFlags: 0
@@ -447,4 +449,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laneType: 0
-  catchRadius: 0.24
+  catchRadiusExtra: 1
+  catchRadiusZOffset: 4

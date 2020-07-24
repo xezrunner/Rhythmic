@@ -18,15 +18,15 @@ public class CatcherController : MonoBehaviour
     public List<Catcher> Catchers = new List<Catcher>();
     public KeyCode[] keycodes = new KeyCode[] { KeyCode.LeftArrow, KeyCode.UpArrow, KeyCode.RightArrow };
 
-    float _catcherCollisionRadius;
-    public float CatcherCatchRadius
+    float _catcherRadiusExtra;
+    public float CatcherRadiusExtra
     {
-        get { return _catcherCollisionRadius; }
+        get { return _catcherRadiusExtra; }
         set
         {
-            _catcherCollisionRadius = value;
+            _catcherRadiusExtra = value;
             foreach (Catcher catcher in Catchers)
-                catcher.catchRadius = value;
+                catcher.catchRadiusExtra = value;
         }
     }
 

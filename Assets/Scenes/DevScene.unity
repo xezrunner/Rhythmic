@@ -435,7 +435,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moggSong: {fileID: 0}
-  songName: tut0
+  songName: perfectbrain
   songFolder: H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs
   songPosition: 0
   songPositionInBeats: 0
@@ -1438,6 +1438,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 442806660436292219, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: catchRadiusZOffset
+      value: 3.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 931307377839759503, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: catchRadiusZOffset
+      value: 3.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1497,6 +1507,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: AmplitudePlayer
+      objectReference: {fileID: 0}
+    - target: {fileID: 7745618178818144863, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: catchRadiusZOffset
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 9078876527922160011, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
