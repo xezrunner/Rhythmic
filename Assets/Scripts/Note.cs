@@ -44,6 +44,9 @@ public class Note : MonoBehaviour
         set
         {
             _isNoteActive = value;
+
+            NoteCollider.enabled = value;
+
             if (value)
                 NoteMeshRenderer.material.color = Track.Colors.ConvertColor(Color.black);
             else

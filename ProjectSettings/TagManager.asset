@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Track
   - MeasurePlane
+  - Note
+  - TrackTrigger
   - SubbeatTrigger
   layers:
   - Default
