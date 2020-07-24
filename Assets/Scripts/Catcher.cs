@@ -10,14 +10,19 @@ public class Catcher : MonoBehaviour
 
     public Track.LaneType laneType;
     //public float catchRadius = 0.27f;
-    public float catchRadius = 0.35f;
+    public float catchRadiusExtra = 0.6f;
+    public float catchRadiusZOffset = 3.5f;
 
     public event EventHandler<CatcherController.CatchEventArgs> OnCatch;
 
     public void PerformCatch()
     {
         var result = new CatcherController.CatchEventArgs();
-        Collider[] cast = Physics.OverlapSphere(transform.position, catchRadius); // Perform a raycast downwards from the catcher
+
+        Vector3 pos = new Vector3(transform.position.x, transform.position.y, transform.position.z - catchRadiusExtra / catchRadiusZOffset);
+        Vector3 radius = new Vector3(transform.localScale.x, transform.localScale.y, (transform.localScale.z + catchRadiusExtra));
+
+        Collider[] cast = Physics.OverlapBox(pos, radius); // Perform a raycast downwards from the catcher
 
         foreach (Collider hitPoint in cast)
         {
@@ -80,6 +85,8 @@ public class Catcher : MonoBehaviour
             return;
 
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, catchRadius);
+        Vector3 pos = new Vector3(transform.position.x, transform.position.y, transform.position.z - catchRadiusExtra / catchRadiusZOffset);
+        Vector3 radius = new Vector3(transform.localScale.x, transform.localScale.y, (transform.localScale.z + catchRadiusExtra));
+        Gizmos.DrawWireCube(pos, radius);
     }
 }

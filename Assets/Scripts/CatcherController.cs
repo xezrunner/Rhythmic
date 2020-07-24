@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -17,20 +18,20 @@ public class CatcherController : MonoBehaviour
     public List<Catcher> Catchers = new List<Catcher>();
     public KeyCode[] keycodes = new KeyCode[] { KeyCode.LeftArrow, KeyCode.UpArrow, KeyCode.RightArrow };
 
-    float _catcherCollisionRadius;
-    public float CatcherCatchRadius
+    float _catcherRadiusExtra;
+    public float CatcherRadiusExtra
     {
-        get { return _catcherCollisionRadius; }
+        get { return _catcherRadiusExtra; }
         set
         {
-            _catcherCollisionRadius = value;
+            _catcherRadiusExtra = value;
             foreach (Catcher catcher in Catchers)
-                catcher.catchRadius = value;
+                catcher.catchRadiusExtra = value;
         }
     }
 
     public Note LastHitNote;
-    //public List<Note> ShouldHit = new List<Note>();
+    Note nearestNote;
     public Note[] ShouldHit;
 
     void Awake()
@@ -51,12 +52,13 @@ public class CatcherController : MonoBehaviour
 
         OnSubbeatTrigger += CatcherController_OnSubbeatTrigger;
         OnMeasureTrigger += CatcherController_OnMeasureTrigger;
+        OnNoteExitTrigger += CatcherController_OnNoteTrigger;
     }
 
     #region MEASURE & SUBBEAT TRIGGERS
-
     public event EventHandler<int[]> OnSubbeatTrigger;
     public event EventHandler<int> OnMeasureTrigger;
+    public event EventHandler<Note> OnNoteExitTrigger;
 
     // TODO: Cleanup!
     void OnTriggerEnter(Collider coll)
@@ -82,42 +84,30 @@ public class CatcherController : MonoBehaviour
             int subbeatNum = int.Parse(subbeatName[1].ToString());
             OnSubbeatTrigger?.Invoke(null, new int[] { measureNum, subbeatNum });
         }
+        if (coll.tag == "Note")
+        {
+            string[] noteInfo = coll.name.Split('_'); // 0: CATCH | 1: lane | 2: instrument | 3: counter
+            int trackNum = int.Parse(noteInfo[2]);
+            int noteNum = int.Parse(noteInfo[3]);
+            Note note = TracksController.Tracks[trackNum].trackNotes[noteNum];
+
+            OnNoteExitTrigger?.Invoke(null, note);
+        }
     }
 
     // When we trigger a subbeat
     // e[0]: measure num | e[1]: subbeat num
     void CatcherController_OnSubbeatTrigger(object sender, int[] e)
     {
-        Note note = null;
-        //Note note = nearestNote != null ? nearestNote : ShouldHit[0];
+        Note note = nearestNote != null ? nearestNote : ShouldHit[0];
 
-        if (nearestNote != null)
+        if (note != null)
         {
-            if (nearestNote.noteTrack == CurrentTrack & CurrentMeasure.IsMeasureActive) // If we're on a track and we have a nearestNote set
-                note = nearestNote;
-            else if (nearestNote.noteTrack == CurrentTrack & !CurrentMeasure.IsMeasureActive) // If we're on a track with a nearestNote, but the current measure is a hole
-                Debug.LogWarning("CATCHERCONTROLLER: Current track has a nearest note, but current measure is inactive (hole). Do nothing!");
-            else
-                note = nearestNote;
-        }
-        else
-        {
-            if (CurrentMeasure.IsMeasureActive) // if we don't have a nearestNote but the current track measure is active
-                note = ShouldHit[CurrentTrack.ID.Value];
-            else // if we're on a measure hole without a nearestNote
-                note = ShouldHit[0];
-        }
-
-        try
-        {
-            if (note != null & LastHitNote != note & e[0] >= note.measureNum & e[1] >= note.subbeatNum & (transform.position.z - note.transform.lossyScale.z - 0.1f) > note.zPos)
+            if (LastHitNote != note & e[0] >= note.measureNum & transform.position.z > note.zPos & !CurrentMeasure.IsMeasureActive)
                 PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
         }
-        catch
-        {
-            
-            Debug.DebugBreak();
-        }
+        else
+            Debug.LogErrorFormat("CATCHER: couldn't find note to declare miss on!");
 
         UpdateSubbeatDebug(e[1]);
     }
@@ -144,7 +134,7 @@ public class CatcherController : MonoBehaviour
         //Debug.LogWarning(debugText);
 
         // find ShouldHit notes if there aren't any
-        if (ShouldHit == null)
+        if (ShouldHit == null & nearestNote == null)
             FindNextMeasureNotes(); // find the next measure for the [measure that we are on + 1]
 
         // DEBUG
@@ -154,7 +144,12 @@ public class CatcherController : MonoBehaviour
             CurrentMeasureID++;
     }
 
-    Note nearestNote;
+    // When we exit a note's collision trigger
+    private void CatcherController_OnNoteTrigger(object sender, Note e)
+    {
+        PlayerController.DeclareMiss(e, Catcher.NoteMissType.Ignore);
+    }
+
     public void FindNextMeasureNotes()
     {
         nearestNote = null;
@@ -235,6 +230,7 @@ public class CatcherController : MonoBehaviour
         //ShouldHit[prev_ShouldHitIndex] = note;
         CurrentTrack.nearestNote = note;
         nearestNote = note;
+        ShouldHit = null;
 
         // DEBUG
         PlayerController.NextNoteText.text = string.Format("Measure: {0} Subbeat: {1} Track: {2} Lane: {3}\n",

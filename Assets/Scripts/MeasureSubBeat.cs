@@ -27,11 +27,6 @@ public class MeasureSubBeat : MonoBehaviour
     public float StartZPos;
     public float EndZPos;
 
-    private void Awake()
-    {
-        EdgeLights = transform.GetChild(0).GetChild(1).gameObject.GetComponent<EdgeLightsController>();
-    }
-
     Color _edgeLightsColor;
     public Color EdgeLightsColor
     {
@@ -62,5 +57,10 @@ public class MeasureSubBeat : MonoBehaviour
             _edgeLightsGlow = value;
                 EdgeLights.EnableGlow = value;
         }
+    }
+
+    private void Awake()
+    {
+        EdgeLights = transform.GetChild(0).GetChild(1).gameObject.GetComponent<EdgeLightsController>();
     }
 }
