@@ -49,7 +49,8 @@ public class MoggSong : MonoBehaviour
         {
             if (line.Contains("length "))
             {
-                string[] tokens = line.Substring(11).Split(':');
+                int index = line.IndexOf("length ");
+                string[] tokens = line.Substring(index + 7, line.Length - (7 + index)).Split(':');
                 songLengthInMeasures = int.Parse(tokens[0]);
             }
             else if (line.Contains("countin "))

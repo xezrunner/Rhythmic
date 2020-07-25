@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
+using JetBrains.Annotations;
+using System.Collections.Generic;
+using System.Linq;
 
 public class Catcher : MonoBehaviour
 {
@@ -23,56 +26,62 @@ public class Catcher : MonoBehaviour
         Vector3 radius = new Vector3(transform.localScale.x, transform.localScale.y, (transform.localScale.z + catchRadiusExtra));
 
         Collider[] cast = Physics.OverlapBox(pos, radius); // Perform a raycast downwards from the catcher
+        List<Note> noteList = new List<Note>();
+        bool foundMeasurePlane = false;
 
-        foreach (Collider hitPoint in cast)
+        foreach (Collider hitPoint in cast) // go through every found object from the raycast
         {
-            if (hitPoint.transform == transform)
-                continue;
-            else if (hitPoint.transform.name == "CATCHER")
-                continue;
-            /*
-            if (hitPoint.gameObject.GetComponent<Note>() == null) // if the GameObject we hit doesn't have a Note (CATCH) component
+            if (hitPoint.tag == "Note") // if we hit a Note (CATCH)
             {
-                result.catchresult = CatchResult.Unknown; // unknown object
-                break;
-            }
-            */
-            else if (hitPoint.gameObject.GetComponent<Note>() != null) // if we have a Note (CATCH)
-            {
-                // get the Note (CATCH) object from the hit object
                 Note note = hitPoint.gameObject.GetComponent<Note>();
+                noteList.Add(note); // add Note to the note list
+            }
+            else if (hitPoint.name == "MeasurePlane") // we hit the track's plane
+            {
+                // in case we find notes after the measure plane, we want to cancel the measure plane registration
+                foundMeasurePlane = true;
+            }
+        }
 
-                result.note = note;
-                result.notetype = note.noteType;
+        if (foundMeasurePlane & noteList.Count == 0) // if we hit the measure plane and there are no notes
+        {
+            result.catchresult = CatchResult.Miss;
+            result.noteMissType = NoteMissType.Mispress;
+        }
+        else if (noteList.Count != 0) // if there are notes
+        {
+            // if we have multiple notes in a single hit, sort the notes based on their zPos, so that we know which one is the first one.
+            if (noteList.Count > 1)
+            {
+                List<Note> newList = noteList.OrderBy(o => o.zPos).ToList();
+                noteList = newList;
+            }
 
-                if (!note.IsNoteActive)
-                {
-                    result.catchresult = CatchResult.Inactive;
-                    break;
-                }
+            // We only want to catch the first note when we have multiple.
+            // The rest of the notes should be caught with following catches.
+            Note note = noteList[0];
 
+            result.note = note;
+            result.notetype = note.noteType;
+
+            if (!note.IsNoteActive) // if the note is inactive, we want to play the note animation, but do nothing else
+                result.catchresult = CatchResult.Inactive;
+            else
+            {
                 CatchResult catchResult;
                 if (note.noteType == Note.NoteType.Generic)
                     catchResult = CatchResult.Success;
                 else
                     catchResult = CatchResult.Powerup;
 
-                note.CaptureNote(); // destroy the note
+                note.CaptureNote(); // capture the note
 
                 result.catchresult = catchResult;
-
-                break;
             }
-            else if (hitPoint.gameObject.tag == "MeasurePlane" & result.catchresult == null)
-            {
-                result.catchresult = CatchResult.Miss;
-                result.noteMissType = NoteMissType.Mispress;
 
-                break;
-            }
         }
 
-        // if we haven't set a result, that means that the result is Empty
+        // if we haven't set a result, deafult to Empty
         if (result.catchresult == null)
             result.catchresult = CatchResult.Empty;
 

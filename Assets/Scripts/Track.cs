@@ -69,6 +69,11 @@ public class Track : MonoBehaviour
     public List<Measure> trackMeasures = new List<Measure>();
     public List<Measure> trackActiveMeasures = new List<Measure>();
 
+    private void Awake()
+    {
+        measurePrefab = Resources.Load("Prefabs/Measure");
+    }
+
     void Start()
     {
         // Set track material
@@ -76,8 +81,8 @@ public class Track : MonoBehaviour
     }
 
     // Materials
-    public string TrackMaterialPath = "Materials/Tracks/";
-    Material GetTrackMaterial(TrackType type)
+    public static string TrackMaterialPath = "Materials/Tracks/";
+    public static Material GetTrackMaterial(TrackType type)
     {
         Material finalMaterial;
         string finalPath = TrackMaterialPath + "TrackMaterial";
@@ -87,18 +92,15 @@ public class Track : MonoBehaviour
             finalMaterial = new Material(Shader.Find("Standard"));
             finalMaterial.color = Colors.ConvertColor(Colors.ColorFromTrackType(type));
 
-            if (RhythmicGame.DebugTrackMaterialEvents)
-                Debug.LogFormat(string.Format("TRACK [{0}]: Using material {1}", trackName, finalPath));
-
             return finalMaterial;
         }
         catch
         {
-            Debug.LogError(string.Format("TRACK [{0}]: Cannot find material {1}!", trackName, finalPath));
+            Debug.LogError(string.Format("TRACK: Cannot find material {0}!", finalPath));
             return null;
         }
     }
-    Material GetTrackMaterialFromString(string typestring)
+    public static Material GetTrackMaterialFromString(string typestring)
     {
         Material finalMaterial;
         string finalPath = TrackMaterialPath + "TrackMaterial";
@@ -108,14 +110,11 @@ public class Track : MonoBehaviour
             finalMaterial = new Material(Shader.Find("Standard"));
             finalMaterial.color = Colors.ConvertColor(Colors.ColorFromTrackType((TrackTypeFromString(typestring))));
 
-            if (RhythmicGame.DebugTrackMaterialEvents)
-                Debug.LogFormat(string.Format("TRACK [{0}]: Using material {1}", trackName, finalPath));
-
             return finalMaterial;
         }
         catch
         {
-            Debug.LogError(string.Format("TRACK [{0}]: Cannot find material {1}!", trackName, finalPath));
+            Debug.LogError(string.Format("TRACK: Cannot find material {0}!", finalPath));
             return null;
         }
     }
@@ -134,13 +133,11 @@ public class Track : MonoBehaviour
     }
 
     // Measures
-    UnityEngine.Object subBeatPrefab;
+    UnityEngine.Object measurePrefab;
     public void CreateMeasures(List<AmplitudeSongController.MeasureInfo> MeasureInfoList)
     {
-        if (subBeatPrefab == null)
-            subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
-
-        Vector3 subbeatScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos);
+        if (measurePrefab == null)
+            measurePrefab = Resources.Load("Prefabs/Measure");
 
         int counter = 0;
         foreach (AmplitudeSongController.MeasureInfo MeasureInfo in MeasureInfoList)
@@ -148,16 +145,22 @@ public class Track : MonoBehaviour
             // create GameObject for measure
             Vector3 measurePosition = new Vector3(MeasureContainer.transform.position.x, 0, MeasureInfo.startTimeInzPos);
 
-            GameObject measureObj = new GameObject() { name = string.Format("MEASURE_{0}", MeasureInfo.measureNum) };
-            measureObj.transform.localPosition = measurePosition;
-            measureObj.transform.parent = MeasureContainer.transform;
+            GameObject obj = (GameObject)GameObject.Instantiate(measurePrefab);
 
-            // create Measure script and add component
-            Measure measure = measureObj.AddComponent<Measure>();
+            obj.name = string.Format("MEASURE_{0}", MeasureInfo.measureNum);
+            obj.transform.localPosition = measurePosition;
+            obj.transform.localScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos * 8);
+            obj.transform.parent = MeasureContainer.transform;
+
+            // get Measure script and add component
+            Measure measure = obj.GetComponent<Measure>();
+
             measure.measureNum = counter;
-
+            measure.trackInstrument = Instrument;
             measure.startTimeInZPos = MeasureInfo.startTimeInzPos;
             measure.endTimeInZPos = MeasureInfo.endTimeInzPos;
+            measure.MeasurePlane.GetComponent<MeshRenderer>().material = GetTrackMaterial(Instrument.Value);
+            measure.CreateSubbeats();
 
             foreach (Note note in trackNotes) // add notes to measure note list
             {
@@ -168,36 +171,6 @@ public class Track : MonoBehaviour
             if (!measure.IsMeasureEmpty)
                 trackActiveMeasures.Add(measure);
 
-            // create subbeats
-            float lastSubbeatPosition = MeasureInfo.startTimeInzPos;
-            for (int i = 0; i < 8; i++)
-            {
-                GameObject obj = (GameObject)GameObject.Instantiate(subBeatPrefab);
-                MeasureSubBeat script = obj.GetComponent<MeasureSubBeat>();
-
-                obj.name = string.Format("MEASURE{0}_SUBBEAT{1}", counter, i);
-                obj.transform.localScale = subbeatScale;
-                obj.transform.localPosition = new Vector3(MeasureContainer.transform.position.x, 0, lastSubbeatPosition);
-                obj.transform.parent = measureObj.transform;
-                obj.transform.GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = GetTrackMaterial(Instrument.Value); // TODO: code cleanup!
-
-                script.subbeatNum = i;
-
-                script.EdgeLightsGlowIntensity = 0.5f;
-                script.EdgeLightsColor = Colors.ColorFromTrackType(Instrument.Value);
-
-                if (i == 0) // measure trigger
-                    script.IsMeasureSubbeat = true;
-
-                script.StartZPos = lastSubbeatPosition;
-
-                measure.subbeatObjectList.Add(obj);
-                measure.subbeatList.Add(script);
-
-                lastSubbeatPosition += amp_ctrl.subbeatLengthInzPos;
-                script.EndZPos = lastSubbeatPosition;
-            }
-
             // deactivate measure if doesn't contain notes
             if (measure.IsMeasureEmpty & DisableEmptyMeasures)
                 measure.IsMeasureActive = false;
@@ -205,12 +178,6 @@ public class Track : MonoBehaviour
             trackMeasures.Add(measure);
 
             counter++;
-        }
-
-        foreach (Note note in trackNotes)
-        {
-            // TODO: temp, move this to a better place / optimize!!! ?
-            note.subbeatNum = trackMeasures[note.measureNum].GetSubbeatForZpos(note.zPos).subbeatNum;
         }
     }
 
@@ -228,7 +195,7 @@ public class Track : MonoBehaviour
     }
     public Measure GetMeasureForZPos(float zPos)
     {
-        return trackMeasures[amp_ctrl.GetMeasureNumForzPos(zPos)];
+        return trackMeasures[amp_ctrl.GetMeasureNumForZPos(zPos)];
     }
     public Measure GetMeasureForID(int id)
     {

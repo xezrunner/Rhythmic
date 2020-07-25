@@ -435,7 +435,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moggSong: {fileID: 0}
-  songName: perfectbrain
+  songName: tut0
   songFolder: H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs
   songPosition: 0
   songPositionInBeats: 0
@@ -1508,6 +1508,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: AmplitudePlayer
       objectReference: {fileID: 0}
+    - target: {fileID: 5759535520881636931, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7745618178818144863, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: catchRadiusZOffset
@@ -1523,11 +1528,6 @@ PrefabInstance:
       propertyPath: ScoreText
       value: 
       objectReference: {fileID: 1888354784}
-    - target: {fileID: 9078876527922160011, guid: c9077085010b3e0408e2309405d63a81,
-        type: 3}
-      propertyPath: ZOffset
-      value: 2.5
-      objectReference: {fileID: 0}
     - target: {fileID: 9078876527922160011, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: SubbeatCounterText
@@ -2219,7 +2219,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 1
+  m_UiScaleMode: 0
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}

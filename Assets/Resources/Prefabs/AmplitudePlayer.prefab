@@ -297,12 +297,11 @@ MonoBehaviour:
   MeasureCounterText: {fileID: 0}
   NextNoteText: {fileID: 0}
   StartZOffset: 4
-  ZOffset: 0
+  ZOffset: 2.5
   IsPlayerMoving: 0
   PlayerSpeed: 8
   Score: 0
   Multiplier: 1
-  CanDeclareMiss: 1
 --- !u!1001 &1163137473501249540
 PrefabInstance:
   m_ObjectHideFlags: 0

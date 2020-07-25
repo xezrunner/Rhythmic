@@ -148,7 +148,7 @@ public class PlayerController : MonoBehaviour
         CatcherController.ShouldHit = null;
         CatcherController.FindNextMeasureNotes();
 
-        if (!canLoseStreak)
+        if (streakCounter < 1)
             return;
 
         streakCounter = 0;

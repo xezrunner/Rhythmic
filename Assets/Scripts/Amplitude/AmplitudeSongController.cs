@@ -16,6 +16,7 @@ public class AmplitudeSongController : MonoBehaviour
     /// </summary>
 
     public static AmplitudeSongController Instance;
+    public PlayerController PlayerController { get { return PlayerController.Instance; } }
     AmplitudeTracksController TracksController = (AmplitudeTracksController)AmplitudeTracksController.Instance;
 
     MidiReader reader;
@@ -29,6 +30,7 @@ public class AmplitudeSongController : MonoBehaviour
     // Song properties
 
     // Song length in measures (1 measure = 4 beats)
+    public int songCountIn { get { return moggSong.songCountInTime; } }
     public int songLengthInMeasures { get { return moggSong.songLengthInMeasures + moggSong.songCountInTime; } }
     // Tunnel traversal scale
     public float fudgeFactor { get { return moggSong.songFudgeFactor; } }
@@ -47,7 +49,7 @@ public class AmplitudeSongController : MonoBehaviour
     // Convert a MIDI tick into game zPos
     public float GetTickTimeInzPos(float absoluteTime)
     {
-        return ((tickInMs * absoluteTime / 1000f) * 4f) * TunnelSpeedAccountation;
+        return ((tickInMs * absoluteTime / 1000f * 4f + secPerBeat - 1)) * TunnelSpeedAccountation;
     }
     // Get back the Z position for a note from a MIDI tick
     public float GetzPosForNote(float absoluteTime) { return GetTickTimeInzPos(absoluteTime); }
@@ -89,13 +91,6 @@ public class AmplitudeSongController : MonoBehaviour
     }
     void Start()
     {
-        /*
-        src_drums = gameObject.AddComponent<AudioSource>();
-        src_bass = gameObject.AddComponent<AudioSource>();
-        src_synth = gameObject.AddComponent<AudioSource>();
-        src_bgclick = gameObject.AddComponent<AudioSource>();
-        */
-
         // Create Tracks controller!
         GameObject AmpTracksGameObject = new GameObject() { name = "TRACKS" };
         TracksController = AmpTracksGameObject.AddComponent<AmplitudeTracksController>();
@@ -118,24 +113,11 @@ public class AmplitudeSongController : MonoBehaviour
 
         //  Create tracks!
         TracksController.CreateTracks();
-
         Debug.LogFormat("AMP_TRACKS: Using tunnel scale fudge factor {0}", fudgeFactor);
 
         // Load song!
         // Assign clips to AudioSources
         // TODO: read from mogg!!!
-        /*
-        bgclick = (AudioClip)Resources.Load(string.Format("Songs/{0}_bgclick", songName));
-        drums = (AudioClip)Resources.Load(string.Format("Songs/{0}_drums", songName));
-        bass = (AudioClip)Resources.Load(string.Format("Songs/{0}_bass", songName));
-        synth = (AudioClip)Resources.Load(string.Format("Songs/{0}_synth", songName));
-
-        src_drums.clip = drums;
-        src_bass.clip = bass;
-        src_synth.clip = synth;
-        src_bgclick.clip = bgclick;
-        */
-
         int counter = 0;
         foreach (string track in songTracks)
         {
@@ -162,6 +144,10 @@ public class AmplitudeSongController : MonoBehaviour
         // Get closest notes
         // TODO: do this somewhere else during init!
         CatcherController.Instance.FindNextMeasureNotes();
+
+        // TODO: cleanup! (?)
+        //PlayerController.StartZOffset += songCountIn;
+        PlayerController.PlayerSpeed = 4 * TunnelSpeedAccountation;
     }
     void Update()
     {
@@ -233,20 +219,40 @@ public class AmplitudeSongController : MonoBehaviour
     }
 
     // Gets the measure number for a z position (Rhythmic Game unit)
-    public int GetMeasureNumForzPos(float zPos)
+    public int GetMeasureNumForZPos(float zPos)
     {
         string zPosFormat = zPos.ToString("0.0");
         zPos = float.Parse(zPosFormat);
         foreach (MeasureInfo measure in songMeasures)
         {
-            string measureEndTimeFormat = measure.endTimeInzPos.ToString("0.0");
-            float endTimeInzPos = float.Parse(measureEndTimeFormat);
-            if (zPos < endTimeInzPos)
+            float endTimeInZPos = float.Parse(measure.endTimeInzPos.ToString("0.0"));
+            if (zPos < endTimeInZPos)
                 return measure.measureNum;
             else
                 continue;
         }
         return -1;
+    }
+
+    public int GetSubbeatNumForZPos(int measureNum, float zPos)
+    {
+        float zPosTime = float.Parse(zPos.ToString("0.0"));
+
+        MeasureInfo info = songMeasures[measureNum];
+        float measureTime = float.Parse((info.startTimeInzPos + subbeatLengthInzPos).ToString("0.0"));
+
+        int finalValue = -1;
+
+        for (int i = 0; i < 8; i++)
+        {
+            if (zPosTime < measureTime)
+                return i;
+            else
+                measureTime += subbeatLengthInzPos;
+        }
+
+        Debug.LogErrorFormat("AMP_CTRL: couldn't find subbeat for note at measure {0}, zPos {1}", measureNum, zPos);
+        return finalValue;
     }
 
     public class MeasureInfo

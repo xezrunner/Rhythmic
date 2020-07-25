@@ -34,7 +34,7 @@ public class AmplitudeTrack : Track
 
             // get zPosition and measure number
             float zPos = amp_ctrl.GetzPosForNote(note.AbsoluteTime);
-            int measureNum = amp_ctrl.GetMeasureNumForzPos(zPos);
+            int measureNum = amp_ctrl.GetMeasureNumForZPos(zPos);
 
             // create note!
             CreateNote(lane, zPos, noteName, noteType, laneType, this, measureNum);
@@ -63,6 +63,7 @@ public class AmplitudeTrack : Track
         note.noteLane = noteLane;
         note.noteTrack = track;
         note.measureNum = measureNum;
+        note.subbeatNum = amp_ctrl.GetSubbeatNumForZPos(measureNum, zPosition);
         note.zPos = zPosition;
         note.DotLightColor = Track.Colors.ColorFromTrackType(track.Instrument.Value);
 
