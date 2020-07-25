@@ -103,7 +103,7 @@ public class CatcherController : MonoBehaviour
 
         if (note != null)
         {
-            if (LastHitNote != note & e[0] >= note.measureNum & transform.position.z > note.zPos & !CurrentMeasure.IsMeasureActive)
+            if (LastHitNote != note & e[0] > note.measureNum & transform.position.z > note.zPos & !CurrentMeasure.IsMeasureActive)
                 PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
         }
         else
@@ -147,7 +147,8 @@ public class CatcherController : MonoBehaviour
     // When we exit a note's collision trigger
     private void CatcherController_OnNoteTrigger(object sender, Note e)
     {
-        PlayerController.DeclareMiss(e, Catcher.NoteMissType.Ignore);
+        if (e.IsNoteActive & !e.IsNoteCaptured)
+            PlayerController.DeclareMiss(e, Catcher.NoteMissType.Ignore);
     }
 
     public void FindNextMeasureNotes()

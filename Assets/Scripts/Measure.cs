@@ -5,13 +5,53 @@ using UnityEngine;
 
 public class Measure : MonoBehaviour
 {
+    AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
+
     public int measureNum; // measure ID
     public List<Note> noteList = new List<Note>(); // notes in this measure
     public List<MeasureSubBeat> subbeatList = new List<MeasureSubBeat>();
     public List<GameObject> subbeatObjectList = new List<GameObject>(); // TODO: this is bad
+    public Track.TrackType? trackInstrument;
 
     public float startTimeInZPos;
     public float endTimeInZPos;
+
+    public GameObject Visuals;
+    public GameObject MeasurePlane;
+
+    public EdgeLightsController EdgeLights;
+
+    Color _edgeLightsColor;
+    public Color EdgeLightsColor
+    {
+        get { return _edgeLightsColor; }
+        set
+        {
+            _edgeLightsColor = value;
+            EdgeLights.Color = value;
+        }
+    }
+
+    float _edgeLightsGlowIntensity;
+    public float EdgeLightsGlowIntensity
+    {
+        get { return EdgeLights.GlowIntensity; }
+        set
+        {
+            EdgeLights.GlowIntensity = value;
+        }
+    }
+
+    bool _edgeLightsGlow;
+    public bool EdgeLightsGlow
+    {
+        get { return _edgeLightsGlow; }
+        set
+        {
+            _edgeLightsGlow = value;
+            EdgeLights.EnableGlow = value;
+        }
+    }
 
     /// <summary>
     /// If a measure doesn't contain any notes, this returns true.
@@ -28,10 +68,7 @@ public class Measure : MonoBehaviour
         set
         {
             _isMeasureActive = value;
-            foreach (GameObject obj in subbeatObjectList)
-            {
-                obj.transform.GetChild(0).gameObject.SetActive(value);
-            }
+            Visuals.SetActive(value);
         }
     }
 
@@ -65,6 +102,56 @@ public class Measure : MonoBehaviour
 
     public bool IsMeasureScorable = true; // Should this measure score points?
     public bool IsMeasureStreakable = true; // Should this measure count towards increasing the streak counter?
+
+    void Awake()
+    {
+        subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
+
+        EdgeLights = transform.GetChild(0).GetChild(1).gameObject.GetComponent<EdgeLightsController>();
+    }
+
+    UnityEngine.Object subBeatPrefab;
+    private void Start()
+    {
+        // create subbeats
+        if (subBeatPrefab == null)
+            subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
+
+        Vector3 subbeatScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos);
+        float lastSubbeatPosition = startTimeInZPos;
+
+        for (int i = 0; i < 8; i++)
+        {
+            GameObject obj = (GameObject)GameObject.Instantiate(subBeatPrefab);
+            MeasureSubBeat script = obj.GetComponent<MeasureSubBeat>();
+
+            obj.name = string.Format("MEASURE{0}_SUBBEAT{1}", measureNum, i);
+            obj.transform.localScale = subbeatScale;
+            obj.transform.localPosition = new Vector3(transform.position.x, 0, lastSubbeatPosition);
+            obj.transform.parent = transform;
+
+            script.subbeatNum = i;
+
+            EdgeLightsGlowIntensity = 0.5f;
+            EdgeLightsColor = Track.Colors.ColorFromTrackType(trackInstrument.Value);
+
+            if (i == 0) // measure trigger
+                script.IsMeasureSubbeat = true;
+
+            script.StartZPos = lastSubbeatPosition;
+
+            subbeatObjectList.Add(obj);
+            subbeatList.Add(script);
+
+            lastSubbeatPosition += amp_ctrl.subbeatLengthInzPos;
+            script.EndZPos = lastSubbeatPosition;
+        }
+    }
+
+    public void CreateSubbeats()
+    {
+        
+    }
 
     public void CaptureMeasure()
     {
