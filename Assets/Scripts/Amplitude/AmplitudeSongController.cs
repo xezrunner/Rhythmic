@@ -31,7 +31,7 @@ public class AmplitudeSongController : MonoBehaviour
 
     // Song length in measures (1 measure = 4 beats)
     public int songCountIn { get { return moggSong.songCountInTime; } }
-    public int songLengthInMeasures { get { return moggSong.songLengthInMeasures + moggSong.songCountInTime; } }
+    public int songLengthInMeasures { get { return moggSong.songLengthInMeasures; } }
     // Tunnel traversal scale
     public float fudgeFactor { get { return moggSong.songFudgeFactor; } }
     // Song beats per minute - this is determined by the song you're trying to sync up to
@@ -45,11 +45,11 @@ public class AmplitudeSongController : MonoBehaviour
     // Account for the song tunnel scaling
     public float TunnelSpeedAccountation { get { return (1f + fudgeFactor); } }
     // Account for the song BPM and tunnel scaling
-    public float SongSpeedAccountation { get { return secPerBeat * TunnelSpeedAccountation; } }
+    //public float SongSpeedAccountation { get { return secPerBeat * TunnelSpeedAccountation; } }
     // Convert a MIDI tick into game zPos
     public float GetTickTimeInzPos(float absoluteTime)
     {
-        return ((tickInMs * absoluteTime / 1000f * 4f + secPerBeat - 1)) * TunnelSpeedAccountation;
+        return ((tickInMs * absoluteTime) / 1000f) * TunnelSpeedAccountation / (tickInMs * DeltaTicksPerQuarterNote / 1000f) * 4;
     }
     // Get back the Z position for a note from a MIDI tick
     public float GetzPosForNote(float absoluteTime) { return GetTickTimeInzPos(absoluteTime); }
@@ -70,20 +70,8 @@ public class AmplitudeSongController : MonoBehaviour
     //The offset to the first beat of the song in seconds
     public float firstBeatOffset;
 
-    #region AudioSources and AudioClips
     //An AudioSource attached to this GameObject that will play the music.
     List<AudioSource> audiosrcList = new List<AudioSource>();
-
-    public AudioSource src_drums;
-    public AudioSource src_bass;
-    public AudioSource src_synth;
-    public AudioSource src_bgclick;
-
-    public AudioClip drums;
-    public AudioClip bass;
-    public AudioClip synth;
-    public AudioClip bgclick;
-    #endregion
 
     void Awake()
     {
@@ -144,10 +132,6 @@ public class AmplitudeSongController : MonoBehaviour
         // Get closest notes
         // TODO: do this somewhere else during init!
         CatcherController.Instance.FindNextMeasureNotes();
-
-        // TODO: cleanup! (?)
-        //PlayerController.StartZOffset += songCountIn;
-        PlayerController.PlayerSpeed = 4 * TunnelSpeedAccountation;
     }
     void Update()
     {
@@ -203,7 +187,7 @@ public class AmplitudeSongController : MonoBehaviour
     {
         List<MeasureInfo> finalList = new List<MeasureInfo>();
         float prevTime = 0f;
-        for (int i = 0; i <= songLengthInMeasures; i++)
+        for (int i = 0; i < songLengthInMeasures; i++)
         {
             MeasureInfo measure = new MeasureInfo() { measureNum = i, startTimeInzPos = prevTime, endTimeInzPos = prevTime + measureLengthInzPos };
             prevTime = prevTime + measureLengthInzPos;

@@ -29,7 +29,8 @@ public class AmplitudePlayerController : PlayerController
         if (IsPlayerMoving)
         {
             // get z position
-            float zPos = (amp_ctrl.songPosition * PlayerSpeed + amp_ctrl.SongSpeedAccountation) - ZOffset - StartZOffset;
+            float zPos = amp_ctrl.songPosition * amp_ctrl.secPerBeat * PlayerSpeed * amp_ctrl.TunnelSpeedAccountation - StartZOffset - ZOffset;
+
             // apply z position, taking into account the offset props
             transform.position = new Vector3(transform.position.x, transform.position.y, zPos);
 

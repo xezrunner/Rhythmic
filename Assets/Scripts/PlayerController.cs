@@ -64,7 +64,6 @@ public class PlayerController : MonoBehaviour
             case Catcher.CatchResult.Powerup:
             {
                 AddScore();
-                canLoseStreak = true;
                 streakCounter++;
 
                 e.note.noteTrack.IsTrackBeingCaptured = true;
@@ -138,7 +137,6 @@ public class PlayerController : MonoBehaviour
             LoseStreak();
     }
 
-    bool canLoseStreak = true;
     int streakCounter = 0;
 
     public async void LoseStreak()
@@ -152,7 +150,6 @@ public class PlayerController : MonoBehaviour
             return;
 
         streakCounter = 0;
-        canLoseStreak = false;
 
         SetScore(0);
 

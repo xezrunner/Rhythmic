@@ -318,7 +318,6 @@ GameObject:
   m_Component:
   - component: {fileID: 22153599}
   - component: {fileID: 22153598}
-  - component: {fileID: 22153597}
   m_Layer: 0
   m_Name: AMPController
   m_TagString: Untagged
@@ -326,102 +325,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!82 &22153597
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 22153596}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: db6e4cf3e425c4047a85dbb3f9d2dee7, type: 3}
-  m_PlayOnAwake: 0
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!114 &22153598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -435,20 +338,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moggSong: {fileID: 0}
-  songName: tut0
+  songName: perfectbrain
   songFolder: H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs
   songPosition: 0
   songPositionInBeats: 0
   dspSongTime: 0
   firstBeatOffset: 0
-  src_drums: {fileID: 0}
-  src_bass: {fileID: 0}
-  src_synth: {fileID: 0}
-  src_bgclick: {fileID: 0}
-  drums: {fileID: 0}
-  bass: {fileID: 0}
-  synth: {fileID: 0}
-  bgclick: {fileID: 0}
   IsSongPlaying: 0
 --- !u!4 &22153599
 Transform:
@@ -1063,7 +958,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &610013556
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1443,25 +1338,35 @@ PrefabInstance:
       propertyPath: catchRadiusZOffset
       value: 3.5
       objectReference: {fileID: 0}
+    - target: {fileID: 442806660436292219, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: catchRadiusExtra
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 931307377839759503, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: catchRadiusZOffset
       value: 3.5
       objectReference: {fileID: 0}
-    - target: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
+    - target: {fileID: 931307377839759503, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
+      propertyPath: catchRadiusExtra
+      value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
+    - target: {fileID: 5759535519322832050, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.05
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 15
       objectReference: {fileID: 0}
-    - target: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
+    - target: {fileID: 5759535519322832050, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.5
+      value: -6.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5759535519322832053, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: field of view
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
@@ -1517,6 +1422,11 @@ PrefabInstance:
         type: 3}
       propertyPath: catchRadiusZOffset
       value: 3.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7745618178818144863, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: catchRadiusExtra
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9078876527922160011, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}

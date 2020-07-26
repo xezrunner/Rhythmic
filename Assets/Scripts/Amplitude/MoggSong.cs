@@ -26,7 +26,7 @@ public class MoggSong : MonoBehaviour
     // If a song doesn't have a fudge factor defined, assume it's 1.
     // TODO: have it just simply be assigned to be 1 by defaulT??
     float? _songFudgeFactor;
-    public float songFudgeFactor { get { if (!_songFudgeFactor.HasValue) return 1f; else return _songFudgeFactor.Value; } set { _songFudgeFactor = value; } }
+    public float songFudgeFactor { get { if (!_songFudgeFactor.HasValue) return 0f; else return _songFudgeFactor.Value; } set { _songFudgeFactor = value; } }
 
     public int[] songEnableOrder { get; set; }
     public int[] songSectionStartBars { get; set; }
@@ -52,6 +52,8 @@ public class MoggSong : MonoBehaviour
                 int index = line.IndexOf("length ");
                 string[] tokens = line.Substring(index + 7, line.Length - (7 + index)).Split(':');
                 songLengthInMeasures = int.Parse(tokens[0]);
+                if (line.Contains("LESS THAN")) // moggsongs report 4 less than actual, although tutorial doesn't
+                    songLengthInMeasures += 4;
             }
             else if (line.Contains("countin "))
                 songCountInTime = int.Parse(line.Substring(line.IndexOf("countin ") + 8, 1));
