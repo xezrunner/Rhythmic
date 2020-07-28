@@ -291,6 +291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2594426827c32e845925fc884f8e3bd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Rigidbody: {fileID: 0}
   ScoreText: {fileID: 0}
   MissText: {fileID: 0}
   SubbeatCounterText: {fileID: 0}
@@ -309,6 +310,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5759535520881636929}
     m_Modifications:
+    - target: {fileID: 3899837851406448113, guid: 8dead002306c87a4eb1a893f1223acc1,
+        type: 3}
+      propertyPath: m_ConnectedAnchor.y
+      value: 0.099999905
+      objectReference: {fileID: 0}
     - target: {fileID: 5491892807177101391, guid: 8dead002306c87a4eb1a893f1223acc1,
         type: 3}
       propertyPath: m_Name

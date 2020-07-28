@@ -29,7 +29,7 @@ public class AmplitudeTrack : Track
             GameObject lane = GetLaneObjectForLaneType(laneType);
 
             // assign name and type
-            string noteName = string.Format("CATCH_{0}_{1}_{2}", laneType, (int)Instrument, counter);
+            string noteName = string.Format("CATCH_{0}_{1}_{2}", laneType, Instrument, counter);
             Note.NoteType noteType = Note.NoteType.Generic; // TODO: AMP note types for powerups?!
 
             // get zPosition and measure number

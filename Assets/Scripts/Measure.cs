@@ -72,6 +72,20 @@ public class Measure : MonoBehaviour
         }
     }
 
+    bool _isMeasureEnabled = true;
+    public bool IsMeasureEnabled
+    {
+        get { return _isMeasureEnabled; }
+        set
+        {
+            _isMeasureEnabled = value;
+
+            if (!value)
+                MeasurePlane.GetComponent<MeshRenderer>().material.color = Color.black;
+            SetMeasureNotesActive(value);
+        }
+    }
+
     bool _isMeasureCapturable = true;
     public bool IsMeasureCapturable // Is this measure capable of being captured? TODO: revisit this. Perhaps some corrupt measures? Lose streak when not capturable.
     {
@@ -93,7 +107,7 @@ public class Measure : MonoBehaviour
     }
     public void SetMeasureNotesToBeCaptured(bool state = true)
     {
-        if (!IsMeasureCapturable & !IsMeasureEmpty)
+        if (!IsMeasureCapturable & !IsMeasureEmpty & IsMeasureEnabled)
             return;
 
         foreach (Note note in noteList)
@@ -150,7 +164,7 @@ public class Measure : MonoBehaviour
 
     public void CreateSubbeats()
     {
-        
+
     }
 
     public void CaptureMeasure()

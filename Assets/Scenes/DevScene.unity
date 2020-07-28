@@ -338,7 +338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moggSong: {fileID: 0}
-  songName: perfectbrain
+  songName: tut0
   songFolder: H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs
   songPosition: 0
   songPositionInBeats: 0
@@ -453,6 +453,12 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 35808469}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!54 &36772121 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 4789142431228790088, guid: c9077085010b3e0408e2309405d63a81,
+    type: 3}
+  m_PrefabInstance: {fileID: 1082314616}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &112551184
 GameObject:
   m_ObjectHideFlags: 0
@@ -1353,6 +1359,21 @@ PrefabInstance:
       propertyPath: catchRadiusExtra
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1378167108909235804, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2754877525888398837, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_ConnectedAnchor.y
+      value: -1.95
+      objectReference: {fileID: 0}
+    - target: {fileID: 2754877525888398837, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_ConnectedBody
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 5759535519322832050, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1367,26 +1388,6 @@ PrefabInstance:
         type: 3}
       propertyPath: field of view
       value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
@@ -1453,6 +1454,11 @@ PrefabInstance:
       propertyPath: NextNoteText
       value: 
       objectReference: {fileID: 1889987552}
+    - target: {fileID: 9078876527922160011, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: Rigidbody
+      value: 
+      objectReference: {fileID: 36772121}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c9077085010b3e0408e2309405d63a81, type: 3}
 --- !u!1 &1120138614

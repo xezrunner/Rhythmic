@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Transactions;
 using UnityEngine;
 
 public class CatcherController : MonoBehaviour
@@ -87,9 +88,8 @@ public class CatcherController : MonoBehaviour
         if (coll.tag == "Note")
         {
             string[] noteInfo = coll.name.Split('_'); // 0: CATCH | 1: lane | 2: instrument | 3: counter
-            int trackNum = int.Parse(noteInfo[2]);
             int noteNum = int.Parse(noteInfo[3]);
-            Note note = TracksController.Tracks[trackNum].trackNotes[noteNum];
+            Note note = CurrentTrack.trackNotes[noteNum];
 
             OnNoteExitTrigger?.Invoke(null, note);
         }
@@ -103,7 +103,7 @@ public class CatcherController : MonoBehaviour
 
         if (note != null)
         {
-            if (LastHitNote != note & e[0] > note.measureNum & transform.position.z > note.zPos & !CurrentMeasure.IsMeasureActive)
+            if (LastHitNote != note & e[0] >= note.measureNum & transform.position.z > note.zPos & CurrentMeasure.IsMeasureActive & CurrentTrack != note.noteTrack)
                 PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
         }
         else
@@ -116,6 +116,9 @@ public class CatcherController : MonoBehaviour
     // e: the measure num
     void CatcherController_OnMeasureTrigger(object sender, int e)
     {
+        if (CurrentMeasureID != e)
+            CurrentMeasureID++;
+
         Measure measure = CurrentTrack.GetMeasureForID(e);
         // if the current measure we're on is not empty
         if (!measure.IsMeasureEmpty) // set the notes to 'to be captured' state
@@ -139,15 +142,12 @@ public class CatcherController : MonoBehaviour
 
         // DEBUG
         UpdateMeasureDebug(e);
-
-        if (CurrentMeasureID != e)
-            CurrentMeasureID++;
     }
 
     // When we exit a note's collision trigger
     private void CatcherController_OnNoteTrigger(object sender, Note e)
     {
-        if (e.IsNoteActive & !e.IsNoteCaptured)
+        if (!e.IsNoteCaptured)
             PlayerController.DeclareMiss(e, Catcher.NoteMissType.Ignore);
     }
 
@@ -159,8 +159,9 @@ public class CatcherController : MonoBehaviour
         ShouldHit = new Note[TracksController.Tracks.Count];
         foreach (Track track in TracksController.Instance.Tracks)
         {
-            Measure measure;
+            Measure measure = null;
 
+            /*
             if (!track.IsTrackEmpty)
                 measure = track.trackActiveMeasures[track.activeMeasureNum == -1 ? 0 : track.activeMeasureNum + 1];
             else
@@ -171,13 +172,27 @@ public class CatcherController : MonoBehaviour
                 Debug.LogWarningFormat("CATCHERCONTROLLER: The upcoming measure in track {0} doesn't have any notes!", track.trackName);
                 continue;
             }
+            */
+            foreach (Measure m in track.trackMeasures) // find next enabled measure
+            {
+                if (m.IsMeasureEnabled & !m.IsMeasureEmpty & m.startTimeInZPos > transform.position.z)
+                {
+                    measure = m;
+                    break;
+                }
+            }
 
-            Note note = measure.noteList[0];
+            if (measure == null) // if no measure was found, get out
+                break;
+            
+            Note note = measure.noteList[0]; // add first note of found measure to ShouldHit
             if (note.IsNoteActive & !note.IsNoteCaptured & !note.IsNoteToBeCaptured & !track.IsTrackBeingCaptured)
             {
                 ShouldHit[track.ID.Value] = note;
                 track.nearestNote = note;
             }
+            else
+                Debug.LogWarningFormat("CATCHER: The first note of a measure was not suitable for ShouldHit! | Note: {0}", note.name);
         }
 
         /*
@@ -204,12 +219,21 @@ public class CatcherController : MonoBehaviour
     }
     public void FindNextNote()
     {
-        Note note;
-        int prev_ShouldHitIndex = CurrentTrack.trackNotes.IndexOf(LastHitNote);
+        Note note = null;
 
-        note = CurrentTrack.trackNotes[prev_ShouldHitIndex + 1];
+        foreach (Note n in CurrentTrack.trackNotes)
+        {
+            if (n.IsNoteActive & !n.IsNoteCaptured & n.zPos >= transform.position.z)
+            {
+                note = n;
+                break;
+            }
+        }
 
         /*
+        int prev_ShouldHitIndex = CurrentTrack.trackNotes.IndexOf(LastHitNote);
+        note = CurrentTrack.trackNotes[prev_ShouldHitIndex + 1];
+
         if (CurrentTrack.nearestNote == null & ShouldHit.Count != 0)
         {
             note = ShouldHit[0];
@@ -232,6 +256,8 @@ public class CatcherController : MonoBehaviour
         CurrentTrack.nearestNote = note;
         nearestNote = note;
         ShouldHit = null;
+
+        note.Color = new Color(255, 0, 0);
 
         // DEBUG
         PlayerController.NextNoteText.text = string.Format("Measure: {0} Subbeat: {1} Track: {2} Lane: {3}\n",
@@ -272,11 +298,6 @@ public class CatcherController : MonoBehaviour
         if (e.catchresult == Catcher.CatchResult.Powerup || e.catchresult == Catcher.CatchResult.Success)
             FindNextNote();
 
-    }
-
-    public void PerformCatch(Track.LaneType lane)
-    {
-        GetCatcherFromLane(lane).PerformCatch();
     }
 
     KeyCode pressedKey = KeyCode.None;

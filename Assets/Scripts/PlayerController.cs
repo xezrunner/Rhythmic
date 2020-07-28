@@ -179,8 +179,10 @@ public class PlayerController : MonoBehaviour
         // position the player
         // TODO: animate the player model to the position
         // TODO: improve this
-        transform.position = new Vector3(track.transform.position.x,
+        Vector3 pos = new Vector3(track.transform.position.x,
             transform.position.y, track.transform.position.z);
+
+        transform.position = pos;
 
         // let stuff know of the switch
         OnTrackSwitched?.Invoke(null, id);

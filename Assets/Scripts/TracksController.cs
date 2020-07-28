@@ -59,7 +59,7 @@ public class TracksController : MonoBehaviour
     public void DisableCurrentMeasures()
     {
         foreach (Track track in Tracks)
-            track.GetMeasureForID(CatcherController.CurrentMeasureID).IsMeasureCapturable = false;
+            track.GetMeasureForID(CatcherController.CurrentMeasureID).IsMeasureEnabled = false;
     }
 
     public void SetCurrentMeasuresNotesToBeCaptured()
@@ -68,7 +68,7 @@ public class TracksController : MonoBehaviour
             if (track == CurrentTrack)
                 track.GetMeasureForID(CatcherController.CurrentMeasureID).SetMeasureNotesToBeCaptured();
             else
-                track.GetMeasureForID(CatcherController.CurrentMeasureID).SetMeasureNotesActive(false);
+                track.GetMeasureForID(CatcherController.CurrentMeasureID).IsMeasureEnabled = false;
     }
 
     public event EventHandler<int> OnTrackSwitched;
