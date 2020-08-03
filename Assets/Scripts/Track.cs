@@ -44,7 +44,9 @@ public class Track : MonoBehaviour
         get { return _isTrackFocused; }
         set
         {
-            _isTrackFocused = value; EdgeLightsActive = value;
+            _isTrackFocused = value;
+            EdgeLightsActive = value;
+            SetMeasuresFocus(value);
         }
     } // Is the track focused by the player?
     public bool IsTrackCaptured; // Is this track in its captured state right now?
@@ -119,6 +121,14 @@ public class Track : MonoBehaviour
         }
     }
 
+    // Measure plane
+
+    public void SetMeasuresFocus(bool value) // TODO: this function should only set the queued measures - set everything for now
+    {
+        foreach (Measure measure in trackActiveMeasures)
+            measure.IsMeasureFocused = value;
+    }
+
     // Track population
 
     /// <summary>
@@ -159,7 +169,7 @@ public class Track : MonoBehaviour
             measure.trackInstrument = Instrument;
             measure.startTimeInZPos = MeasureInfo.startTimeInzPos;
             measure.endTimeInZPos = MeasureInfo.endTimeInzPos;
-            measure.MeasurePlane.GetComponent<MeshRenderer>().material = GetTrackMaterial(Instrument.Value);
+            measure.MeasureColor = Colors.ConvertColor(Colors.ColorFromTrackType(Instrument.Value));
             measure.CreateSubbeats();
 
             foreach (Note note in trackNotes) // add notes to measure note list
@@ -246,13 +256,15 @@ public class Track : MonoBehaviour
     // Colors
     public static class Colors
     {
+        static float Opacity = 180f;
+
         public static Color Invalid = new Color(0, 0, 0);
 
-        public static Color Drums = new Color(212, 93, 180);
-        public static Color Bass = new Color(87, 159, 221);
-        public static Color Synth = new Color(221, 219, 89);
-        public static Color Guitar = new Color(255, 0, 0);
-        public static Color Vocals = new Color(0, 255, 0);
+        public static Color Drums = new Color(212, 93, 180, Opacity);
+        public static Color Bass = new Color(87, 159, 221, Opacity);
+        public static Color Synth = new Color(221, 219, 89, Opacity);
+        public static Color Guitar = new Color(255, 0, 0, Opacity);
+        public static Color Vocals = new Color(0, 255, 0, Opacity);
 
         public static Color ColorFromTrackType(TrackType type)
         {

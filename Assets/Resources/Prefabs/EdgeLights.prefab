@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3538615951093641868}
   - component: {fileID: 3538615951093641869}
   - component: {fileID: 3538615951093641870}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Edge_Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -105,7 +105,7 @@ GameObject:
   - component: {fileID: 3538615951241398508}
   - component: {fileID: 3538615951241398509}
   - component: {fileID: 3538615951241398510}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Edge_Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -196,7 +196,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3538615953074837756}
   - component: {fileID: 5304090723186133154}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: EdgeLights
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -210,7 +210,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3538615953074837757}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:

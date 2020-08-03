@@ -18,8 +18,22 @@ public class Measure : MonoBehaviour
 
     public GameObject Visuals;
     public GameObject MeasurePlane;
+    public GameObject MeasurePlane_Active;
 
-    public EdgeLightsController EdgeLights;
+    public EdgeLightsController EdgeLightsController;
+
+    public List<GameObject> EdgeLightsFrontBack = new List<GameObject>();
+
+    private Color _measureColor;
+    public Color MeasureColor
+    {
+        get { return _measureColor; }
+        set 
+        {
+            _measureColor = value;
+            MeasurePlane_Active.GetComponent<MeshRenderer>().material.color = value;
+        }
+    }
 
     Color _edgeLightsColor;
     public Color EdgeLightsColor
@@ -28,17 +42,17 @@ public class Measure : MonoBehaviour
         set
         {
             _edgeLightsColor = value;
-            EdgeLights.Color = value;
+            EdgeLightsController.Color = value;
         }
     }
 
     float _edgeLightsGlowIntensity;
     public float EdgeLightsGlowIntensity
     {
-        get { return EdgeLights.GlowIntensity; }
+        get { return EdgeLightsController.GlowIntensity; }
         set
         {
-            EdgeLights.GlowIntensity = value;
+            EdgeLightsController.GlowIntensity = value;
         }
     }
 
@@ -49,7 +63,7 @@ public class Measure : MonoBehaviour
         set
         {
             _edgeLightsGlow = value;
-            EdgeLights.EnableGlow = value;
+            EdgeLightsController.EnableGlow = value;
         }
     }
 
@@ -81,8 +95,35 @@ public class Measure : MonoBehaviour
             _isMeasureEnabled = value;
 
             if (!value)
-                MeasurePlane.GetComponent<MeshRenderer>().material.color = Color.black;
-            SetMeasureNotesActive(value);
+                //MeasurePlane_Active.GetComponent<MeshRenderer>().material.color = Color.black;
+                SetMeasureNotesActive(value);
+        }
+    }
+
+    // TODO: temporarily set to true | measure queueing TBD
+    private bool isMeasureQueued = true;
+    public bool IsMeasureQueued // Is the measure queued for playing | i.e. is this an upcoming measure, even while being played
+    {
+        get { return isMeasureQueued; }
+        set
+        {
+            isMeasureQueued = value;
+            if (IsMeasureFocused)
+                MeasurePlane_Active.SetActive(value);
+        }
+    }
+
+    private bool isMeasureFocused = false;
+    public bool IsMeasureFocused // Is the measure focused
+    {
+        get { return isMeasureFocused; }
+        set
+        {
+            isMeasureFocused = value;
+            if (value)
+                MeasurePlane_Active.SetActive(IsMeasureQueued);
+            else
+                MeasurePlane_Active.SetActive(false);
         }
     }
 
@@ -117,14 +158,17 @@ public class Measure : MonoBehaviour
     public bool IsMeasureScorable = true; // Should this measure score points?
     public bool IsMeasureStreakable = true; // Should this measure count towards increasing the streak counter?
 
+    UnityEngine.Object subBeatPrefab;
     void Awake()
     {
         subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
 
-        EdgeLights = transform.GetChild(0).GetChild(1).gameObject.GetComponent<EdgeLightsController>();
+        // unparent front & back edge lights
+        // TODO: This is very hacky!
+        foreach (GameObject obj in EdgeLightsFrontBack)
+            obj.transform.parent = null;
     }
 
-    UnityEngine.Object subBeatPrefab;
     private void Start()
     {
         // create subbeats
@@ -159,6 +203,21 @@ public class Measure : MonoBehaviour
 
             lastSubbeatPosition += amp_ctrl.subbeatLengthInzPos;
             script.EndZPos = lastSubbeatPosition;
+        }
+
+        // Move front & back edge lights to their correct positions
+        // TODO: This is very hacky!
+        foreach (GameObject obj in EdgeLightsFrontBack)
+        {
+            if (obj.transform.name.Contains("Front"))
+                obj.transform.Translate(transform.forward * transform.position.z);
+            else
+                obj.transform.Translate(transform.forward * (transform.position.z + transform.lossyScale.z - 1));
+
+            obj.transform.Translate(transform.right * transform.position.x);
+
+            obj.transform.parent = EdgeLightsController.transform;
+            EdgeLightsController.Color = EdgeLightsColor;
         }
     }
 

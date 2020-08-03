@@ -9,7 +9,7 @@ public class Note : MonoBehaviour
     public MeshRenderer NoteMeshRenderer;
     public MeshRenderer DotLightMeshRenderer;
     public GameObject DotLight;
-    Color _dotLightColor;
+    Color _dotLightColor = Color.white;
     public Color DotLightColor
     {
         get { return _dotLightColor; }
@@ -64,6 +64,8 @@ public class Note : MonoBehaviour
         // Set up the dot light
         DotLight = transform.GetChild(0).gameObject;
         DotLight.SetActive(false); DotLight.transform.localPosition = Vector3.zero;
+
+        /*
         DotLightMeshRenderer = DotLight.GetComponent<MeshRenderer>();
 
         Material mat = Instantiate(DotLightMeshRenderer.material);
@@ -71,12 +73,11 @@ public class Note : MonoBehaviour
 
         mat.color = finalColor;
 
-        /*
         mat.EnableKeyword("_EMISSION");
-        mat.SetColor("_EmissionColor", finalColor * 1f);
-        */
+        mat.SetColor("_EmissionColor", finalColor * 0.3f);
 
         DotLightMeshRenderer.material = mat;
+        */
     }
 
     private void Update()

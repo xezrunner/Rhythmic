@@ -22,53 +22,40 @@ public class AmplitudeSongController : MonoBehaviour
     MidiReader reader;
     public MoggSong moggSong;
 
-    public string songName = "dalatecht";
+    public string songName;
     public string songFolder = RhythmicGame.AMP_songFolder;
     public List<string> songTracks { get { return moggSong.songTracks; } }
     public List<MeasureInfo> songMeasures;
 
     // Song properties
-
-    // Song length in measures (1 measure = 4 beats)
-    public int songCountIn { get { return moggSong.songCountInTime; } }
-    public int songLengthInMeasures { get { return moggSong.songLengthInMeasures; } }
-    // Tunnel traversal scale
-    public float fudgeFactor { get { return moggSong.songFudgeFactor; } }
-    // Song beats per minute - this is determined by the song you're trying to sync up to
     public float songBpm { get { return moggSong.songBpm; } }
-    // The number of seconds for each song beat
     public float secPerBeat { get { return songBpm / 60f; } }
-    // Convert a MIDI tick into milliseconds
-    public float tickInMs { get { return 60000f / ((float)reader.bpm * (float)reader.midi.DeltaTicksPerQuarterNote); } }
-    // One line in the 8-chopped up measure
-    public float DeltaTicksPerQuarterNote { get { return reader.midi.DeltaTicksPerQuarterNote; } }
-    // Account for the song tunnel scaling
-    public float TunnelSpeedAccountation { get { return (1f + fudgeFactor); } }
-    // Account for the song BPM and tunnel scaling
-    //public float SongSpeedAccountation { get { return secPerBeat * TunnelSpeedAccountation; } }
-    // Convert a MIDI tick into game zPos
-    public float GetTickTimeInzPos(float absoluteTime)
+    public int songCountIn { get { return moggSong.songCountInTime; } } // TODO: figure out what countin is supposed to be
+    public int songLengthInMeasures { get { return moggSong.songLengthInMeasures; } }
+    public float fudgeFactor { get { return moggSong.songFudgeFactor; } } // Tunnel traversal scale
+
+    // MIDI properties
+    public float tickInMs { get { return 60000f / ((float)reader.bpm * (float)reader.midi.DeltaTicksPerQuarterNote); } } // 1 MIDI tick in milliseconds
+    public float DeltaTicksPerQuarterNote { get { return reader.midi.DeltaTicksPerQuarterNote; } } // 1 subbeat's length in MIDI ticks
+    public float TunnelSpeedAccountation { get { return (1f + fudgeFactor); } } // tunnel scaling multiplication value
+
+    // Music playback properties
+    public float songPosition; //Current song position, in seconds
+    public float songPositionInBeats; //Current song position, in beats
+    public int songPositionInMeasures { get { return (int)songPositionInBeats / 4; } } //Current song position, in measures
+    public float firstBeatOffset; //The offset to the first beat of the song in seconds
+    public float dspSongTime; //How many seconds have passed since the song started
+
+    // Z position calculations (zPos - Rhythmic unit)
+    public float GetTickTimeInzPos(float absoluteTime) // Convert MIDI ticks into zPos unit
     {
-        return ((tickInMs * absoluteTime) / 1000f) * TunnelSpeedAccountation / (tickInMs * DeltaTicksPerQuarterNote / 1000f) * 4;
+        //     |       tick time in seconds      |   |     offset by 1 beat length in seconds    ||unit||     fudge factor     |
+        return ((tickInMs * absoluteTime) / 1000f) / (tickInMs * DeltaTicksPerQuarterNote / 1000f) * 4 * TunnelSpeedAccountation;
     }
-    // Get back the Z position for a note from a MIDI tick
-    public float GetzPosForNote(float absoluteTime) { return GetTickTimeInzPos(absoluteTime); }
+    public float GetzPosForNote(float absoluteTime) { return GetTickTimeInzPos(absoluteTime); } // Get note's zPos from its tick time | TODO: redundant?
+    public float measureLengthInzPos { get { return GetTickTimeInzPos(DeltaTicksPerQuarterNote) * 4; } } // One measure's length in zPos unit (4 beats)
+    public float subbeatLengthInzPos { get { return GetTickTimeInzPos(DeltaTicksPerQuarterNote) / 2; } } // One subbeat's length in zPos unit (1/2[half] of a beat)
 
-    // One measure's length (4 * two subbeats) // ???
-    public float measureLengthInzPos { get { return GetTickTimeInzPos(DeltaTicksPerQuarterNote) * 4; } }
-    // One subbeat's length (2 * the time between a beat) // ???
-    public float subbeatLengthInzPos { get { return GetTickTimeInzPos(DeltaTicksPerQuarterNote) / 2; } }
-
-    //Current song position, in seconds
-    public float songPosition;
-    //Current song position, in beats
-    public float songPositionInBeats;
-    //Current song position, in beats
-    public int songPositionInMeasures { get { return (int)songPositionInBeats / 4; } }
-    //How many seconds have passed since the song started
-    public float dspSongTime;
-    //The offset to the first beat of the song in seconds
-    public float firstBeatOffset;
 
     //An AudioSource attached to this GameObject that will play the music.
     List<AudioSource> audiosrcList = new List<AudioSource>();
@@ -164,7 +151,7 @@ public class AmplitudeSongController : MonoBehaviour
             src.PlayScheduled(AudioSettings.dspTime);
     }
 
-    int currentAudioSourceID = 0;
+    int currentAudioSourceID = 0; // current track ID that's playing
     private void AMPTracksCtrl_OnTrackSwitched(object sender, int e)
     {
         if (e >= audiosrcList.Count)

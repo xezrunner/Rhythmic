@@ -18,6 +18,8 @@ public class TracksController : MonoBehaviour
     {
         Instance = this;
         Player.OnTrackSwitched += Player_OnTrackSwitched;
+
+        gameObject.layer = 11; // put TracksController onto Tracks layer
     }
 
     // Tracks
@@ -76,11 +78,8 @@ public class TracksController : MonoBehaviour
     private void Player_OnTrackSwitched(object sender, int e)
     {
         // change props of tracks
-        Track prevTrack = GetTrackByID(CurrentTrackID);
-        Track nextTrack = GetTrackByID(e);
-
-        prevTrack.IsTrackFocused = false;
-        nextTrack.IsTrackFocused = true;
+        GetTrackByID(CurrentTrackID).IsTrackFocused = false;
+        GetTrackByID(e).IsTrackFocused = true;
 
         CurrentTrackID = e;
 

@@ -42,13 +42,18 @@ public class PlayerController : MonoBehaviour
         // this Instance
         Instance = this;
     }
-    public void Start()
+    public async void Start()
     {
         // Push back player by the Start ZOffset
         transform.Translate(Vector3.back * StartZOffset);
 
         // Wire up catcher events
         CatcherController.OnCatch += CatcherController_OnCatch;
+
+        await Task.Delay(300);
+
+        // TODO: we should switch to the track when the game starts
+        SwitchToTrack(0);
     }
 
     // Catcher
@@ -219,6 +224,16 @@ public class PlayerController : MonoBehaviour
             SwitchToTrack(TracksController.CurrentTrackID - 1);
         else if (Input.GetKeyDown(KeyCode.D))
             SwitchToTrack(TracksController.CurrentTrackID + 1);
+
+        // TEMP
+        if (Input.GetKeyDown(KeyCode.Keypad5))
+        {
+            foreach (Note note in TracksController.CurrentTrack.trackNotes)
+                note.CaptureNote();
+
+            foreach (Measure measure in TracksController.CurrentTrack.trackActiveMeasures)
+                measure.IsMeasureActive = false;
+        }
 
         // If the game is Rhythmic
         if (RhythmicGame.GameType != RhythmicGame._GameType.RHYTHMIC)
