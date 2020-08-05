@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ChromaticAberration : MonoBehaviour
+[ExecuteInEditMode]
+public class ChromaticSeparation : MonoBehaviour
 {
     private Shader shader;
     private Material material;
 
     [Range(0.0f, 30.0f)]
-    public float chromaticAberration = 1.0f;
+    public float Intensity = 1.0f;
 
     [Range(-1.0f, 1.0f)]
     public float XOffset = 0.5f;
@@ -19,7 +20,7 @@ public class ChromaticAberration : MonoBehaviour
 
     public void Start()
     {
-        shader = Shader.Find("Hidden/ChromaticAberration");
+        shader = Shader.Find("Hidden/ChromaticSeparation");
         material = new Material(shader);
 
         if (!shader && !shader.isSupported)
@@ -30,9 +31,9 @@ public class ChromaticAberration : MonoBehaviour
 
     public void OnRenderImage(RenderTexture inTexture, RenderTexture outTexture)
     {
-        if (shader != null)
+        if (shader != null & Intensity > 0)
         {
-            material.SetFloat("_ChromaticAberration", 0.01f * chromaticAberration);
+            material.SetFloat("_ChromaticSeparation", 0.01f * Intensity);
 
             /*
             if (onTheScreenEdges)
@@ -51,16 +52,5 @@ public class ChromaticAberration : MonoBehaviour
         {
             Graphics.Blit(inTexture, outTexture);
         }
-    }
-
-    bool up = true;
-    public void Update()
-    {
-        /*
-		if (chromaticAberration == 0f)
-			chromaticAberration += 0.1f;
-		else if (chromaticAberration == 5f)
-			chromaticAberration -= 0.1f;
-		*/
     }
 }

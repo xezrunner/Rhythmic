@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Globalization;
 using UnityEngine;
-using UnityEditor.Rendering.PostProcessing;
-using UnityEditor;
-using System.Linq;
-using UnityEngine.SocialPlatforms;
 
 public class MoggSong : MonoBehaviour
 {

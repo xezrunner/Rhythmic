@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class Measure : MonoBehaviour
 {
@@ -21,14 +23,17 @@ public class Measure : MonoBehaviour
     public GameObject MeasurePlane_Active;
 
     public EdgeLightsController EdgeLightsController;
-
     public List<GameObject> EdgeLightsFrontBack = new List<GameObject>();
+
+    public GameObject MeasureDestructionNoteDetector;
+
+    #region Properties
 
     private Color _measureColor;
     public Color MeasureColor
     {
         get { return _measureColor; }
-        set 
+        set
         {
             _measureColor = value;
             MeasurePlane_Active.GetComponent<MeshRenderer>().material.color = value;
@@ -158,55 +163,70 @@ public class Measure : MonoBehaviour
     public bool IsMeasureScorable = true; // Should this measure score points?
     public bool IsMeasureStreakable = true; // Should this measure count towards increasing the streak counter?
 
+    #endregion
+
     UnityEngine.Object subBeatPrefab;
+    UnityEngine.Object detectorPrefab;
     void Awake()
     {
         subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
+        detectorPrefab = Resources.Load("Prefabs/MeasureDestructDetector");
 
         // unparent front & back edge lights
         // TODO: This is very hacky!
         foreach (GameObject obj in EdgeLightsFrontBack)
             obj.transform.parent = null;
     }
-
-    private void Start()
+    void Start()
     {
-        // create subbeats
-        if (subBeatPrefab == null)
-            subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
-
-        Vector3 subbeatScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos);
-        float lastSubbeatPosition = startTimeInZPos;
-
-        for (int i = 0; i < 8; i++)
+        if (!amp_ctrl.Disable)
         {
-            GameObject obj = (GameObject)GameObject.Instantiate(subBeatPrefab);
-            MeasureSubBeat script = obj.GetComponent<MeasureSubBeat>();
+            // create subbeats
+            if (subBeatPrefab == null)
+                subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
 
-            obj.name = string.Format("MEASURE{0}_SUBBEAT{1}", measureNum, i);
-            obj.transform.localScale = subbeatScale;
-            obj.transform.localPosition = new Vector3(transform.position.x, 0, lastSubbeatPosition);
-            obj.transform.parent = transform;
+            Vector3 subbeatScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos);
+            float lastSubbeatPosition = startTimeInZPos;
 
-            script.subbeatNum = i;
+            for (int i = 0; i < 8; i++)
+            {
+                GameObject obj = (GameObject)GameObject.Instantiate(subBeatPrefab);
+                MeasureSubBeat script = obj.GetComponent<MeasureSubBeat>();
 
-            EdgeLightsGlowIntensity = 0.5f;
-            EdgeLightsColor = Track.Colors.ColorFromTrackType(trackInstrument.Value);
+                obj.name = string.Format("MEASURE{0}_SUBBEAT{1}", measureNum, i);
+                obj.transform.localScale = subbeatScale;
+                obj.transform.localPosition = new Vector3(transform.position.x, 0, lastSubbeatPosition);
+                obj.transform.parent = transform;
 
-            if (i == 0) // measure trigger
-                script.IsMeasureSubbeat = true;
+                script.subbeatNum = i;
 
-            script.StartZPos = lastSubbeatPosition;
+                EdgeLightsGlowIntensity = 0.5f;
+                EdgeLightsColor = Track.Colors.ColorFromTrackType(trackInstrument.Value);
 
-            subbeatObjectList.Add(obj);
-            subbeatList.Add(script);
+                if (i == 0) // measure trigger
+                    script.IsMeasureSubbeat = true;
 
-            lastSubbeatPosition += amp_ctrl.subbeatLengthInzPos;
-            script.EndZPos = lastSubbeatPosition;
+                script.StartZPos = lastSubbeatPosition;
+
+                subbeatObjectList.Add(obj);
+                subbeatList.Add(script);
+
+                lastSubbeatPosition += amp_ctrl.subbeatLengthInzPos;
+                script.EndZPos = lastSubbeatPosition;
+            }
         }
 
         // Move front & back edge lights to their correct positions
         // TODO: This is very hacky!
+        PositionFrontBackEdgeLights();
+
+        ogParent = transform.parent; // for destruction and length changes
+
+        EdgeLightsGlow = false;
+    }
+
+    void PositionFrontBackEdgeLights()
+    {
         foreach (GameObject obj in EdgeLightsFrontBack)
         {
             if (obj.transform.name.Contains("Front"))
@@ -221,15 +241,79 @@ public class Measure : MonoBehaviour
         }
     }
 
+    // Subbeat creation
+
     public void CreateSubbeats()
     {
 
     }
 
+    // Capturing
+
+    public float FullLength = 1f;
+    [Range(0f, 1f)]
+    public float Length = 1f;
+    [Range(0f, 1f)]
+    public float CaptureLength = 0f;
+
+    Transform ogParent;
+    void ScaleAndPos()
+    {
+        transform.parent = null;
+        Vector3 ogPosition = transform.position;
+
+        transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, FullLength * (Length - CaptureLength));
+        transform.position = new Vector3(ogPosition.x, ogPosition.y, startTimeInZPos + (FullLength * CaptureLength));
+    }
+
+    public event EventHandler<int> OnCaptureFinished;
+
     public void CaptureMeasure()
     {
+        gameObject.GetComponent<Animation>().Play();
+        GameObject detector = (GameObject)Instantiate(detectorPrefab, gameObject.transform);
+        detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.color = Track.Colors.ConvertColor(EdgeLightsColor);
+        detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.SetColor("_EmissionColor", Track.Colors.ConvertColor(EdgeLightsColor * 1.3f));
 
+        //MeasureDestructionNoteDetector.SetActive(true); // start capturing notes in measure
+
+        /*
+        await Task.Delay(TimeSpan.FromSeconds(.5));
+
+        //Destroy(gameObject);
+        //MeasureDestructionNoteDetector.SetActive(false); // stop capturing notes
+        //Visuals.SetActive(false); // disable Measure object
+        OnCaptureFinished?.Invoke(null, null);
+        */
     }
+
+    public void OnCaptureAnimFinished()
+    {
+        IsMeasureActive = false;
+        transform.parent = ogParent;
+        OnCaptureFinished?.Invoke(null, measureNum);
+
+        foreach (Note note in noteList)
+            note.CaptureNote();
+    }
+
+    private void OnValidate()
+    {
+        /*
+#if UNITY_EDITOR
+        ScaleAndPos();
+#endif
+        */
+    }
+
+    public bool capturing = false;
+    void Update()
+    {
+        if (capturing)
+            ScaleAndPos();
+    }
+
+    // Z position
 
     // TODO: optimize!
     public MeasureSubBeat GetSubbeatForZpos(float zPos)

@@ -37,8 +37,9 @@ public class MidiReader : MonoBehaviour
             return;
 
         // Load MIDI if it hasn't been pre-assigned
-        LoadMIDI(GetMIDIPath());
-        Debug.LogWarning("MidiReader: Couldn't find manual initialization - loading default MIDI");
+        //LoadMIDI(GetMIDIPath());
+        //Debug.LogWarning("MidiReader: Couldn't find manual initialization - loading default MIDI");
+        Debug.LogWarning("MidiReader: Couldn't find manual initialization");
     }
 
     public void LoadMIDI(string song)

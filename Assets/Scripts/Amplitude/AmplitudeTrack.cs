@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using NAudio.Midi;
+using System.Collections;
+using System.Threading.Tasks;
 
 public class AmplitudeTrack : Track
 {

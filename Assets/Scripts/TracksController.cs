@@ -93,4 +93,10 @@ public class TracksController : MonoBehaviour
     public Measure CurrentMeasure { get { return CurrentTrack.GetMeasureForZPos(Player.transform.position.z); } }
     public bool GetIsCurrentMeasureActive { get { return CurrentTrack.GetIsMeasureActiveForZPos(Player.transform.position.z); } }
 
+    public event EventHandler<int> MeasureCaptureFinished;
+
+    public void AmpTrack_MeasureCaptureFinished(object sender, int e)
+    {
+        MeasureCaptureFinished?.Invoke(null, e);
+    }
 }

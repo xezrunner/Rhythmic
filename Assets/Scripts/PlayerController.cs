@@ -3,6 +3,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -54,6 +55,29 @@ public class PlayerController : MonoBehaviour
 
         // TODO: we should switch to the track when the game starts
         SwitchToTrack(0);
+
+        TracksController.MeasureCaptureFinished += TracksController_MeasureCaptureFinished;
+
+        //StartCoroutine(Load("SnowMountains"));
+    }
+
+    IEnumerator Load(string levelName)
+    {
+        //AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Additive);
+        Application.backgroundLoadingPriority = ThreadPriority.Low;
+        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Additive);
+        Debug.Log("Loading progress: " + asyncOperation.progress);//should get 0 here, right?
+
+        asyncOperation.allowSceneActivation = false;
+
+        while (!asyncOperation.isDone)
+        {
+            Debug.Log("Loading... " + (asyncOperation.progress * 100) + "%");
+            if (asyncOperation.progress >= 0.9f)
+                asyncOperation.allowSceneActivation = true;
+
+            yield return null;
+        }
     }
 
     // Catcher
@@ -169,6 +193,12 @@ public class PlayerController : MonoBehaviour
     public event EventHandler<int> OnTrackSwitched;
     public void SwitchToTrack(int id)
     {
+        if (TracksController.Tracks.Count < 1)
+        {
+            Debug.LogWarning("PLAYER/SwitchToTrack(): No tracks are available");
+            return;
+        }
+
         // find the track by ID
         Track track;
         try
@@ -185,7 +215,7 @@ public class PlayerController : MonoBehaviour
         // TODO: animate the player model to the position
         // TODO: improve this
         Vector3 pos = new Vector3(track.transform.position.x,
-            transform.position.y, track.transform.position.z);
+            transform.position.y, transform.position.z);
 
         transform.position = pos;
 
@@ -225,7 +255,14 @@ public class PlayerController : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.D))
             SwitchToTrack(TracksController.CurrentTrackID + 1);
 
-        // TEMP
+        // RESTART
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SceneManager.UnloadSceneAsync("DevScene", UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
+            SceneManager.LoadSceneAsync("Loading", LoadSceneMode.Single);
+        }
+
+        // TEMP / DEBUG
         if (Input.GetKeyDown(KeyCode.Keypad5))
         {
             foreach (Note note in TracksController.CurrentTrack.trackNotes)
@@ -235,8 +272,29 @@ public class PlayerController : MonoBehaviour
                 measure.IsMeasureActive = false;
         }
 
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            //TracksController.CurrentTrack.BeginCapture(4, 10);
+            TracksController.CurrentMeasure.CaptureMeasure();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Keypad8))
+            transform.Translate(Vector3.forward * 60);
+
         // If the game is Rhythmic
         if (RhythmicGame.GameType != RhythmicGame._GameType.RHYTHMIC)
             return;
+    }
+
+    int counter = 0;
+    private void TracksController_MeasureCaptureFinished(object sender, int e)
+    {
+        if (counter < 7)
+        {
+            TracksController.CurrentTrack.trackMeasures[e + 1].CaptureMeasure();
+            counter++;
+        }
+        else
+            counter = 0;
     }
 }

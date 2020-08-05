@@ -1,8 +1,8 @@
-﻿Shader "Hidden/ChromaticAberration" {
+﻿Shader "Hidden/ChromaticSeparation" {
 
 	Properties {
 		_MainTex ("Texture", 2D) = "white" {}
-		_ChromaticAberration ("Chromatic Aberration", Range(0.0,1.0)) = 0.001
+		_ChromaticAberration ("Chromatic Separation", Range(0.0,1.0)) = 0.001
 		_CenterX ("CenterX",Range(0.0,0.5)) = 0.0
 		_CenterY ("CenterY",Range(0.0,0.5)) = 0.0
 	}
@@ -12,7 +12,7 @@
 		Blend srcAlpha OneMinusSrcAlpha
 
 		Pass {
-			Name "Chromatic Aberration"
+			Name "Chromatic Separation"
 			
 			CGPROGRAM
 			#pragma vertex vert
@@ -31,7 +31,7 @@
 			};
 
 			uniform sampler2D _MainTex;
-			fixed _ChromaticAberration;
+			fixed _ChromaticSeparation;
 			fixed _CenterX;
 			fixed _CenterY;
 
@@ -47,7 +47,7 @@
 				float2 rectangle = float2(i.uv.x - _CenterX, i.uv.y - _CenterY);
 				float dist = sqrt(pow(rectangle.x,2) + pow(rectangle.y,2));
 
-				float mov = _ChromaticAberration * dist;
+				float mov = _ChromaticSeparation * dist;
 				float2 uvR = float2(i.uv.x - mov, i.uv.y);
 				float2 uvB = float2(i.uv.x + mov, i.uv.y);
 				float2 uvG = float2(i.uv.x, i.uv.y);

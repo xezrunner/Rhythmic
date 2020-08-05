@@ -7,7 +7,7 @@ public class Note : MonoBehaviour
     public enum NoteCatchType { Success = 0, Miss = 1 }
     public BoxCollider NoteCollider;
     public MeshRenderer NoteMeshRenderer;
-    public MeshRenderer DotLightMeshRenderer;
+    public MeshRenderer DotLightMeshRenderer { get { return DotLight.GetComponent<MeshRenderer>(); } }
     public GameObject DotLight;
     Color _dotLightColor = Color.white;
     public Color DotLightColor
@@ -60,11 +60,6 @@ public class Note : MonoBehaviour
         NoteMeshRenderer = GetComponent<MeshRenderer>();
         NoteCollider = GetComponent<BoxCollider>();
 
-        // TODO: optimize!!!
-        // Set up the dot light
-        DotLight = transform.GetChild(0).gameObject;
-        DotLight.SetActive(false); DotLight.transform.localPosition = Vector3.zero;
-
         /*
         DotLightMeshRenderer = DotLight.GetComponent<MeshRenderer>();
 
@@ -80,6 +75,15 @@ public class Note : MonoBehaviour
         */
     }
 
+    private void Start()
+    {
+        // TODO: optimize!!!
+        // Set up the dot light
+        DotLight = transform.GetChild(0).gameObject;
+        DotLight.SetActive(false); DotLight.transform.localPosition = Vector3.zero;
+        DotLightMeshRenderer.material.color = Track.Colors.ConvertColor(DotLightColor);
+        DotLightMeshRenderer.material.SetColor("_EmissionColor", Track.Colors.ConvertColor(DotLightColor) * 0.6f);
+    }
     private void Update()
     {
         if (IsNoteActive == !IsNoteActive)

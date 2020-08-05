@@ -9,6 +9,7 @@ TagManager:
   - Note
   - TrackTrigger
   - SubbeatTrigger
+  - Measure
   layers:
   - Default
   - TransparentFX

@@ -1,6 +1,8 @@
 ﻿using NAudio.Midi;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,6 +29,8 @@ public class AmplitudeSongController : MonoBehaviour
     public List<string> songTracks { get { return moggSong.songTracks; } }
     public List<MeasureInfo> songMeasures;
 
+    public bool Disable = false;
+
     // Song properties
     public float songBpm { get { return moggSong.songBpm; } }
     public float secPerBeat { get { return songBpm / 60f; } }
@@ -36,7 +40,7 @@ public class AmplitudeSongController : MonoBehaviour
 
     // MIDI properties
     public float tickInMs { get { return 60000f / ((float)reader.bpm * (float)reader.midi.DeltaTicksPerQuarterNote); } } // 1 MIDI tick in milliseconds
-    public float DeltaTicksPerQuarterNote { get { return reader.midi.DeltaTicksPerQuarterNote; } } // 1 subbeat's length in MIDI ticks
+    public float DeltaTicksPerQuarterNote { get { return Disable ? 480 : reader.midi.DeltaTicksPerQuarterNote; } } // 1 subbeat's length in MIDI ticks
     public float TunnelSpeedAccountation { get { return (1f + fudgeFactor); } } // tunnel scaling multiplication value
 
     // Music playback properties
@@ -66,59 +70,44 @@ public class AmplitudeSongController : MonoBehaviour
     }
     void Start()
     {
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName("DevScene"));
+
         // Create Tracks controller!
+        Debug.LogFormat("AMP_TRACKS: Using Amplitude track controller!");
+
         GameObject AmpTracksGameObject = new GameObject() { name = "TRACKS" };
         TracksController = AmpTracksGameObject.AddComponent<AmplitudeTracksController>();
         TracksController.OnTrackSwitched += AMPTracksCtrl_OnTrackSwitched;
 
-        // Load MoggSong!
-        moggSong = gameObject.AddComponent<MoggSong>();
-        moggSong.LoadMoggSong(songName);
-
-        Debug.LogFormat("AMP_TRACKS: Using Amplitude track controller!");
-        Debug.LogFormat("AMP_TRACKS: Starting MidiReader...");
-
-        reader = gameObject.AddComponent<MidiReader>();
-        reader.OnNoteEvent += Reader_OnNoteEvent;
-
-        reader.LoadMIDI(songName);
-
-        // Create measure list!
-        songMeasures = CreateMeasureList();
-
-        //  Create tracks!
-        TracksController.CreateTracks();
-        Debug.LogFormat("AMP_TRACKS: Using tunnel scale fudge factor {0}", fudgeFactor);
-
-        // Load song!
-        // Assign clips to AudioSources
-        // TODO: read from mogg!!!
-        int counter = 0;
-        foreach (string track in songTracks)
+        if (!Disable)
         {
-            AudioClip clip = (AudioClip)Resources.Load(string.Format("Songs/{0}_{1}", songName, track));
+            reader = gameObject.AddComponent<MidiReader>();
+            reader.OnNoteEvent += Reader_OnNoteEvent;
 
-            if (clip == null)
-            {
-                Debug.LogErrorFormat("AMP_CTRL: Can't find clip for track {0} - ignoring AudioSource creation", track);
-                continue;
-            }
+            // Load MoggSong!
+            moggSong = gameObject.AddComponent<MoggSong>();
+            moggSong.LoadMoggSong(songName);
 
-            AudioSource src = gameObject.AddComponent<AudioSource>();
-            if (track == "bg_click")
-                src.volume = 0.8f;
-            else
-                src.volume = counter == 0 ? 1.1f : 0f;
-            src.clip = clip;
+            Debug.LogFormat("AMP_TRACKS: Starting MidiReader...");
 
-            audiosrcList.Add(src);
+            reader.LoadMIDI(songName);
 
-            counter++;
+            // Create measure list!
+            songMeasures = CreateMeasureList();
+
+            //  Create tracks!
+            TracksController.CreateTracks();
+            Debug.LogFormat("AMP_TRACKS: Using tunnel scale fudge factor {0}", fudgeFactor);
+
+            // Load song!
+            // Assign clips to AudioSources
+            // TODO: read from mogg!!!
+            StartCoroutine(LoadSongs());
         }
-
-        // Get closest notes
-        // TODO: do this somewhere else during init!
-        CatcherController.Instance.FindNextMeasureNotes();
+        else
+        {
+            Debug.LogFormat("AMP_TRACKS: DISABLED - Initializing with fake information...");
+        }
     }
     void Update()
     {
@@ -130,6 +119,45 @@ public class AmplitudeSongController : MonoBehaviour
 
         //determine how many beats since the song started
         songPositionInBeats = songPosition / secPerBeat;
+    }
+
+    public bool loadingSongs = true;
+    IEnumerator LoadSongs()
+    {
+        int counter = 0;
+        foreach (string track in songTracks)
+        {
+            string path = string.Format("Songs/{0}_{1}", songName, track);
+
+            ResourceRequest resourceRequest = Resources.LoadAsync<AudioClip>(path);
+
+            //Debug.LogFormat("AMP_CTRL: Loading track {0}...", track);
+
+            while (!resourceRequest.isDone)
+                yield return 0;
+
+            if (resourceRequest.asset == null)
+            {
+                Debug.LogWarningFormat("AMP_CTRL: Track {0} doesn't have audio clip - ignoring", track);
+                continue;
+            }
+
+            AudioSource src = gameObject.AddComponent<AudioSource>();
+            if (track == "bg_click")
+                src.volume = 0.8f;
+            else
+                src.volume = counter == 0 ? 1.1f : 0f;
+            src.clip = resourceRequest.asset as AudioClip;
+
+            audiosrcList.Add(src);
+
+            counter++;
+        }
+        loadingSongs = false;
+
+        // Get closest notes
+        // TODO: do this somewhere else during init!
+        CatcherController.Instance.FindNextMeasureNotes();
     }
 
     public bool IsSongPlaying = false;

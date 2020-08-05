@@ -74,6 +74,7 @@ public class Track : MonoBehaviour
     private void Awake()
     {
         measurePrefab = Resources.Load("Prefabs/Measure");
+        detectorPrefab = Resources.Load("Prefabs/MeasureDestructionNoteDetector");
     }
 
     void Start()
@@ -160,7 +161,8 @@ public class Track : MonoBehaviour
             obj.name = string.Format("MEASURE_{0}", MeasureInfo.measureNum);
             obj.transform.localPosition = measurePosition;
             obj.transform.localScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos * 8);
-            obj.transform.parent = MeasureContainer.transform;
+            //obj.transform.parent = MeasureContainer.transform;
+            obj.transform.SetParent(MeasureContainer.transform, true);
 
             // get Measure script and add component
             Measure measure = obj.GetComponent<Measure>();
@@ -169,7 +171,9 @@ public class Track : MonoBehaviour
             measure.trackInstrument = Instrument;
             measure.startTimeInZPos = MeasureInfo.startTimeInzPos;
             measure.endTimeInZPos = MeasureInfo.endTimeInzPos;
+            measure.FullLength = amp_ctrl.subbeatLengthInzPos * 8;
             measure.MeasureColor = Colors.ConvertColor(Colors.ColorFromTrackType(Instrument.Value));
+            measure.OnCaptureFinished += Measure_OnCaptureFinished;
             measure.CreateSubbeats();
 
             foreach (Note note in trackNotes) // add notes to measure note list
@@ -191,6 +195,13 @@ public class Track : MonoBehaviour
         }
     }
 
+    public event EventHandler<int> MeasureCaptureFinished;
+
+    private void Measure_OnCaptureFinished(object sender, int e)
+    {
+        MeasureCaptureFinished?.Invoke(null, e);
+    }
+
     public bool GetIsMeasureActiveForZPos(float zPos)
     {
         try
@@ -209,7 +220,27 @@ public class Track : MonoBehaviour
     }
     public Measure GetMeasureForID(int id)
     {
-        return trackMeasures[id];
+        try
+        {
+            return trackMeasures[id];
+        }
+        catch
+        {
+            Debug.Break();
+            Debug.DebugBreak();
+
+            return null;
+        }
+    }
+
+    UnityEngine.Object detectorPrefab;
+    public void BeginCapture(int start, int end)
+    {
+        GameObject obj = (GameObject)GameObject.Instantiate(detectorPrefab);
+        obj.GetComponent<MeasureDestructionNoteDetector>().startPos = GetMeasureForID(start).startTimeInZPos;
+        obj.GetComponent<MeasureDestructionNoteDetector>().endPos = GetMeasureForID(end).startTimeInZPos;
+        obj.transform.position = new Vector3(transform.position.x, transform.position.y, GetMeasureForID(start).startTimeInZPos);
+        //obj.transform.parent = transform;
     }
 
     // Lanes
