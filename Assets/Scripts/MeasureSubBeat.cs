@@ -17,7 +17,7 @@ public class MeasureSubBeat : MonoBehaviour
             if (value)
                 MeasureTrigger.SetActive(true);
             else
-                MeasureTrigger.SetActive(false);
+                Destroy(MeasureTrigger);
         }
     }
 

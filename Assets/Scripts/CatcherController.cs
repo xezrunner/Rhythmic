@@ -116,6 +116,9 @@ public class CatcherController : MonoBehaviour
     // e: the measure num
     void CatcherController_OnMeasureTrigger(object sender, int e)
     {
+        if (RhythmicGame.IsLoading)
+            return;
+
         if (CurrentMeasureID != e)
             CurrentMeasureID++;
 

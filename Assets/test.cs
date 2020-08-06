@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class test : MonoBehaviour
 {
-    private void OnTriggerEnter(Collider other)
+    async void Start()
     {
-        Debug.LogWarning("MEASURE COLLISION: " + other.name);
+        await Task.Delay(5000);
+        Destroy(gameObject);
     }
 }

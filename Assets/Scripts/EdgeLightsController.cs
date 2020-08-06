@@ -1,9 +1,11 @@
-﻿using System.Collections;
+﻿using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine;
+
+// Controls (usually) 2 or more edge lights on a track.
 
 public class EdgeLightsController : MonoBehaviour
 {
+    // Get a list of all EdgeLight MeshRenderers
     public List<MeshRenderer> EdgeLightsMeshRenderers
     {
         get
@@ -11,7 +13,20 @@ public class EdgeLightsController : MonoBehaviour
             List<MeshRenderer> finalList = new List<MeshRenderer>();
             foreach (Transform obj in gameObject.transform)
                 finalList.Add(obj.GetComponent<MeshRenderer>());
+
             return finalList;
+        }
+    }
+
+    // Controls the enabled state of all EdgeLights
+    bool _isActive = true;
+    public bool IsActive
+    {
+        get { return _isActive; }
+        set
+        {
+            _isActive = value;
+            gameObject.SetActive(value);
         }
     }
 
@@ -25,24 +40,14 @@ public class EdgeLightsController : MonoBehaviour
 
             Material Material = new Material(Shader.Find("Standard"));
 
-            Material.color = ConvertColor(value);
+            Material.color = Colors.ConvertColor(value);
+            Material.SetColor("_EmissionColor", Colors.ConvertColor(value) * GlowIntensity);
+
             if (EnableGlow)
                 Material.EnableKeyword("_EMISSION");
-            Material.SetColor("_EmissionColor", ConvertColor(value) * GlowIntensity);
 
             foreach (MeshRenderer renderer in EdgeLightsMeshRenderers)
                 renderer.material = Material;
-        }
-    }
-
-    bool _isActive = true;
-    public bool IsActive
-    {
-        get { return _isActive; }
-        set
-        {
-            _isActive = value;
-            gameObject.SetActive(value);
         }
     }
 
@@ -74,10 +79,5 @@ public class EdgeLightsController : MonoBehaviour
                     renderer.material.DisableKeyword("_EMISSION");
             }
         }
-    }
-
-    public static Color ConvertColor(Color color)
-    {
-        return new Color(color.r / 255, color.g / 255, color.b / 255, color.a / 255);
     }
 }

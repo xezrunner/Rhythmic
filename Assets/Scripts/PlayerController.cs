@@ -51,7 +51,8 @@ public class PlayerController : MonoBehaviour
         // Wire up catcher events
         CatcherController.OnCatch += CatcherController_OnCatch;
 
-        await Task.Delay(300);
+        while (TracksController == null || TracksController.Tracks.Count < 1)
+            await Task.Delay(500);
 
         // TODO: we should switch to the track when the game starts
         SwitchToTrack(0);
@@ -257,20 +258,17 @@ public class PlayerController : MonoBehaviour
 
         // RESTART
         if (Input.GetKeyDown(KeyCode.R))
-        {
-            SceneManager.UnloadSceneAsync("DevScene", UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
-            SceneManager.LoadSceneAsync("Loading", LoadSceneMode.Single);
-        }
+            SceneManager.LoadScene("Loading", LoadSceneMode.Single);
 
         // TEMP / DEBUG
         if (Input.GetKeyDown(KeyCode.Keypad5))
         {
-            foreach (Note note in TracksController.CurrentTrack.trackNotes)
-                note.CaptureNote();
-
-            foreach (Measure measure in TracksController.CurrentTrack.trackActiveMeasures)
-                measure.IsMeasureActive = false;
+            foreach (Track track in TracksController.Tracks)
+                track.GetMeasureForID(TracksController.CurrentMeasure.measureNum).CaptureMeasure();
         }
+
+        if (Input.GetKeyDown(KeyCode.Keypad6))
+            fullcapture = true;
 
         if (Input.GetKeyDown(KeyCode.H))
         {
@@ -279,22 +277,83 @@ public class PlayerController : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.Keypad8))
-            transform.Translate(Vector3.forward * 60);
+            transform.Translate(Vector3.forward * 63.2f);
+
+        if (Input.GetKeyDown(KeyCode.Keypad2))
+        {
+            if (Time.timeScale > 0.1f)
+                Time.timeScale -= 0.1f;
+            foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
+                src.pitch -= 0.1f;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Keypad1))
+        {
+            Time.timeScale = 1f;
+            foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
+                src.pitch = 1f;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Keypad0))
+        {
+            DoFailTest();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Keypad9))
+        {
+            AmplitudeSongController.Instance.SongPositionOffset += 10f;
+            foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
+            {
+                src.time += 10f;
+                //src.PlayScheduled(AudioSettings.dspTime);
+            }
+            /*
+            foreach (Track track in TracksController.Tracks)
+            {
+                foreach (Measure measure in track.trackMeasures)
+                {
+                    if (CatcherController.transform.position.z > measure.endTimeInZPos)
+                        measure.IsMeasureActive = false;
+                }
+            }
+            */
+        }
 
         // If the game is Rhythmic
         if (RhythmicGame.GameType != RhythmicGame._GameType.RHYTHMIC)
             return;
     }
 
-    int counter = 0;
+    async void DoFailTest()
+    {
+        int msCounter = 50;
+
+        for (float i = 1f; i > 0f; i -= 0.1f)
+        {
+            await Task.Delay(msCounter);
+            SetSpeed(i);
+            msCounter -= 5;
+        }
+    }
+
+    void SetSpeed(float speed)
+    {
+        Time.timeScale = speed;
+        foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
+            src.pitch = speed;
+    }
+
+    bool fullcapture = false;
     private void TracksController_MeasureCaptureFinished(object sender, int e)
     {
-        if (counter < 7)
+        Track track = (Track)sender;
+        if (track.capturecounter < 7)
         {
-            TracksController.CurrentTrack.trackMeasures[e + 1].CaptureMeasure();
-            counter++;
+            track.trackMeasures[e + 1].CaptureMeasure();
+            if (!fullcapture)
+                track.capturecounter++;
         }
         else
-            counter = 0;
+            track.capturecounter = 0;
     }
 }

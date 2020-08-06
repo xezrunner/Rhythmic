@@ -13,24 +13,25 @@ public class AmplitudeTrack : Track
 
     public void AMP_PopulateNotes()
     {
-        // get midi note on event for track
+        // get midi note on events for track
         if (ID.HasValue)
             AMP_NoteOnEvents = amp_ctrl.GetNoteOnEventsForTrack(ID.Value);
 
         if (AMP_NoteOnEvents == null)
-            throw new Exception("AMP_TRACK: Note on events are null!");
+            throw new Exception("AMP_TRACK: Note on events are null for track " + trackName);
 
         int counter = 0;
         foreach (NoteOnEvent note in AMP_NoteOnEvents)
         {
-            // get lane object
+            // get lane type for note lane
             LaneType laneType = GetLaneTypeFromNoteNumber(note.NoteNumber);
             if (laneType == LaneType.UNKNOWN)
                 continue;
 
+            // get lane object for lane type
             GameObject lane = GetLaneObjectForLaneType(laneType);
 
-            // assign name and type
+            // assign note object name and type
             string noteName = string.Format("CATCH_{0}_{1}_{2}", laneType, Instrument, counter);
             Note.NoteType noteType = Note.NoteType.Generic; // TODO: AMP note types for powerups?!
 
@@ -38,13 +39,15 @@ public class AmplitudeTrack : Track
             float zPos = amp_ctrl.GetzPosForNote(note.AbsoluteTime);
             int measureNum = amp_ctrl.GetMeasureNumForZPos(zPos);
 
-            // create note!
+            // create the note!
             CreateNote(lane, zPos, noteName, noteType, laneType, this, measureNum);
 
             counter++;
         }
     }
 
+    // This creates a note (CATCH) GameObject and script.
+    // NOTE: the script shouldn't be a part of the prefab, as we don't want the Rhythmic Note script in Amplitude mode.
     UnityEngine.Object notePrefab;
     void CreateNote(GameObject lane, float zPosition, string noteName = "", Note.NoteType noteType = Note.NoteType.Generic, LaneType noteLane = LaneType.Center, Track track = null, int measureNum = 0)
     {
@@ -60,14 +63,14 @@ public class AmplitudeTrack : Track
 
         // create and assign Note to GameObject
         AmplitudeNote note = obj.AddComponent<AmplitudeNote>();
-        note.name = noteName;
+        note.noteName = noteName;
         note.noteType = noteType;
         note.noteLane = noteLane;
         note.noteTrack = track;
         note.measureNum = measureNum;
         note.subbeatNum = amp_ctrl.GetSubbeatNumForZPos(measureNum, zPosition);
         note.zPos = zPosition;
-        note.DotLightColor = Track.Colors.ColorFromTrackType(track.Instrument.Value);
+        note.DotLightColor = Colors.ColorFromTrackType(track.Instrument.Value);
 
         // Add note to Notes list
         trackNotes.Add(note);

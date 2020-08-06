@@ -8,11 +8,10 @@ public class RhythmicGame : MonoBehaviour
     {
         Debug.LogFormat("GAME [init]: Game type is {0}", GameType.ToString());
     }
-
     private void Awake()
     {
         QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 85;
+        Application.targetFrameRate = -1;
     }
 
     /// <summary>
@@ -34,6 +33,10 @@ public class RhythmicGame : MonoBehaviour
             Debug.LogFormat("GAME: Game type changed: {0}", GameType.ToString());
         }
     }
+
+    public static bool IsLoading = true;
+
+    public static bool PlayableFreestyleTracks = false;
 
     // Event debug
     public static bool DebugTrackCreationEvents = true;

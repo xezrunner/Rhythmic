@@ -29,7 +29,9 @@ public class AmplitudeSongController : MonoBehaviour
     public List<string> songTracks { get { return moggSong.songTracks; } }
     public List<MeasureInfo> songMeasures;
 
-    public bool Disable = false;
+    // If this is set to true, no song will load when this entity is spawned.
+    // TODO: swap for Enabled?
+    public bool Enabled = true;
 
     // Song properties
     public float songBpm { get { return moggSong.songBpm; } }
@@ -40,7 +42,7 @@ public class AmplitudeSongController : MonoBehaviour
 
     // MIDI properties
     public float tickInMs { get { return 60000f / ((float)reader.bpm * (float)reader.midi.DeltaTicksPerQuarterNote); } } // 1 MIDI tick in milliseconds
-    public float DeltaTicksPerQuarterNote { get { return Disable ? 480 : reader.midi.DeltaTicksPerQuarterNote; } } // 1 subbeat's length in MIDI ticks
+    public float DeltaTicksPerQuarterNote { get { return Enabled ? reader.midi.DeltaTicksPerQuarterNote : 480; } } // 1 subbeat's length in MIDI ticks
     public float TunnelSpeedAccountation { get { return (1f + fudgeFactor); } } // tunnel scaling multiplication value
 
     // Music playback properties
@@ -60,9 +62,10 @@ public class AmplitudeSongController : MonoBehaviour
     public float measureLengthInzPos { get { return GetTickTimeInzPos(DeltaTicksPerQuarterNote) * 4; } } // One measure's length in zPos unit (4 beats)
     public float subbeatLengthInzPos { get { return GetTickTimeInzPos(DeltaTicksPerQuarterNote) / 2; } } // One subbeat's length in zPos unit (1/2[half] of a beat)
 
-
     //An AudioSource attached to this GameObject that will play the music.
-    List<AudioSource> audiosrcList = new List<AudioSource>();
+    public List<AudioSource> audiosrcList = new List<AudioSource>();
+
+    public float SongPositionOffset = 0f;
 
     void Awake()
     {
@@ -79,7 +82,7 @@ public class AmplitudeSongController : MonoBehaviour
         TracksController = AmpTracksGameObject.AddComponent<AmplitudeTracksController>();
         TracksController.OnTrackSwitched += AMPTracksCtrl_OnTrackSwitched;
 
-        if (!Disable)
+        if (Enabled || songName == "")
         {
             reader = gameObject.AddComponent<MidiReader>();
             reader.OnNoteEvent += Reader_OnNoteEvent;
@@ -88,7 +91,7 @@ public class AmplitudeSongController : MonoBehaviour
             moggSong = gameObject.AddComponent<MoggSong>();
             moggSong.LoadMoggSong(songName);
 
-            Debug.LogFormat("AMP_TRACKS: Starting MidiReader...");
+            Debug.LogFormat("AMP_TRACKS: Starting MidiReader [{0}]...", songName);
 
             reader.LoadMIDI(songName);
 
@@ -102,12 +105,10 @@ public class AmplitudeSongController : MonoBehaviour
             // Load song!
             // Assign clips to AudioSources
             // TODO: read from mogg!!!
-            StartCoroutine(LoadSongs());
+            StartCoroutine(LoadSongClips());
         }
         else
-        {
-            Debug.LogFormat("AMP_TRACKS: DISABLED - Initializing with fake information...");
-        }
+            Debug.LogWarningFormat("AMP_TRACKS: DISABLED");
     }
     void Update()
     {
@@ -115,14 +116,16 @@ public class AmplitudeSongController : MonoBehaviour
             return;
 
         //determine how many seconds since the song started
-        songPosition = (float)(AudioSettings.dspTime - dspSongTime - firstBeatOffset);
+        //songPosition = (float)(AudioSettings.dspTime - dspSongTime - firstBeatOffset + SongPositionOffset);
+        songPosition = audiosrcList[0].time;
 
         //determine how many beats since the song started
         songPositionInBeats = songPosition / secPerBeat;
     }
 
-    public bool loadingSongs = true;
-    IEnumerator LoadSongs()
+    // This loads in the audio clips for the songs.
+    // This is temporary, while we do not have MOGG loading.
+    IEnumerator LoadSongClips()
     {
         int counter = 0;
         foreach (string track in songTracks)
@@ -130,7 +133,6 @@ public class AmplitudeSongController : MonoBehaviour
             string path = string.Format("Songs/{0}_{1}", songName, track);
 
             ResourceRequest resourceRequest = Resources.LoadAsync<AudioClip>(path);
-
             //Debug.LogFormat("AMP_CTRL: Loading track {0}...", track);
 
             while (!resourceRequest.isDone)
@@ -143,17 +145,17 @@ public class AmplitudeSongController : MonoBehaviour
             }
 
             AudioSource src = gameObject.AddComponent<AudioSource>();
+
             if (track == "bg_click")
                 src.volume = 0.8f;
             else
                 src.volume = counter == 0 ? 1.1f : 0f;
-            src.clip = resourceRequest.asset as AudioClip;
 
+            src.clip = resourceRequest.asset as AudioClip;
             audiosrcList.Add(src);
 
             counter++;
         }
-        loadingSongs = false;
 
         // Get closest notes
         // TODO: do this somewhere else during init!
@@ -169,14 +171,8 @@ public class AmplitudeSongController : MonoBehaviour
         dspSongTime = (float)AudioSettings.dspTime;
 
         //Start the music
-        /*
-        src_bgclick.PlayScheduled(AudioSettings.dspTime);
-        src_drums.PlayScheduled(AudioSettings.dspTime);
-        src_bass.PlayScheduled(AudioSettings.dspTime);
-        src_synth.PlayScheduled(AudioSettings.dspTime);
-        */
         foreach (AudioSource src in audiosrcList)
-            src.PlayScheduled(AudioSettings.dspTime);
+            src.PlayScheduled(dspSongTime);
     }
 
     int currentAudioSourceID = 0; // current track ID that's playing
@@ -184,7 +180,7 @@ public class AmplitudeSongController : MonoBehaviour
     {
         if (e >= audiosrcList.Count)
         {
-            Debug.LogFormat("AMP_CTRL: Track ID {0} does not have an audio source! - ignoring track switch volume change", e);
+            Debug.LogWarningFormat("AMP_CTRL: Track ID {0} does not have an audio source! - ignoring track switch volume change", e);
             return;
         }
 
@@ -202,7 +198,7 @@ public class AmplitudeSongController : MonoBehaviour
     {
         List<MeasureInfo> finalList = new List<MeasureInfo>();
         float prevTime = 0f;
-        for (int i = 0; i < songLengthInMeasures; i++)
+        for (int i = 0; i < songLengthInMeasures + 3; i++)
         {
             MeasureInfo measure = new MeasureInfo() { measureNum = i, startTimeInzPos = prevTime, endTimeInzPos = prevTime + measureLengthInzPos };
             prevTime = prevTime + measureLengthInzPos;
@@ -232,7 +228,6 @@ public class AmplitudeSongController : MonoBehaviour
         }
         return -1;
     }
-
     public int GetSubbeatNumForZPos(int measureNum, float zPos)
     {
         float zPosTime = float.Parse(zPos.ToString("0.0"));

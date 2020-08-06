@@ -28,8 +28,7 @@ public class Measure : MonoBehaviour
     public GameObject MeasureDestructionNoteDetector;
 
     #region Properties
-
-    private Color _measureColor;
+    private Color _measureColor = Track.Colors.Drums;
     public Color MeasureColor
     {
         get { return _measureColor; }
@@ -40,7 +39,7 @@ public class Measure : MonoBehaviour
         }
     }
 
-    Color _edgeLightsColor;
+    Color _edgeLightsColor = Track.Colors.Drums;
     public Color EdgeLightsColor
     {
         get { return _edgeLightsColor; }
@@ -172,49 +171,20 @@ public class Measure : MonoBehaviour
         subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
         detectorPrefab = Resources.Load("Prefabs/MeasureDestructDetector");
 
+        // get front & back edge lights
+        for (int i = 2; i <= 5; i++)
+            EdgeLightsFrontBack.Add(EdgeLightsController.gameObject.transform.GetChild(i).gameObject);
+
         // unparent front & back edge lights
         // TODO: This is very hacky!
         foreach (GameObject obj in EdgeLightsFrontBack)
             obj.transform.parent = null;
     }
+    [ExecuteInEditMode]
     void Start()
     {
-        if (!amp_ctrl.Disable)
-        {
-            // create subbeats
-            if (subBeatPrefab == null)
-                subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
-
-            Vector3 subbeatScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos);
-            float lastSubbeatPosition = startTimeInZPos;
-
-            for (int i = 0; i < 8; i++)
-            {
-                GameObject obj = (GameObject)GameObject.Instantiate(subBeatPrefab);
-                MeasureSubBeat script = obj.GetComponent<MeasureSubBeat>();
-
-                obj.name = string.Format("MEASURE{0}_SUBBEAT{1}", measureNum, i);
-                obj.transform.localScale = subbeatScale;
-                obj.transform.localPosition = new Vector3(transform.position.x, 0, lastSubbeatPosition);
-                obj.transform.parent = transform;
-
-                script.subbeatNum = i;
-
-                EdgeLightsGlowIntensity = 0.5f;
-                EdgeLightsColor = Track.Colors.ColorFromTrackType(trackInstrument.Value);
-
-                if (i == 0) // measure trigger
-                    script.IsMeasureSubbeat = true;
-
-                script.StartZPos = lastSubbeatPosition;
-
-                subbeatObjectList.Add(obj);
-                subbeatList.Add(script);
-
-                lastSubbeatPosition += amp_ctrl.subbeatLengthInzPos;
-                script.EndZPos = lastSubbeatPosition;
-            }
-        }
+        if (amp_ctrl.Enabled)
+            CreateSubbeats();
 
         // Move front & back edge lights to their correct positions
         // TODO: This is very hacky!
@@ -225,14 +195,23 @@ public class Measure : MonoBehaviour
         EdgeLightsGlow = false;
     }
 
+    // Edge lights
+
+    // This function positions the 6 edge lights on the measure after scaling the measure.
+    // This is needed because when scaling a measure, it ends up scaling the edge lights as well.
+    // TODO: make the edge lights be a texture on the measure model instead
     void PositionFrontBackEdgeLights()
     {
         foreach (GameObject obj in EdgeLightsFrontBack)
         {
-            if (obj.transform.name.Contains("Front"))
-                obj.transform.Translate(transform.forward * transform.position.z);
-            else
-                obj.transform.Translate(transform.forward * (transform.position.z + transform.lossyScale.z - 1));
+            obj.transform.parent = null;
+            Vector3 finalScale = obj.transform.lossyScale;
+            Vector3 finalPos = obj.transform.position;
+            finalPos.z = obj.transform.name.Contains("Front") ? transform.position.z : (transform.position.z + transform.lossyScale.z);
+            finalScale.z = 0.01f;
+
+            obj.transform.position = finalPos;
+            obj.transform.localScale = finalScale;
 
             obj.transform.Translate(transform.right * transform.position.x);
 
@@ -245,65 +224,95 @@ public class Measure : MonoBehaviour
 
     public void CreateSubbeats()
     {
+        // create subbeats
+        if (subBeatPrefab == null)
+            subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
 
+        Vector3 subbeatScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos);
+        float lastSubbeatPosition = startTimeInZPos;
+
+        for (int i = 0; i < 8; i++)
+        {
+            GameObject obj = (GameObject)GameObject.Instantiate(subBeatPrefab);
+            MeasureSubBeat script = obj.GetComponent<MeasureSubBeat>();
+
+            obj.name = string.Format("MEASURE{0}_SUBBEAT{1}", measureNum, i);
+            obj.transform.localScale = subbeatScale;
+            obj.transform.localPosition = new Vector3(transform.position.x, 0, lastSubbeatPosition);
+            obj.transform.parent = transform;
+
+            script.subbeatNum = i;
+
+            EdgeLightsGlowIntensity = 0.5f;
+            EdgeLightsColor = Track.Colors.ColorFromTrackType(trackInstrument.Value);
+
+            script.IsMeasureSubbeat = i == 0; // enable measure trigger if first subbeat
+
+            script.StartZPos = lastSubbeatPosition;
+
+            subbeatObjectList.Add(obj);
+            subbeatList.Add(script);
+
+            lastSubbeatPosition += amp_ctrl.subbeatLengthInzPos;
+            script.EndZPos = lastSubbeatPosition;
+        }
     }
 
     // Capturing
 
     public float FullLength = 1f;
     [Range(0f, 1f)]
-    public float Length = 1f;
+    public float Length = 0f;
     [Range(0f, 1f)]
     public float CaptureLength = 0f;
 
+    // This function scales the measure according to the capture length / inverselength properties
+    // It needs to run in Update()
+    // TODO: revise
     Transform ogParent;
     void ScaleAndPos()
     {
-        transform.parent = null;
-        Vector3 ogPosition = transform.position;
+        transform.parent = null; // unparent from track
+        Vector3 ogPosition = transform.position; // store original position
 
-        transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, FullLength * (Length - CaptureLength));
-        transform.position = new Vector3(ogPosition.x, ogPosition.y, startTimeInZPos + (FullLength * CaptureLength));
-    }
-
-    public event EventHandler<int> OnCaptureFinished;
-
-    public void CaptureMeasure()
-    {
-        gameObject.GetComponent<Animation>().Play();
-        GameObject detector = (GameObject)Instantiate(detectorPrefab, gameObject.transform);
-        detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.color = Track.Colors.ConvertColor(EdgeLightsColor);
-        detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.SetColor("_EmissionColor", Track.Colors.ConvertColor(EdgeLightsColor * 1.3f));
-
-        //MeasureDestructionNoteDetector.SetActive(true); // start capturing notes in measure
+        transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, FullLength * (Length - CaptureLength)); // scale measure based on capture length
+        transform.position = new Vector3(ogPosition.x, ogPosition.y, startTimeInZPos + (FullLength * CaptureLength)); // with the un-parenting, we need to use the stored position instead
 
         /*
-        await Task.Delay(TimeSpan.FromSeconds(.5));
-
-        //Destroy(gameObject);
-        //MeasureDestructionNoteDetector.SetActive(false); // stop capturing notes
-        //Visuals.SetActive(false); // disable Measure object
-        OnCaptureFinished?.Invoke(null, null);
+        if (Application.isPlaying)
+            PositionFrontBackEdgeLights();
         */
     }
 
+    public event EventHandler<int> OnCaptureFinished;
+    public void CaptureMeasure()
+    {
+        gameObject.GetComponent<Animation>().Play(); // play capture anim!
+
+        GameObject detector = (GameObject)Instantiate(detectorPrefab, gameObject.transform); // create measure destruct detector
+
+        // setup particles
+        detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.color = Colors.ConvertColor(EdgeLightsColor);
+        detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.SetColor("_EmissionColor", Colors.ConvertColor(EdgeLightsColor * 1.3f));
+    }
+
+    // This function is called by the capture animation when it finishes.
     public void OnCaptureAnimFinished()
     {
-        IsMeasureActive = false;
-        transform.parent = ogParent;
-        OnCaptureFinished?.Invoke(null, measureNum);
+        IsMeasureActive = false; // disable measure
+        transform.parent = ogParent; // re-parent measure from the previous ScaleAndPos() unparent
+        OnCaptureFinished?.Invoke(null, measureNum); // invoke event to let things know we finished capturing
 
+        // Capture all notes in case we missed any. This might remain as a hack anyway.
+        // TODO: revise why the detector is inconsistent at catching notes. Perhaps limited by FPS?
         foreach (Note note in noteList)
             note.CaptureNote();
     }
 
+    [ExecuteInEditMode]
     private void OnValidate()
     {
-        /*
-#if UNITY_EDITOR
         ScaleAndPos();
-#endif
-        */
     }
 
     public bool capturing = false;

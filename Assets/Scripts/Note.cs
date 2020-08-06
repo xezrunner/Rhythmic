@@ -9,12 +9,7 @@ public class Note : MonoBehaviour
     public MeshRenderer NoteMeshRenderer;
     public MeshRenderer DotLightMeshRenderer { get { return DotLight.GetComponent<MeshRenderer>(); } }
     public GameObject DotLight;
-    Color _dotLightColor = Color.white;
-    public Color DotLightColor
-    {
-        get { return _dotLightColor; }
-        set { _dotLightColor = value; }
-    }
+
     Color _color;
     public Color Color
     {
@@ -22,13 +17,19 @@ public class Note : MonoBehaviour
         set
         {
             _color = value;
-            NoteMeshRenderer.material.color = Track.Colors.ConvertColor(value);
-            NoteMeshRenderer.material.DisableKeyword("_Emission");
+            NoteMeshRenderer.material.color = Colors.ConvertColor(value);
         }
     }
 
-    //public string noteName { get { return gameObject.name; } set { gameObject.name = value; } }
-    public NoteType noteType;
+    Color _dotLightColor = Color.white;
+    public Color DotLightColor
+    {
+        get { return _dotLightColor; }
+        set { _dotLightColor = value; }
+    }
+
+    public string noteName { get { return gameObject.name; } set { gameObject.name = value; } }
+    public NoteType noteType = NoteType.Generic;
     public Track noteTrack;
     public Track.LaneType noteLane;
     public Measure noteMeasure { get { return noteTrack.GetMeasureForZPos(zPos); } }
@@ -46,9 +47,9 @@ public class Note : MonoBehaviour
             _isNoteActive = value;
 
             if (value)
-                NoteMeshRenderer.material.color = Track.Colors.ConvertColor(Color.black);
+                NoteMeshRenderer.material.color = Colors.ConvertColor(Color.black);
             else
-                NoteMeshRenderer.material.color = Track.Colors.ConvertColor(Color.white);
+                NoteMeshRenderer.material.color = Colors.ConvertColor(Color.white);
         }
     }
 
@@ -64,7 +65,7 @@ public class Note : MonoBehaviour
         DotLightMeshRenderer = DotLight.GetComponent<MeshRenderer>();
 
         Material mat = Instantiate(DotLightMeshRenderer.material);
-        Color finalColor = Track.Colors.ConvertColor(DotLightColor);
+        Color finalColor = Colors.ConvertColor(DotLightColor);
 
         mat.color = finalColor;
 
@@ -81,8 +82,11 @@ public class Note : MonoBehaviour
         // Set up the dot light
         DotLight = transform.GetChild(0).gameObject;
         DotLight.SetActive(false); DotLight.transform.localPosition = Vector3.zero;
-        DotLightMeshRenderer.material.color = Track.Colors.ConvertColor(DotLightColor);
-        DotLightMeshRenderer.material.SetColor("_EmissionColor", Track.Colors.ConvertColor(DotLightColor) * 0.6f);
+        DotLightMeshRenderer.material.color = Colors.ConvertColor(DotLightColor);
+        DotLightMeshRenderer.material.SetColor("_EmissionColor", Colors.ConvertColor(DotLightColor) * 0.6f);
+
+        var ps_main = transform.GetChild(0).GetChild(0).GetComponent<ParticleSystem>().main;
+        ps_main.startColor = Colors.ConvertColor(DotLightColor * 1.5f);
     }
     private void Update()
     {

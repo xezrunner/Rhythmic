@@ -13,16 +13,27 @@ public class GameStarter : MonoBehaviour
 
     DepthOfField dofLayer = null;
 
-    // Start is called before the first frame update
-    async void Start()
+    void Awake()
     {
+        RhythmicGame.IsLoading = true;
+
         ppfx = GameObject.Find("ppfx");
         loadingText = GameObject.Find("loadingText").GetComponent<TMPro.TextMeshProUGUI>();
 
         ppv = ppfx.GetComponent<PostProcessVolume>();
         ppv.profile.TryGetSettings(out dofLayer);
+    }
 
-        await Task.Delay(3000);
+    // Start is called before the first frame update
+    async void Start()
+    {
+        await Task.Delay(100);
+
+        //if (Screen.fullScreenMode != FullScreenMode.ExclusiveFullScreen)
+        Screen.SetResolution(1280, 720, FullScreenMode.ExclusiveFullScreen);
+
+        //await Task.Delay(3000);
+
         /*
         SceneManager.LoadSceneAsync("DevScene", LoadSceneMode.Additive);
         SceneManager.LoadSceneAsync("SnowMountains", LoadSceneMode.Additive);
@@ -35,7 +46,7 @@ public class GameStarter : MonoBehaviour
     {
         //AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Single);
         Application.backgroundLoadingPriority = ThreadPriority.Low;
-        AsyncOperation asyncOperation = Application.LoadLevelAdditiveAsync(levelName);
+        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Additive);
         Debug.Log("Loading progress: " + asyncOperation.progress);//should get 0 here, right?
 
         asyncOperation.allowSceneActivation = false;

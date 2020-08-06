@@ -5,6 +5,8 @@ using UnityEngine;
 public class TracksController : MonoBehaviour
 {
     public static TracksController Instance;
+    public GameObject loadingText;
+
     public CatcherController CatcherController { get { return CatcherController.Instance; } }
     public PlayerController Player { get { return PlayerController.Instance; } }
 
@@ -17,6 +19,8 @@ public class TracksController : MonoBehaviour
     public void Awake()
     {
         Instance = this;
+        loadingText = GameObject.Find("loadingText");
+
         Player.OnTrackSwitched += Player_OnTrackSwitched;
 
         gameObject.layer = 11; // put TracksController onto Tracks layer
@@ -97,6 +101,6 @@ public class TracksController : MonoBehaviour
 
     public void AmpTrack_MeasureCaptureFinished(object sender, int e)
     {
-        MeasureCaptureFinished?.Invoke(null, e);
+        MeasureCaptureFinished?.Invoke(sender, e);
     }
 }

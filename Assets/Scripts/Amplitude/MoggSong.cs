@@ -71,11 +71,14 @@ public class MoggSong : MonoBehaviour
             else if (line.Contains("boss_level ")) // Song boss level
                 songBossLevel = int.Parse(line.Substring(12, 1));
 
-            else if (line.Contains("SONG_BUS")) // Song tracks
+            else if (line.Contains("SONG_BUS") || line.Contains("FREESTYLE_FX")) // Song tracks
             {
                 string[] tokens = line.Substring(7).Split(' ');
                 string trackName = tokens[0];
-                songTracks.Add(trackName);
+                if (trackName == "freestyle" & !RhythmicGame.PlayableFreestyleTracks)
+                    continue;
+                else
+                    songTracks.Add(trackName);
             }
 
             counter++;

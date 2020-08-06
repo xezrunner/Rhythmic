@@ -20,6 +20,7 @@ public class AmplitudePlayerController : PlayerController
     }
 
     // MAIN LOOP
+
     new void Update()
     {
         // base update
@@ -39,7 +40,7 @@ public class AmplitudePlayerController : PlayerController
         }
 
         // ENTER Key
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.Return) & !RhythmicGame.IsLoading)
         {
             // Start music in AMP song controller
             amp_ctrl.PlayMusic();

@@ -5,6 +5,7 @@ using NAudio.Midi;
 using System;
 using System.Linq.Expressions;
 using UnityEditor;
+using System.Threading.Tasks;
 
 public class Track : MonoBehaviour
 {
@@ -28,27 +29,21 @@ public class Track : MonoBehaviour
 
     // Props
     public int? ID;
-    string _trackName;
-    public string trackName
-    {
-        get { return _trackName; }
-        set { _trackName = value; }
-    }
+    public string trackName;
     public TrackType? Instrument;
     public Note nearestNote;
     public int activeMeasureNum = -1;
 
-    bool _isTrackFocused = false; //  TODO: also enable/disable the track coloring material when it's in the game!
-    public bool IsTrackFocused
+    bool _isTrackFocused = false; // TODO: also enable/disable the track coloring material
+    public bool IsTrackFocused // Is the track focused by the player?
     {
         get { return _isTrackFocused; }
         set
         {
             _isTrackFocused = value;
-            EdgeLightsActive = value;
             SetMeasuresFocus(value);
         }
-    } // Is the track focused by the player?
+    }
     public bool IsTrackCaptured; // Is this track in its captured state right now?
     public bool IsTrackBeingCaptured; // Is this track being played right now? TODO: this being a prop and if changed, will update its own volume in SongController
     public bool IsTrackEmpty { get { return trackNotes.Count == 0 ? true : false; } }
@@ -81,6 +76,9 @@ public class Track : MonoBehaviour
     {
         // Set track material
         //SetTrackMaterialByInstrument(Instrument);
+
+        if (Instrument == TrackType.FREESTYLE)
+            DisableEmptyMeasures = false;
     }
 
     // Materials
@@ -126,6 +124,8 @@ public class Track : MonoBehaviour
 
     public void SetMeasuresFocus(bool value) // TODO: this function should only set the queued measures - set everything for now
     {
+        EdgeLightsActive = value;
+
         foreach (Measure measure in trackActiveMeasures)
             measure.IsMeasureFocused = value;
     }
@@ -145,7 +145,7 @@ public class Track : MonoBehaviour
 
     // Measures
     UnityEngine.Object measurePrefab;
-    public void CreateMeasures(List<AmplitudeSongController.MeasureInfo> MeasureInfoList)
+    public async void CreateMeasures(List<AmplitudeSongController.MeasureInfo> MeasureInfoList)
     {
         if (measurePrefab == null)
             measurePrefab = Resources.Load("Prefabs/Measure");
@@ -160,8 +160,7 @@ public class Track : MonoBehaviour
 
             obj.name = string.Format("MEASURE_{0}", MeasureInfo.measureNum);
             obj.transform.localPosition = measurePosition;
-            obj.transform.localScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos * 8);
-            //obj.transform.parent = MeasureContainer.transform;
+            obj.transform.localScale = new Vector3(1, 1, amp_ctrl.measureLengthInzPos);
             obj.transform.SetParent(MeasureContainer.transform, true);
 
             // get Measure script and add component
@@ -192,14 +191,18 @@ public class Track : MonoBehaviour
             trackMeasures.Add(measure);
 
             counter++;
+
+            if (!Application.isEditor)
+            await Task.Delay(6); // fake async
         }
     }
 
     public event EventHandler<int> MeasureCaptureFinished;
 
+    public int capturecounter = 0;
     private void Measure_OnCaptureFinished(object sender, int e)
     {
-        MeasureCaptureFinished?.Invoke(null, e);
+        MeasureCaptureFinished?.Invoke(this, e);
     }
 
     public bool GetIsMeasureActiveForZPos(float zPos)
@@ -277,7 +280,7 @@ public class Track : MonoBehaviour
         foreach (string type in Enum.GetNames(typeof(TrackType)))
         {
             if (s.Contains(type.ToString().ToLower()))
-                return (TrackType)Enum.Parse((typeof(TrackType)), type);
+                return (TrackType)Enum.Parse((typeof(TrackType)), type, true);
         }
         throw new Exception("MoggSong: Invalid track string! " + s);
     }
@@ -296,6 +299,7 @@ public class Track : MonoBehaviour
         public static Color Synth = new Color(221, 219, 89, Opacity);
         public static Color Guitar = new Color(255, 0, 0, Opacity);
         public static Color Vocals = new Color(0, 255, 0, Opacity);
+        public static Color Freestyle = new Color(255, 255, 255, Opacity);
 
         public static Color ColorFromTrackType(TrackType type)
         {
@@ -314,6 +318,8 @@ public class Track : MonoBehaviour
                     return Guitar;
                 case (int)TrackType.Vocals:
                     return Vocals;
+                case (int)TrackType.FREESTYLE:
+                    return Freestyle;
             }
         }
         public static Color ConvertColor(Color color)

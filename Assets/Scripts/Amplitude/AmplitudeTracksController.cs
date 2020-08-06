@@ -11,6 +11,8 @@ public class AmplitudeTracksController : TracksController
 
     public List<string> songTracks { get { return amp_ctrl.songTracks; } } // list of tracks in string form - for initialization use only!
 
+    // AMP TRACKS CREATION
+
     UnityEngine.Object trackPrefab;
     public async void CreateTracks()
     {
@@ -22,10 +24,9 @@ public class AmplitudeTracksController : TracksController
         int counter = 0;
 
         var watch = System.Diagnostics.Stopwatch.StartNew();
-
         foreach (string track in songTracks)
         {
-            if (track == "freestyle" || track == "bg_click")
+            if ((track == "freestyle" & !RhythmicGame.PlayableFreestyleTracks) || track == "bg_click")
                 continue;
 
             if (counter != 0) lastX += xPos; // if this is the 0th track, leave position at 0
@@ -58,28 +59,36 @@ public class AmplitudeTracksController : TracksController
             ampTrack.AMP_PopulateNotes();
             await Task.Delay(1); // Fake async for track note population
 
-            // Create the measures in the track
-            ampTrack.CreateMeasures(amp_ctrl.songMeasures);
-            await Task.Delay(1); // Fake async for measure creation
-
             counter++;
 
-            GameObject loadingText = GameObject.Find("loadingText");
+            // Update loading text
+            // TODO: optimize
             if (loadingText != null)
                 loadingText.GetComponent<TextMeshProUGUI>().text = string.Format("Charting song - {0}% done...", (((float)counter / (float)songTracks.Count) * 100f).ToString("0"));
         }
 
+        if (loadingText != null)
+            loadingText.GetComponent<TextMeshProUGUI>().text = "Charting song...";
+
+        foreach (Track track in Tracks)
+        {
+            // Create the measures in the track
+            track.CreateMeasures(amp_ctrl.songMeasures);
+            if (!Application.isEditor)
+            await Task.Delay(1); // Fake async for measure creation
+        }
+
         watch.Stop();
         var elapsedMs = watch.ElapsedMilliseconds;
+        Debug.LogFormat("AMP_TRACKS: Note chart creation took {0}ms", elapsedMs);
 
-        Debug.LogFormat("Note chart creation took {0}ms", elapsedMs);
-        try
-        {
-            SceneManager.UnloadSceneAsync("Loading"); // TODO: move to a better place / optimize!
-        }
-        catch
-        {
+        // Unload loading scene
+        // TODO: move to a better place / optimize!
+        if (SceneManager.GetSceneByName("Loading").isLoaded)
+            SceneManager.UnloadSceneAsync("Loading");
 
-        }
+        while (Tracks[Tracks.Count - 1].trackMeasures.Count != amp_ctrl.songMeasures.Count)
+            await Task.Delay(500);
+        RhythmicGame.IsLoading = false;
     }
 }
