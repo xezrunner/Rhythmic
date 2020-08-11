@@ -45,10 +45,6 @@ public class AmplitudeTracksController : TracksController
             ampTrack.trackName = track;
             ampTrack.Instrument = AmplitudeTrack.TrackTypeFromString(track);
             ampTrack.EdgeLightsColor = Track.Colors.ColorFromTrackType(ampTrack.Instrument.Value);
-            if (counter == 0) // TODO: activation should be based on which track the player is on
-                ampTrack.EdgeLightsActive = true;
-            else
-                ampTrack.EdgeLightsActive = false;
 
             ampTrack.MeasureCaptureFinished += AmpTrack_MeasureCaptureFinished;
 
@@ -64,7 +60,7 @@ public class AmplitudeTracksController : TracksController
             // Update loading text
             // TODO: optimize
             if (loadingText != null)
-                loadingText.GetComponent<TextMeshProUGUI>().text = string.Format("Charting song - {0}% done...", (((float)counter / (float)songTracks.Count) * 100f).ToString("0"));
+                loadingText.GetComponent<TextMeshProUGUI>().text = string.Format("Charting song - {0}% done...", (((float)counter / (float)Tracks.Count) * 100f).ToString("0"));
         }
 
         if (loadingText != null)
@@ -74,8 +70,10 @@ public class AmplitudeTracksController : TracksController
         {
             // Create the measures in the track
             track.CreateMeasures(amp_ctrl.songMeasures);
+            /*
             if (!Application.isEditor)
-            await Task.Delay(1); // Fake async for measure creation
+                await Task.Delay(1); // Fake async for measure creation
+            */
         }
 
         watch.Stop();
@@ -87,8 +85,13 @@ public class AmplitudeTracksController : TracksController
         if (SceneManager.GetSceneByName("Loading").isLoaded)
             SceneManager.UnloadSceneAsync("Loading");
 
-        while (Tracks[Tracks.Count - 1].trackMeasures.Count != amp_ctrl.songMeasures.Count)
+        while (Tracks[0].trackMeasures.Count < 3)
             await Task.Delay(500);
+
+        // Get closest notes
+        // TODO: do this somewhere else during init!
+        CatcherController.Instance.FindNextMeasuresNotes();
+
         RhythmicGame.IsLoading = false;
     }
 }

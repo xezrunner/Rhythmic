@@ -11,7 +11,7 @@ public class MoggSong : MonoBehaviour
     public int songLengthInMeasures { get; set; }
     public int songCountInTime { get; set; }
     public List<string> songTracks { get; set; } = new List<string>();
-    public float songBpm { get; set; }
+    public int songBpm { get; set; }
 
     // TODO: Mixer!
     // TODO: Score goals!
@@ -66,7 +66,7 @@ public class MoggSong : MonoBehaviour
                 if (finalBPM.EndsWith(")"))
                     finalBPM = line.Substring(5, 2);
 
-                songBpm = float.Parse(finalBPM);
+                songBpm = int.Parse(finalBPM);
             }
             else if (line.Contains("boss_level ")) // Song boss level
                 songBossLevel = int.Parse(line.Substring(12, 1));

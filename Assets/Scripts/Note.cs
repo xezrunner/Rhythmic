@@ -37,24 +37,42 @@ public class Note : MonoBehaviour
     public int subbeatNum;
     public float zPos;
 
-    // Whether the note is greyed out (used when failing)
-    bool _isNoteActive = true;
-    public bool IsNoteActive
+    // Wheather the note is the last one in its measure
+    public bool IsLastNote { get { return noteMeasure.noteList.IndexOf(this) == noteMeasure.noteList.Count - 1; } }
+
+    // Whether the note is greyed out (used during note missing)
+    bool _isNoteEnabled = true;
+    public bool IsNoteEnabled
     {
-        get { return _isNoteActive; }
+        get { return _isNoteEnabled; }
         set
         {
-            _isNoteActive = value;
+            _isNoteEnabled = value;
 
             if (value)
-                NoteMeshRenderer.material.color = Colors.ConvertColor(Color.black);
+                Color = new Color(255, 255, 255);
             else
-                NoteMeshRenderer.material.color = Colors.ConvertColor(Color.white);
+                Color = new Color(60, 60, 60);
         }
     }
 
-    public bool IsNoteCaptured = false;
     public bool IsNoteToBeCaptured = false;
+
+    bool _isNoteCaptured = false;
+    public bool IsNoteCaptured
+    {
+        get { return _isNoteCaptured; }
+        set
+        {
+            _isNoteCaptured = value;
+            IsNoteEnabled = !value;
+
+            GetComponent<Collider>().enabled = !value;
+            GetComponent<MeshRenderer>().enabled = !value;
+
+            DotLight.SetActive(value);
+        }
+    }
 
     void Awake()
     {
@@ -90,7 +108,7 @@ public class Note : MonoBehaviour
     }
     private void Update()
     {
-        if (IsNoteActive == !IsNoteActive)
+        if (IsNoteEnabled == !IsNoteEnabled)
             Debug.DebugBreak();
     }
 
@@ -101,11 +119,6 @@ public class Note : MonoBehaviour
 
     public void CaptureNote(NoteCatchType catchType = NoteCatchType.Success)
     {
-        GetComponent<Collider>().enabled = false;
-        GetComponent<MeshRenderer>().enabled = false;
-
-        DotLight.SetActive(true);
-
         IsNoteCaptured = true;
     }
 

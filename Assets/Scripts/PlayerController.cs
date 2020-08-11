@@ -51,13 +51,14 @@ public class PlayerController : MonoBehaviour
         // Wire up catcher events
         CatcherController.OnCatch += CatcherController_OnCatch;
 
-        while (TracksController == null || TracksController.Tracks.Count < 1)
+        if (!AmplitudeSongController.Instance.Enabled)
+            return;
+
+        while (TracksController == null || TracksController.Tracks[0].trackMeasures.Count < 3)
             await Task.Delay(500);
 
         // TODO: we should switch to the track when the game starts
-        SwitchToTrack(0);
-
-        TracksController.MeasureCaptureFinished += TracksController_MeasureCaptureFinished;
+        SwitchToTrack(0, true);
 
         //StartCoroutine(Load("SnowMountains"));
     }
@@ -96,7 +97,7 @@ public class PlayerController : MonoBehaviour
                 AddScore();
                 streakCounter++;
 
-                e.note.noteTrack.IsTrackBeingCaptured = true;
+                //e.note.noteTrack.IsTrackBeingCaptured = true;
 
                 break;
             }
@@ -110,7 +111,7 @@ public class PlayerController : MonoBehaviour
             case Catcher.CatchResult.Empty: // if we pressed on an empty space
             {
                 // if the track that's being played right now has an active measure (?)
-                if (TracksController.GetIsCurrentMeasureActive)
+                if (!TracksController.GetIsCurrentMeasureEmpty)
                 {
                     src.PlayOneShot(catcher_miss);
                     DeclareMiss(e.note, Catcher.NoteMissType.Mispress);
@@ -139,28 +140,14 @@ public class PlayerController : MonoBehaviour
             case Catcher.NoteMissType.EmptyMispress:
                 break;
             case Catcher.NoteMissType.EmptyIgnore:
-            {
-                // Disable all notes in the note's measures
-                note.noteTrack.IsTrackBeingCaptured = false;
-                TracksController.DisableCurrentMeasures();
-
-                break;
-            }
             case Catcher.NoteMissType.Mispress:
-            {
-                TracksController.CurrentTrack.IsTrackBeingCaptured = false;
-                TracksController.DisableCurrentMeasures();
-
-                break;
-            }
             case Catcher.NoteMissType.Ignore:
             {
-                note.noteTrack.IsTrackBeingCaptured = false;
+                // Disable all current measures
                 TracksController.DisableCurrentMeasures();
 
                 break;
             }
-
         }
 
         if (misstype != Catcher.NoteMissType.EmptyMispress)
@@ -168,45 +155,64 @@ public class PlayerController : MonoBehaviour
     }
 
     int streakCounter = 0;
-
+    bool canLoseStreak = true;
     public async void LoseStreak()
     {
         // find next notes again
-        //CatcherController.ShouldHit.Clear();
-        CatcherController.ShouldHit = null;
-        CatcherController.FindNextMeasureNotes();
+        CatcherController.IsSuccessfullyCatching = false;
+        CatcherController.FindNextMeasuresNotes();
 
-        if (streakCounter < 1)
+        if (streakCounter < 1 || !canLoseStreak)
             return;
 
-        streakCounter = 0;
+        TracksController.SetAllTracksCapturingState(false);
 
+        streakCounter = 0;
         SetScore(0);
 
         src.PlayOneShot(streak_lose);
 
+        canLoseStreak = false;
+
         MissText.gameObject.SetActive(true);
         await Task.Delay(1500);
         MissText.gameObject.SetActive(false);
+        canLoseStreak = true;
     }
 
     // Track switching
     public event EventHandler<int> OnTrackSwitched;
-    public void SwitchToTrack(int id)
+    public void SwitchToTrack(int id, bool force = false)
     {
+        //if (id == TracksController.CurrentTrackID) { Debug.Log("PLAYER/SwitchToTrack(): Already on this track!"); return; }
+
         if (TracksController.Tracks.Count < 1)
         {
             Debug.LogWarning("PLAYER/SwitchToTrack(): No tracks are available");
             return;
         }
 
+        if (id > TracksController.Tracks.Count - 1) { Debug.LogWarningFormat("PLAYER/SwitchToTrack(): Trying to switch to non-existent track {0} / {1}", id, TracksController.Tracks.Count - 1); return; }
+        else if (id < 0) { Debug.LogWarningFormat("PLAYER/SwitchToTrack(): Trying to switch to non-existent track {0} / {1}", id, 0); return; }
+
         // find the track by ID
-        Track track;
-        try
+        Track track = null;
+
+        if (RhythmicGame.TrackSeekEmpty & TracksController.CurrentMeasure.measureNum >= 4 & !force) // seek
         {
-            track = TracksController.GetTrackByID(id);
+            if (TracksController.Tracks[id].trackMeasures[TracksController.CurrentMeasure.measureNum + 1].IsMeasureEmpty)
+            {
+                SwitchToTrack(id > TracksController.CurrentTrackID ? id + 1 : id - 1);
+                return;
+            }
+            else
+                track = TracksController.GetTrackByID(id);
         }
-        catch
+        else
+            track = TracksController.GetTrackByID(id);
+
+
+        if (track == null)
         {
             Debug.LogErrorFormat("PLAYER/SwitchToTrack(): Could not switch to track {0}", id);
             return;
@@ -221,7 +227,7 @@ public class PlayerController : MonoBehaviour
         transform.position = pos;
 
         // let stuff know of the switch
-        OnTrackSwitched?.Invoke(null, id);
+        OnTrackSwitched?.Invoke(null, track.ID.Value);
     }
 
     // Measures & subbeats
@@ -248,13 +254,19 @@ public class PlayerController : MonoBehaviour
     }
 
     // MAIN LOOP
-    public void Update()
+    public async void Update()
     {
         // TRACK SWITCHING
+        if (Input.GetKeyDown(InputManager.Player.TrackSwitching[0]))
+            SwitchToTrack(TracksController.CurrentTrackID - 1, Input.GetKey(KeyCode.LeftShift));
+        else if (Input.GetKeyDown(InputManager.Player.TrackSwitching[1]))
+            SwitchToTrack(TracksController.CurrentTrackID + 1, Input.GetKey(KeyCode.LeftShift));
+        /*
         if (Input.GetKeyDown(KeyCode.A))
-            SwitchToTrack(TracksController.CurrentTrackID - 1);
+            SwitchToTrack(TracksController.CurrentTrackID - 1, Input.GetKey(KeyCode.LeftShift));
         else if (Input.GetKeyDown(KeyCode.D))
-            SwitchToTrack(TracksController.CurrentTrackID + 1);
+            SwitchToTrack(TracksController.CurrentTrackID + 1, Input.GetKey(KeyCode.LeftShift));
+        */
 
         // RESTART
         if (Input.GetKeyDown(KeyCode.R))
@@ -264,16 +276,43 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Keypad5))
         {
             foreach (Track track in TracksController.Tracks)
-                track.GetMeasureForID(TracksController.CurrentMeasure.measureNum).CaptureMeasure();
+                track.CaptureMeasuresRange(GetCurrentMeasure().measureNum, 5);
         }
 
         if (Input.GetKeyDown(KeyCode.Keypad6))
-            fullcapture = true;
+        {
+            foreach (Track track in TracksController.Tracks)
+                track.CaptureMeasures(GetCurrentMeasure().measureNum, track.trackMeasures.Count - 1);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Keypad7))
+        {
+            foreach (Track track in TracksController.Tracks)
+            {
+                foreach (Measure measure in track.trackMeasures)
+                {
+                    if (!measure.IsMeasureCaptured)
+                        continue;
+
+                    measure.IsMeasureCaptured = false;
+                    measure.IsMeasureEmpty = false;
+                    measure.IsMeasureActive = true;
+                    measure.capturing = true;
+                    measure.CaptureLength = 0f;
+                    await Task.Delay(1);
+                    measure.capturing = false;
+                }
+                foreach (Note note in track.trackNotes)
+                {
+                    note.IsNoteCaptured = false;
+                    note.IsNoteEnabled = true;
+                }
+            }
+        }
 
         if (Input.GetKeyDown(KeyCode.H))
         {
-            //TracksController.CurrentTrack.BeginCapture(4, 10);
-            TracksController.CurrentMeasure.CaptureMeasure();
+            TracksController.CurrentTrack.CaptureMeasuresRange(GetCurrentMeasure().measureNum, 5);
         }
 
         if (Input.GetKeyDown(KeyCode.Keypad8))
@@ -301,22 +340,8 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Keypad9))
         {
-            AmplitudeSongController.Instance.SongPositionOffset += 10f;
             foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
-            {
-                src.time += 10f;
-                //src.PlayScheduled(AudioSettings.dspTime);
-            }
-            /*
-            foreach (Track track in TracksController.Tracks)
-            {
-                foreach (Measure measure in track.trackMeasures)
-                {
-                    if (CatcherController.transform.position.z > measure.endTimeInZPos)
-                        measure.IsMeasureActive = false;
-                }
-            }
-            */
+                src.time += 2f;
         }
 
         // If the game is Rhythmic
@@ -341,19 +366,5 @@ public class PlayerController : MonoBehaviour
         Time.timeScale = speed;
         foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
             src.pitch = speed;
-    }
-
-    bool fullcapture = false;
-    private void TracksController_MeasureCaptureFinished(object sender, int e)
-    {
-        Track track = (Track)sender;
-        if (track.capturecounter < 7)
-        {
-            track.trackMeasures[e + 1].CaptureMeasure();
-            if (!fullcapture)
-                track.capturecounter++;
-        }
-        else
-            track.capturecounter = 0;
     }
 }

@@ -36,6 +36,9 @@ public class RhythmicGame : MonoBehaviour
 
     public static bool IsLoading = true;
 
+    // Gameplay props
+    public static bool TrackSeekEmpty = true; // Whether to skip empty tracks when switching tracks
+    public static int TrackCaptureLength = 7; // How many measures to capture when you clear a sequence
     public static bool PlayableFreestyleTracks = false;
 
     // Event debug
@@ -45,6 +48,7 @@ public class RhythmicGame : MonoBehaviour
     public static bool DebugNoteCreationEvents = false;
 
     public static bool DebugPlayerMovementEvents = false;
+    public static bool DebugTrackSeekEvents = true;
 
     public static bool DebugNextNoteCheckEvents = true;
 

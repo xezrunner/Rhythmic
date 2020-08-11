@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using System.Threading.Tasks;
+using UnityEngine.UIElements;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 public class Measure : MonoBehaviour
 {
@@ -11,6 +13,7 @@ public class Measure : MonoBehaviour
 
     public int measureNum; // measure ID
     public List<Note> noteList = new List<Note>(); // notes in this measure
+    public Track measureTrack;
     public List<MeasureSubBeat> subbeatList = new List<MeasureSubBeat>();
     public List<GameObject> subbeatObjectList = new List<GameObject>(); // TODO: this is bad
     public Track.TrackType? trackInstrument;
@@ -21,11 +24,10 @@ public class Measure : MonoBehaviour
     public GameObject Visuals;
     public GameObject MeasurePlane;
     public GameObject MeasurePlane_Active;
+    public GameObject MeasureSeparator;
 
     public EdgeLightsController EdgeLightsController;
     public List<GameObject> EdgeLightsFrontBack = new List<GameObject>();
-
-    public GameObject MeasureDestructionNoteDetector;
 
     #region Properties
     private Color _measureColor = Track.Colors.Drums;
@@ -39,46 +41,28 @@ public class Measure : MonoBehaviour
         }
     }
 
-    Color _edgeLightsColor = Track.Colors.Drums;
     public Color EdgeLightsColor
     {
-        get { return _edgeLightsColor; }
-        set
-        {
-            _edgeLightsColor = value;
-            EdgeLightsController.Color = value;
-        }
+        get { return EdgeLightsController.Color; }
+        set { EdgeLightsController.Color = value; }
     }
 
-    float _edgeLightsGlowIntensity;
     public float EdgeLightsGlowIntensity
     {
         get { return EdgeLightsController.GlowIntensity; }
-        set
-        {
-            EdgeLightsController.GlowIntensity = value;
-        }
+        set { EdgeLightsController.GlowIntensity = value; }
     }
 
-    bool _edgeLightsGlow;
     public bool EdgeLightsGlow
     {
-        get { return _edgeLightsGlow; }
-        set
-        {
-            _edgeLightsGlow = value;
-            EdgeLightsController.EnableGlow = value;
-        }
+        get { return EdgeLightsController.EnableGlow; }
+        set { EdgeLightsController.EnableGlow = value; }
     }
 
-    /// <summary>
-    /// If a measure doesn't contain any notes, this returns true.
-    /// </summary>
-    public bool IsMeasureEmpty { get { return noteList.Count == 0 ? true : false; } }
-
-    /// <summary>
-    /// If this is set to false, the measure GameObject will disable itself. This creates a hole in the tracks.
-    /// </summary>
+    // This controls whether the measure is visible.
+    // TODO: make this disable/enable the gameObject completely?
+    // NOTE: Empty tracks don't set this property - this prop has to be true even if the track is empty.
+    //       This is so that the measure capturing waits out the empty tracks as well.
     bool _isMeasureActive = true;
     public bool IsMeasureActive
     {
@@ -90,6 +74,8 @@ public class Measure : MonoBehaviour
         }
     }
 
+    // This controls the enabled state of this measure and its notes.
+    // It enables/disables the focused visuals and the notes inside.
     bool _isMeasureEnabled = true;
     public bool IsMeasureEnabled
     {
@@ -98,38 +84,60 @@ public class Measure : MonoBehaviour
         {
             _isMeasureEnabled = value;
 
-            if (!value)
-                //MeasurePlane_Active.GetComponent<MeshRenderer>().material.color = Color.black;
-                SetMeasureNotesActive(value);
+            SetMeasureNotesActive(value);
+            MeasurePlane_Active.SetActive(false);
         }
     }
 
-    // TODO: temporarily set to true | measure queueing TBD
-    private bool isMeasureQueued = true;
-    public bool IsMeasureQueued // Is the measure queued for playing | i.e. is this an upcoming measure, even while being played
+    private bool? _isFocused;
+    public bool IsFocused
     {
-        get { return isMeasureQueued; }
+        get { return _isFocused.HasValue ? _isFocused.Value : measureTrack.IsTrackFocused; }
         set
         {
-            isMeasureQueued = value;
-            if (IsMeasureFocused)
+            _isFocused = value;
+
+            if (IsMeasureQueued & IsMeasureEnabled)
                 MeasurePlane_Active.SetActive(value);
-        }
-    }
-
-    private bool isMeasureFocused = false;
-    public bool IsMeasureFocused // Is the measure focused
-    {
-        get { return isMeasureFocused; }
-        set
-        {
-            isMeasureFocused = value;
-            if (value)
-                MeasurePlane_Active.SetActive(IsMeasureQueued);
             else
                 MeasurePlane_Active.SetActive(false);
         }
     }
+
+    private bool isMeasureQueued = false;
+    public bool IsMeasureQueued // Is the measure queued for playing | i.e. is this an upcoming measure, even while being played
+    {
+        get { return isMeasureQueued; }
+        set { isMeasureQueued = value; if (IsMeasureEnabled) MeasurePlane_Active.SetActive(IsFocused); }
+    }
+
+    // If a measure doesn't contain any notes, this should be true.
+    bool? _isMeasureEmpty;
+    public bool IsMeasureEmpty
+    {
+        get { return _isMeasureEmpty == null ? noteList.Count == 0 : _isMeasureEmpty.Value ; }
+        set
+        {
+            _isMeasureEmpty = value;
+            Visuals.SetActive(IsMeasureActive & !value);
+        }
+    }
+
+    bool _isMeasureCaptured;
+    public bool IsMeasureCaptured
+    {
+        get { return _isMeasureCaptured; }
+        set
+        {
+            _isMeasureCaptured = value;
+            SetMeasureNotesActive(false);
+        }
+    }
+
+    public bool IsMeasureBeingCaptured = false;
+
+    public bool IsMeasureNotEmptyAndCaptured { get { return !IsMeasureEmpty & !IsMeasureCaptured; } }
+    public bool IsMeasureNotEmptyOrCaptured { get { return !IsMeasureEmpty || !IsMeasureCaptured; } }
 
     bool _isMeasureCapturable = true;
     public bool IsMeasureCapturable // Is this measure capable of being captured? TODO: revisit this. Perhaps some corrupt measures? Lose streak when not capturable.
@@ -138,25 +146,12 @@ public class Measure : MonoBehaviour
         set
         {
             _isMeasureCapturable = value;
+
             if (value)
                 SetMeasureNotesActive(true);
             else
                 SetMeasureNotesActive(false);
         }
-    }
-
-    public void SetMeasureNotesActive(bool state)
-    {
-        foreach (Note note in noteList)
-            note.IsNoteActive = state;
-    }
-    public void SetMeasureNotesToBeCaptured(bool state = true)
-    {
-        if (!IsMeasureCapturable & !IsMeasureEmpty & IsMeasureEnabled)
-            return;
-
-        foreach (Note note in noteList)
-            note.IsNoteToBeCaptured = state;
     }
 
     public bool IsMeasureScorable = true; // Should this measure score points?
@@ -200,8 +195,14 @@ public class Measure : MonoBehaviour
     // This function positions the 6 edge lights on the measure after scaling the measure.
     // This is needed because when scaling a measure, it ends up scaling the edge lights as well.
     // TODO: make the edge lights be a texture on the measure model instead
-    void PositionFrontBackEdgeLights()
+    public void PositionFrontBackEdgeLights()
     {
+        MeasureSeparator.transform.parent = null;
+        Vector3 pos = MeasureSeparator.transform.position;
+        Vector3 scale = MeasureSeparator.transform.lossyScale;
+        pos.z = transform.position.z;
+        scale.z = 0.01f;
+
         foreach (GameObject obj in EdgeLightsFrontBack)
         {
             obj.transform.parent = null;
@@ -218,6 +219,24 @@ public class Measure : MonoBehaviour
             obj.transform.parent = EdgeLightsController.transform;
             EdgeLightsController.Color = EdgeLightsColor;
         }
+
+        MeasureSeparator.transform.parent = MeasurePlane.transform;
+    }
+
+    public void SetMeasureNotesActive(bool state)
+    {
+        foreach (Note note in noteList)
+            note.IsNoteEnabled = state;
+    }
+    public void SetMeasureNotesToBeCaptured(bool state = true)
+    {
+        if (!IsMeasureCapturable & !IsMeasureNotEmptyOrCaptured & IsMeasureEnabled)
+            return;
+
+        foreach (Note note in noteList)
+            note.IsNoteToBeCaptured = state;
+
+        IsMeasureBeingCaptured = state;
     }
 
     // Subbeat creation
@@ -239,7 +258,7 @@ public class Measure : MonoBehaviour
             obj.name = string.Format("MEASURE{0}_SUBBEAT{1}", measureNum, i);
             obj.transform.localScale = subbeatScale;
             obj.transform.localPosition = new Vector3(transform.position.x, 0, lastSubbeatPosition);
-            obj.transform.parent = transform;
+            obj.transform.parent = measureTrack.TriggerContainer.transform;
 
             script.subbeatNum = i;
 
@@ -270,7 +289,7 @@ public class Measure : MonoBehaviour
     // It needs to run in Update()
     // TODO: revise
     Transform ogParent;
-    void ScaleAndPos()
+    public void ScaleAndPos()
     {
         transform.parent = null; // unparent from track
         Vector3 ogPosition = transform.position; // store original position
@@ -285,15 +304,19 @@ public class Measure : MonoBehaviour
     }
 
     public event EventHandler<int> OnCaptureFinished;
-    public void CaptureMeasure()
+    public IEnumerator CaptureMeasure()
     {
-        gameObject.GetComponent<Animation>().Play(); // play capture anim!
+        var anim = gameObject.GetComponent<Animation>();
+        anim.Play(); // play capture anim!
 
         GameObject detector = (GameObject)Instantiate(detectorPrefab, gameObject.transform); // create measure destruct detector
 
         // setup particles
         detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.color = Colors.ConvertColor(EdgeLightsColor);
         detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.SetColor("_EmissionColor", Colors.ConvertColor(EdgeLightsColor * 1.3f));
+
+        while (IsMeasureActive)
+            yield return null;
     }
 
     // This function is called by the capture animation when it finishes.

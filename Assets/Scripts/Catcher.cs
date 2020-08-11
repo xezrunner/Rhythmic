@@ -62,7 +62,7 @@ public class Catcher : MonoBehaviour
             result.note = note;
             result.notetype = note.noteType;
 
-            if (!note.IsNoteActive) // if the note is inactive, we want to play the note animation, but do nothing else
+            if (!note.IsNoteEnabled) // if the note is inactive, we want to play the note animation, but do nothing else
                 result.catchresult = CatchResult.Inactive;
             else
             {

@@ -14,8 +14,9 @@ public class CatcherController : MonoBehaviour
     public PlayerController PlayerController { get { return PlayerController.Instance; } }
     public TracksController TracksController { get { return TracksController.Instance; } }
     public Track CurrentTrack { get { return TracksController.CurrentTrack; } }
+    public Measure CurrentMeasure { get { return CurrentTrack.GetMeasureForZPos(transform.position.z); } }
+    //public int CurrentMeasureID { get { return CurrentMeasure.measureNum; } }
     public int CurrentMeasureID = 0;
-    public Measure CurrentMeasure { get { return CurrentTrack.GetMeasureForID(CurrentMeasureID); } }
     public List<Catcher> Catchers = new List<Catcher>();
     public KeyCode[] keycodes = new KeyCode[] { KeyCode.LeftArrow, KeyCode.UpArrow, KeyCode.RightArrow };
 
@@ -33,7 +34,7 @@ public class CatcherController : MonoBehaviour
 
     public Note LastHitNote;
     Note nearestNote;
-    public Note[] ShouldHit;
+    public List<Note> ShouldHit = new List<Note>();
 
     void Awake()
     {
@@ -56,7 +57,6 @@ public class CatcherController : MonoBehaviour
         OnNoteExitTrigger += CatcherController_OnNoteTrigger;
     }
 
-    #region MEASURE & SUBBEAT TRIGGERS
     public event EventHandler<int[]> OnSubbeatTrigger;
     public event EventHandler<int> OnMeasureTrigger;
     public event EventHandler<Note> OnNoteExitTrigger;
@@ -89,7 +89,7 @@ public class CatcherController : MonoBehaviour
         {
             string[] noteInfo = coll.name.Split('_'); // 0: CATCH | 1: lane | 2: instrument | 3: counter
             int noteNum = int.Parse(noteInfo[3]);
-            Note note = CurrentTrack.trackNotes[noteNum];
+            Note note = coll.GetComponent<Note>();
 
             OnNoteExitTrigger?.Invoke(null, note);
         }
@@ -99,17 +99,37 @@ public class CatcherController : MonoBehaviour
     // e[0]: measure num | e[1]: subbeat num
     void CatcherController_OnSubbeatTrigger(object sender, int[] e)
     {
-        Note note = nearestNote != null ? nearestNote : ShouldHit[0];
+        UpdateSubbeatDebug(e[1]);
+
+        if (CurrentMeasure.IsMeasureCaptured & CurrentMeasure.IsMeasureActive)
+            return;
+        else if (!CurrentMeasure.IsMeasureEmpty & !CurrentMeasure.IsMeasureCaptured)
+            return;
+
+        /*
+        Note note = null;
+        if (nearestNote != null) note = nearestNote;
+        else if (ShouldHit[0] != null) note = ShouldHit[0];
 
         if (note != null)
         {
-            if (LastHitNote != note & e[0] >= note.measureNum & transform.position.z > note.zPos & CurrentMeasure.IsMeasureActive & CurrentTrack != note.noteTrack)
+            // Declare a miss if we aren't on a track that could contain notes, but we have notes passing by
+            if (LastHitNote != note & e[0] >= note.measureNum & transform.position.z > note.zPos)
                 PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
         }
         else
-            Debug.LogErrorFormat("CATCHER: couldn't find note to declare miss on!");
+            Debug.LogErrorFormat("CATCHER: subbeat trigger - no nearest note or should hit note to declare miss on!");
+        */
 
-        UpdateSubbeatDebug(e[1]);
+        foreach (Track track in TracksController.Tracks)
+        {
+            foreach (Note note in track.trackMeasures[e[0]].noteList)
+                if (note.subbeatNum <= e[1] & note.zPos < transform.position.z)
+                {
+                    PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
+                    break;
+                }
+        }
     }
 
     // When we trigger a measure
@@ -119,29 +139,31 @@ public class CatcherController : MonoBehaviour
         if (RhythmicGame.IsLoading)
             return;
 
-        if (CurrentMeasureID != e)
-            CurrentMeasureID++;
+        // if the current measure we're on is not empty or captured, set all notes 'to be captured'
+        //Measure measure = CurrentTrack.GetMeasureForID(e);
 
-        Measure measure = CurrentTrack.GetMeasureForID(e);
-        // if the current measure we're on is not empty
-        if (!measure.IsMeasureEmpty) // set the notes to 'to be captured' state
-            TracksController.SetCurrentMeasuresNotesToBeCaptured();
+        CurrentMeasureID = e;
 
         string debugText = "";
 
+        // increase current ACTIVE measure counter
         foreach (Track track in TracksController.Tracks)
         {
-            if (!track.trackMeasures[e].IsMeasureEmpty)
+            // The active measure list in a track contains only those measures that are not empty.
+            // This is used to find upcoming measures and notes.
+            Measure m = track.trackMeasures[e];
+            if (m.IsMeasureNotEmptyOrCaptured)
                 track.activeMeasureNum++;
 
             debugText += track.activeMeasureNum.ToString() + " | ";
         }
-
-        //Debug.LogWarning(debugText);
+        //Debug.Log(debugText);
 
         // find ShouldHit notes if there aren't any
-        if (ShouldHit == null & nearestNote == null)
-            FindNextMeasureNotes(); // find the next measure for the [measure that we are on + 1]
+        /*
+        if (ShouldHit.Count == 0 & nearestNote == null)
+            FindNextMeasuresNotes(); // find the next measure for the [measure that we are on + 1]
+        */
 
         // DEBUG
         UpdateMeasureDebug(e);
@@ -150,59 +172,108 @@ public class CatcherController : MonoBehaviour
     // When we exit a note's collision trigger
     private void CatcherController_OnNoteTrigger(object sender, Note e)
     {
-        if (!e.IsNoteCaptured)
+        if (e.IsNoteEnabled & !e.IsNoteCaptured)
             PlayerController.DeclareMiss(e, Catcher.NoteMissType.Ignore);
     }
 
-    public void FindNextMeasureNotes()
+    // Finds the upcoming measures and its notes
+    public void FindNextMeasuresNotes(Track trackToKeep = null, bool doubleMeasure = false)
     {
+        if (nearestNote != null)
+            nearestNote.Color = new Color(255, 255, 255); // reset nearest note debug color
+
+        foreach (Note note in ShouldHit)
+            note.Color = new Color(255, 255, 255); // reset should hit notes' debug color
+
         nearestNote = null;
 
-        // Go through each track and try to find 0th note of the upcoming measure
-        ShouldHit = new Note[TracksController.Tracks.Count];
-        foreach (Track track in TracksController.Instance.Tracks)
-        {
-            Measure measure = null;
-
-            /*
-            if (!track.IsTrackEmpty)
-                measure = track.trackActiveMeasures[track.activeMeasureNum == -1 ? 0 : track.activeMeasureNum + 1];
-            else
-                continue;
-
-            if (measure.IsMeasureEmpty)
-            {
-                Debug.LogWarningFormat("CATCHERCONTROLLER: The upcoming measure in track {0} doesn't have any notes!", track.trackName);
-                continue;
-            }
-            */
-            foreach (Measure m in track.trackMeasures) // find next enabled measure
-            {
-                if (m.IsMeasureEnabled & !m.IsMeasureEmpty & m.startTimeInZPos > transform.position.z)
-                {
-                    measure = m;
-                    break;
-                }
-            }
-
-            if (measure == null) // if no measure was found, get out
-                break;
-            
-            Note note = measure.noteList[0]; // add first note of found measure to ShouldHit
-            if (note.IsNoteActive & !note.IsNoteCaptured & !note.IsNoteToBeCaptured & !track.IsTrackBeingCaptured)
-            {
-                ShouldHit[track.ID.Value] = note;
-                track.nearestNote = note;
-            }
-            else
-                Debug.LogWarningFormat("CATCHER: The first note of a measure was not suitable for ShouldHit! | Note: {0}", note.name);
-        }
-
+        //if (trackToKeep == null)
+        ShouldHit.Clear();
         /*
-        if (ShouldHit.Length == 0)
-            Debug.LogError("CATCHERCONTROLLER: Couldn't find any upcoming notes! This is bad!");
+        else // if we have a track to keep, remove every other shouldhit note other than the track we have to ignore
+        {
+            List<Note> shList = ShouldHit.ToList(); // create temporary list from ShouldHit
+            foreach (Note note in shList) // go through temp list to avoid a changed collection issue
+                if (note.noteTrack == trackToKeep) { ShouldHit.Remove(note); } // remove those ShouldHit notes that aren't from this track
+
+            shList = null; // delete temporary list
+        }
         */
 
+        foreach (Track track in TracksController.Instance.Tracks)
+        {
+            if (track == trackToKeep)
+                continue;
+            if (track.trackNotes.Count == 0)
+                continue;
+
+            // clear sequence measures
+            track.sequenceMeasures.Clear();
+
+            int? measureNum = null;
+
+            int counter = 0;
+            foreach (Measure m in track.trackMeasures) // find next enabled measure
+            {
+                if (m.IsMeasureEnabled & m.IsMeasureNotEmptyAndCaptured & m.measureNum > CurrentMeasureID)
+                {
+                    if (doubleMeasure & m.IsMeasureBeingCaptured)
+                        continue;
+                    else
+                        measureNum = counter;
+                }
+                else
+                    counter++;
+
+                if (measureNum.HasValue)
+                    break;
+            }
+
+            if (!measureNum.HasValue)
+            {
+                Debug.LogErrorFormat("CATCHER: could not find upcoming measure for track {0}!", track.trackName);
+                continue;
+            }
+
+            // add two measures as sequences
+            for (int i = 0; i < 2; i++)
+                track.AddSequenceMeasure(track.trackMeasures[measureNum.Value + i]);
+
+            if (doubleMeasure)
+                measureNum++; // ADD 1 TO MEASURENUM FOR GETTING SECOND MEASURE AS NOTE TO HIT
+            Measure measure = track.trackMeasures[measureNum.Value];
+
+            if (measure.noteList.Count == 0)
+                return;
+
+            if (measure.IsMeasureNotEmptyOrCaptured)
+            {
+                Note note = null;
+                foreach (Note n in measure.noteList)
+                    if (track.IsTrackBeingCaptured & n.IsNoteEnabled & !n.IsNoteCaptured & !n.IsNoteToBeCaptured)
+                    {
+                        note = n;
+                        break;
+                    }
+                    else if (!track.IsTrackBeingCaptured & !n.IsNoteCaptured)
+                    {
+                        note = n;
+                        break;
+                    }
+                //Note note = measure.noteList[0]; // add first note of found measure to ShouldHit
+                //if (note.IsNoteEnabled & !note.IsNoteCaptured & !note.IsNoteToBeCaptured)
+                ShouldHit.Add(note);
+                track.nearestNote = note;
+                //else
+                //Debug.LogWarningFormat("CATCHER: The first note of a measure was not suitable for ShouldHit! | Note: {0}", note.name);
+            }
+        }
+
+        if (ShouldHit.Count > 1)
+        {
+            List<Note> newList = ShouldHit.OrderBy(o => o.zPos).ToList();
+            ShouldHit = newList;
+        }
 
         // DEBUG
         if (!RhythmicGame.DebugNextNoteCheckEvents)
@@ -220,51 +291,34 @@ public class CatcherController : MonoBehaviour
             note.Color = new Color(0, 255, 0);
         }
     }
-    public void FindNextNote()
+    public bool FindNextNote()
     {
         Note note = null;
 
         foreach (Note n in CurrentTrack.trackNotes)
         {
-            if (n.IsNoteActive & !n.IsNoteCaptured & n.zPos >= transform.position.z)
+            if (n.IsNoteEnabled & !n.IsNoteCaptured & n.zPos >= transform.position.z)
             {
                 note = n;
                 break;
             }
         }
 
-        /*
-        int prev_ShouldHitIndex = CurrentTrack.trackNotes.IndexOf(LastHitNote);
-        note = CurrentTrack.trackNotes[prev_ShouldHitIndex + 1];
-
-        if (CurrentTrack.nearestNote == null & ShouldHit.Count != 0)
-        {
-            note = ShouldHit[0];
-            CurrentTrack.nearestNote = note;
-        }
-        else if (CurrentTrack.nearestNote != null)
-            note = CurrentTrack.nearestNote;
-        else
-            return;
-
-        int prev_ShouldHitIndex = ShouldHit.IndexOf(note);
-
-        if (note.noteMeasure.noteList.IndexOf(note) == note.noteMeasure.noteList.Count - 1)
-            note = CurrentTrack.trackActiveMeasures[CurrentTrack.upcomingActiveMeasure].noteList[0];
-        else
-            note = note.noteMeasure.noteList[note.noteMeasure.noteList.IndexOf(note) + 1];
-        */
+        if (note.measureNum != CurrentMeasureID) // if it's the last note, find all the next measures
+            return false;
 
         //ShouldHit[prev_ShouldHitIndex] = note;
+        //ShouldHit.Clear();
         CurrentTrack.nearestNote = note;
         nearestNote = note;
-        ShouldHit = null;
 
         note.Color = new Color(255, 0, 0);
 
         // DEBUG
         PlayerController.NextNoteText.text = string.Format("Measure: {0} Subbeat: {1} Track: {2} Lane: {3}\n",
                 note.measureNum, note.subbeatNum, note.noteTrack.trackName, note.noteLane.ToString());
+
+        return true;
     }
 
     async void UpdateMeasureDebug(int measureNum)
@@ -288,19 +342,33 @@ public class CatcherController : MonoBehaviour
         PlayerController.SubbeatCounterText.color = Color.white;
     }
 
-    #endregion
+    // CATCHING & INPUT
 
     public event EventHandler<CatchEventArgs> OnCatch;
 
+    public bool IsSuccessfullyCatching { get; set; } = false;
     void Catcher_OnCatch(object sender, CatchEventArgs e)
     {
         LastHitNote = e.note;
 
-        OnCatch?.Invoke(null, e);
-
         if (e.catchresult == Catcher.CatchResult.Powerup || e.catchresult == Catcher.CatchResult.Success)
-            FindNextNote();
+        {
+            IsSuccessfullyCatching = true;
+            e.note.noteTrack.IsTrackBeingCaptured = true;
 
+            TracksController.SetCurrentMeasuresNotesToBeCaptured();
+            TracksController.DisableOtherMeasures();
+
+            if (e.note.IsLastNote) // if it's the last note in the measure, consider measure as cleared
+                e.note.noteTrack.OnMeasureClear(e.note.noteMeasure);
+        }
+        else
+        {
+            IsSuccessfullyCatching = false;
+            TracksController.SetAllTracksCapturingState(false);
+        }
+
+        OnCatch?.Invoke(null, e);
     }
 
     KeyCode pressedKey = KeyCode.None;
@@ -308,7 +376,7 @@ public class CatcherController : MonoBehaviour
     void Update()
     {
         // INPUT
-        foreach (KeyCode key in keycodes)
+        foreach (KeyCode key in InputManager.Catcher.Catching)
         {
             if (Input.GetKeyDown(key)) // If the key is down
             {
@@ -337,49 +405,11 @@ public class CatcherController : MonoBehaviour
 
     public Catcher GetCatcherFromKeyCode(KeyCode key)
     {
-        return Catchers[(int)KeyCodeToLane(key)];
+        return Catchers[(int)InputManager.Catcher.KeyCodeToTrackLane(key)];
     }
     public Catcher GetCatcherFromLane(Track.LaneType lane)
     {
-        return Catchers[(int)LaneToKeyCode(lane)];
-    }
-    /// <summary>
-    /// Gives back the appropriate key for the lane type.
-    /// </summary>
-    /// <param name="lane">The lane in question</param>
-    public static KeyCode LaneToKeyCode(Track.LaneType lane)
-    {
-        switch (lane)
-        {
-            case Track.LaneType.Left:
-                return KeyCode.LeftArrow;
-            case Track.LaneType.Center:
-                return KeyCode.UpArrow;
-            case Track.LaneType.Right:
-                return KeyCode.RightArrow;
-
-            default:
-                return KeyCode.None;
-        }
-    }
-    /// <summary>
-    /// Gives back the appropriate track for the input key
-    /// </summary>
-    /// <param name="key">The key that was pressed.</param>
-    public static Track.LaneType KeyCodeToLane(KeyCode key)
-    {
-        switch (key)
-        {
-            default:
-                return Track.LaneType.Center;
-
-            case KeyCode.LeftArrow:
-                return Track.LaneType.Left;
-            case KeyCode.UpArrow:
-                return Track.LaneType.Center;
-            case KeyCode.RightArrow:
-                return Track.LaneType.Right;
-        }
+        return Catchers[(int)(lane)];
     }
 
     // TODO: move into its own class file?

@@ -84,15 +84,17 @@ public class AmplitudeSongController : MonoBehaviour
 
         if (Enabled || songName == "")
         {
-            reader = gameObject.AddComponent<MidiReader>();
-            reader.OnNoteEvent += Reader_OnNoteEvent;
-
             // Load MoggSong!
             moggSong = gameObject.AddComponent<MoggSong>();
             moggSong.LoadMoggSong(songName);
 
+            // Load MIDI!
             Debug.LogFormat("AMP_TRACKS: Starting MidiReader [{0}]...", songName);
 
+            reader = gameObject.AddComponent<MidiReader>();
+            reader.OnNoteEvent += Reader_OnNoteEvent;
+
+            reader.bpm = moggSong.songBpm;
             reader.LoadMIDI(songName);
 
             // Create measure list!
@@ -156,10 +158,6 @@ public class AmplitudeSongController : MonoBehaviour
 
             counter++;
         }
-
-        // Get closest notes
-        // TODO: do this somewhere else during init!
-        CatcherController.Instance.FindNextMeasureNotes();
     }
 
     public bool IsSongPlaying = false;
@@ -188,6 +186,7 @@ public class AmplitudeSongController : MonoBehaviour
             audiosrcList[currentAudioSourceID].volume = 0.45f;
 
         audiosrcList[e].volume = 1.1f;
+        currentAudioSourceID = e;
     }
 
     public List<NoteOnEvent> GetNoteOnEventsForTrack(int trackid)
@@ -216,8 +215,7 @@ public class AmplitudeSongController : MonoBehaviour
     // Gets the measure number for a z position (Rhythmic Game unit)
     public int GetMeasureNumForZPos(float zPos)
     {
-        string zPosFormat = zPos.ToString("0.0");
-        zPos = float.Parse(zPosFormat);
+        zPos = float.Parse(zPos.ToString("0.0"));
         foreach (MeasureInfo measure in songMeasures)
         {
             float endTimeInZPos = float.Parse(measure.endTimeInzPos.ToString("0.0"));
@@ -230,7 +228,7 @@ public class AmplitudeSongController : MonoBehaviour
     }
     public int GetSubbeatNumForZPos(int measureNum, float zPos)
     {
-        float zPosTime = float.Parse(zPos.ToString("0.0"));
+        zPos = float.Parse(zPos.ToString("0.0"));
 
         MeasureInfo info = songMeasures[measureNum];
         float measureTime = float.Parse((info.startTimeInzPos + subbeatLengthInzPos).ToString("0.0"));
@@ -239,7 +237,7 @@ public class AmplitudeSongController : MonoBehaviour
 
         for (int i = 0; i < 8; i++)
         {
-            if (zPosTime < measureTime)
+            if (zPos < measureTime)
                 return i;
             else
                 measureTime += subbeatLengthInzPos;

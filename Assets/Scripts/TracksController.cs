@@ -62,12 +62,22 @@ public class TracksController : MonoBehaviour
         }
     }
 
+    public void DisableOtherMeasures()
+    {
+        foreach (Track track in Tracks)
+            if (track != CurrentTrack)
+            {
+                track.GetMeasureForID(CatcherController.CurrentMeasureID).IsMeasureEnabled = false;
+                track.IsTrackBeingCaptured = false;
+            }
+    }
     public void DisableCurrentMeasures()
     {
         foreach (Track track in Tracks)
             track.GetMeasureForID(CatcherController.CurrentMeasureID).IsMeasureEnabled = false;
-    }
 
+        SetAllTracksCapturingState(false);
+    }
     public void SetCurrentMeasuresNotesToBeCaptured()
     {
         foreach (Track track in Tracks)
@@ -76,14 +86,18 @@ public class TracksController : MonoBehaviour
             else
                 track.GetMeasureForID(CatcherController.CurrentMeasureID).IsMeasureEnabled = false;
     }
+    public void SetAllTracksCapturingState(bool value)
+    {
+        foreach (Track track in Tracks)
+            track.IsTrackBeingCaptured = value;
+    }
 
     public event EventHandler<int> OnTrackSwitched;
-
     private void Player_OnTrackSwitched(object sender, int e)
     {
         // change props of tracks
-        GetTrackByID(CurrentTrackID).IsTrackFocused = false;
-        GetTrackByID(e).IsTrackFocused = true;
+        foreach (Track track in Tracks)
+            track.IsTrackFocused = track.ID == e;
 
         CurrentTrackID = e;
 
@@ -94,11 +108,11 @@ public class TracksController : MonoBehaviour
     /// <summary>
     /// Gets the measure that's directly under the player
     /// </summary>
-    public Measure CurrentMeasure { get { return CurrentTrack.GetMeasureForZPos(Player.transform.position.z); } }
-    public bool GetIsCurrentMeasureActive { get { return CurrentTrack.GetIsMeasureActiveForZPos(Player.transform.position.z); } }
+    //public Measure CurrentMeasure { get { return CurrentTrack.GetMeasureForZPos(Player.transform.position.z); } }
+    public Measure CurrentMeasure { get { return CurrentTrack.GetMeasureForID(CatcherController.CurrentMeasureID); } }
+    public bool GetIsCurrentMeasureEmpty { get { return CurrentTrack.trackMeasures[CatcherController.CurrentMeasureID].IsMeasureEmpty; } }
 
     public event EventHandler<int> MeasureCaptureFinished;
-
     public void AmpTrack_MeasureCaptureFinished(object sender, int e)
     {
         MeasureCaptureFinished?.Invoke(sender, e);

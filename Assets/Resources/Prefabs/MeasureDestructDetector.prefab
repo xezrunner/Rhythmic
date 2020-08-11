@@ -292,7 +292,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSpeed:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 1
       scalar: 6
       minScalar: 5
       maxCurve:
@@ -300,21 +300,21 @@ ParticleSystem:
         m_Curve:
         - serializedVersion: 3
           time: 0
-          value: 1
-          inSlope: 0
-          outSlope: 0
+          value: 0.9503106
+          inSlope: -0.08647356
+          outSlope: -0.08647356
           tangentMode: 0
           weightedMode: 0
           inWeight: 0.33333334
-          outWeight: 0.33333334
+          outWeight: 0.43096235
         - serializedVersion: 3
           time: 1
-          value: 1
-          inSlope: 0
-          outSlope: 0
+          value: 0.08881953
+          inSlope: -0.06644815
+          outSlope: -0.06644815
           tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
+          weightedMode: 3
+          inWeight: 0.43933052
           outWeight: 0.33333334
         m_PreInfinity: 2
         m_PostInfinity: 2
@@ -989,8 +989,8 @@ ParticleSystem:
     serializedVersion: 4
     rateOverTime:
       serializedVersion: 2
-      minMaxState: 0
-      scalar: 100
+      minMaxState: 1
+      scalar: 200
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -998,20 +998,20 @@ ParticleSystem:
         - serializedVersion: 3
           time: 0
           value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
+          inSlope: -1
+          outSlope: -1
+          tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
           time: 1
-          value: 1
-          inSlope: 0
-          outSlope: 0
+          value: 0
+          inSlope: -0.0124745555
+          outSlope: -0.0124745555
           tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
+          weightedMode: 3
+          inWeight: 0.49790794
           outWeight: 0.33333334
         m_PreInfinity: 2
         m_PostInfinity: 2

@@ -24,8 +24,8 @@ public class MeasureDestructDetector : MonoBehaviour
         // set location of destructor to 0,0,0 LOCAL
         transform.localPosition = new Vector3(0, 0, 0f);
 
-        // if the measure this detector is responsible for is active, we want particles
-        if (measure.IsMeasureActive)
+        // if the measure this detector is responsible for is not empty, we want particles
+        if (!measure.IsMeasureEmpty & measure.IsMeasureActive)
             Particles.SetActive(true);
     }
 

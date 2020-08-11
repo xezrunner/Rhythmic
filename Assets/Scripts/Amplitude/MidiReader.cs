@@ -60,7 +60,6 @@ public class MidiReader : MonoBehaviour
 
         // Ticks needed for timing calculations
         ticks = midi.DeltaTicksPerQuarterNote;
-        bpm = GetBPMfromMidi();
 
         Debug.LogFormat(string.Format("MidiReader: MIDI loaded: \n" +
             "BPM: {0} | Tracks: {1} | Ticks: {2} | PPQ: {3}",
@@ -75,7 +74,7 @@ public class MidiReader : MonoBehaviour
         return midi.Tracks;
     }
 
-    // TODO: get BPM from moggsong instead!
+    // REDUNDANT - we get the BPM from moggsong (amp_ctrl) instead
     public int GetBPMfromMidi()
     {
         int finalBPM = 0;
@@ -86,6 +85,7 @@ public class MidiReader : MonoBehaviour
             {
                 var tEvent = (TempoEvent)midevent;
                 finalBPM = 60000 / (tEvent.MicrosecondsPerQuarterNote / 1000); // assign tempo
+                break;
             }
         }
 
