@@ -207,7 +207,7 @@ public class Track : MonoBehaviour
     {
         if (sequenceMeasures.Count == 2)
             sequenceMeasures.Clear();
-        if (!measure.IsMeasureNotEmptyOrCaptured)
+        if (measure.IsMeasureEmptyOrCaptured)
             return;
 
         measure.SetMeasureNotesToBeCaptured();
@@ -221,7 +221,7 @@ public class Track : MonoBehaviour
     {
         if (sequenceMeasures.Contains(e))
         {
-            e.IsMeasureBeingCaptured = false;
+            e.IsMeasureToBeCaptured = false;
             sequenceMeasures.Remove(e);
         }
 

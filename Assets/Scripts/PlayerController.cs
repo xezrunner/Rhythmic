@@ -111,7 +111,7 @@ public class PlayerController : MonoBehaviour
             case Catcher.CatchResult.Empty: // if we pressed on an empty space
             {
                 // if the track that's being played right now has an active measure (?)
-                if (!TracksController.GetIsCurrentMeasureEmpty)
+                if (!TracksController.CurrentMeasure.IsMeasureEmptyOrCaptured)
                 {
                     src.PlayOneShot(catcher_miss);
                     DeclareMiss(e.note, Catcher.NoteMissType.Mispress);
@@ -297,10 +297,10 @@ public class PlayerController : MonoBehaviour
                     measure.IsMeasureCaptured = false;
                     measure.IsMeasureEmpty = false;
                     measure.IsMeasureActive = true;
-                    measure.capturing = true;
+                    measure.IsMeasureCapturing = true;
                     measure.CaptureLength = 0f;
                     await Task.Delay(1);
-                    measure.capturing = false;
+                    measure.IsMeasureCapturing = false;
                 }
                 foreach (Note note in track.trackNotes)
                 {

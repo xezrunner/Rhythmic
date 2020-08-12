@@ -25,16 +25,21 @@ public class MeasureDestructDetector : MonoBehaviour
         transform.localPosition = new Vector3(0, 0, 0f);
 
         // if the measure this detector is responsible for is not empty, we want particles
-        if (!measure.IsMeasureEmpty & measure.IsMeasureActive)
+        if (!measure.IsMeasureEmptyOrCapturedFull)
             Particles.SetActive(true);
+        else
+            Destroy(Particles); // Particles are usually destroyed when they finish. If we don't start the particles, we have to destroy them.
     }
 
     // Destroy detector but keep particles after measure is finished with capturing
     private void Measure_OnCaptureFinished(object sender, int e)
     {
-        // un-parent particles
-        Particles.transform.parent = null;
-        Particles.transform.localScale = new Vector3(1, 1, 1);
+        if (Particles != null)
+        {
+            // un-parent particles
+            Particles.transform.parent = null;
+            Particles.transform.localScale = new Vector3(1, 1, 1);
+        }
 
         measure.OnCaptureFinished -= Measure_OnCaptureFinished; // unsubscribe from the OnCaptureFinished event
         Destroy(gameObject);

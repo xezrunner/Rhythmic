@@ -95,45 +95,7 @@ public class CatcherController : MonoBehaviour
         }
     }
 
-    // When we trigger a subbeat
-    // e[0]: measure num | e[1]: subbeat num
-    void CatcherController_OnSubbeatTrigger(object sender, int[] e)
-    {
-        UpdateSubbeatDebug(e[1]);
-
-        if (CurrentMeasure.IsMeasureCaptured & CurrentMeasure.IsMeasureActive)
-            return;
-        else if (!CurrentMeasure.IsMeasureEmpty & !CurrentMeasure.IsMeasureCaptured)
-            return;
-
-        /*
-        Note note = null;
-        if (nearestNote != null) note = nearestNote;
-        else if (ShouldHit[0] != null) note = ShouldHit[0];
-
-        if (note != null)
-        {
-            // Declare a miss if we aren't on a track that could contain notes, but we have notes passing by
-            if (LastHitNote != note & e[0] >= note.measureNum & transform.position.z > note.zPos)
-                PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
-        }
-        else
-            Debug.LogErrorFormat("CATCHER: subbeat trigger - no nearest note or should hit note to declare miss on!");
-        */
-
-        foreach (Track track in TracksController.Tracks)
-        {
-            foreach (Note note in track.trackMeasures[e[0]].noteList)
-                if (note.subbeatNum <= e[1] & note.zPos < transform.position.z)
-                {
-                    PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
-                    break;
-                }
-        }
-    }
-
-    // When we trigger a measure
-    // e: the measure num
+    // When we trigger a measure | e: the measure num
     void CatcherController_OnMeasureTrigger(object sender, int e)
     {
         if (RhythmicGame.IsLoading)
@@ -152,7 +114,7 @@ public class CatcherController : MonoBehaviour
             // The active measure list in a track contains only those measures that are not empty.
             // This is used to find upcoming measures and notes.
             Measure m = track.trackMeasures[e];
-            if (m.IsMeasureNotEmptyOrCaptured)
+            if (!m.IsMeasureEmptyOrCaptured)
                 track.activeMeasureNum++;
 
             debugText += track.activeMeasureNum.ToString() + " | ";
@@ -167,6 +129,29 @@ public class CatcherController : MonoBehaviour
 
         // DEBUG
         UpdateMeasureDebug(e);
+    }
+
+    // When we trigger a subbeat | e[0]: measure num | e[1]: subbeat num
+    void CatcherController_OnSubbeatTrigger(object sender, int[] e)
+    {
+        UpdateSubbeatDebug(e[1]);
+
+        // IGNORE EMPTY TRACK NOTE DETECTION IN CONDITIONS:
+        if (!CurrentMeasure.IsMeasureEmptyOrCaptured) // if we are on an active measure
+            return;
+        else if (IsSuccessfullyCatching & e[0] < ShouldHit[0].measureNum) // if we are successfully catching, only miss beyond closest ShouldHit note
+            return; // optimization: possibly move into measure trigger when IsSuccessfullyCatching?
+
+        // Empty track note detection - miss notes as 'ignore'
+        foreach (Track track in TracksController.Tracks)
+        {
+            foreach (Note note in track.trackMeasures[e[0]].noteList)
+                if (note.subbeatNum <= e[1] & note.zPos < transform.position.z)
+                {
+                    PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
+                    break;
+                }
+        }
     }
 
     // When we exit a note's collision trigger
@@ -215,9 +200,9 @@ public class CatcherController : MonoBehaviour
             int counter = 0;
             foreach (Measure m in track.trackMeasures) // find next enabled measure
             {
-                if (m.IsMeasureEnabled & m.IsMeasureNotEmptyAndCaptured & m.measureNum > CurrentMeasureID)
+                if (m.IsMeasureEnabled & !m.IsMeasureEmptyOrCaptured & m.measureNum > CurrentMeasureID)
                 {
-                    if (doubleMeasure & m.IsMeasureBeingCaptured)
+                    if (doubleMeasure & m.IsMeasureToBeCaptured)
                         continue;
                     else
                         measureNum = counter;
@@ -246,7 +231,7 @@ public class CatcherController : MonoBehaviour
             if (measure.noteList.Count == 0)
                 return;
 
-            if (measure.IsMeasureNotEmptyOrCaptured)
+            if (!measure.IsMeasureEmptyOrCaptured)
             {
                 Note note = null;
                 foreach (Note n in measure.noteList)

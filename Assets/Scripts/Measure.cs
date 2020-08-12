@@ -29,7 +29,7 @@ public class Measure : MonoBehaviour
     public EdgeLightsController EdgeLightsController;
     public List<GameObject> EdgeLightsFrontBack = new List<GameObject>();
 
-    #region Properties
+    // Properties
     private Color _measureColor = Track.Colors.Drums;
     public Color MeasureColor
     {
@@ -59,10 +59,8 @@ public class Measure : MonoBehaviour
         set { EdgeLightsController.EnableGlow = value; }
     }
 
-    // This controls whether the measure is visible.
+    // This gets/controls whether the measure is visible.
     // TODO: make this disable/enable the gameObject completely?
-    // NOTE: Empty tracks don't set this property - this prop has to be true even if the track is empty.
-    //       This is so that the measure capturing waits out the empty tracks as well.
     bool _isMeasureActive = true;
     public bool IsMeasureActive
     {
@@ -115,11 +113,12 @@ public class Measure : MonoBehaviour
     bool? _isMeasureEmpty;
     public bool IsMeasureEmpty
     {
-        get { return _isMeasureEmpty == null ? noteList.Count == 0 : _isMeasureEmpty.Value ; }
+        get { return _isMeasureEmpty == null ? noteList.Count == 0 : _isMeasureEmpty.Value; }
         set
         {
             _isMeasureEmpty = value;
-            Visuals.SetActive(IsMeasureActive & !value);
+            IsMeasureActive = !value;
+            //Visuals.SetActive(IsMeasureActive & !value);
         }
     }
 
@@ -130,14 +129,23 @@ public class Measure : MonoBehaviour
         set
         {
             _isMeasureCaptured = value;
-            SetMeasureNotesActive(false);
+            IsMeasureEnabled = !value;
+            //SetMeasureNotesActive(false);
         }
     }
+    public bool IsMeasureCapturedFull { get { return (IsMeasureCaptured & !IsMeasureActive); } }
 
-    public bool IsMeasureBeingCaptured = false;
+    public bool IsMeasureToBeCaptured = false;
 
-    public bool IsMeasureNotEmptyAndCaptured { get { return !IsMeasureEmpty & !IsMeasureCaptured; } }
-    public bool IsMeasureNotEmptyOrCaptured { get { return !IsMeasureEmpty || !IsMeasureCaptured; } }
+    // The difference between regular and 'full' is the latter only returns true for capture state when the animation has finished
+    public bool IsMeasureEmptyOrCaptured { get { return (IsMeasureEmpty || IsMeasureCaptured); } }
+    public bool IsMeasureEmptyOrCapturedFull { get { return (IsMeasureEmpty || IsMeasureCapturedFull); } }
+
+    /* DOESN'T SEEM LIKE THIS IS USEFUL
+    public bool IsMeasureEmptyAndCaptured { get { return IsMeasureEmpty & IsMeasureCaptured; } }
+    public bool IsMeasureEmptyAndCapturedFull { get { return IsMeasureEmpty & IsMeasureCapturedFull; } }
+    */
+
 
     bool _isMeasureCapturable = true;
     public bool IsMeasureCapturable // Is this measure capable of being captured? TODO: revisit this. Perhaps some corrupt measures? Lose streak when not capturable.
@@ -156,8 +164,6 @@ public class Measure : MonoBehaviour
 
     public bool IsMeasureScorable = true; // Should this measure score points?
     public bool IsMeasureStreakable = true; // Should this measure count towards increasing the streak counter?
-
-    #endregion
 
     UnityEngine.Object subBeatPrefab;
     UnityEngine.Object detectorPrefab;
@@ -230,13 +236,13 @@ public class Measure : MonoBehaviour
     }
     public void SetMeasureNotesToBeCaptured(bool state = true)
     {
-        if (!IsMeasureCapturable & !IsMeasureNotEmptyOrCaptured & IsMeasureEnabled)
+        if (!IsMeasureCapturable & IsMeasureEmptyOrCaptured & !IsMeasureEnabled)
             return;
 
         foreach (Note note in noteList)
             note.IsNoteToBeCaptured = state;
 
-        IsMeasureBeingCaptured = state;
+        IsMeasureToBeCaptured = state;
     }
 
     // Subbeat creation
@@ -309,20 +315,24 @@ public class Measure : MonoBehaviour
         var anim = gameObject.GetComponent<Animation>();
         anim.Play(); // play capture anim!
 
+        IsMeasureCapturing = true;
+
         GameObject detector = (GameObject)Instantiate(detectorPrefab, gameObject.transform); // create measure destruct detector
 
         // setup particles
         detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.color = Colors.ConvertColor(EdgeLightsColor);
         detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.SetColor("_EmissionColor", Colors.ConvertColor(EdgeLightsColor * 1.3f));
 
-        while (IsMeasureActive)
+        while (IsMeasureCapturing)
             yield return null;
     }
 
     // This function is called by the capture animation when it finishes.
     public void OnCaptureAnimFinished()
     {
-        IsMeasureActive = false; // disable measure
+        IsMeasureCapturing = false;
+        IsMeasureActive = false; // disable measure visuals completely
+
         transform.parent = ogParent; // re-parent measure from the previous ScaleAndPos() unparent
         OnCaptureFinished?.Invoke(null, measureNum); // invoke event to let things know we finished capturing
 
@@ -338,10 +348,10 @@ public class Measure : MonoBehaviour
         ScaleAndPos();
     }
 
-    public bool capturing = false;
+    public bool IsMeasureCapturing = false;
     void Update()
     {
-        if (capturing)
+        if (IsMeasureCapturing)
             ScaleAndPos();
     }
 

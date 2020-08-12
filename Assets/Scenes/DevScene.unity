@@ -1531,6 +1531,11 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: -7.2
       objectReference: {fileID: 0}
+    - target: {fileID: 4709665040744534120, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5716080666605812540, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: m_BackGroundColor.r
