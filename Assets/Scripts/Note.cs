@@ -117,9 +117,12 @@ public class Note : MonoBehaviour
     /// </summary>
     //public event EventHandler<NoteType> OnCatch;
 
-    public void CaptureNote(NoteCatchType catchType = NoteCatchType.Success)
+    public void CaptureNote(bool anim = true)
     {
         IsNoteCaptured = true;
+
+        if (!anim)
+            DotLight.transform.GetChild(0).gameObject.SetActive(false);
     }
 
     public enum NoteType

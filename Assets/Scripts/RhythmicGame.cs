@@ -37,9 +37,15 @@ public class RhythmicGame : MonoBehaviour
     public static bool IsLoading = true;
 
     // Gameplay props
+    public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
+    public static bool TunnelTrackDuplication = false; // Whether to duplicate tracks when using tunnel mode
+    public static int TunnelTrackDuplicationCount = 2; // How many times to duplicate each track
+
     public static bool TrackSeekEmpty = true; // Whether to skip empty tracks when switching tracks
     public static int TrackCaptureLength = 7; // How many measures to capture when you clear a sequence
     public static bool PlayableFreestyleTracks = false;
+
+    public static float TrackWidth = 2.36f;
 
     // Event debug
     public static bool DebugTrackCreationEvents = true;

@@ -97,9 +97,11 @@ public class TracksController : MonoBehaviour
     {
         // change props of tracks
         foreach (Track track in Tracks)
-            track.IsTrackFocused = track.ID == e;
+            track.IsTrackFocused = Tracks.IndexOf(track) == e;
 
         CurrentTrackID = e;
+
+        CatcherController.FindNextMeasuresNotes();
 
         OnTrackSwitched?.Invoke(null, e);
     }
@@ -111,6 +113,19 @@ public class TracksController : MonoBehaviour
     //public Measure CurrentMeasure { get { return CurrentTrack.GetMeasureForZPos(Player.transform.position.z); } }
     public Measure CurrentMeasure { get { return CurrentTrack.GetMeasureForID(CatcherController.CurrentMeasureID); } }
     public bool GetIsCurrentMeasureEmpty { get { return CurrentTrack.trackMeasures[CatcherController.CurrentMeasureID].IsMeasureEmpty; } }
+
+    public event EventHandler<int[]> OnTrackCaptureStart;
+    public event EventHandler<int[]> OnTrackCaptured;
+
+    public void TracksController_OnTrackCaptureStart(object sender, int[] e)
+    {
+        OnTrackCaptureStart?.Invoke(sender, e);
+    }
+
+    public void TracksController_OnTrackCaptured(object sender, int[] e)
+    {
+        OnTrackCaptured?.Invoke(sender, e);
+    }
 
     public event EventHandler<int> MeasureCaptureFinished;
     public void AmpTrack_MeasureCaptureFinished(object sender, int e)

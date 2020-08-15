@@ -84,9 +84,30 @@ public class AmplitudeSongController : MonoBehaviour
 
         if (Enabled || songName == "")
         {
+            // Check if song exists
+            string songPath = RhythmicGame.AMP_GetSongFilePath(songName, RhythmicGame.AMP_FileExtension.mogg);
+            if (!File.Exists(songPath))
+            {
+                Debug.LogErrorFormat("Song {0} does not exist at path: {1}", songName, songPath);
+                Enabled = false;
+                return;
+            }
+
             // Load MoggSong!
             moggSong = gameObject.AddComponent<MoggSong>();
             moggSong.LoadMoggSong(songName);
+
+            // Tunnel track duplication
+            /*
+            if (RhythmicGame.IsTunnelMode & RhythmicGame.TunnelTrackDuplication)
+            {
+                List<string> tempTracksList = songTracks.ToList();
+
+                for (int i = 1; i < RhythmicGame.TunnelTrackDuplicationCount; i++)
+                    foreach (string track in tempTracksList)
+                        songTracks.Add(track);
+            }
+            */
 
             // Load MIDI!
             Debug.LogFormat("AMP_TRACKS: Starting MidiReader [{0}]...", songName);
@@ -151,7 +172,7 @@ public class AmplitudeSongController : MonoBehaviour
             if (track == "bg_click")
                 src.volume = 0.8f;
             else
-                src.volume = counter == 0 ? 1.1f : 0f;
+                src.volume = counter == 0 ? 1f : 0f;
 
             src.clip = resourceRequest.asset as AudioClip;
             audiosrcList.Add(src);
@@ -182,11 +203,26 @@ public class AmplitudeSongController : MonoBehaviour
             return;
         }
 
-        if (currentAudioSourceID != e)
+        if (currentAudioSourceID != e & TracksController.Tracks[currentAudioSourceID].IsTrackCaptured)
             audiosrcList[currentAudioSourceID].volume = 0.45f;
 
-        audiosrcList[e].volume = 1.1f;
+        if (TracksController.Tracks[e].IsTrackCaptured)
+            audiosrcList[e].volume = 1.1f;
+
         currentAudioSourceID = e;
+    }
+
+    public void AdjustTrackVolume(int track, float volume)
+    {
+        if (track == -1)
+            return;
+        if (track >= audiosrcList.Count)
+        {
+            Debug.LogWarningFormat("AMP_CTRL: Track ID {0} does not have an audio source! - ignoring track switch volume change", track);
+            return;
+        }
+
+        audiosrcList[track].volume = volume;
     }
 
     public List<NoteOnEvent> GetNoteOnEventsForTrack(int trackid)

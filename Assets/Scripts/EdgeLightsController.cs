@@ -38,7 +38,7 @@ public class EdgeLightsController : MonoBehaviour
         {
             _color = value;
 
-            Material Material = new Material(Shader.Find("Standard"));
+            Material Material = EdgeLightsMeshRenderers[0].material;
 
             Material.color = Colors.ConvertColor(value);
             Material.SetColor("_EmissionColor", Colors.ConvertColor(value) * GlowIntensity);
@@ -51,7 +51,7 @@ public class EdgeLightsController : MonoBehaviour
         }
     }
 
-    float _glowIntensity = 1f;
+    float _glowIntensity = 2f;
     public float GlowIntensity
     {
         get { return _glowIntensity; }

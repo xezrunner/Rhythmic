@@ -33,6 +33,7 @@ public class Track : MonoBehaviour
     public Note nearestNote;
     public int activeMeasureNum = -1;
 
+    public bool TUT_IsTrackEnabled { get; set; } = true; // Tutorial track disabling
     bool _isTrackFocused = false; // TODO: also enable/disable the track coloring material
     public bool IsTrackFocused // Is the track focused by the player?
     {
@@ -51,11 +52,14 @@ public class Track : MonoBehaviour
     bool _isTrackBeingCaptured = false;
     public bool IsTrackBeingCaptured // Is this track being played right now? TODO: this being a prop and if changed, will update its own volume in SongController
     {
-        get { return _isTrackBeingCaptured; } 
+        get { return _isTrackBeingCaptured; }
         set
         {
             if (value != _isTrackBeingCaptured & value)
                 CatcherController.Instance.FindNextMeasuresNotes(this, true);
+
+            if (value)
+                IsTrackCaptured = false;
 
             _isTrackBeingCaptured = value;
         }
@@ -97,6 +101,14 @@ public class Track : MonoBehaviour
 
         if (Instrument == TrackType.FREESTYLE)
             DisableEmptyMeasures = false;
+    }
+
+    public void TUT_SetTrackEnabledState(bool state = false)
+    {
+        transform.GetChild(0).gameObject.SetActive(state);
+        trackNotes.ForEach(n => n.gameObject.SetActive(state));
+
+        TUT_IsTrackEnabled = state;
     }
 
     // Materials
@@ -162,12 +174,13 @@ public class Track : MonoBehaviour
         foreach (AmplitudeSongController.MeasureInfo MeasureInfo in MeasureInfoList)
         {
             // create GameObject for measure
-            Vector3 measurePosition = new Vector3(MeasureContainer.transform.position.x, 0, MeasureInfo.startTimeInzPos);
+            Vector3 measurePosition = new Vector3(MeasureContainer.transform.position.x, MeasureContainer.transform.position.y, MeasureInfo.startTimeInzPos);
 
             GameObject obj = (GameObject)GameObject.Instantiate(measurePrefab);
 
             obj.name = string.Format("MEASURE_{0}", MeasureInfo.measureNum);
             obj.transform.localPosition = measurePosition;
+            obj.transform.localEulerAngles = gameObject.transform.eulerAngles;
             obj.transform.localScale = new Vector3(1, 1, amp_ctrl.measureLengthInzPos);
             obj.transform.SetParent(MeasureContainer.transform, true);
 
@@ -199,6 +212,7 @@ public class Track : MonoBehaviour
             trackMeasures.Add(measure);
             counter++;
 
+            //if (!RhythmicGame.IsTunnelMode) // tunnel mode can't do async as rotation needs to happen right away
             await Task.Delay(6); // fake async
         }
     }
@@ -239,19 +253,28 @@ public class Track : MonoBehaviour
                 trackMeasures[i].IsMeasureCaptured = true;
 
             IsTrackBeingCaptured = false;
+            IsTrackCaptured = true;
 
             CatcherController.Instance.FindNextMeasuresNotes();
-            CaptureMeasuresRange(CatcherController.Instance.CurrentMeasureID, RhythmicGame.TrackCaptureLength);
+            if (AmplitudeSongController.Instance.songName != "tut0" || GameObject.Find("TUT_SCRIPT") == null)
+                CaptureMeasuresRange(CatcherController.Instance.CurrentMeasureID, RhythmicGame.TrackCaptureLength);
+            else
+                CaptureMeasures(CatcherController.Instance.CurrentMeasureID, trackMeasures.Count - 1 - CatcherController.Instance.CurrentMeasureID);
         }
     }
 
+    public event EventHandler<int[]> OnTrackCaptureStart;
+    public event EventHandler<int[]> OnTrackCaptured;
+
     public void CaptureMeasures(int start, int end)
     {
+        OnTrackCaptureStart?.Invoke(this, new int[] { ID.Value, start, end });
         StartCoroutine(_CaptureMeasures(start, end));
     }
 
     public void CaptureMeasuresRange(int start, int count)
     {
+        OnTrackCaptureStart?.Invoke(this, new int[] { ID.Value, start, start + count });
         StartCoroutine(_CaptureMeasuresRange(start, count));
     }
 
@@ -262,6 +285,8 @@ public class Track : MonoBehaviour
 
         for (int i = start; i < end; i++)
             yield return trackMeasures[i].CaptureMeasure();
+
+        OnTrackCaptured?.Invoke(this, new int[] { ID.Value, start, end });
     }
 
     IEnumerator _CaptureMeasuresRange(int start, int count)
@@ -271,6 +296,8 @@ public class Track : MonoBehaviour
 
         for (int i = start; i < start + count; i++)
             yield return trackMeasures[i].CaptureMeasure();
+
+        OnTrackCaptured?.Invoke(this, new int[] { ID.Value, start, start + count });
     }
 
     public event EventHandler<int> MeasureCaptureFinished;

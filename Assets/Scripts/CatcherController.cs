@@ -137,6 +137,8 @@ public class CatcherController : MonoBehaviour
         UpdateSubbeatDebug(e[1]);
 
         // IGNORE EMPTY TRACK NOTE DETECTION IN CONDITIONS:
+        if (ShouldHit.Count == 0) // if ShouldHit is empty
+            return;
         if (!CurrentMeasure.IsMeasureEmptyOrCaptured) // if we are on an active measure
             return;
         else if (IsSuccessfullyCatching & e[0] < ShouldHit[0].measureNum) // if we are successfully catching, only miss beyond closest ShouldHit note
@@ -158,12 +160,19 @@ public class CatcherController : MonoBehaviour
     private void CatcherController_OnNoteTrigger(object sender, Note e)
     {
         if (e.IsNoteEnabled & !e.IsNoteCaptured)
+        {
+            amp_ctrl.AdjustTrackVolume(e.noteTrack.ID.Value, 0f);
             PlayerController.DeclareMiss(e, Catcher.NoteMissType.Ignore);
+        }
     }
+
+    public bool FindNextMeasureEnabled { get; set; } = true;
 
     // Finds the upcoming measures and its notes
     public void FindNextMeasuresNotes(Track trackToKeep = null, bool doubleMeasure = false)
     {
+        if (!FindNextMeasureEnabled)
+            return;
         if (nearestNote != null)
             nearestNote.Color = new Color(255, 255, 255); // reset nearest note debug color
 
@@ -187,6 +196,8 @@ public class CatcherController : MonoBehaviour
 
         foreach (Track track in TracksController.Instance.Tracks)
         {
+            if (!track.TUT_IsTrackEnabled)
+                continue;
             if (track == trackToKeep)
                 continue;
             if (track.trackNotes.Count == 0)
@@ -245,18 +256,23 @@ public class CatcherController : MonoBehaviour
                         note = n;
                         break;
                     }
+                    else
+                        continue;
                 //Note note = measure.noteList[0]; // add first note of found measure to ShouldHit
                 //if (note.IsNoteEnabled & !note.IsNoteCaptured & !note.IsNoteToBeCaptured)
-                ShouldHit.Add(note);
-                track.nearestNote = note;
-                //else
-                //Debug.LogWarningFormat("CATCHER: The first note of a measure was not suitable for ShouldHit! | Note: {0}", note.name);
+                if (note != null)
+                {
+                    ShouldHit.Add(note);
+                    track.nearestNote = note;
+                }
+                else
+                    Debug.LogErrorFormat("CATCHER: The first note of a measure was not suitable for ShouldHit! | Note: {0}", note.name);
             }
         }
 
         if (ShouldHit.Count > 1)
         {
-            List<Note> newList = ShouldHit.OrderBy(o => o.zPos).ToList();
+            List<Note> newList = ShouldHit.OrderBy(n => n.zPos).ToList();
             ShouldHit = newList;
         }
 
@@ -346,11 +362,15 @@ public class CatcherController : MonoBehaviour
 
             if (e.note.IsLastNote) // if it's the last note in the measure, consider measure as cleared
                 e.note.noteTrack.OnMeasureClear(e.note.noteMeasure);
+
+            amp_ctrl.AdjustTrackVolume(e.note.noteTrack.ID.Value, 1f);
         }
         else
         {
             IsSuccessfullyCatching = false;
             TracksController.SetAllTracksCapturingState(false);
+
+            amp_ctrl.AdjustTrackVolume(CurrentTrack.ID.Value, 0f);
         }
 
         OnCatch?.Invoke(null, e);

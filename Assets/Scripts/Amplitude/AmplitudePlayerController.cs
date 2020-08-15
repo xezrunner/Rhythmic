@@ -41,11 +41,14 @@ public class AmplitudePlayerController : PlayerController
 
         // ENTER Key
         if (Input.GetKeyDown(KeyCode.Return) & !RhythmicGame.IsLoading)
-        {
-            // Start music in AMP song controller
-            amp_ctrl.PlayMusic();
-            // Start player movement
-            IsPlayerMoving = true;
-        }
+            BeginPlay();
+    }
+
+    public override void BeginPlay()
+    {
+        // Start music in AMP song controller
+        amp_ctrl.PlayMusic();
+        // Start player movement
+        IsPlayerMoving = true;
     }
 }

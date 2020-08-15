@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController Instance;
-    public TracksController TracksController { get { return TracksController.Instance; } } // might not be needed?
+    public AmplitudeTracksController TracksController { get { return (AmplitudeTracksController)AmplitudeTracksController.Instance; } } // might not be needed?
     public CatcherController CatcherController { get { return CatcherController.Instance; } }
 
     public TextMeshProUGUI ScoreText;
@@ -54,7 +54,7 @@ public class PlayerController : MonoBehaviour
         if (!AmplitudeSongController.Instance.Enabled)
             return;
 
-        while (TracksController == null || TracksController.Tracks[0].trackMeasures.Count < 3)
+        while (TracksController == null || TracksController.enabled & TracksController.Tracks[0].trackMeasures.Count < 3)
             await Task.Delay(500);
 
         // TODO: we should switch to the track when the game starts
@@ -156,12 +156,15 @@ public class PlayerController : MonoBehaviour
 
     int streakCounter = 0;
     bool canLoseStreak = true;
+    public bool EnableStreaks = true;
     public async void LoseStreak()
     {
         // find next notes again
         CatcherController.IsSuccessfullyCatching = false;
         CatcherController.FindNextMeasuresNotes();
 
+        if (!EnableStreaks)
+            return;
         if (streakCounter < 1 || !canLoseStreak)
             return;
 
@@ -184,20 +187,27 @@ public class PlayerController : MonoBehaviour
     public event EventHandler<int> OnTrackSwitched;
     public void SwitchToTrack(int id, bool force = false)
     {
-        //if (id == TracksController.CurrentTrackID) { Debug.Log("PLAYER/SwitchToTrack(): Already on this track!"); return; }
-
         if (TracksController.Tracks.Count < 1)
         {
             Debug.LogWarning("PLAYER/SwitchToTrack(): No tracks are available");
             return;
         }
 
-        if (id > TracksController.Tracks.Count - 1) { Debug.LogWarningFormat("PLAYER/SwitchToTrack(): Trying to switch to non-existent track {0} / {1}", id, TracksController.Tracks.Count - 1); return; }
-        else if (id < 0) { Debug.LogWarningFormat("PLAYER/SwitchToTrack(): Trying to switch to non-existent track {0} / {1}", id, 0); return; }
+        if (!RhythmicGame.IsTunnelMode)
+        {
+            if (id > TracksController.Tracks.Count - 1) { Debug.LogWarningFormat("PLAYER/SwitchToTrack(): Trying to switch to non-existent track {0} / {1}", id, TracksController.Tracks.Count - 1); return; }
+            else if (id < 0) { Debug.LogWarningFormat("PLAYER/SwitchToTrack(): Trying to switch to non-existent track {0} / {1}", id, 0); return; }
+        }
+        else
+        {
+            if (id > TracksController.Tracks.Count - 1)
+                id = 0;
+            else if (id < 0)
+                id = TracksController.Tracks.Count - 1;
+        }
 
         // find the track by ID
-        Track track = null;
-
+        Track track;
         if (RhythmicGame.TrackSeekEmpty & TracksController.CurrentMeasure.measureNum >= 4 & !force) // seek
         {
             if (TracksController.Tracks[id].trackMeasures[TracksController.CurrentMeasure.measureNum + 1].IsMeasureEmpty)
@@ -221,10 +231,15 @@ public class PlayerController : MonoBehaviour
         // position the player
         // TODO: animate the player model to the position
         // TODO: improve this
-        Vector3 pos = new Vector3(track.transform.position.x,
+        if (!RhythmicGame.IsTunnelMode)
+        {
+            Vector3 pos = new Vector3(track.transform.position.x,
             transform.position.y, transform.position.z);
 
-        transform.position = pos;
+            transform.position = pos;
+        }
+        else
+            transform.localEulerAngles = new Vector3(0, 0, id * TracksController.rotZ);
 
         // let stuff know of the switch
         OnTrackSwitched?.Invoke(null, track.ID.Value);
@@ -270,7 +285,7 @@ public class PlayerController : MonoBehaviour
 
         // RESTART
         if (Input.GetKeyDown(KeyCode.R))
-            SceneManager.LoadScene("Loading", LoadSceneMode.Single);
+            Restart();
 
         // TEMP / DEBUG
         if (Input.GetKeyDown(KeyCode.Keypad5))
@@ -349,7 +364,10 @@ public class PlayerController : MonoBehaviour
             return;
     }
 
-    async void DoFailTest()
+    public virtual void BeginPlay() { }
+    public void Restart() { SceneManager.LoadScene("Loading", LoadSceneMode.Single); }
+
+    public async void DoFailTest()
     {
         int msCounter = 50;
 
@@ -360,7 +378,6 @@ public class PlayerController : MonoBehaviour
             msCounter -= 5;
         }
     }
-
     void SetSpeed(float speed)
     {
         Time.timeScale = speed;

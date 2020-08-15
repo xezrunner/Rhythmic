@@ -54,11 +54,13 @@ public class AmplitudeTrack : Track
         if (notePrefab == null)
             notePrefab = Resources.Load("Prefabs/Note");
 
-        Vector3 position = new Vector3(lane.transform.position.x, 0.01f, zPosition);
+        Vector3 position = new Vector3(lane.transform.position.x, lane.transform.position.y + 0.01f, zPosition);
         Vector3 scale = new Vector3(0.45f, 0.1f, 0.45f);
 
         // create GameObject for Note
-        GameObject obj = (GameObject)GameObject.Instantiate(notePrefab, position, new Quaternion());
+        GameObject obj = (GameObject)GameObject.Instantiate(notePrefab);
+        obj.transform.position = position;
+        obj.transform.localEulerAngles = transform.localEulerAngles;
         obj.transform.parent = lane.transform;
 
         // create and assign Note to GameObject

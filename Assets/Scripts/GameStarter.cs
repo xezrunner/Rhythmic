@@ -66,6 +66,6 @@ public class GameStarter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        dofLayer.focusDistance.value += Time.time * 0.05f;
+        dofLayer.focusDistance.value += 0.1f;
     }
 }

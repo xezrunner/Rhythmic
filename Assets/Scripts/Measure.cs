@@ -6,6 +6,7 @@ using UnityEngine;
 using System.Threading.Tasks;
 using UnityEngine.UIElements;
 using System.Runtime.InteropServices.WindowsRuntime;
+using TMPro;
 
 public class Measure : MonoBehaviour
 {
@@ -29,7 +30,7 @@ public class Measure : MonoBehaviour
     public EdgeLightsController EdgeLightsController;
     public List<GameObject> EdgeLightsFrontBack = new List<GameObject>();
 
-    // Properties
+    #region Properties
     private Color _measureColor = Track.Colors.Drums;
     public Color MeasureColor
     {
@@ -37,7 +38,10 @@ public class Measure : MonoBehaviour
         set
         {
             _measureColor = value;
+            EdgeLightsColor = value;
             MeasurePlane_Active.GetComponent<MeshRenderer>().material.color = value;
+            MeasurePlane_Active.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
+            MeasurePlane_Active.GetComponent<MeshRenderer>().material.SetColor("_EmissionColor", value / 1.5f);
         }
     }
 
@@ -164,6 +168,7 @@ public class Measure : MonoBehaviour
 
     public bool IsMeasureScorable = true; // Should this measure score points?
     public bool IsMeasureStreakable = true; // Should this measure count towards increasing the streak counter?
+    #endregion
 
     UnityEngine.Object subBeatPrefab;
     UnityEngine.Object detectorPrefab;
@@ -193,7 +198,8 @@ public class Measure : MonoBehaviour
 
         ogParent = transform.parent; // for destruction and length changes
 
-        EdgeLightsGlow = false;
+        EdgeLightsGlowIntensity = 1f;
+        EdgeLightsColor = Track.Colors.ColorFromTrackType(trackInstrument.Value);
     }
 
     // Edge lights
@@ -211,9 +217,13 @@ public class Measure : MonoBehaviour
 
         foreach (GameObject obj in EdgeLightsFrontBack)
         {
+            if (measureTrack.ID > 0)
+                Debug.DebugBreak();
+
             obj.transform.parent = null;
-            Vector3 finalScale = obj.transform.lossyScale;
             Vector3 finalPos = obj.transform.position;
+            Vector3 finalScale = obj.transform.lossyScale;
+            Vector3 finalRot = transform.eulerAngles;
             finalPos.z = obj.transform.name.Contains("Front") ? transform.position.z : (transform.position.z + transform.lossyScale.z);
             finalScale.z = 0.01f;
 
@@ -223,6 +233,9 @@ public class Measure : MonoBehaviour
             obj.transform.Translate(transform.right * transform.position.x);
 
             obj.transform.parent = EdgeLightsController.transform;
+            obj.transform.localEulerAngles = Vector3.zero;
+
+            //obj.transform.localEulerAngles = finalRot;
             EdgeLightsController.Color = EdgeLightsColor;
         }
 
@@ -263,13 +276,12 @@ public class Measure : MonoBehaviour
 
             obj.name = string.Format("MEASURE{0}_SUBBEAT{1}", measureNum, i);
             obj.transform.localScale = subbeatScale;
-            obj.transform.localPosition = new Vector3(transform.position.x, 0, lastSubbeatPosition);
-            obj.transform.parent = measureTrack.TriggerContainer.transform;
+            obj.transform.localEulerAngles = gameObject.transform.eulerAngles;
+            //obj.transform.parent = measureTrack.TriggerContainer.transform;
+            obj.transform.position = new Vector3(transform.position.x, transform.position.y, lastSubbeatPosition);
+            obj.transform.SetParent(measureTrack.TriggerContainer.transform, true);
 
             script.subbeatNum = i;
-
-            EdgeLightsGlowIntensity = 0.5f;
-            EdgeLightsColor = Track.Colors.ColorFromTrackType(trackInstrument.Value);
 
             script.IsMeasureSubbeat = i == 0; // enable measure trigger if first subbeat
 
@@ -325,6 +337,14 @@ public class Measure : MonoBehaviour
 
         while (IsMeasureCapturing)
             yield return null;
+    }
+
+    // Captures this measure without an animation
+    public void CaptureMeasureImmediate(bool removeNotes = false)
+    {
+        IsMeasureActive = false;
+        IsMeasureCaptured = true;
+        noteList.ForEach(n => { n.CaptureNote(false); if (removeNotes) n.gameObject.SetActive(false); });
     }
 
     // This function is called by the capture animation when it finishes.

@@ -172,12 +172,13 @@ MonoBehaviour:
   MeasureSeparator: {fileID: 7348333367408467932}
   EdgeLightsController: {fileID: 4894331238374009535}
   EdgeLightsFrontBack: []
+  IsMeasureToBeCaptured: 0
   IsMeasureScorable: 1
   IsMeasureStreakable: 1
   FullLength: 1
   Length: 1
   CaptureLength: 0
-  capturing: 0
+  IsMeasureCapturing: 0
 --- !u!111 &4395145425648499199
 Animation:
   m_ObjectHideFlags: 0
@@ -266,7 +267,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 70684655b1eb23c4f9f9a131df5998a8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -452,7 +453,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 70684655b1eb23c4f9f9a131df5998a8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -545,7 +546,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 70684655b1eb23c4f9f9a131df5998a8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -638,7 +639,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 70684655b1eb23c4f9f9a131df5998a8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -777,11 +778,6 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 11
       objectReference: {fileID: 0}
-    - target: {fileID: 3538615951093641869, guid: 9f12ae69bf00ee9468c53baff0b3ef80,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 3538615951093641871, guid: 9f12ae69bf00ee9468c53baff0b3ef80,
         type: 3}
       propertyPath: m_LocalScale.y
@@ -795,18 +791,13 @@ PrefabInstance:
     - target: {fileID: 3538615951093641871, guid: 9f12ae69bf00ee9468c53baff0b3ef80,
         type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 3538615951241398504, guid: 9f12ae69bf00ee9468c53baff0b3ef80,
         type: 3}
       propertyPath: m_Layer
       value: 11
       objectReference: {fileID: 0}
-    - target: {fileID: 3538615951241398509, guid: 9f12ae69bf00ee9468c53baff0b3ef80,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 3538615951241398511, guid: 9f12ae69bf00ee9468c53baff0b3ef80,
         type: 3}
       propertyPath: m_LocalScale.y
@@ -820,7 +811,7 @@ PrefabInstance:
     - target: {fileID: 3538615951241398511, guid: 9f12ae69bf00ee9468c53baff0b3ef80,
         type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 3538615953074837756, guid: 9f12ae69bf00ee9468c53baff0b3ef80,
         type: 3}
