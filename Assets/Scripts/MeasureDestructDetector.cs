@@ -4,22 +4,35 @@ using UnityEngine;
 
 public class MeasureDestructDetector : MonoBehaviour
 {
-    Transform ogParent;
-    Measure measure;
+    public Transform ogParent;
+    public Measure measure;
 
     public GameObject Particles;
 
     void Start()
     {
         // store parent and measure
+        /*
         ogParent = transform.parent;
         measure = ogParent.GetComponent<Measure>();
+        */
 
-        // un-parent!
-        transform.parent = null;
+        gameObject.SetActive(false);
+    }
+
+    bool isEnabled = false;
+    public void Begin()
+    {
+        if (!measure.IsMeasureActive)
+            return;
 
         // setup detector destroy timeout
         measure.OnCaptureFinished += Measure_OnCaptureFinished;
+
+        gameObject.SetActive(true);
+
+        // un-parent!
+        transform.parent = null;
 
         // set location of destructor to 0,0,0 LOCAL
         transform.localPosition = new Vector3(0, 0, 0f);
@@ -29,6 +42,8 @@ public class MeasureDestructDetector : MonoBehaviour
             Particles.SetActive(true);
         else
             Destroy(Particles); // Particles are usually destroyed when they finish. If we don't start the particles, we have to destroy them.
+
+        isEnabled = true;
     }
 
     // Destroy detector but keep particles after measure is finished with capturing
@@ -42,13 +57,15 @@ public class MeasureDestructDetector : MonoBehaviour
         }
 
         measure.OnCaptureFinished -= Measure_OnCaptureFinished; // unsubscribe from the OnCaptureFinished event
-        Destroy(gameObject);
+        transform.parent = measure.transform; gameObject.SetActive(false);
+        //Destroy(gameObject);
     }
 
     // Update position of detector while it's changing Z scale
     void FixedUpdate()
     {
-        transform.position = new Vector3(ogParent.position.x, ogParent.position.y, ogParent.position.z - 0.05f);
+        if (isEnabled)
+            transform.position = new Vector3(ogParent.position.x, ogParent.position.y, ogParent.position.z - 0.05f);
     }
 
     // Capture notes that we encounter throughout the way

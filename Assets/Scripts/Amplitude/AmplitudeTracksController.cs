@@ -70,6 +70,7 @@ public class AmplitudeTracksController : TracksController
             ampTrack.trackName = track;
             ampTrack.Instrument = AmplitudeTrack.TrackTypeFromString(track);
             ampTrack.EdgeLightsColor = Track.Colors.ColorFromTrackType(ampTrack.Instrument.Value);
+            ampTrack.zRot = lastRotZ;
 
             ampTrack.OnTrackCaptureStart += TracksController_OnTrackCaptureStart;
             ampTrack.OnTrackCaptured += TracksController_OnTrackCaptured;

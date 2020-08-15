@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Threading.Tasks;
+using System.Transactions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
@@ -18,9 +20,16 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI MeasureCounterText;
     public TextMeshProUGUI NextNoteText;
 
+    public Camera PlayerCamera;
+    public Transform PlayerCameraTransform;
+    public Transform CameraContainer;
+
+    public Animation trackswitch_anim;
+
     // Props
     //public float zPos { get { return transform.position.z; } }
 
+    public float CameraPullbackOffset = -5.5f;
     public float StartZOffset = 4f; // countin
     public float ZOffset = 0f; // (DEBUG) additional position offset
 
@@ -47,6 +56,7 @@ public class PlayerController : MonoBehaviour
     {
         // Push back player by the Start ZOffset
         transform.Translate(Vector3.back * StartZOffset);
+        PlayerCameraTransform.position = new Vector3(PlayerCameraTransform.position.x, PlayerCameraTransform.position.y, CameraPullbackOffset);
 
         // Wire up catcher events
         CatcherController.OnCatch += CatcherController_OnCatch;
@@ -184,7 +194,73 @@ public class PlayerController : MonoBehaviour
     }
 
     // Track switching
+
+    public bool IsTrackSwitching = false;
+    public float TrackSwitch_Progress = 0f;
+    int TrackSwitch_PrevTrackID;
+    Vector3 TrackSwitch_PrevCam;
+    Vector3 TrackSwitch_TargetCam;
+    public IEnumerator TrackSwitchAnim(Vector3 target)
+    {
+        TrackSwitch_Progress = 0f; // set anim progress to 0
+
+        if (!RhythmicGame.IsTunnelMode) // store prev camera position
+            TrackSwitch_PrevCam = new Vector3(-(target.x - CameraContainer.position.x),
+                CameraContainer.localPosition.y, CameraContainer.localPosition.z);
+        else
+            TrackSwitch_PrevCam = new Vector3(CameraContainer.localEulerAngles.x, CameraContainer.localEulerAngles.y,
+                -(target.z - CameraContainer.eulerAngles.z));
+
+        // move rest of the player immediately
+        if (!RhythmicGame.IsTunnelMode)
+            transform.position = target;
+        else
+            transform.eulerAngles = target;
+
+        // move back player camera to previous pos
+        if (!RhythmicGame.IsTunnelMode)
+            CameraContainer.localPosition = TrackSwitch_PrevCam;
+        else // inverse rotations
+        {
+            if (TrackSwitch_PrevTrackID == TracksController.Tracks.Count - 1)
+                TrackSwitch_TargetCam = new Vector3(0, 0, 360);
+            else if (TrackSwitch_PrevTrackID == 0 & TracksController.CurrentTrackID == TracksController.Tracks.Count - 1)
+            {
+                TrackSwitch_PrevCam = new Vector3(0, 0, TracksController.rotZ);
+                TrackSwitch_TargetCam = new Vector3(0, 0, 0);
+            }
+            else
+                TrackSwitch_TargetCam = Vector3.zero;
+            CameraContainer.localEulerAngles = TrackSwitch_PrevCam;
+        }
+
+        // play track switching animation
+        IsTrackSwitching = true;
+        trackswitch_anim.Stop();
+        trackswitch_anim.Play();
+
+        while (TrackSwitch_Progress < 1f)
+            yield return null;
+
+        IsTrackSwitching = false;
+    }
+
+    // This moves the camera according to the track switching animation!
+    void TrackSwitchUpdate()
+    {
+        Vector3 prevpos = TrackSwitch_PrevCam;
+        Vector3 targetpos = TrackSwitch_TargetCam; // Target is usually 0 but gets overriden to 360 when doing an inverse rotation
+
+        Vector3 final = Vector3.Lerp(prevpos, targetpos, TrackSwitch_Progress);
+
+        if (!RhythmicGame.IsTunnelMode)
+            CameraContainer.transform.localPosition = final;
+        else
+            CameraContainer.transform.localEulerAngles = final;
+    }
+
     public event EventHandler<int> OnTrackSwitched;
+
     public void SwitchToTrack(int id, bool force = false)
     {
         if (TracksController.Tracks.Count < 1)
@@ -221,7 +297,6 @@ public class PlayerController : MonoBehaviour
         else
             track = TracksController.GetTrackByID(id);
 
-
         if (track == null)
         {
             Debug.LogErrorFormat("PLAYER/SwitchToTrack(): Could not switch to track {0}", id);
@@ -229,8 +304,23 @@ public class PlayerController : MonoBehaviour
         }
 
         // position the player
-        // TODO: animate the player model to the position
-        // TODO: improve this
+
+        // set target pos / rot
+        Vector3 target;
+        if (!RhythmicGame.IsTunnelMode)
+            target = new Vector3(track.transform.position.x, transform.position.y, transform.position.z);
+        else
+            target = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, id * TracksController.rotZ);
+
+        TrackSwitch_PrevTrackID = TracksController.CurrentTrackID;
+
+        // let stuff know of the switch
+        OnTrackSwitched?.Invoke(null, track.ID.Value);
+
+        // start animation
+        StartCoroutine(TrackSwitchAnim(target));
+
+        /* OLD IMMEDIATE (NON-ANIM) SWITCHING CODE
         if (!RhythmicGame.IsTunnelMode)
         {
             Vector3 pos = new Vector3(track.transform.position.x,
@@ -240,9 +330,7 @@ public class PlayerController : MonoBehaviour
         }
         else
             transform.localEulerAngles = new Vector3(0, 0, id * TracksController.rotZ);
-
-        // let stuff know of the switch
-        OnTrackSwitched?.Invoke(null, track.ID.Value);
+        */
     }
 
     // Measures & subbeats
@@ -272,22 +360,26 @@ public class PlayerController : MonoBehaviour
     public async void Update()
     {
         // TRACK SWITCHING
+
+        if (IsTrackSwitching)
+            TrackSwitchUpdate();
+
         if (Input.GetKeyDown(InputManager.Player.TrackSwitching[0]))
             SwitchToTrack(TracksController.CurrentTrackID - 1, Input.GetKey(KeyCode.LeftShift));
         else if (Input.GetKeyDown(InputManager.Player.TrackSwitching[1]))
             SwitchToTrack(TracksController.CurrentTrackID + 1, Input.GetKey(KeyCode.LeftShift));
-        /*
-        if (Input.GetKeyDown(KeyCode.A))
-            SwitchToTrack(TracksController.CurrentTrackID - 1, Input.GetKey(KeyCode.LeftShift));
-        else if (Input.GetKeyDown(KeyCode.D))
-            SwitchToTrack(TracksController.CurrentTrackID + 1, Input.GetKey(KeyCode.LeftShift));
-        */
 
         // RESTART
         if (Input.GetKeyDown(KeyCode.R))
             Restart();
 
         // TEMP / DEBUG
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            RhythmicGame.IsTunnelMode = !RhythmicGame.IsTunnelMode;
+            ScoreText.text = string.Format("Tunnel {0}\nRestart!", RhythmicGame.IsTunnelMode ? "ON" : "OFF");
+        }
+
         if (Input.GetKeyDown(KeyCode.Keypad5))
         {
             foreach (Track track in TracksController.Tracks)

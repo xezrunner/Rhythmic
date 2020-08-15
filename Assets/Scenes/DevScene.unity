@@ -338,7 +338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moggSong: {fileID: 0}
-  songName: tut0
+  songName: perfectbrain
   songFolder: H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs
   Enabled: 1
   songPosition: 0
@@ -2221,6 +2221,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 72519626436425977, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 442806660436292219, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: catchRadiusExtra
@@ -2261,6 +2266,11 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 7855c58aeeb031d488739c9bb1682fa3, type: 2}
+    - target: {fileID: 4709665040744107080, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4709665040744107084, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: m_LocalRotation.x
@@ -2401,6 +2411,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 12
       objectReference: {fileID: 0}
+    - target: {fileID: 8460471726702049389, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9078876527922160011, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: MissText
@@ -2431,8 +2446,19 @@ PrefabInstance:
       propertyPath: Rigidbody
       value: 
       objectReference: {fileID: 36772121}
+    - target: {fileID: 9078876527922160011, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: CameraContainer
+      value: 
+      objectReference: {fileID: 1082314617}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c9077085010b3e0408e2309405d63a81, type: 3}
+--- !u!4 &1082314617 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 72519626436425977, guid: c9077085010b3e0408e2309405d63a81,
+    type: 3}
+  m_PrefabInstance: {fileID: 1082314616}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1099208975
 GameObject:
   m_ObjectHideFlags: 0
@@ -9837,7 +9863,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -100, y: -50}
-  m_SizeDelta: {x: 100, y: 50}
+  m_SizeDelta: {x: 197.1, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1888354784
 MonoBehaviour:
@@ -9858,9 +9884,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '0
-
-'
+  m_text: 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -9929,9 +9953,9 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 1888354784}
-    characterCount: 2
+    characterCount: 1
     spriteCount: 0
-    spaceCount: 1
+    spaceCount: 0
     wordCount: 1
     linkCount: 0
     lineCount: 1

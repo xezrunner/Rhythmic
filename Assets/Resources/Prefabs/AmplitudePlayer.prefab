@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1367846900065550693
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 72519626436425977}
+  m_Layer: 0
+  m_Name: CameraContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &72519626436425977
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1367846900065550693}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 5759535519322832050}
+  m_Father: {fileID: 5759535520881636929}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3904273063982621673
 GameObject:
   m_ObjectHideFlags: 0
@@ -99,12 +130,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5759535519322832055}
-  m_LocalRotation: {x: 0.16504757, y: 0, z: 0, w: 0.9862857}
+  m_LocalRotation: {x: 0.16504757, y: -0, z: -0, w: 0.9862857}
   m_LocalPosition: {x: 0, y: 1, z: -5.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 8103151305400269017}
-  m_Father: {fileID: 5759535520881636929}
+  m_Father: {fileID: 72519626436425977}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 19, y: 0, z: 0}
 --- !u!20 &5759535519322832053
@@ -221,6 +252,7 @@ GameObject:
   - component: {fileID: 5759535520881636929}
   - component: {fileID: 5759535520881636942}
   - component: {fileID: 9078876527922160011}
+  - component: {fileID: 7200323222921865719}
   m_Layer: 0
   m_Name: AmplitudePlayer
   m_TagString: Player
@@ -239,7 +271,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 2.05, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 5759535519322832050}
+  - {fileID: 72519626436425977}
   - {fileID: 8460471726702049389}
   - {fileID: 4709665040744107080}
   m_Father: {fileID: 0}
@@ -358,12 +390,35 @@ MonoBehaviour:
   SubbeatCounterText: {fileID: 0}
   MeasureCounterText: {fileID: 0}
   NextNoteText: {fileID: 0}
+  PlayerCamera: {fileID: 5759535519322832053}
+  PlayerCameraTransform: {fileID: 5759535519322832050}
+  trackswitch_anim: {fileID: 7200323222921865719}
+  CameraPullbackOffset: -5.5
   StartZOffset: 0
   ZOffset: 0
   IsPlayerMoving: 0
   PlayerSpeed: 4
   Score: 0
   Multiplier: 1
+  EnableStreaks: 1
+  IsTrackSwitching: 0
+  TrackSwitch_Progress: 0
+--- !u!111 &7200323222921865719
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5759535520881636931}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: 8a17a4e6e8088de41957cc5bba0d7b5f, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 8a17a4e6e8088de41957cc5bba0d7b5f, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 0
+  m_AnimatePhysics: 0
+  m_CullingType: 0
 --- !u!1001 &1163137473501249540
 PrefabInstance:
   m_ObjectHideFlags: 0
