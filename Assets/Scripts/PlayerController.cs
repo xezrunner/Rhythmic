@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Threading.Tasks;
+using System.Transactions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
@@ -18,9 +20,16 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI MeasureCounterText;
     public TextMeshProUGUI NextNoteText;
 
+    public Camera PlayerCamera;
+    public Transform PlayerCameraTransform;
+    public Transform CameraContainer;
+
+    public Animation trackswitch_anim;
+
     // Props
     //public float zPos { get { return transform.position.z; } }
 
+    public float CameraPullbackOffset = -5.5f;
     public float StartZOffset = 4f; // countin
     public float ZOffset = 0f; // (DEBUG) additional position offset
 
@@ -47,6 +56,7 @@ public class PlayerController : MonoBehaviour
     {
         // Push back player by the Start ZOffset
         transform.Translate(Vector3.back * StartZOffset);
+        PlayerCameraTransform.position = new Vector3(PlayerCameraTransform.position.x, PlayerCameraTransform.position.y, CameraPullbackOffset);
 
         // Wire up catcher events
         CatcherController.OnCatch += CatcherController_OnCatch;
@@ -183,8 +193,88 @@ public class PlayerController : MonoBehaviour
         canLoseStreak = true;
     }
 
-    // Track switching
+    // TRACK SWITCHING
+
+    [Range(0, 1f)]
+    public float TrackSwitch_Progress = 0f; // progress of camera animation
+    public bool IsTrackSwitching = false; // controls player camera update function
+    int TrackSwitch_PrevTrackID; // previous track ID we have switched from
+
+    Vector3 TrackSwitch_PrevCamOffset; // this is the LOCAL pos/rot where the camera will start animating from
+                                       // should be the negative difference between the target GLOBAL rotation and the current GLOBAL rotation (before switching!)
+                                       // for ROT: it gets overriden to 360 - current GLOBAL rotation when switching from track 0 to last track
+
+    Vector3 TrackSwitch_TargetCam; // this is the target LOCAL pos/rot where the camera will animate to
+                                   // should be 0,0,0 in most cases
+                                   // for ROT: it gets overriden to 360 when we're switching from the last track to track 0
+
+    // Calculates and offsets camera, handles camera animation state
+    public IEnumerator TrackSwitchAnim(Vector3 target)
+    {
+        TrackSwitch_Progress = 0f; // set anim progress to 0
+
+        if (!RhythmicGame.IsTunnelMode) // store LOCAL offset for prev pos
+            TrackSwitch_PrevCamOffset = new Vector3(-(target.x - CameraContainer.position.x),
+                CameraContainer.localPosition.y, CameraContainer.localPosition.z);
+        else
+            TrackSwitch_PrevCamOffset = new Vector3(CameraContainer.localEulerAngles.x, CameraContainer.localEulerAngles.y,
+                -(target.z - transform.eulerAngles.z));
+
+        TrackSwitch_TargetCam = Vector3.zero; // default prev cam LOCAL pos/rot to 0,0,0
+
+        Vector3 oldRot = transform.eulerAngles;
+
+        // move rest of the player immediately
+        if (!RhythmicGame.IsTunnelMode)
+            transform.position = target;
+        else
+            transform.eulerAngles = target;
+
+        // offset player camera movement from the previous player move
+        if (!RhythmicGame.IsTunnelMode)
+            CameraContainer.localPosition = TrackSwitch_PrevCamOffset;
+        else
+        {
+            CameraContainer.localEulerAngles = TrackSwitch_PrevCamOffset;
+
+            // if we are rotating to inverse, also invert prev/target pos/rot
+            // TODO: 360 and 180 degrees may be dynamic according to track count!
+            if (oldRot.z < 180 & oldRot.z >= 0 & target.z == TracksController.Tracks[TracksController.Tracks.Count - 1].zRot)
+                TrackSwitch_TargetCam = new Vector3(0, 0, -360);
+            else if (oldRot.z > 180 & target.z == 0 )
+                TrackSwitch_TargetCam = new Vector3(0, 0, 360);
+
+            if (RhythmicGame.DebugPlayerCameraAnimEvents)
+                Debug.LogFormat("PrevCam: {0}, TargetCam: {1}", TrackSwitch_PrevCamOffset, TrackSwitch_TargetCam);
+        }
+
+        // play track switching animation
+        IsTrackSwitching = true;
+        trackswitch_anim.Stop();
+        trackswitch_anim.Play();
+
+        while (TrackSwitch_Progress < 1f)
+            yield return null;
+
+        IsTrackSwitching = false;
+    }
+
+    // This moves the camera according to the track switching animation!
+    void TrackSwitchUpdate()
+    {
+        Vector3 prevpos = TrackSwitch_PrevCamOffset;
+        Vector3 targetpos = TrackSwitch_TargetCam; // Target is usually 0 but gets overriden to 360 when doing an inverse rotation
+
+        Vector3 final = Vector3.Lerp(prevpos, targetpos, TrackSwitch_Progress);
+
+        if (!RhythmicGame.IsTunnelMode)
+            CameraContainer.transform.localPosition = final;
+        else
+            CameraContainer.transform.localEulerAngles = final;
+    }
+
     public event EventHandler<int> OnTrackSwitched;
+
     public void SwitchToTrack(int id, bool force = false)
     {
         if (TracksController.Tracks.Count < 1)
@@ -221,7 +311,6 @@ public class PlayerController : MonoBehaviour
         else
             track = TracksController.GetTrackByID(id);
 
-
         if (track == null)
         {
             Debug.LogErrorFormat("PLAYER/SwitchToTrack(): Could not switch to track {0}", id);
@@ -229,8 +318,23 @@ public class PlayerController : MonoBehaviour
         }
 
         // position the player
-        // TODO: animate the player model to the position
-        // TODO: improve this
+
+        // set target pos / rot
+        Vector3 target;
+        if (!RhythmicGame.IsTunnelMode)
+            target = new Vector3(track.transform.position.x, transform.position.y, transform.position.z);
+        else
+            target = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, id * TracksController.rotZ);
+
+        TrackSwitch_PrevTrackID = TracksController.CurrentTrackID;
+
+        // let stuff know of the switch
+        OnTrackSwitched?.Invoke(null, track.ID.Value);
+
+        // start animation
+        StartCoroutine(TrackSwitchAnim(target));
+
+        /* OLD IMMEDIATE (NON-ANIM) SWITCHING CODE
         if (!RhythmicGame.IsTunnelMode)
         {
             Vector3 pos = new Vector3(track.transform.position.x,
@@ -240,9 +344,7 @@ public class PlayerController : MonoBehaviour
         }
         else
             transform.localEulerAngles = new Vector3(0, 0, id * TracksController.rotZ);
-
-        // let stuff know of the switch
-        OnTrackSwitched?.Invoke(null, track.ID.Value);
+        */
     }
 
     // Measures & subbeats
@@ -272,22 +374,26 @@ public class PlayerController : MonoBehaviour
     public async void Update()
     {
         // TRACK SWITCHING
+
+        if (IsTrackSwitching)
+            TrackSwitchUpdate();
+
         if (Input.GetKeyDown(InputManager.Player.TrackSwitching[0]))
             SwitchToTrack(TracksController.CurrentTrackID - 1, Input.GetKey(KeyCode.LeftShift));
         else if (Input.GetKeyDown(InputManager.Player.TrackSwitching[1]))
             SwitchToTrack(TracksController.CurrentTrackID + 1, Input.GetKey(KeyCode.LeftShift));
-        /*
-        if (Input.GetKeyDown(KeyCode.A))
-            SwitchToTrack(TracksController.CurrentTrackID - 1, Input.GetKey(KeyCode.LeftShift));
-        else if (Input.GetKeyDown(KeyCode.D))
-            SwitchToTrack(TracksController.CurrentTrackID + 1, Input.GetKey(KeyCode.LeftShift));
-        */
 
         // RESTART
         if (Input.GetKeyDown(KeyCode.R))
             Restart();
 
         // TEMP / DEBUG
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            RhythmicGame.IsTunnelMode = !RhythmicGame.IsTunnelMode;
+            ScoreText.text = string.Format("Tunnel {0}\nRestart!", RhythmicGame.IsTunnelMode ? "ON" : "OFF");
+        }
+
         if (Input.GetKeyDown(KeyCode.Keypad5))
         {
             foreach (Track track in TracksController.Tracks)

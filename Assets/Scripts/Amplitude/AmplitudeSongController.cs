@@ -71,7 +71,7 @@ public class AmplitudeSongController : MonoBehaviour
     {
         Instance = this;
     }
-    void Start()
+    public void Start()
     {
         SceneManager.SetActiveScene(SceneManager.GetSceneByName("DevScene"));
 

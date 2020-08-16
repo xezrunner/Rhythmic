@@ -30,6 +30,9 @@ public class Measure : MonoBehaviour
     public EdgeLightsController EdgeLightsController;
     public List<GameObject> EdgeLightsFrontBack = new List<GameObject>();
 
+    public Animation anim;
+    public MeasureDestructDetector detector;
+
     #region Properties
     private Color _measureColor = Track.Colors.Drums;
     public Color MeasureColor
@@ -200,6 +203,10 @@ public class Measure : MonoBehaviour
 
         EdgeLightsGlowIntensity = 1f;
         EdgeLightsColor = Track.Colors.ColorFromTrackType(trackInstrument.Value);
+
+        // setup particles
+        detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.color = Colors.ConvertColor(EdgeLightsColor);
+        detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.SetColor("_EmissionColor", Colors.ConvertColor(EdgeLightsColor * 1.3f));
     }
 
     // Edge lights
@@ -307,7 +314,7 @@ public class Measure : MonoBehaviour
     // It needs to run in Update()
     // TODO: revise
     Transform ogParent;
-    public void ScaleAndPos()
+    public void MeasureCaptureUpdate()
     {
         transform.parent = null; // unparent from track
         Vector3 ogPosition = transform.position; // store original position
@@ -317,23 +324,20 @@ public class Measure : MonoBehaviour
 
         /*
         if (Application.isPlaying)
-            PositionFrontBackEdgeLights();
+           PositionFrontBackEdgeLights();
         */
     }
 
+    public bool IsMeasureCapturing = false;
     public event EventHandler<int> OnCaptureFinished;
     public IEnumerator CaptureMeasure()
     {
-        var anim = gameObject.GetComponent<Animation>();
+        anim.Stop();
         anim.Play(); // play capture anim!
 
         IsMeasureCapturing = true;
 
-        GameObject detector = (GameObject)Instantiate(detectorPrefab, gameObject.transform); // create measure destruct detector
-
-        // setup particles
-        detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.color = Colors.ConvertColor(EdgeLightsColor);
-        detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.SetColor("_EmissionColor", Colors.ConvertColor(EdgeLightsColor * 1.3f));
+        detector.Begin();
 
         while (IsMeasureCapturing)
             yield return null;
@@ -350,10 +354,11 @@ public class Measure : MonoBehaviour
     // This function is called by the capture animation when it finishes.
     public void OnCaptureAnimFinished()
     {
-        IsMeasureCapturing = false;
+        //IsMeasureCapturing = false; // anim sets this prop
         IsMeasureActive = false; // disable measure visuals completely
 
         transform.parent = ogParent; // re-parent measure from the previous ScaleAndPos() unparent
+
         OnCaptureFinished?.Invoke(null, measureNum); // invoke event to let things know we finished capturing
 
         // Capture all notes in case we missed any. This might remain as a hack anyway.
@@ -365,14 +370,13 @@ public class Measure : MonoBehaviour
     [ExecuteInEditMode]
     private void OnValidate()
     {
-        ScaleAndPos();
+        //MeasureCaptureUpdate(null, null);
     }
 
-    public bool IsMeasureCapturing = false;
     void Update()
     {
         if (IsMeasureCapturing)
-            ScaleAndPos();
+            MeasureCaptureUpdate();
     }
 
     // Z position
@@ -389,8 +393,8 @@ public class Measure : MonoBehaviour
             else if (zPos == subbeat.EndZPos)
                 return subbeatList[counter + 1];
             */
-            counter++;
-        }
-        throw new Exception("Cannot find subbeat for this zPos: " + zPos);
+        counter++;
     }
+        throw new Exception("Cannot find subbeat for this zPos: " + zPos);
+}
 }

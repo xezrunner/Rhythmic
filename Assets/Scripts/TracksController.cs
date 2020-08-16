@@ -101,7 +101,7 @@ public class TracksController : MonoBehaviour
 
         CurrentTrackID = e;
 
-        CatcherController.FindNextMeasuresNotes();
+        //CatcherController.FindNextMeasuresNotes();
 
         OnTrackSwitched?.Invoke(null, e);
     }

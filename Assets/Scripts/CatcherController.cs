@@ -130,7 +130,6 @@ public class CatcherController : MonoBehaviour
         // DEBUG
         UpdateMeasureDebug(e);
     }
-
     // When we trigger a subbeat | e[0]: measure num | e[1]: subbeat num
     void CatcherController_OnSubbeatTrigger(object sender, int[] e)
     {
@@ -139,21 +138,27 @@ public class CatcherController : MonoBehaviour
         // IGNORE EMPTY TRACK NOTE DETECTION IN CONDITIONS:
         if (ShouldHit.Count == 0) // if ShouldHit is empty
             return;
-        if (!CurrentMeasure.IsMeasureEmptyOrCaptured) // if we are on an active measure
+        if (!CurrentMeasure.IsMeasureEnabled & !CurrentMeasure.IsMeasureCaptured & CurrentMeasure.IsMeasureActive) { Subbeat_DetectNoteMisses(e); return; }
+        else if (!CurrentMeasure.IsMeasureEmptyOrCaptured) // if we are on an active measure
             return;
-        else if (IsSuccessfullyCatching & e[0] < ShouldHit[0].measureNum) // if we are successfully catching, only miss beyond closest ShouldHit note
-            return; // optimization: possibly move into measure trigger when IsSuccessfullyCatching?
+        else if (!IsSuccessfullyCatching || e[0] < ShouldHit[0].measureNum) // if we are not successfully catching, only miss beyond closest ShouldHit note
+            return;
 
-        // Empty track note detection - miss notes as 'ignore'
+        Subbeat_DetectNoteMisses(e);
+    }
+    // Empty track note detection - miss notes as 'ignore' | e[0]: measure num | e[1]: subbeat num
+    void Subbeat_DetectNoteMisses(int[] e)
+    {
+        Note note = null;
+
         foreach (Track track in TracksController.Tracks)
         {
-            foreach (Note note in track.trackMeasures[e[0]].noteList)
-                if (note.subbeatNum <= e[1] & note.zPos < transform.position.z)
-                {
-                    PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
-                    break;
-                }
+            foreach (Note n in track.trackMeasures[e[0]].noteList)
+                if (n.IsNoteEnabled & n.subbeatNum < e[1] & n.zPos < transform.position.z)
+                { note = n; break; }
         }
+
+        PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
     }
 
     // When we exit a note's collision trigger
@@ -296,9 +301,9 @@ public class CatcherController : MonoBehaviour
     {
         Note note = null;
 
-        foreach (Note n in CurrentTrack.trackNotes)
+        foreach (Note n in CurrentMeasure.noteList)
         {
-            if (n.IsNoteEnabled & !n.IsNoteCaptured & n.zPos >= transform.position.z)
+            if (!n.IsNoteCaptured & n.zPos >= transform.position.z)
             {
                 note = n;
                 break;
@@ -372,6 +377,9 @@ public class CatcherController : MonoBehaviour
 
             amp_ctrl.AdjustTrackVolume(CurrentTrack.ID.Value, 0f);
         }
+
+        if (e.catchresult == Catcher.CatchResult.Inactive)
+            amp_ctrl.AdjustTrackVolume(e.note.noteTrack.ID.Value, 1f);
 
         OnCatch?.Invoke(null, e);
     }

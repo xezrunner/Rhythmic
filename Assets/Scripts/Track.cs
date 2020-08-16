@@ -32,6 +32,7 @@ public class Track : MonoBehaviour
     public TrackType? Instrument;
     public Note nearestNote;
     public int activeMeasureNum = -1;
+    public float zRot;
 
     public bool TUT_IsTrackEnabled { get; set; } = true; // Tutorial track disabling
     bool _isTrackFocused = false; // TODO: also enable/disable the track coloring material
