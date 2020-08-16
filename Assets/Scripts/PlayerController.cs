@@ -193,23 +193,36 @@ public class PlayerController : MonoBehaviour
         canLoseStreak = true;
     }
 
-    // Track switching
+    // TRACK SWITCHING
 
-    public bool IsTrackSwitching = false;
-    public float TrackSwitch_Progress = 0f;
-    int TrackSwitch_PrevTrackID;
-    Vector3 TrackSwitch_PrevCam;
-    Vector3 TrackSwitch_TargetCam;
+    [Range(0, 1f)]
+    public float TrackSwitch_Progress = 0f; // progress of camera animation
+    public bool IsTrackSwitching = false; // controls player camera update function
+    int TrackSwitch_PrevTrackID; // previous track ID we have switched from
+
+    Vector3 TrackSwitch_PrevCamOffset; // this is the LOCAL pos/rot where the camera will start animating from
+                                       // should be the negative difference between the target GLOBAL rotation and the current GLOBAL rotation (before switching!)
+                                       // for ROT: it gets overriden to 360 - current GLOBAL rotation when switching from track 0 to last track
+
+    Vector3 TrackSwitch_TargetCam; // this is the target LOCAL pos/rot where the camera will animate to
+                                   // should be 0,0,0 in most cases
+                                   // for ROT: it gets overriden to 360 when we're switching from the last track to track 0
+
+    // Calculates and offsets camera, handles camera animation state
     public IEnumerator TrackSwitchAnim(Vector3 target)
     {
         TrackSwitch_Progress = 0f; // set anim progress to 0
 
-        if (!RhythmicGame.IsTunnelMode) // store prev camera position
-            TrackSwitch_PrevCam = new Vector3(-(target.x - CameraContainer.position.x),
+        if (!RhythmicGame.IsTunnelMode) // store LOCAL offset for prev pos
+            TrackSwitch_PrevCamOffset = new Vector3(-(target.x - CameraContainer.position.x),
                 CameraContainer.localPosition.y, CameraContainer.localPosition.z);
         else
-            TrackSwitch_PrevCam = new Vector3(CameraContainer.localEulerAngles.x, CameraContainer.localEulerAngles.y,
-                -(target.z - CameraContainer.eulerAngles.z));
+            TrackSwitch_PrevCamOffset = new Vector3(CameraContainer.localEulerAngles.x, CameraContainer.localEulerAngles.y,
+                -(target.z - transform.eulerAngles.z));
+
+        TrackSwitch_TargetCam = Vector3.zero; // default prev cam LOCAL pos/rot to 0,0,0
+
+        Vector3 oldRot = transform.eulerAngles;
 
         // move rest of the player immediately
         if (!RhythmicGame.IsTunnelMode)
@@ -217,21 +230,22 @@ public class PlayerController : MonoBehaviour
         else
             transform.eulerAngles = target;
 
-        // move back player camera to previous pos
+        // offset player camera movement from the previous player move
         if (!RhythmicGame.IsTunnelMode)
-            CameraContainer.localPosition = TrackSwitch_PrevCam;
-        else // inverse rotations
+            CameraContainer.localPosition = TrackSwitch_PrevCamOffset;
+        else
         {
-            if (TrackSwitch_PrevTrackID == TracksController.Tracks.Count - 1)
+            CameraContainer.localEulerAngles = TrackSwitch_PrevCamOffset;
+
+            // if we are rotating to inverse, also invert prev/target pos/rot
+            // TODO: 360 and 180 degrees may be dynamic according to track count!
+            if (oldRot.z < 180 & oldRot.z >= 0 & target.z == TracksController.Tracks[TracksController.Tracks.Count - 1].zRot)
+                TrackSwitch_TargetCam = new Vector3(0, 0, -360);
+            else if (oldRot.z > 180 & target.z == 0 )
                 TrackSwitch_TargetCam = new Vector3(0, 0, 360);
-            else if (TrackSwitch_PrevTrackID == 0 & TracksController.CurrentTrackID == TracksController.Tracks.Count - 1)
-            {
-                TrackSwitch_PrevCam = new Vector3(0, 0, TracksController.rotZ);
-                TrackSwitch_TargetCam = new Vector3(0, 0, 0);
-            }
-            else
-                TrackSwitch_TargetCam = Vector3.zero;
-            CameraContainer.localEulerAngles = TrackSwitch_PrevCam;
+
+            if (RhythmicGame.DebugPlayerCameraAnimEvents)
+                Debug.LogFormat("PrevCam: {0}, TargetCam: {1}", TrackSwitch_PrevCamOffset, TrackSwitch_TargetCam);
         }
 
         // play track switching animation
@@ -248,7 +262,7 @@ public class PlayerController : MonoBehaviour
     // This moves the camera according to the track switching animation!
     void TrackSwitchUpdate()
     {
-        Vector3 prevpos = TrackSwitch_PrevCam;
+        Vector3 prevpos = TrackSwitch_PrevCamOffset;
         Vector3 targetpos = TrackSwitch_TargetCam; // Target is usually 0 but gets overriden to 360 when doing an inverse rotation
 
         Vector3 final = Vector3.Lerp(prevpos, targetpos, TrackSwitch_Progress);

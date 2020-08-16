@@ -37,7 +37,7 @@ public class RhythmicGame : MonoBehaviour
     public static bool IsLoading = true;
 
     // Gameplay props
-    public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
+    public static bool IsTunnelMode = true; // Whether to use tunnel gameplay mode
     public static bool TunnelTrackDuplication = false; // Whether to duplicate tracks when using tunnel mode
     public static int TunnelTrackDuplicationCount = 2; // How many times to duplicate each track
 
@@ -54,6 +54,7 @@ public class RhythmicGame : MonoBehaviour
     public static bool DebugNoteCreationEvents = false;
 
     public static bool DebugPlayerMovementEvents = false;
+    public static bool DebugPlayerCameraAnimEvents = true;
     public static bool DebugTrackSeekEvents = true;
 
     public static bool DebugNextNoteCheckEvents = true;
