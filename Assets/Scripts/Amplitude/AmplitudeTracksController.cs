@@ -14,6 +14,54 @@ public class AmplitudeTracksController : TracksController
 
     public float rotZ = 0f;
 
+    bool drawDebugGizmos = false;
+    bool isDebugGizmosDone = false;
+    private void OnDrawGizmos()
+    {
+        if (!drawDebugGizmos)
+            return;
+
+        float outline = 6 * RhythmicGame.TrackWidth;
+        float radius = -outline / (2f * Mathf.PI) + 0.25f; // negative outline for upwards circle
+        float diameter = radius * 2f;
+
+        Vector3 circle_center = new Vector3(0, -radius, 64);
+
+        Gizmos.DrawWireSphere(circle_center, radius);
+
+        if (isDebugGizmosDone)
+            return;
+
+        for (int i = 0; i < 6; i++)
+        {
+            bool isTunnel = RhythmicGame.IsTunnelMode;
+            int tunnelDuplicationCount = RhythmicGame.TunnelTrackDuplication ? RhythmicGame.TunnelTrackDuplicationNum : 1;
+            rotZ = 360 / 6;
+
+            Vector3 lastTrackPos = Vector3.zero;
+            Vector3 lastPos = !isTunnel ? Vector3.zero : new Vector3(-RhythmicGame.TrackWidth / 2, 0, 0);
+            Vector3 lastRot = new Vector3(0, 0, i * -60);
+
+            float posX = radius * Mathf.Sin(lastRot.z * Mathf.Deg2Rad) + circle_center.x;
+            float posY = radius * Mathf.Cos(lastRot.z * Mathf.Deg2Rad) + circle_center.y;
+
+            /*
+            Gizmos.DrawSphere(circle_center, radius);
+            Gizmos.DrawCube(new Vector3(posX, posY, 64), new Vector3(1, 1, 1));
+            */
+
+            var go_pos = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go_pos.transform.position = new Vector3(posX, posY, 64);
+            go_pos.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+        }
+
+        var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        go.transform.position = new Vector3(circle_center.x, circle_center.y, 64);
+        go.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+
+        isDebugGizmosDone = true;
+    }
+
     // AMP TRACKS CREATION
     UnityEngine.Object trackPrefab;
     public async void CreateTracks()
@@ -26,7 +74,7 @@ public class AmplitudeTracksController : TracksController
 
         if (RhythmicGame.IsTunnelMode & RhythmicGame.TunnelTrackDuplication)
         {
-            for (int i = 1; i < RhythmicGame.TunnelTrackDuplicationCount; i++)
+            for (int i = 1; i < RhythmicGame.TunnelTrackDuplicationNum; i++)
                 foreach (string dupT in songTracks)
                     finalSongTracks.Add(dupT);
         }
@@ -38,81 +86,80 @@ public class AmplitudeTracksController : TracksController
                 finalSongTracks.Remove(track);
         }
 
-        //float xPos = 2.24f + (0.06f * 2); // TODO: get track width in some other way?
-        float lastX = 0f;
-        float lastY = 0f;
-
         bool isTunnel = RhythmicGame.IsTunnelMode;
-        int tunnelDuplicationCount = RhythmicGame.TunnelTrackDuplication ? RhythmicGame.TunnelTrackDuplicationCount : 1;
-        rotZ = (360 * tunnelDuplicationCount) / finalSongTracks.Count;
-        float lastRotZ = 0f;
-        bool lastRotZReached180 = false;
+        int tunnelDuplicationCount = RhythmicGame.TunnelTrackDuplication ? RhythmicGame.TunnelTrackDuplicationNum : 1;
+        rotZ = 360 / finalSongTracks.Count;
+
+        Vector3 lastTrackPos = Vector3.zero;
+        Vector3 lastPos = !isTunnel ? Vector3.zero : new Vector3(-RhythmicGame.TrackWidth / 2, 0, 0);
+        Vector3 lastRot = new Vector3(0, 0, 0);
+
+        float outline = finalSongTracks.Count * RhythmicGame.TrackWidth;
+        float radius = -outline / (2f * Mathf.PI) + 0.205f; // negative outline for upwards circle
+        float diameter = radius * 2f;
+
+        Vector2 circle_center = new Vector2(0, -radius);
 
         var watch = System.Diagnostics.Stopwatch.StartNew();
-        int counter = 0;
+        int duplicationCounter = 0;
+        int realcounter = 0;
         foreach (string track in finalSongTracks)
         {
-            var position = new Vector3(lastX, lastY, 0); // add the width of a track + edge lights!
-            var rotation = new Vector3(0, 0, lastRotZ);
+            //var position = new Vector3(lastX, lastY, 0); // add the width of a track + edge lights!
             var scale = new Vector3(1, 1, amp_ctrl.songLengthInMeasures * amp_ctrl.measureLengthInzPos); // scale the track to the song duration by measures
 
             // Create and position the track GameObject
             GameObject trackObject = (GameObject)GameObject.Instantiate(trackPrefab);
             trackObject.name = track;
-            trackObject.transform.localEulerAngles = rotation;
-            trackObject.transform.position = position;
             trackObject.transform.localScale = scale;
-            trackObject.transform.parent = gameObject.transform;
+            if (!isTunnel)
+            {
+                trackObject.transform.localPosition = lastTrackPos;
+                trackObject.transform.parent = gameObject.transform;
+            }
+            else
+            {
+                // Get the pos coords for the rotation angle of the track
+                float posX = radius * Mathf.Sin(lastRot.z * Mathf.Deg2Rad) + circle_center.x;
+                float posY = radius * Mathf.Cos(lastRot.z * Mathf.Deg2Rad) + circle_center.y;
+
+                trackObject.transform.localPosition = new Vector3(posX, posY, 0); // pos from angle calc
+                trackObject.transform.localEulerAngles = -lastRot; // counter the counter-clockwise effects here
+                trackObject.transform.parent = gameObject.transform;
+            }
 
             // create and assign AmplitudeTrack script
             var ampTrack = trackObject.AddComponent<AmplitudeTrack>();
-            ampTrack.ID = counter;
+            ampTrack.ID = duplicationCounter;
+            ampTrack.RealID = realcounter;
             ampTrack.trackName = track;
             ampTrack.Instrument = AmplitudeTrack.TrackTypeFromString(track);
             ampTrack.EdgeLightsColor = Track.Colors.ColorFromTrackType(ampTrack.Instrument.Value);
-            ampTrack.zRot = lastRotZ;
+            ampTrack.zRot = -lastRot.z;
 
             ampTrack.OnTrackCaptureStart += TracksController_OnTrackCaptureStart;
             ampTrack.OnTrackCaptured += TracksController_OnTrackCaptured;
-            //ampTrack.MeasureCaptureFinished += AmpTrack_MeasureCaptureFinished;
 
             // add this track to the list of tracks
             Tracks.Add(ampTrack);
 
+            // TRACK DUPLICATION
             if (RhythmicGame.IsTunnelMode & RhythmicGame.TunnelTrackDuplication)
             {
-                if (finalSongTracks[counter + 1] == finalSongTracks[0])
-                    counter = 0;
+                if (finalSongTracks[duplicationCounter + 1] == finalSongTracks[0])
+                    duplicationCounter = 0;
                 else
-                    counter++;
+                    duplicationCounter++;
             }
-            else
-                counter++;
+            else { duplicationCounter++; realcounter++; }
+
             // increase pos / rot props
             if (isTunnel)
             {
-                if (lastRotZ + rotZ == (360 * tunnelDuplicationCount) / 2)
-                {
-                    lastRotZ += rotZ;
-                    lastY += 1 + ((RhythmicGame.TrackWidth / 2f) / rotZ);
-                    lastX = 0f;
-                    lastRotZReached180 = true;
-                }
-                else if (!lastRotZReached180)
-                {
-                    lastRotZ += rotZ;
-                    lastY += (lastRotZ / rotZ) + ((RhythmicGame.TrackWidth / 2f) / rotZ);
-                    lastX = RhythmicGame.TrackWidth - (rotZ / 100f) + (1f / rotZ);
-                }
-                else if (lastRotZReached180)
-                {
-                    lastRotZ += rotZ;
-                    lastY -= (lastRotZ - 180) / rotZ + ((RhythmicGame.TrackWidth / 2f) / rotZ);
-                    lastX = -RhythmicGame.TrackWidth + (rotZ / 100f) - (1f / rotZ);
-                }
+                lastPos = new Vector3(lastPos.x + RhythmicGame.TrackWidth, 0, 0);
+                lastRot.z += -rotZ; // go counter-clockwise for tunnel creation (pos/angle only)
             }
-            else
-                lastX += RhythmicGame.TrackWidth;
+            lastTrackPos = new Vector3(lastTrackPos.x + RhythmicGame.TrackWidth, 0, 0);
 
             // Populate the notes on the track
             ampTrack.AMP_PopulateNotes();
@@ -121,7 +168,7 @@ public class AmplitudeTracksController : TracksController
             // Update loading text
             // TODO: optimize
             if (loadingText != null)
-                loadingText.GetComponent<TextMeshProUGUI>().text = string.Format("Charting song - {0}% done...", (((float)counter / (float)Tracks.Count) * 100f).ToString("0"));
+                loadingText.GetComponent<TextMeshProUGUI>().text = string.Format("Charting song - {0}% done...", (((float)realcounter / (float)Tracks.Count) * 100f).ToString("0"));
         }
 
         if (loadingText != null)

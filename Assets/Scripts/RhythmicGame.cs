@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.SceneManagement;
 
 public class RhythmicGame : MonoBehaviour
 {
@@ -37,9 +35,9 @@ public class RhythmicGame : MonoBehaviour
     public static bool IsLoading = true;
 
     // Gameplay props
-    public static bool IsTunnelMode = true; // Whether to use tunnel gameplay mode
+    public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
     public static bool TunnelTrackDuplication = false; // Whether to duplicate tracks when using tunnel mode
-    public static int TunnelTrackDuplicationCount = 2; // How many times to duplicate each track
+    public static int TunnelTrackDuplicationNum = 3; // How many times to duplicate each track
 
     public static bool TrackSeekEmpty = true; // Whether to skip empty tracks when switching tracks
     public static int TrackCaptureLength = 7; // How many measures to capture when you clear a sequence

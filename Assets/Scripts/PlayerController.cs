@@ -274,7 +274,6 @@ public class PlayerController : MonoBehaviour
     }
 
     public event EventHandler<int> OnTrackSwitched;
-
     public void SwitchToTrack(int id, bool force = false)
     {
         if (TracksController.Tracks.Count < 1)
@@ -324,7 +323,7 @@ public class PlayerController : MonoBehaviour
         if (!RhythmicGame.IsTunnelMode)
             target = new Vector3(track.transform.position.x, transform.position.y, transform.position.z);
         else
-            target = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, id * TracksController.rotZ);
+            target = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, track.zRot);
 
         TrackSwitch_PrevTrackID = TracksController.CurrentTrackID;
 
