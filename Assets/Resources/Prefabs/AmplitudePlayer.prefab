@@ -148,7 +148,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.06666667, g: 0.06666667, b: 0.06666667, a: 1}
+  m_BackGroundColor: {r: 0.084905684, g: 0.084905684, b: 0.084905684, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -162,7 +162,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 400
+  far clip plane: 405.4
   field of view: 55
   orthographic: 0
   orthographic size: 5
@@ -392,6 +392,7 @@ MonoBehaviour:
   NextNoteText: {fileID: 0}
   PlayerCamera: {fileID: 5759535519322832053}
   PlayerCameraTransform: {fileID: 5759535519322832050}
+  CameraContainer: {fileID: 0}
   trackswitch_anim: {fileID: 7200323222921865719}
   CameraPullbackOffset: -5.5
   StartZOffset: 0
@@ -401,8 +402,8 @@ MonoBehaviour:
   Score: 0
   Multiplier: 1
   EnableStreaks: 1
-  IsTrackSwitching: 0
   TrackSwitch_Progress: 0
+  IsTrackSwitching: 0
 --- !u!111 &7200323222921865719
 Animation:
   m_ObjectHideFlags: 0

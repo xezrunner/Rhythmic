@@ -27,7 +27,8 @@ public class Track : MonoBehaviour
     }
 
     // Props
-    public int? ID;
+    public int? ID; // ID of track - with track duplication, this stays the same as the original track
+    public int? RealID; // the actual ID of this track, even if duplicated
     public string trackName;
     public TrackType? Instrument;
     public Note nearestNote;
