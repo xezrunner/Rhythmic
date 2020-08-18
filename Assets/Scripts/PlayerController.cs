@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using TMPro;
@@ -24,7 +25,7 @@ public class PlayerController : MonoBehaviour
     public Transform PlayerCameraTransform;
     public Transform CameraContainer;
 
-    public Animation trackswitch_anim;
+    public Animation move_anim;
 
     // Props
     //public float zPos { get { return transform.position.z; } }
@@ -33,7 +34,7 @@ public class PlayerController : MonoBehaviour
     public float StartZOffset = 4f; // countin
     public float ZOffset = 0f; // (DEBUG) additional position offset
 
-    public bool IsPlayerMoving = false;
+    public bool IsSongPlaying = false;
     public float PlayerSpeed = 8f;
 
     public int Score = 0;
@@ -68,7 +69,7 @@ public class PlayerController : MonoBehaviour
             await Task.Delay(500);
 
         // TODO: we should switch to the track when the game starts
-        SwitchToTrack(0, true);
+        MovePlayer(0, true);
 
         //StartCoroutine(Load("SnowMountains"));
     }
@@ -193,94 +194,95 @@ public class PlayerController : MonoBehaviour
         canLoseStreak = true;
     }
 
-    // TRACK SWITCHING
+    // PLAYER POSITIONING / TRACK SWITCHING
 
     [Range(0, 1f)]
-    public float TrackSwitch_Progress = 0f; // progress of camera animation
-    public bool IsTrackSwitching = false; // controls player camera update function
-    int TrackSwitch_PrevTrackID; // previous track ID we have switched from
+    public float Move_Progress = 0f; // progress of camera animation
+    public bool IsMoving { get; set; } = false; // controls player camera update function
 
-    Vector3 TrackSwitch_PrevCamOffset; // this is the LOCAL pos/rot where the camera will start animating from
-                                       // should be the negative difference between the target GLOBAL rotation and the current GLOBAL rotation (before switching!)
-                                       // for ROT: it gets overriden to 360 - current GLOBAL rotation when switching from track 0 to last track
+    Vector3[] Move_CamOffset; // this is the LOCAL pos/rot where the camera will start animating from
+                              // should be the negative difference between the target GLOBAL rotation and the current GLOBAL rotation (before switching!)
+                              // for ROT: it gets overriden to 360 - current GLOBAL rotation when switching from track 0 to last track
 
-    Vector3 TrackSwitch_TargetCam; // this is the target LOCAL pos/rot where the camera will animate to
-                                   // should be 0,0,0 in most cases
-                                   // for ROT: it gets overriden to 360 when we're switching from the last track to track 0
+    Vector3[] Move_CamTarget; // this is the target LOCAL pos/rot where the camera will animate to
+                              // should be 0,0,0 in most cases
+                              // for ROT: it gets overriden to 360 when we're switching from the last track to track 0
 
     // Calculates and offsets camera, handles camera animation state
-    public IEnumerator TrackSwitchAnim(Vector3 target)
+    public IEnumerator DoMovePlayerAnim(Vector3[] target)
     {
-        TrackSwitch_Progress = 0f; // set anim progress to 0
+        Vector3 position = target[0];
+        Vector3 rotation = target[1];
 
-        if (!RhythmicGame.IsTunnelMode) // store LOCAL offset for prev pos
-            TrackSwitch_PrevCamOffset = new Vector3(-(target.x - CameraContainer.position.x),
-                CameraContainer.localPosition.y, CameraContainer.localPosition.z);
-        else
-            TrackSwitch_PrevCamOffset = new Vector3(CameraContainer.localEulerAngles.x, CameraContainer.localEulerAngles.y,
-                -(target.z - transform.eulerAngles.z));
+        // reset global camera offset values
+        Move_CamOffset = new Vector3[2];
+        Move_CamTarget = target;
 
-        TrackSwitch_TargetCam = Vector3.zero; // default prev cam LOCAL pos/rot to 0,0,0
+        // set offset and target for camera LOCAL pos & rot
+        Move_CamOffset[0] = CameraContainer.position; // position - leave Z at 0!
+        Move_CamOffset[1] = CameraContainer.eulerAngles; // rotation
 
-        Vector3 oldRot = transform.eulerAngles;
-
-        // move rest of the player immediately
-        if (!RhythmicGame.IsTunnelMode)
-            transform.position = target;
-        else
-            transform.eulerAngles = target;
-
-        // offset player camera movement from the previous player move
-        if (!RhythmicGame.IsTunnelMode)
-            CameraContainer.localPosition = TrackSwitch_PrevCamOffset;
-        else
+        // handle inverse rotations
+        if (RhythmicGame.IsTunnelMode)
         {
-            CameraContainer.localEulerAngles = TrackSwitch_PrevCamOffset;
+            // LEFT
+            // If the target is on the right part of the tunnel & the difference between target and camera is 180
+            if ((rotation.z > CameraContainer.eulerAngles.z) & (rotation.z - CameraContainer.eulerAngles.z > 180))
+                Move_CamTarget[1].z = -(360 - rotation.z); // change to 0 - target
 
-            // if we are rotating to inverse, also invert prev/target pos/rot
-            // TODO: 360 and 180 degrees may be dynamic according to track count!
-            if (oldRot.z < 180 & oldRot.z >= 0 & target.z == TracksController.Tracks[TracksController.Tracks.Count - 1].zRot)
-                TrackSwitch_TargetCam = new Vector3(0, 0, -360);
-            else if (oldRot.z > 180 & target.z == 0 )
-                TrackSwitch_TargetCam = new Vector3(0, 0, 360);
-
-            if (RhythmicGame.DebugPlayerCameraAnimEvents)
-                Debug.LogFormat("PrevCam: {0}, TargetCam: {1}", TrackSwitch_PrevCamOffset, TrackSwitch_TargetCam);
+            // RIGHT
+            // If the target is on the left part of the tunnel & the difference between camera and target is 180
+            else if ((rotation.z < CameraContainer.eulerAngles.z) & (CameraContainer.eulerAngles.z - rotation.z > 180)) // RIGHT
+                Move_CamOffset[1] = new Vector3(0, 0, -(360 - CameraContainer.eulerAngles.z)); // change to 360 + target
         }
 
-        // play track switching animation
-        IsTrackSwitching = true;
-        trackswitch_anim.Stop();
-        trackswitch_anim.Play();
+        if (RhythmicGame.DebugPlayerCameraAnimEvents)
+            Debug.LogFormat("CamOffset POS: {0} | TargetCam POS: {1} | CamOffset ROT: {2} | CamTarget ROT: {3}",
+                            new Vector2(Move_CamOffset[0].x, Move_CamOffset[0].y), new Vector2(Move_CamTarget[0].x, Move_CamTarget[0].y),
+                            Move_CamOffset[1].z, Move_CamTarget[1].z);
 
-        while (TrackSwitch_Progress < 1f)
+        // position & rotate player immediately!
+        transform.position = position;
+        transform.eulerAngles = rotation;
+
+        // offset camera so it's at the previous pos & rot
+        CameraContainer.position = Move_CamOffset[0];
+        CameraContainer.eulerAngles = Move_CamOffset[1];
+
+        // play and wait for animation
+        Move_Progress = 0f;
+        IsMoving = true;
+        move_anim.Stop(); move_anim.Play();
+
+        while (Move_Progress <= 1f)
             yield return null;
 
-        IsTrackSwitching = false;
+        // movement finished, stop animating
+        IsMoving = false;
     }
-
     // This moves the camera according to the track switching animation!
-    void TrackSwitchUpdate()
+    void MovePlayerUpdate()
     {
-        Vector3 prevpos = TrackSwitch_PrevCamOffset;
-        Vector3 targetpos = TrackSwitch_TargetCam; // Target is usually 0 but gets overriden to 360 when doing an inverse rotation
+        Vector3 pos = Vector3.Lerp(Move_CamOffset[0], Move_CamTarget[0], Move_Progress);
+        Vector3 rot = Vector3.Lerp(Move_CamOffset[1], Move_CamTarget[1], Move_Progress);
 
-        Vector3 final = Vector3.Lerp(prevpos, targetpos, TrackSwitch_Progress);
-
-        if (!RhythmicGame.IsTunnelMode)
-            CameraContainer.transform.localPosition = final;
-        else
-            CameraContainer.transform.localEulerAngles = final;
+        CameraContainer.position = new Vector3(pos.x, pos.y, CameraContainer.position.z);
+        CameraContainer.eulerAngles = rot;
     }
 
     public event EventHandler<int> OnTrackSwitched;
-    public void SwitchToTrack(int id, bool force = false)
+    public void MovePlayer(Vector3 position = new Vector3(), Vector3 rotation = new Vector3())
+    {
+        Vector3 finalPos = new Vector3(position.x, position.y, transform.position.z); // ignore Z!
+        Vector3[] target = new Vector3[] { finalPos, rotation };
+
+        StartCoroutine(DoMovePlayerAnim(target));
+    }
+    public void MovePlayer(Track track) { MovePlayer(track.RealID); }
+    public void MovePlayer(int id, bool force = false)
     {
         if (TracksController.Tracks.Count < 1)
-        {
-            Debug.LogWarning("PLAYER/SwitchToTrack(): No tracks are available");
-            return;
-        }
+        { Debug.LogWarning("PLAYER/SwitchToTrack(): No tracks are available"); return; }
 
         if (!RhythmicGame.IsTunnelMode)
         {
@@ -295,15 +297,13 @@ public class PlayerController : MonoBehaviour
                 id = TracksController.Tracks.Count - 1;
         }
 
-        // find the track by ID
+        // find the track by ID & seek if tunnel
+        // TODO: improve seeking!
         Track track;
         if (RhythmicGame.TrackSeekEmpty & TracksController.CurrentMeasure.measureNum >= 4 & !force) // seek
         {
             if (TracksController.Tracks[id].trackMeasures[TracksController.CurrentMeasure.measureNum + 1].IsMeasureEmpty)
-            {
-                SwitchToTrack(id > TracksController.CurrentTrackID ? id + 1 : id - 1);
-                return;
-            }
+            { MovePlayer(id > TracksController.CurrentTrackID ? id + 1 : id - 1); return; }
             else
                 track = TracksController.GetTrackByID(id);
         }
@@ -311,39 +311,13 @@ public class PlayerController : MonoBehaviour
             track = TracksController.GetTrackByID(id);
 
         if (track == null)
-        {
-            Debug.LogErrorFormat("PLAYER/SwitchToTrack(): Could not switch to track {0}", id);
-            return;
-        }
-
-        // position the player
-
-        // set target pos / rot
-        Vector3 target;
-        if (!RhythmicGame.IsTunnelMode)
-            target = new Vector3(track.transform.position.x, transform.position.y, transform.position.z);
-        else
-            target = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, track.zRot);
-
-        TrackSwitch_PrevTrackID = TracksController.CurrentTrackID;
+        { Debug.LogErrorFormat("PLAYER/SwitchToTrack(): Could not switch to track {0}", id); return; }
 
         // let stuff know of the switch
-        OnTrackSwitched?.Invoke(null, track.ID.Value);
+        OnTrackSwitched?.Invoke(null, track.RealID);
 
-        // start animation
-        StartCoroutine(TrackSwitchAnim(target));
-
-        /* OLD IMMEDIATE (NON-ANIM) SWITCHING CODE
-        if (!RhythmicGame.IsTunnelMode)
-        {
-            Vector3 pos = new Vector3(track.transform.position.x,
-            transform.position.y, transform.position.z);
-
-            transform.position = pos;
-        }
-        else
-            transform.localEulerAngles = new Vector3(0, 0, id * TracksController.rotZ);
-        */
+        // move player!
+        MovePlayer(track.transform.position, track.transform.eulerAngles);
     }
 
     // Measures & subbeats
@@ -351,7 +325,6 @@ public class PlayerController : MonoBehaviour
     {
         return TracksController.CurrentTrack.GetMeasureForZPos(transform.position.z);
     }
-
     public MeasureSubBeat GetCurrentSubbeat()
     {
         return GetCurrentMeasure().GetSubbeatForZpos(transform.position.z);
@@ -374,13 +347,13 @@ public class PlayerController : MonoBehaviour
     {
         // TRACK SWITCHING
 
-        if (IsTrackSwitching)
-            TrackSwitchUpdate();
+        if (IsMoving)
+            MovePlayerUpdate();
 
         if (Input.GetKeyDown(InputManager.Player.TrackSwitching[0]))
-            SwitchToTrack(TracksController.CurrentTrackID - 1, Input.GetKey(KeyCode.LeftShift));
+            MovePlayer(TracksController.CurrentTrackID - 1, Input.GetKey(KeyCode.LeftShift));
         else if (Input.GetKeyDown(InputManager.Player.TrackSwitching[1]))
-            SwitchToTrack(TracksController.CurrentTrackID + 1, Input.GetKey(KeyCode.LeftShift));
+            MovePlayer(TracksController.CurrentTrackID + 1, Input.GetKey(KeyCode.LeftShift));
 
         // RESTART
         if (Input.GetKeyDown(KeyCode.R))
@@ -391,6 +364,18 @@ public class PlayerController : MonoBehaviour
         {
             RhythmicGame.IsTunnelMode = !RhythmicGame.IsTunnelMode;
             ScoreText.text = string.Format("Tunnel {0}\nRestart!", RhythmicGame.IsTunnelMode ? "ON" : "OFF");
+        }
+
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            RhythmicGame.SetFramerate(60);
+            ScoreText.text = "60 FPS";
+        }
+
+        if (Input.GetKeyDown(KeyCode.F2))
+        {
+            RhythmicGame.SetFramerate(0);
+            ScoreText.text = "No FPS Lock";
         }
 
         if (Input.GetKeyDown(KeyCode.Keypad5))
@@ -431,32 +416,28 @@ public class PlayerController : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.H))
-        {
             TracksController.CurrentTrack.CaptureMeasuresRange(GetCurrentMeasure().measureNum, 5);
-        }
+
 
         if (Input.GetKeyDown(KeyCode.Keypad8))
-            transform.Translate(Vector3.forward * 63.2f);
+        {
+            if (Time.timeScale < 1f)
+                SetTimescale(Time.timeScale + 0.1f);
+            else
+                SetTimescale(1f);
+        }
 
         if (Input.GetKeyDown(KeyCode.Keypad2))
         {
             if (Time.timeScale > 0.1f)
-                Time.timeScale -= 0.1f;
-            foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
-                src.pitch -= 0.1f;
+                SetTimescale(Time.timeScale - 0.1f);
         }
 
         if (Input.GetKeyDown(KeyCode.Keypad1))
-        {
-            Time.timeScale = 1f;
-            foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
-                src.pitch = 1f;
-        }
+            SetTimescale(1f);
 
         if (Input.GetKeyDown(KeyCode.Keypad0))
-        {
             DoFailTest();
-        }
 
         if (Input.GetKeyDown(KeyCode.Keypad9))
         {
@@ -479,11 +460,11 @@ public class PlayerController : MonoBehaviour
         for (float i = 1f; i > 0f; i -= 0.1f)
         {
             await Task.Delay(msCounter);
-            SetSpeed(i);
+            SetTimescale(i);
             msCounter -= 5;
         }
     }
-    void SetSpeed(float speed)
+    void SetTimescale(float speed)
     {
         Time.timeScale = speed;
         foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)

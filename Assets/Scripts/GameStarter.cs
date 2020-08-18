@@ -30,7 +30,7 @@ public class GameStarter : MonoBehaviour
         await Task.Delay(100);
 
         //if (Screen.fullScreenMode != FullScreenMode.ExclusiveFullScreen)
-        Screen.SetResolution(1280, 720, FullScreenMode.ExclusiveFullScreen);
+        Screen.SetResolution(1366, 768, FullScreenMode.ExclusiveFullScreen);
 
         //await Task.Delay(3000);
 

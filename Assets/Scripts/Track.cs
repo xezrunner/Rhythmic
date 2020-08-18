@@ -27,8 +27,8 @@ public class Track : MonoBehaviour
     }
 
     // Props
-    public int? ID; // ID of track - with track duplication, this stays the same as the original track
-    public int? RealID; // the actual ID of this track, even if duplicated
+    public int ID = -1; // ID of track - with track duplication, this stays the same as the original track
+    public int RealID = -1; // the actual ID of this track, even if duplicated
     public string trackName;
     public TrackType? Instrument;
     public Note nearestNote;
@@ -270,13 +270,13 @@ public class Track : MonoBehaviour
 
     public void CaptureMeasures(int start, int end)
     {
-        OnTrackCaptureStart?.Invoke(this, new int[] { ID.Value, start, end });
+        OnTrackCaptureStart?.Invoke(this, new int[] { ID, start, end });
         StartCoroutine(_CaptureMeasures(start, end));
     }
 
     public void CaptureMeasuresRange(int start, int count)
     {
-        OnTrackCaptureStart?.Invoke(this, new int[] { ID.Value, start, start + count });
+        OnTrackCaptureStart?.Invoke(this, new int[] { ID, start, start + count });
         StartCoroutine(_CaptureMeasuresRange(start, count));
     }
 
@@ -288,7 +288,7 @@ public class Track : MonoBehaviour
         for (int i = start; i < end; i++)
             yield return trackMeasures[i].CaptureMeasure();
 
-        OnTrackCaptured?.Invoke(this, new int[] { ID.Value, start, end });
+        OnTrackCaptured?.Invoke(this, new int[] { ID, start, end });
     }
 
     IEnumerator _CaptureMeasuresRange(int start, int count)
@@ -299,7 +299,7 @@ public class Track : MonoBehaviour
         for (int i = start; i < start + count; i++)
             yield return trackMeasures[i].CaptureMeasure();
 
-        OnTrackCaptured?.Invoke(this, new int[] { ID.Value, start, start + count });
+        OnTrackCaptured?.Invoke(this, new int[] { ID, start, start + count });
     }
 
     public event EventHandler<int> MeasureCaptureFinished;

@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class RhythmicGame : MonoBehaviour
 {
@@ -7,9 +9,12 @@ public class RhythmicGame : MonoBehaviour
         Debug.LogFormat("GAME [init]: Game type is {0}", GameType.ToString());
     }
     private void Awake()
+    { SetFramerate(0); }
+
+    public static void SetFramerate(int fps, int vsync = 0)
     {
-        QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = -1;
+        QualitySettings.vSyncCount = vsync;
+        Application.targetFrameRate = fps;
     }
 
     /// <summary>
@@ -35,7 +40,7 @@ public class RhythmicGame : MonoBehaviour
     public static bool IsLoading = true;
 
     // Gameplay props
-    public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
+    public static bool IsTunnelMode = true; // Whether to use tunnel gameplay mode
     public static bool TunnelTrackDuplication = false; // Whether to duplicate tracks when using tunnel mode
     public static int TunnelTrackDuplicationNum = 3; // How many times to duplicate each track
 

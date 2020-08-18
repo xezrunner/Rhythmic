@@ -13,10 +13,6 @@ using UnityEngine.UIElements;
 
 public class AmplitudeSongController : MonoBehaviour
 {
-    /// <summary>
-    /// TODO: Implement better functionality
-    /// </summary>
-
     public static AmplitudeSongController Instance;
     public PlayerController PlayerController { get { return PlayerController.Instance; } }
     AmplitudeTracksController TracksController = (AmplitudeTracksController)AmplitudeTracksController.Instance;
@@ -96,18 +92,6 @@ public class AmplitudeSongController : MonoBehaviour
             // Load MoggSong!
             moggSong = gameObject.AddComponent<MoggSong>();
             moggSong.LoadMoggSong(songName);
-
-            // Tunnel track duplication
-            /*
-            if (RhythmicGame.IsTunnelMode & RhythmicGame.TunnelTrackDuplication)
-            {
-                List<string> tempTracksList = songTracks.ToList();
-
-                for (int i = 1; i < RhythmicGame.TunnelTrackDuplicationCount; i++)
-                    foreach (string track in tempTracksList)
-                        songTracks.Add(track);
-            }
-            */
 
             // Load MIDI!
             Debug.LogFormat("AMP_TRACKS: Starting MidiReader [{0}]...", songName);

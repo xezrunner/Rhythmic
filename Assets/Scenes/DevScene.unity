@@ -510,7 +510,7 @@ GameObject:
   m_Component:
   - component: {fileID: 449520540}
   - component: {fileID: 449520541}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Green light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -580,7 +580,7 @@ Light:
   m_RenderMode: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 5431
+    m_Bits: 13623
   m_RenderingLayerMask: 1
   m_Lightmapping: 4
   m_LightShadowCasterMode: 0
@@ -660,7 +660,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &509037537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1192,7 +1192,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 897577346}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Lights
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1292,7 +1292,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1010288848}
   - component: {fileID: 1010288849}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: WORLD_TUT
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1533,6 +1533,11 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 72519626436425977, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 442806660436292219, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: catchRadiusExtra
@@ -1558,6 +1563,21 @@ PrefabInstance:
       propertyPath: m_ConnectedBody
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 2786529568428478600, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2895754071389554152, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3821416017277197346, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3904273063982621673, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: m_IsActive
@@ -1576,7 +1596,7 @@ PrefabInstance:
     - target: {fileID: 4709665040744107080, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4709665040744107084, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
@@ -1633,6 +1653,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5264541060484413049, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5716080666605812540, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: m_BackGroundColor.r
@@ -1657,6 +1682,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5759535519322832053, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: far clip plane
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 5759535519322832053, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_Depth
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
@@ -1687,6 +1722,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7160235419077935425, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441386872148538036, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7536636954746905305, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
@@ -1733,19 +1778,8 @@ PrefabInstance:
       propertyPath: Rigidbody
       value: 
       objectReference: {fileID: 36772121}
-    - target: {fileID: 9078876527922160011, guid: c9077085010b3e0408e2309405d63a81,
-        type: 3}
-      propertyPath: CameraContainer
-      value: 
-      objectReference: {fileID: 1082314617}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c9077085010b3e0408e2309405d63a81, type: 3}
---- !u!4 &1082314617 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 72519626436425977, guid: c9077085010b3e0408e2309405d63a81,
-    type: 3}
-  m_PrefabInstance: {fileID: 1082314616}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1099208975
 GameObject:
   m_ObjectHideFlags: 0
@@ -1903,6 +1937,16 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 53f6f2cbe17adcf4ca89105be8c39067, type: 2}
+    - target: {fileID: -7511558181221131132, guid: 7cdd93c25bdbc6040982392516cd1f42,
+        type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 7cdd93c25bdbc6040982392516cd1f42,
+        type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 7cdd93c25bdbc6040982392516cd1f42,
         type: 3}
       propertyPath: m_Name
@@ -1912,6 +1956,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 7cdd93c25bdbc6040982392516cd1f42,
+        type: 3}
+      propertyPath: m_Layer
+      value: 13
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7cdd93c25bdbc6040982392516cd1f42, type: 3}
@@ -1932,7 +1981,7 @@ GameObject:
   - component: {fileID: 1117322938}
   - component: {fileID: 1117322940}
   - component: {fileID: 1117322939}
-  m_Layer: 10
+  m_Layer: 13
   m_Name: Space particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7418,7 +7467,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1339256312}
   - component: {fileID: 1339256313}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Blue light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7488,7 +7537,7 @@ Light:
   m_RenderMode: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 5431
+    m_Bits: 13623
   m_RenderingLayerMask: 1
   m_Lightmapping: 4
   m_LightShadowCasterMode: 0
@@ -7666,7 +7715,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1428557064}
   - component: {fileID: 1428557065}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Tracks light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8674,7 +8723,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 223974229}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 27.1, y: -16.6, z: 0}
 --- !u!114 &1962407306
 MonoBehaviour:
@@ -8719,7 +8768,7 @@ Transform:
   m_LocalScale: {x: 10, y: 10, z: 0}
   m_Children: []
   m_Father: {fileID: 223974229}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &2144000025
 BoxCollider:
