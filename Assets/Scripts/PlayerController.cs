@@ -360,36 +360,32 @@ public class PlayerController : MonoBehaviour
             Restart();
 
         // TEMP / DEBUG
+
+        // Toggle tunnel mode
         if (Input.GetKeyDown(KeyCode.F))
         {
             RhythmicGame.IsTunnelMode = !RhythmicGame.IsTunnelMode;
             ScoreText.text = string.Format("Tunnel {0}\nRestart!", RhythmicGame.IsTunnelMode ? "ON" : "OFF");
         }
 
-        if (Input.GetKeyDown(KeyCode.F1))
-        {
-            RhythmicGame.SetFramerate(60);
-            ScoreText.text = "60 FPS";
-        }
+        // FPS Lock
+        if (Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(60); ScoreText.text = "60 FPS"; }
+        else if (Input.GetKeyDown(KeyCode.F2)) { RhythmicGame.SetFramerate(0); ScoreText.text = "No FPS Lock"; }
 
-        if (Input.GetKeyDown(KeyCode.F2))
-        {
-            RhythmicGame.SetFramerate(0);
-            ScoreText.text = "No FPS Lock";
-        }
+        // Track capturing debug
 
-        if (Input.GetKeyDown(KeyCode.Keypad5))
-        {
+        if (Input.GetKeyDown(KeyCode.H)) // current track, 5
+            TracksController.CurrentTrack.CaptureMeasuresRange(GetCurrentMeasure().measureNum, 5);
+
+        else if (Input.GetKeyDown(KeyCode.Keypad5)) // 5
             foreach (Track track in TracksController.Tracks)
                 track.CaptureMeasuresRange(GetCurrentMeasure().measureNum, 5);
-        }
 
-        if (Input.GetKeyDown(KeyCode.Keypad6))
-        {
+        else if (Input.GetKeyDown(KeyCode.Keypad6)) // all!
             foreach (Track track in TracksController.Tracks)
                 track.CaptureMeasures(GetCurrentMeasure().measureNum, track.trackMeasures.Count - 1);
-        }
 
+        // Track restoration (buggy!)
         if (Input.GetKeyDown(KeyCode.Keypad7))
         {
             foreach (Track track in TracksController.Tracks)
@@ -415,37 +411,30 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.H))
-            TracksController.CurrentTrack.CaptureMeasuresRange(GetCurrentMeasure().measureNum, 5);
-
-
+        // Debug move forward
         if (Input.GetKeyDown(KeyCode.Keypad8))
+            transform.Translate(Vector3.forward * 62.9f);
+        else if (Input.GetKeyDown(KeyCode.Keypad9))
+            foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
+                src.time += 2f;
+
+        // Timescale
+        if (Input.GetKeyDown(KeyCode.Keypad8) & Input.GetKey(KeyCode.LeftControl)) // up
         {
             if (Time.timeScale < 1f)
                 SetTimescale(Time.timeScale + 0.1f);
             else
                 SetTimescale(1f);
         }
-
-        if (Input.GetKeyDown(KeyCode.Keypad2))
-        {
+        if (Input.GetKeyDown(KeyCode.Keypad2) & Input.GetKey(KeyCode.LeftControl)) // down
             if (Time.timeScale > 0.1f)
                 SetTimescale(Time.timeScale - 0.1f);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Keypad1))
+        if (Input.GetKeyDown(KeyCode.Keypad1)) // one
             SetTimescale(1f);
-
-        if (Input.GetKeyDown(KeyCode.Keypad0))
+        if (Input.GetKeyDown(KeyCode.Keypad0)) // progressive slowmo test (tut)
             DoFailTest();
 
-        if (Input.GetKeyDown(KeyCode.Keypad9))
-        {
-            foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
-                src.time += 2f;
-        }
-
-        // If the game is Rhythmic
+        // If the game is not Rhythmic, ignore everything below
         if (RhythmicGame.GameType != RhythmicGame._GameType.RHYTHMIC)
             return;
     }

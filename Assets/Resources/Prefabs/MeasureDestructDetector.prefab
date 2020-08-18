@@ -124,6 +124,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acb9c2b4ef0e4354089936e4aff75f88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ogParent: {fileID: 0}
+  measure: {fileID: 0}
   Particles: {fileID: 4684864758947080986}
 --- !u!1 &4684864758947080986
 GameObject:
@@ -731,7 +733,7 @@ ParticleSystem:
     gravityModifier:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.13
+      scalar: 0
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -2251,7 +2253,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
   ForceModule:
-    enabled: 0
+    enabled: 1
     x:
       serializedVersion: 2
       minMaxState: 0
@@ -2308,7 +2310,7 @@ ParticleSystem:
     y:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 1
       minScalar: 0
       maxCurve:
         serializedVersion: 2
