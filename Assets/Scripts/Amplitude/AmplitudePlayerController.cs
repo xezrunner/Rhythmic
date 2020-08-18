@@ -27,7 +27,7 @@ public class AmplitudePlayerController : PlayerController
         base.Update();
 
         // PLAYER MOVEMENT
-        if (IsPlayerMoving)
+        if (IsSongPlaying)
         {
             // get z position
             float zPos = amp_ctrl.songPosition * amp_ctrl.secPerBeat * PlayerSpeed * amp_ctrl.TunnelSpeedAccountation - StartZOffset - ZOffset;
@@ -49,6 +49,6 @@ public class AmplitudePlayerController : PlayerController
         // Start music in AMP song controller
         amp_ctrl.PlayMusic();
         // Start player movement
-        IsPlayerMoving = true;
+        IsSongPlaying = true;
     }
 }

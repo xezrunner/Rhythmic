@@ -23,12 +23,12 @@ AnimationClip:
       - serializedVersion: 3
         time: 0
         value: 0
-        inSlope: 0
-        outSlope: 76.53946
-        tangentMode: 1
-        weightedMode: 3
+        inSlope: -1
+        outSlope: 4
+        tangentMode: 69
+        weightedMode: 0
         inWeight: 0.33333334
-        outWeight: 0.013574661
+        outWeight: 0.33333334
       - serializedVersion: 3
         time: 0.25
         value: 1
@@ -36,12 +36,12 @@ AnimationClip:
         outSlope: 0
         tangentMode: 0
         weightedMode: 3
-        inWeight: 0.33333334
+        inWeight: 0.5969457
         outWeight: 0.33333334
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: TrackSwitch_Progress
+    attribute: Move_Progress
     path: 
     classID: 114
     script: {fileID: 11500000, guid: 2594426827c32e845925fc884f8e3bd1, type: 3}
@@ -81,12 +81,12 @@ AnimationClip:
       - serializedVersion: 3
         time: 0
         value: 0
-        inSlope: 0
-        outSlope: 76.53946
-        tangentMode: 1
-        weightedMode: 3
+        inSlope: -1
+        outSlope: 4
+        tangentMode: 69
+        weightedMode: 0
         inWeight: 0.33333334
-        outWeight: 0.013574661
+        outWeight: 0.33333334
       - serializedVersion: 3
         time: 0.25
         value: 1
@@ -94,12 +94,12 @@ AnimationClip:
         outSlope: 0
         tangentMode: 0
         weightedMode: 3
-        inWeight: 0.33333334
+        inWeight: 0.5969457
         outWeight: 0.33333334
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: TrackSwitch_Progress
+    attribute: Move_Progress
     path: 
     classID: 114
     script: {fileID: 11500000, guid: 2594426827c32e845925fc884f8e3bd1, type: 3}

@@ -151,7 +151,8 @@ public class AmplitudeTracksController : TracksController
                 else
                     duplicationCounter++;
             }
-            else { duplicationCounter++; realcounter++; }
+            else { duplicationCounter++; }
+            realcounter++;
 
             // increase pos / rot props
             if (isTunnel)

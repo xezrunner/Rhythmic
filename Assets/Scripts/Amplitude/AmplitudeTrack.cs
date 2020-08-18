@@ -14,8 +14,8 @@ public class AmplitudeTrack : Track
     public void AMP_PopulateNotes()
     {
         // get midi note on events for track
-        if (ID.HasValue)
-            AMP_NoteOnEvents = amp_ctrl.GetNoteOnEventsForTrack(ID.Value);
+        if (ID != -1)
+            AMP_NoteOnEvents = amp_ctrl.GetNoteOnEventsForTrack(ID);
 
         if (AMP_NoteOnEvents == null)
             throw new Exception("AMP_TRACK: Note on events are null for track " + trackName);

@@ -166,7 +166,7 @@ public class CatcherController : MonoBehaviour
     {
         if (e.IsNoteEnabled & !e.IsNoteCaptured)
         {
-            amp_ctrl.AdjustTrackVolume(e.noteTrack.ID.Value, 0f);
+            amp_ctrl.AdjustTrackVolume(e.noteTrack.ID, 0f);
             PlayerController.DeclareMiss(e, Catcher.NoteMissType.Ignore);
         }
     }
@@ -368,18 +368,18 @@ public class CatcherController : MonoBehaviour
             if (e.note.IsLastNote) // if it's the last note in the measure, consider measure as cleared
                 e.note.noteTrack.OnMeasureClear(e.note.noteMeasure);
 
-            amp_ctrl.AdjustTrackVolume(e.note.noteTrack.ID.Value, 1f);
+            amp_ctrl.AdjustTrackVolume(e.note.noteTrack.ID, 1f);
         }
         else
         {
             IsSuccessfullyCatching = false;
             TracksController.SetAllTracksCapturingState(false);
 
-            amp_ctrl.AdjustTrackVolume(CurrentTrack.ID.Value, 0f);
+            amp_ctrl.AdjustTrackVolume(CurrentTrack.ID, 0f);
         }
 
         if (e.catchresult == Catcher.CatchResult.Inactive)
-            amp_ctrl.AdjustTrackVolume(e.note.noteTrack.ID.Value, 1f);
+            amp_ctrl.AdjustTrackVolume(e.note.noteTrack.ID, 1f);
 
         OnCatch?.Invoke(null, e);
     }
