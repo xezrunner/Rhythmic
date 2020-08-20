@@ -6,7 +6,7 @@ public class AmplitudePlayerController : PlayerController
 {
     AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
 
-    new void Start()
+    public override void Start()
     {
         base.Start();
 
@@ -21,7 +21,7 @@ public class AmplitudePlayerController : PlayerController
 
     // MAIN LOOP
 
-    new void Update()
+    public override void Update()
     {
         // base update
         base.Update();

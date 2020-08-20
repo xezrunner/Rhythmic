@@ -20,7 +20,7 @@ public class Catcher : MonoBehaviour
     {
         var result = new CatcherController.CatchEventArgs();
 
-        Vector3 pos = new Vector3(transform.position.x, transform.position.y, transform.position.z - catchRadiusExtra / catchRadiusZOffset);
+        Vector3 pos = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         Vector3 radius = new Vector3(transform.localScale.x, transform.localScale.y, (transform.localScale.z + catchRadiusExtra));
 
         Collider[] cast = Physics.OverlapBox(pos, radius); // Perform a raycast downwards from the catcher
@@ -94,7 +94,7 @@ public class Catcher : MonoBehaviour
             return;
 
         Gizmos.color = Color.red;
-        Vector3 pos = new Vector3(transform.position.x, transform.position.y, transform.position.z - catchRadiusExtra / catchRadiusZOffset);
+        Vector3 pos = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         Vector3 radius = new Vector3(transform.localScale.x, transform.localScale.y, (transform.localScale.z + catchRadiusExtra));
         Gizmos.DrawWireCube(pos, radius);
     }

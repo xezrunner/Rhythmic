@@ -1,16 +1,12 @@
-﻿using NAudio.CoreAudioApi;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
 
 public class tut_test_script : MonoBehaviour
 {
     AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
-    AmplitudeTracksController TracksController { get { return (AmplitudeTracksController)AmplitudeTracksController.Instance; } }
+    TracksController TracksController { get { return (TracksController)TracksController.Instance; } }
     CatcherController CatcherController { get { return CatcherController.Instance; } }
     PlayerController Player { get { return PlayerController.Instance; } }
 
@@ -28,7 +24,7 @@ public class tut_test_script : MonoBehaviour
 
     public void Start()
     {
-        if (AmplitudeSongController.Instance.songName == "tut0")
+        if (AmplitudeSongController.Instance.songName == "tut0" & !Input.GetKey(KeyCode.X))
             BeginScript();
     }
 

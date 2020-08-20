@@ -35,7 +35,7 @@ public class Note : MonoBehaviour
     public Measure noteMeasure { get { return noteTrack.GetMeasureForZPos(zPos); } }
     public int measureNum;
     public int subbeatNum;
-    public float zPos;
+    public float zPos { get { return transform.position.z; } }
 
     // Wheather the note is the last one in its measure
     public bool IsLastNote { get { return noteMeasure.noteList.IndexOf(this) == noteMeasure.noteList.Count - 1; } }
@@ -105,11 +105,6 @@ public class Note : MonoBehaviour
 
         var ps_main = transform.GetChild(0).GetChild(0).GetComponent<ParticleSystem>().main;
         ps_main.startColor = Colors.ConvertColor(DotLightColor * 1.5f);
-    }
-    private void Update()
-    {
-        if (IsNoteEnabled == !IsNoteEnabled)
-            Debug.DebugBreak();
     }
 
     /// <summary>

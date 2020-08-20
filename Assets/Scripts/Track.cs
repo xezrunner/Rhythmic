@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 public class Track : MonoBehaviour
 {
     AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
+    TracksController TracksController { get { return TracksController.Instance; } }
     public GameObject LaneContainer
     {
         get
@@ -26,16 +27,30 @@ public class Track : MonoBehaviour
         set { EdgeLights.Color = value; }
     }
 
-    // Props
+    // Properties
     public int ID = -1; // ID of track - with track duplication, this stays the same as the original track
     public int RealID = -1; // the actual ID of this track, even if duplicated
     public string trackName;
-    public TrackType? Instrument;
+    public int SetID = 0;
+
+    InstrumentType _Instrument;
+    public InstrumentType Instrument
+    {
+        get { return _Instrument; }
+        set { _Instrument = value; EdgeLightsColor = Colors.ColorFromTrackType(value); }
+    }
+
     public Note nearestNote;
     public int activeMeasureNum = -1;
-    public float zRot;
+    public float zRot { get { return transform.eulerAngles.z; } }
 
-    public bool TUT_IsTrackEnabled { get; set; } = true; // Tutorial track disabling
+    bool _TUT_IsTrackEnabled = true;
+    public bool TUT_IsTrackEnabled // Tutorial track disabling
+    {
+        get { return _TUT_IsTrackEnabled; }
+        set { identicalTracks.ForEach(t => t._TUT_IsTrackEnabled = value); }
+    }
+
     bool _isTrackFocused = false; // TODO: also enable/disable the track coloring material
     public bool IsTrackFocused // Is the track focused by the player?
     {
@@ -50,7 +65,14 @@ public class Track : MonoBehaviour
                 measure.IsFocused = value;
         }
     }
-    public bool IsTrackCaptured; // Is this track in its captured state right now?
+
+    bool _isTrackCaptured = false;
+    public bool IsTrackCaptured // Is this track in its captured state right now?
+    {
+        get { return _isTrackCaptured; }
+        set { identicalTracks.ForEach(t => t._isTrackCaptured = value); }
+    }
+
     bool _isTrackBeingCaptured = false;
     public bool IsTrackBeingCaptured // Is this track being played right now? TODO: this being a prop and if changed, will update its own volume in SongController
     {
@@ -61,17 +83,19 @@ public class Track : MonoBehaviour
                 CatcherController.Instance.FindNextMeasuresNotes(this, true);
 
             if (value)
-                IsTrackCaptured = false;
+                identicalTracks.ForEach(t => t.IsTrackCaptured = false);
 
-            _isTrackBeingCaptured = value;
+            identicalTracks.ForEach(t => t._isTrackBeingCaptured = value);
         }
     }
+
     public bool IsTrackEmpty { get { return trackNotes.Count == 0 ? true : false; } }
 
     public bool IsTrackConstant = false; // Should this track remain active even after capturing?
     public bool IsTrackConstantCaptureNotes = false; // Should the notes be captured when you capture a constant track?
     public bool DisableEmptyMeasures = true; // Whether empty measures should leave a hole instead
 
+    public List<Track> identicalTracks;
     public List<Note> trackNotes = new List<Note>();
     public List<GameObject> trackLanes
     {
@@ -89,22 +113,23 @@ public class Track : MonoBehaviour
     // This list holds the measures that are considered as a sequence (2)
     public List<Measure> sequenceMeasures = new List<Measure>();
 
+    GameObject measurePrefab;
+    GameObject notePrefab;
     private void Awake()
     {
-        measurePrefab = Resources.Load("Prefabs/Measure");
+        measurePrefab = TracksController.measurePrefab;
+        notePrefab = TracksController.notePrefab;
     }
-
     void Start()
     {
-        // Set track material
-        //SetTrackMaterialByInstrument(Instrument);
-
         EdgeLightsActive = false;
 
-        if (Instrument == TrackType.FREESTYLE)
+        if (Instrument == InstrumentType.FREESTYLE)
             DisableEmptyMeasures = false;
-    }
 
+        PopulateNotes();
+        PopulateMeasures();
+    }
     public void TUT_SetTrackEnabledState(bool state = false)
     {
         transform.GetChild(0).gameObject.SetActive(state);
@@ -113,67 +138,45 @@ public class Track : MonoBehaviour
         TUT_IsTrackEnabled = state;
     }
 
-    // Materials
-    public static string TrackMaterialPath = "Materials/Tracks/";
-    public static Material GetTrackMaterial(TrackType type)
-    {
-        Material finalMaterial;
-        string finalPath = TrackMaterialPath + "TrackMaterial";
-
-        try
-        {
-            finalMaterial = new Material(Shader.Find("Standard"));
-            finalMaterial.color = Colors.ConvertColor(Colors.ColorFromTrackType(type));
-
-            return finalMaterial;
-        }
-        catch
-        {
-            Debug.LogError(string.Format("TRACK: Cannot find material {0}!", finalPath));
-            return null;
-        }
-    }
-    public static Material GetTrackMaterialFromString(string typestring)
-    {
-        Material finalMaterial;
-        string finalPath = TrackMaterialPath + "TrackMaterial";
-
-        try
-        {
-            finalMaterial = new Material(Shader.Find("Standard"));
-            finalMaterial.color = Colors.ConvertColor(Colors.ColorFromTrackType((TrackTypeFromString(typestring))));
-
-            return finalMaterial;
-        }
-        catch
-        {
-            Debug.LogError(string.Format("TRACK: Cannot find material {0}!", finalPath));
-            return null;
-        }
-    }
-
     // Track population
-
     /// <summary>
     /// Populate lanes with Note (CATCH) objects from the list of MIDI events
     /// </summary>
-    public void PopulateNotes()
+    public virtual void PopulateNotes()
     {
         // TODO: Rhythmic note population!
+    }
 
-        //if (RhythmicGame.DebugNoteCreationEvents)
-        //    Debug.LogFormat(string.Format("TRACK [{0}]: Created new note: {1}", TrackName, noteName));
+    // This creates a note (CATCH) GameObject and script.
+    public void CreateNote(string noteName, float zPos, Note.NoteType noteType, LaneType laneType)
+    {
+        var lane = GetLaneObjectForLaneType(laneType).transform;
+        Vector3 position = new Vector3(lane.position.x, lane.position.y + 0.01f, zPos);
+
+        // create GameObject
+        GameObject obj = Instantiate(notePrefab);
+        obj.transform.position = position;
+        obj.transform.eulerAngles = transform.eulerAngles; // angled on the track
+        obj.transform.SetParent(lane); // parent to the lane
+
+        // set up
+        var note = obj.AddComponent<Note>();
+        note.noteName = noteName;
+        note.noteType = noteType;
+        note.noteLane = laneType;
+        note.noteTrack = this;
+        note.measureNum = amp_ctrl.GetMeasureNumForZPos(zPos);
+        note.subbeatNum = amp_ctrl.GetSubbeatNumForZPos(note.measureNum, zPos);
+        note.DotLightColor = Colors.ColorFromTrackType(Instrument);
+
+        trackNotes.Add(note);
     }
 
     // Measures
-    UnityEngine.Object measurePrefab;
-    public async void CreateMeasures(List<AmplitudeSongController.MeasureInfo> MeasureInfoList)
+    public async void PopulateMeasures()
     {
-        if (measurePrefab == null)
-            measurePrefab = Resources.Load("Prefabs/Measure");
-
         int counter = 0;
-        foreach (AmplitudeSongController.MeasureInfo MeasureInfo in MeasureInfoList)
+        foreach (AmplitudeSongController.MeasureInfo MeasureInfo in AmplitudeSongController.Instance.songMeasures)
         {
             // create GameObject for measure
             Vector3 measurePosition = new Vector3(MeasureContainer.transform.position.x, MeasureContainer.transform.position.y, MeasureInfo.startTimeInzPos);
@@ -192,20 +195,18 @@ public class Track : MonoBehaviour
             measure.measureNum = counter;
             measure.measureTrack = this;
             measure.trackInstrument = Instrument;
-            measure.startTimeInZPos = MeasureInfo.startTimeInzPos;
-            measure.endTimeInZPos = MeasureInfo.endTimeInzPos;
+            measure.startTime = MeasureInfo.startTimeInzPos;
+            measure.endTime = MeasureInfo.endTimeInzPos;
             measure.FullLength = amp_ctrl.subbeatLengthInzPos * 8;
-            measure.MeasureColor = Colors.ConvertColor(Colors.ColorFromTrackType(Instrument.Value));
+            measure.MeasureColor = Colors.ConvertColor(Colors.ColorFromTrackType(Instrument));
             measure.OnCaptureFinished += Measure_OnCaptureFinished;
 
             foreach (Note note in trackNotes) // add notes to measure note list
-            {
                 if (note.measureNum == counter)
                     measure.noteList.Add(note);
-            }
 
             // deactivate measure if doesn't contain notes
-            if (measure.noteList.Count == 0 & DisableEmptyMeasures)
+            if (Instrument != InstrumentType.FREESTYLE & measure.noteList.Count == 0 & DisableEmptyMeasures)
                 measure.IsMeasureEmpty = true;
 
             if (!measure.IsMeasureEmpty)
@@ -215,21 +216,26 @@ public class Track : MonoBehaviour
             counter++;
 
             //if (!RhythmicGame.IsTunnelMode) // tunnel mode can't do async as rotation needs to happen right away
-            await Task.Delay(6); // fake async
+            await Task.Delay(1); // fake async
         }
     }
 
-    public void AddSequenceMeasure(Measure measure)
+    public void AddSequenceMeasure(Measure m)
     {
-        if (sequenceMeasures.Count == 2)
-            sequenceMeasures.Clear();
-        if (measure.IsMeasureEmptyOrCaptured)
-            return;
+        identicalTracks.ForEach(t =>
+        {
+            Measure measure = t.trackMeasures[m.measureNum];
 
-        measure.SetMeasureNotesToBeCaptured();
+            if (t.sequenceMeasures.Count > 2)
+                t.sequenceMeasures.Clear();
+            if (measure.IsMeasureEmptyOrCaptured)
+                return;
 
-        sequenceMeasures.Add(measure);
-        measure.IsMeasureQueued = true;
+            measure.SetMeasureNotesToBeCaptured();
+
+            t.sequenceMeasures.Add(measure);
+            measure.IsMeasureQueued = true;
+        });
     }
 
     // This is called when 1 measure is cleared.
@@ -242,27 +248,27 @@ public class Track : MonoBehaviour
         }
 
         if (sequenceMeasures.Count != 0)
-        {
+            return;
 
-        }
-        //CatcherController.Instance.FindNextMeasuresNotes(this, true);
-        else// if all sequence measures have been cleared, capture the track
-        {
-            sequenceMeasures.Clear();
+        // if all sequence measures have been cleared, capture the track
 
-            // TODO: wtf? double
+        IsTrackBeingCaptured = false;
+        IsTrackCaptured = true;
+
+        identicalTracks.ForEach(t =>
+        {
+            t.sequenceMeasures.Clear();
+
+            // TODO: These have to be set here as the FindNextMeasureNotes() needs to know this immediately.
             for (int i = CatcherController.Instance.CurrentMeasureID; i < CatcherController.Instance.CurrentMeasureID + RhythmicGame.TrackCaptureLength; i++)
-                trackMeasures[i].IsMeasureCaptured = true;
+                t.trackMeasures[i].IsMeasureCaptured = true;
+        });
 
-            IsTrackBeingCaptured = false;
-            IsTrackCaptured = true;
-
-            CatcherController.Instance.FindNextMeasuresNotes();
-            if (AmplitudeSongController.Instance.songName != "tut0" || GameObject.Find("TUT_SCRIPT") == null)
-                CaptureMeasuresRange(CatcherController.Instance.CurrentMeasureID, RhythmicGame.TrackCaptureLength);
-            else
-                CaptureMeasures(CatcherController.Instance.CurrentMeasureID, trackMeasures.Count - 1 - CatcherController.Instance.CurrentMeasureID);
-        }
+        CatcherController.Instance.FindNextMeasuresNotes();
+        if (AmplitudeSongController.Instance.songName != "tut0" || GameObject.Find("TUT_SCRIPT") == null)
+            CaptureMeasuresRange(CatcherController.Instance.CurrentMeasureID, RhythmicGame.TrackCaptureLength);
+        else
+            CaptureMeasures(CatcherController.Instance.CurrentMeasureID, trackMeasures.Count - 1 - CatcherController.Instance.CurrentMeasureID);
     }
 
     public event EventHandler<int[]> OnTrackCaptureStart;
@@ -271,35 +277,39 @@ public class Track : MonoBehaviour
     public void CaptureMeasures(int start, int end)
     {
         OnTrackCaptureStart?.Invoke(this, new int[] { ID, start, end });
-        StartCoroutine(_CaptureMeasures(start, end));
-    }
+        identicalTracks.ForEach(t =>
+        {
+            for (int i = start; i < end; i++)
+                t.trackMeasures[i].IsMeasureCaptured = true;
 
-    public void CaptureMeasuresRange(int start, int count)
-    {
-        OnTrackCaptureStart?.Invoke(this, new int[] { ID, start, start + count });
-        StartCoroutine(_CaptureMeasuresRange(start, count));
-    }
-
-    IEnumerator _CaptureMeasures(int start, int end)
-    {
-        for (int i = start; i < end; i++)
-            trackMeasures[i].IsMeasureCaptured = true;
-
-        for (int i = start; i < end; i++)
-            yield return trackMeasures[i].CaptureMeasure();
+            t.StartCoroutine(_CaptureMeasures(start, end, t));
+        });
 
         OnTrackCaptured?.Invoke(this, new int[] { ID, start, end });
     }
-
-    IEnumerator _CaptureMeasuresRange(int start, int count)
+    public void CaptureMeasuresRange(int start, int count)
     {
-        for (int i = start; i < start + count; i++)
-            trackMeasures[i].IsMeasureCaptured = true;
+        OnTrackCaptureStart?.Invoke(this, new int[] { ID, start, start + count });
+        identicalTracks.ForEach(t =>
+        {
+            for (int i = start; i < start + count; i++)
+                t.trackMeasures[i].IsMeasureCaptured = true;
 
-        for (int i = start; i < start + count; i++)
-            yield return trackMeasures[i].CaptureMeasure();
+            t.StartCoroutine(_CaptureMeasuresRange(start, count, t));
+        });
 
         OnTrackCaptured?.Invoke(this, new int[] { ID, start, start + count });
+    }
+
+    static IEnumerator _CaptureMeasures(int start, int end, Track t)
+    {
+        for (int i = start; i < end; i++)
+            yield return t.trackMeasures[i].CaptureMeasure();
+    }
+    static IEnumerator _CaptureMeasuresRange(int start, int count, Track t)
+    {
+        for (int i = start; i < start + count; i++)
+            yield return t.trackMeasures[i].CaptureMeasure();
     }
 
     public event EventHandler<int> MeasureCaptureFinished;
@@ -368,17 +378,17 @@ public class Track : MonoBehaviour
     }
 
     // Track types
-    public static TrackType TrackTypeFromString(string s)
+    public static InstrumentType InstrumentFromString(string s)
     {
-        foreach (string type in Enum.GetNames(typeof(TrackType)))
+        foreach (string type in Enum.GetNames(typeof(InstrumentType)))
         {
             if (s.Contains(type.ToString().ToLower()))
-                return (TrackType)Enum.Parse((typeof(TrackType)), type, true);
+                return (InstrumentType)Enum.Parse((typeof(InstrumentType)), type, true);
         }
         throw new Exception("MoggSong: Invalid track string! " + s);
     }
 
-    public enum TrackType { Drums = 0, Bass = 1, Synth = 2, Guitar = 3, gtr = 3, Vocals = 4, vox = 4, FREESTYLE = 5, bg_click = 6 }
+    public enum InstrumentType { Drums = 0, Bass = 1, Synth = 2, Guitar = 3, gtr = 3, Vocals = 4, vox = 4, FREESTYLE = 5, bg_click = 6 }
 
     // Colors
     public static class Colors
@@ -394,24 +404,24 @@ public class Track : MonoBehaviour
         public static Color Vocals = new Color(0, 255, 0, Opacity);
         public static Color Freestyle = new Color(255, 255, 255, Opacity);
 
-        public static Color ColorFromTrackType(TrackType type)
+        public static Color ColorFromTrackType(InstrumentType type)
         {
             switch ((int)type)
             {
                 default:
                     return Invalid;
 
-                case (int)TrackType.Drums:
+                case (int)InstrumentType.Drums:
                     return Drums;
-                case (int)TrackType.Bass:
+                case (int)InstrumentType.Bass:
                     return Bass;
-                case (int)TrackType.Synth:
+                case (int)InstrumentType.Synth:
                     return Synth;
-                case (int)TrackType.Guitar:
+                case (int)InstrumentType.Guitar:
                     return Guitar;
-                case (int)TrackType.Vocals:
+                case (int)InstrumentType.Vocals:
                     return Vocals;
-                case (int)TrackType.FREESTYLE:
+                case (int)InstrumentType.FREESTYLE:
                     return Freestyle;
             }
         }

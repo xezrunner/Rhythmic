@@ -17,10 +17,10 @@ public class Measure : MonoBehaviour
     public Track measureTrack;
     public List<MeasureSubBeat> subbeatList = new List<MeasureSubBeat>();
     public List<GameObject> subbeatObjectList = new List<GameObject>(); // TODO: this is bad
-    public Track.TrackType? trackInstrument;
+    public Track.InstrumentType? trackInstrument;
 
-    public float startTimeInZPos;
-    public float endTimeInZPos;
+    public float startTime;
+    public float endTime;
 
     public GameObject Visuals;
     public GameObject MeasurePlane;
@@ -117,10 +117,10 @@ public class Measure : MonoBehaviour
     }
 
     // If a measure doesn't contain any notes, this should be true.
-    bool? _isMeasureEmpty;
+    bool _isMeasureEmpty = false;
     public bool IsMeasureEmpty
     {
-        get { return _isMeasureEmpty == null ? noteList.Count == 0 : _isMeasureEmpty.Value; }
+        get { return _isMeasureEmpty; }
         set
         {
             _isMeasureEmpty = value;
@@ -174,11 +174,9 @@ public class Measure : MonoBehaviour
     #endregion
 
     UnityEngine.Object subBeatPrefab;
-    UnityEngine.Object detectorPrefab;
     void Awake()
     {
         subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
-        detectorPrefab = Resources.Load("Prefabs/MeasureDestructDetector");
 
         // get front & back edge lights
         for (int i = 2; i <= 5; i++)
@@ -274,7 +272,7 @@ public class Measure : MonoBehaviour
             subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
 
         Vector3 subbeatScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos);
-        float lastSubbeatPosition = startTimeInZPos;
+        float lastSubbeatPosition = startTime;
 
         for (int i = 0; i < 8; i++)
         {
@@ -314,18 +312,22 @@ public class Measure : MonoBehaviour
     // It needs to run in Update()
     // TODO: revise
     Transform ogParent;
-    public void MeasureCaptureUpdate()
+    public void MeasureCaptureUpdate(object sender, EventArgs e)
     {
-        transform.parent = null; // unparent from track
-        Vector3 ogPosition = transform.position; // store original position
+        if (IsMeasureCapturing)
+        {
+            transform.parent = null; // unparent from track
+            Vector3 ogPosition = transform.position; // store original position
 
-        transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, FullLength * (Length - CaptureLength)); // scale measure based on capture length
-        transform.position = new Vector3(ogPosition.x, ogPosition.y, startTimeInZPos + (FullLength * CaptureLength)); // with the un-parenting, we need to use the stored position instead
+            transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, FullLength * (Length - CaptureLength)); // scale measure based on capture length
+            transform.position = new Vector3(ogPosition.x, ogPosition.y, startTime + (FullLength * CaptureLength)); // with the un-parenting, we need to use the stored position instead
 
-        /*
-        if (Application.isPlaying)
-           PositionFrontBackEdgeLights();
-        */
+            transform.parent = ogParent;
+            /*
+            if (Application.isPlaying)
+               PositionFrontBackEdgeLights();
+            */
+        }
     }
 
     public bool IsMeasureCapturing = false;
@@ -335,12 +337,16 @@ public class Measure : MonoBehaviour
         anim.Stop();
         anim.Play(); // play capture anim!
 
+        UpdateEvent += MeasureCaptureUpdate;
+
         IsMeasureCapturing = true;
 
         detector.Begin();
 
-        while (IsMeasureCapturing)
+        while (IsMeasureActive)
             yield return null;
+
+        UpdateEvent -= MeasureCaptureUpdate;
     }
 
     // Captures this measure without an animation
@@ -373,10 +379,10 @@ public class Measure : MonoBehaviour
         //MeasureCaptureUpdate(null, null);
     }
 
+    public event EventHandler UpdateEvent;
     void Update()
     {
-        if (IsMeasureCapturing)
-            MeasureCaptureUpdate();
+        UpdateEvent?.Invoke(null, null);
     }
 
     // Z position

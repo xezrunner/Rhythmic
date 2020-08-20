@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.SceneManagement;
@@ -8,17 +9,16 @@ using UnityEngine.SceneManagement;
 public class GameStarter : MonoBehaviour
 {
     GameObject ppfx;
-    TMPro.TextMeshProUGUI loadingText;
+    public TextMeshProUGUI loadingText;
     PostProcessVolume ppv;
 
-    DepthOfField dofLayer = null;
+    public DepthOfField dofLayer = null;
 
     void Awake()
     {
         RhythmicGame.IsLoading = true;
 
         ppfx = GameObject.Find("ppfx");
-        loadingText = GameObject.Find("loadingText").GetComponent<TMPro.TextMeshProUGUI>();
 
         ppv = ppfx.GetComponent<PostProcessVolume>();
         ppv.profile.TryGetSettings(out dofLayer);
@@ -53,19 +53,17 @@ public class GameStarter : MonoBehaviour
 
         while (!asyncOperation.isDone)
         {
-            loadingText.GetComponent<TMPro.TextMeshProUGUI>().text = "Loading... " + (asyncOperation.progress * 100) + "%";
+            float progress = asyncOperation.progress * 100f;
+            loadingText.text = string.Format("Loading... {0}%", progress.ToString("0"));
             if (asyncOperation.progress >= 0.9f)
                 asyncOperation.allowSceneActivation = true;
 
             yield return null;
         }
-
-        loadingText.GetComponent<TMPro.TextMeshProUGUI>().text = "Charting song... ";
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        dofLayer.focusDistance.value += 0.1f;
+        dofLayer.focusDistance.value += 0.06f;
     }
 }

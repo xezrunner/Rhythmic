@@ -15,7 +15,7 @@ public class AmplitudeSongController : MonoBehaviour
 {
     public static AmplitudeSongController Instance;
     public PlayerController PlayerController { get { return PlayerController.Instance; } }
-    AmplitudeTracksController TracksController = (AmplitudeTracksController)AmplitudeTracksController.Instance;
+    TracksController TracksController = (TracksController)TracksController.Instance;
 
     MidiReader reader;
     public MoggSong moggSong;
@@ -71,13 +71,6 @@ public class AmplitudeSongController : MonoBehaviour
     {
         SceneManager.SetActiveScene(SceneManager.GetSceneByName("DevScene"));
 
-        // Create Tracks controller!
-        Debug.LogFormat("AMP_TRACKS: Using Amplitude track controller!");
-
-        GameObject AmpTracksGameObject = new GameObject() { name = "TRACKS" };
-        TracksController = AmpTracksGameObject.AddComponent<AmplitudeTracksController>();
-        TracksController.OnTrackSwitched += AMPTracksCtrl_OnTrackSwitched;
-
         if (Enabled || songName == "")
         {
             // Check if song exists
@@ -105,9 +98,21 @@ public class AmplitudeSongController : MonoBehaviour
             // Create measure list!
             songMeasures = CreateMeasureList();
 
-            //  Create tracks!
-            TracksController.CreateTracks();
+            // Create Tracks controller!
+            Debug.LogFormat("AMP_TRACKS: Using Amplitude track controller!");
             Debug.LogFormat("AMP_TRACKS: Using tunnel scale fudge factor {0}", fudgeFactor);
+
+            GameObject AmpTracksGameObject = new GameObject() { name = "TRACKS" };
+            TracksController = AmpTracksGameObject.AddComponent<TracksController>();
+
+            TracksController.OnTrackSwitched += AMPTracksCtrl_OnTrackSwitched;
+
+            // TODO: move elsewhere
+            // Scale the catchers and CatcherController
+            CatcherController.Instance.BoxCollider.size = new Vector3(CatcherController.Instance.BoxCollider.size.x, CatcherController.Instance.BoxCollider.size.y, CatcherController.Instance.BoxCollider.size.z * TunnelSpeedAccountation * 2);
+            CatcherController.Instance.CatcherRadiusExtra = CatcherController.Instance.CatcherRadiusExtra * TunnelSpeedAccountation;
+
+            Time.timeScale = Time.timeScale * Mathf.Clamp(TunnelSpeedAccountation / 1.5f, 1f, 2f);
 
             // Load song!
             // Assign clips to AudioSources
@@ -213,20 +218,6 @@ public class AmplitudeSongController : MonoBehaviour
     {
         return reader.GetNoteOnEventsForTrack(trackid);
     }
-    List<MeasureInfo> CreateMeasureList()
-    {
-        List<MeasureInfo> finalList = new List<MeasureInfo>();
-        float prevTime = 0f;
-        for (int i = 0; i < songLengthInMeasures + 3; i++)
-        {
-            MeasureInfo measure = new MeasureInfo() { measureNum = i, startTimeInzPos = prevTime, endTimeInzPos = prevTime + measureLengthInzPos };
-            prevTime = prevTime + measureLengthInzPos;
-
-            finalList.Add(measure);
-        }
-
-        return finalList;
-    }
     private void Reader_OnNoteEvent(object sender, EventArgs e)
     {
 
@@ -235,10 +226,11 @@ public class AmplitudeSongController : MonoBehaviour
     // Gets the measure number for a z position (Rhythmic Game unit)
     public int GetMeasureNumForZPos(float zPos)
     {
-        zPos = float.Parse(zPos.ToString("0.0"));
+        //zPos = float.Parse(zPos.ToString("0.0"));
+        zPos = (float)Math.Round(zPos, 1);
         foreach (MeasureInfo measure in songMeasures)
         {
-            float endTimeInZPos = float.Parse(measure.endTimeInzPos.ToString("0.0"));
+            float endTimeInZPos = (float)Math.Round(measure.endTimeInzPos, 1);
             if (zPos < endTimeInZPos)
                 return measure.measureNum;
             else
@@ -248,10 +240,10 @@ public class AmplitudeSongController : MonoBehaviour
     }
     public int GetSubbeatNumForZPos(int measureNum, float zPos)
     {
-        zPos = float.Parse(zPos.ToString("0.0"));
+        zPos = (float)Math.Round(zPos, 1);
 
         MeasureInfo info = songMeasures[measureNum];
-        float measureTime = float.Parse((info.startTimeInzPos + subbeatLengthInzPos).ToString("0.0"));
+        float measureTime = (float)Math.Round((info.startTimeInzPos + subbeatLengthInzPos), 1);
 
         int finalValue = -1;
 
@@ -265,6 +257,21 @@ public class AmplitudeSongController : MonoBehaviour
 
         Debug.LogErrorFormat("AMP_CTRL: couldn't find subbeat for note at measure {0}, zPos {1}", measureNum, zPos);
         return finalValue;
+    }
+
+    List<MeasureInfo> CreateMeasureList()
+    {
+        List<MeasureInfo> finalList = new List<MeasureInfo>();
+        float prevTime = 0f;
+        for (int i = 0; i < songLengthInMeasures + 3; i++)
+        {
+            MeasureInfo measure = new MeasureInfo() { measureNum = i, startTimeInzPos = prevTime, endTimeInzPos = prevTime + measureLengthInzPos };
+            prevTime = prevTime + measureLengthInzPos;
+
+            finalList.Add(measure);
+        }
+
+        return finalList;
     }
 
     public class MeasureInfo

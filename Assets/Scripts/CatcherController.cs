@@ -20,13 +20,13 @@ public class CatcherController : MonoBehaviour
     public List<Catcher> Catchers = new List<Catcher>();
     public KeyCode[] keycodes = new KeyCode[] { KeyCode.LeftArrow, KeyCode.UpArrow, KeyCode.RightArrow };
 
-    float _catcherRadiusExtra;
+    public BoxCollider BoxCollider;
+
     public float CatcherRadiusExtra
     {
-        get { return _catcherRadiusExtra; }
+        get { return Catchers[0].catchRadiusExtra; }
         set
         {
-            _catcherRadiusExtra = value;
             foreach (Catcher catcher in Catchers)
                 catcher.catchRadiusExtra = value;
         }
@@ -138,11 +138,12 @@ public class CatcherController : MonoBehaviour
         // IGNORE EMPTY TRACK NOTE DETECTION IN CONDITIONS:
         if (ShouldHit.Count == 0) // if ShouldHit is empty
             return;
-        if (!CurrentMeasure.IsMeasureEnabled & !CurrentMeasure.IsMeasureCaptured & CurrentMeasure.IsMeasureActive) { Subbeat_DetectNoteMisses(e); return; }
-        else if (!CurrentMeasure.IsMeasureEmptyOrCaptured) // if we are on an active measure
-            return;
+        if (!CurrentMeasure.IsMeasureEnabled & !CurrentMeasure.IsMeasureCaptured & CurrentMeasure.IsMeasureActive)
+        { Subbeat_DetectNoteMisses(e); return; }
+        else if (!CurrentMeasure.IsMeasureEmptyOrCapturedFull & e[0] < ShouldHit[0].measureNum) // if we are on an active measure
+        { return; }
         else if (!IsSuccessfullyCatching || e[0] < ShouldHit[0].measureNum) // if we are not successfully catching, only miss beyond closest ShouldHit note
-            return;
+        { return; }
 
         Subbeat_DetectNoteMisses(e);
     }
@@ -151,14 +152,15 @@ public class CatcherController : MonoBehaviour
     {
         Note note = null;
 
-        foreach (Track track in TracksController.Tracks)
+        foreach (Track track in TracksController.CurrentTrackSet)
         {
             foreach (Note n in track.trackMeasures[e[0]].noteList)
                 if (n.IsNoteEnabled & n.subbeatNum < e[1] & n.zPos < transform.position.z)
                 { note = n; break; }
         }
 
-        PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
+        if (note != null)
+            PlayerController.DeclareMiss(note, Catcher.NoteMissType.Ignore);
     }
 
     // When we exit a note's collision trigger
@@ -168,6 +170,7 @@ public class CatcherController : MonoBehaviour
         {
             amp_ctrl.AdjustTrackVolume(e.noteTrack.ID, 0f);
             PlayerController.DeclareMiss(e, Catcher.NoteMissType.Ignore);
+            Debug.LogWarning("Note miss!");
         }
     }
 
@@ -182,7 +185,7 @@ public class CatcherController : MonoBehaviour
             nearestNote.Color = new Color(255, 255, 255); // reset nearest note debug color
 
         foreach (Note note in ShouldHit)
-            note.Color = new Color(255, 255, 255); // reset should hit notes' debug color
+            note.noteTrack.identicalTracks.ForEach(t => t.trackNotes.Find(n => n.noteName == note.noteName).Color = new Color(255, 255, 255)); // reset should hit notes' debug color
 
         nearestNote = null;
 
@@ -199,7 +202,7 @@ public class CatcherController : MonoBehaviour
         }
         */
 
-        foreach (Track track in TracksController.Instance.Tracks)
+        foreach (Track track in TracksController.Instance.CurrentTrackSet)
         {
             if (!track.TUT_IsTrackEnabled)
                 continue;
@@ -294,7 +297,7 @@ public class CatcherController : MonoBehaviour
 
             PlayerController.NextNoteText.text += string.Format("Measure: {0} Subbeat: {1} Track: {2} Lane: {3}\n",
                 note.measureNum, note.subbeatNum, note.noteTrack.trackName, note.noteLane.ToString());
-            note.Color = new Color(0, 255, 0);
+            note.noteTrack.identicalTracks.ForEach(t => t.trackNotes.Find(n => n.noteName == note.noteName).Color = new Color(0, 255, 0));
         }
     }
     public bool FindNextNote()

@@ -1,12 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using TMPro;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TracksController : MonoBehaviour
 {
     public static TracksController Instance;
-    public GameObject loadingText;
+    public TextMeshProUGUI loadingText;
 
+    public AmplitudeSongController SongController { get { return AmplitudeSongController.Instance; } }
     public CatcherController CatcherController { get { return CatcherController.Instance; } }
     public PlayerController Player { get { return PlayerController.Instance; } }
 
@@ -14,16 +21,56 @@ public class TracksController : MonoBehaviour
     public int CurrentTrackID = 0; // the track that the player is currently on
     public Track CurrentTrack { get { return GetTrackByID(CurrentTrackID); } }
 
+    float songLength;
+
+    public List<string> songTracks;
     public List<Track> Tracks = new List<Track>();
 
+    public int CurrentTrackSetID = -1;
+    public List<Track> CurrentTrackSet = new List<Track>();
+    List<List<Track>> TrackSets = new List<List<Track>>();
+
+    public Tunnel Tunnel;
+
+    public GameObject trackPrefab;
+    public GameObject notePrefab;
+    public GameObject measurePrefab;
     public void Awake()
     {
         Instance = this;
-        loadingText = GameObject.Find("loadingText");
+        try { loadingText = GameObject.Find("loadingText").GetComponent<TextMeshProUGUI>(); }
+        catch { Debug.LogWarning("TRACKS: loading text no found - won't report progress stats to GameStarter"); }
+
+        trackPrefab = (GameObject)Resources.Load("Prefabs/Track");
+        notePrefab = (GameObject)Resources.Load("Prefabs/Note");
+        measurePrefab = (GameObject)Resources.Load("Prefabs/Measure");
+
+        songLength = SongController.songLengthInMeasures * SongController.measureLengthInzPos; // songLengthInzPos?
+        songTracks = SongController.songTracks.ToList(); // copy
 
         Player.OnTrackSwitched += Player_OnTrackSwitched;
 
         gameObject.layer = 11; // put TracksController onto Tracks layer
+    }
+    public void Start()
+    {
+        List<string> tracks = songTracks.ToList();
+        songTracks.Clear();
+        foreach (string tr in tracks)
+        {
+            Track.InstrumentType inst = Track.InstrumentFromString(tr);
+            if (inst == Track.InstrumentType.FREESTYLE & !RhythmicGame.PlayableFreestyleTracks)
+                continue;
+            else if (inst == Track.InstrumentType.bg_click)
+                continue;
+            else
+                songTracks.Add(tr);
+        }
+
+        Tunnel = gameObject.AddComponent<Tunnel>();
+        Tunnel.Init(songTracks.Count * RhythmicGame.TunnelTrackDuplicationNum);
+
+        CreateTracks();
     }
 
     // Tracks
@@ -62,6 +109,94 @@ public class TracksController : MonoBehaviour
         }
     }
 
+    public async void CreateTracks()
+    {
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        int realID = 0;
+        for (int i = 0; i < RhythmicGame.TunnelTrackDuplicationNum; i++)
+        {
+            TrackSets.Add(new List<Track>());
+
+            // Create trackcs
+            int id = 0;
+            foreach (string trackName in songTracks)
+            {
+                Track track = await CreateTrack(id, trackName, realID);
+
+                // Update loading screen progress
+                if (loadingText != null)
+                {
+                    float progress = ((float)realID / (float)(songTracks.Count * RhythmicGame.TunnelTrackDuplicationNum) * 100f);
+                    loadingText.text = string.Format("Charting song - {0}%...", progress.ToString("0"));
+                }
+
+                // Add to track sets
+                track.SetID = i;
+                TrackSets[i].Add(track);
+
+                id++; realID++;
+            }
+        }
+
+        // Create identical tracks list
+        List<List<Track>> identicalList = new List<List<Track>>();
+        songTracks.ForEach(s => identicalList.Add(new List<Track>()));
+
+        // Build & assign identical tracks list
+        Tracks.ForEach(t => identicalList[t.ID].Add(t));
+        Tracks.ForEach(t => t.identicalTracks = identicalList[t.ID]);
+
+        watch.Stop(); Debug.LogFormat("TRACKS: Note chart creation took {0}ms", watch.ElapsedMilliseconds);
+        if (loadingText != null) loadingText.text = "Loading...";
+
+        while (Tracks.Last().trackMeasures.Count < 4)
+            await Task.Delay(500);
+
+        // Get closest notes
+        // TODO: do this somewhere else during init!
+        CatcherController.Instance.FindNextMeasuresNotes();
+
+        // Unload loading scene
+        // TODO: move to a better place / optimize!
+        if (SceneManager.GetSceneByName("Loading").isLoaded)
+            SceneManager.UnloadSceneAsync("Loading");
+
+        RhythmicGame.IsLoading = false;
+    }
+    public async Task<Track> CreateTrack(int id, string name, int? realID = null)
+    {
+        // Create GameObject for track
+        var obj = Instantiate(trackPrefab);
+        obj.name = name;
+
+        Vector3[] transform = Tunnel.GetTransformForTrackID(realID.HasValue ? realID.Value : id);
+        obj.transform.position = transform[0];
+        obj.transform.eulerAngles = transform[1];
+        obj.transform.localScale = new Vector3(1, 1, songLength);
+        obj.transform.SetParent(gameObject.transform); // parent to TracksController
+
+        // Create script for track
+        Track track = null;
+        if (RhythmicGame.GameType == RhythmicGame._GameType.AMPLITUDE)
+            track = obj.AddComponent<AmplitudeTrack>();
+        else if (RhythmicGame.GameType == RhythmicGame._GameType.RHYTHMIC)
+            track = obj.AddComponent<Track>();
+
+        track.ID = id;
+        track.RealID = realID.HasValue ? realID.Value : id;
+        track.trackName = name;
+        track.Instrument = Track.InstrumentFromString(name);
+
+        track.OnTrackCaptureStart += TracksController_OnTrackCaptureStart;
+        track.OnTrackCaptured += TracksController_OnTrackCaptured;
+
+        Tracks.Add(track);
+
+        await Task.Delay(1);
+
+        return track;
+    }
+
     public void DisableOtherMeasures()
     {
         foreach (Track track in Tracks)
@@ -93,17 +228,27 @@ public class TracksController : MonoBehaviour
     }
 
     public event EventHandler<int> OnTrackSwitched;
-    private void Player_OnTrackSwitched(object sender, int e)
+    private void Player_OnTrackSwitched(object sender, Track e)
     {
         // change props of tracks
         foreach (Track track in Tracks)
-            track.IsTrackFocused = Tracks.IndexOf(track) == e;
+            track.IsTrackFocused = Tracks.IndexOf(track) == e.RealID;
 
-        CurrentTrackID = e;
+        CurrentTrackID = e.RealID;
 
         //CatcherController.FindNextMeasuresNotes();
 
-        OnTrackSwitched?.Invoke(null, e);
+        // switch active set
+        if (CurrentTrackSetID != e.RealID)
+            SetCurrentTrackSet(e.SetID);
+
+        OnTrackSwitched?.Invoke(null, e.RealID);
+    }
+
+    public void SetCurrentTrackSet(int setID)
+    {
+        CurrentTrackSetID = setID;
+        CurrentTrackSet = TrackSets[setID];
     }
 
     // Measures
@@ -121,15 +266,8 @@ public class TracksController : MonoBehaviour
     {
         OnTrackCaptureStart?.Invoke(sender, e);
     }
-
     public void TracksController_OnTrackCaptured(object sender, int[] e)
     {
         OnTrackCaptured?.Invoke(sender, e);
-    }
-
-    public event EventHandler<int> MeasureCaptureFinished;
-    public void AmpTrack_MeasureCaptureFinished(object sender, int e)
-    {
-        MeasureCaptureFinished?.Invoke(sender, e);
     }
 }

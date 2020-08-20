@@ -11,8 +11,9 @@ using UnityEngine.UIElements;
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController Instance;
-    public AmplitudeTracksController TracksController { get { return (AmplitudeTracksController)AmplitudeTracksController.Instance; } } // might not be needed?
+    public TracksController TracksController { get { return TracksController.Instance; } }
     public CatcherController CatcherController { get { return CatcherController.Instance; } }
+    Tunnel Tunnel { get { return Tunnel.Instance; } }
 
     public TextMeshProUGUI ScoreText;
     public TextMeshProUGUI MissText;
@@ -21,9 +22,12 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI MeasureCounterText;
     public TextMeshProUGUI NextNoteText;
 
+    public Transform TunnelOffsetHelper;
+    public Transform CameraTunnelOffsetHelper;
+    public Transform Camera;
+
     public Camera PlayerCamera;
     public Transform PlayerCameraTransform;
-    public Transform CameraContainer;
 
     public Animation move_anim;
 
@@ -53,7 +57,7 @@ public class PlayerController : MonoBehaviour
         // this Instance
         Instance = this;
     }
-    public async void Start()
+    public async virtual void Start()
     {
         // Push back player by the Start ZOffset
         transform.Translate(Vector3.back * StartZOffset);
@@ -67,6 +71,11 @@ public class PlayerController : MonoBehaviour
 
         while (TracksController == null || TracksController.enabled & TracksController.Tracks[0].trackMeasures.Count < 3)
             await Task.Delay(500);
+
+        // Offset player tunnel helper with tunnel center Y
+        transform.position = Tunnel.center;
+        TunnelOffsetHelper.transform.localPosition = -Tunnel.center;
+        CameraTunnelOffsetHelper.transform.localPosition = -Tunnel.center;
 
         // TODO: we should switch to the track when the game starts
         MovePlayer(0, true);
@@ -209,6 +218,7 @@ public class PlayerController : MonoBehaviour
                               // for ROT: it gets overriden to 360 when we're switching from the last track to track 0
 
     // Calculates and offsets camera, handles camera animation state
+    // TODO: force position changing during FREESTYLE!
     public IEnumerator DoMovePlayerAnim(Vector3[] target)
     {
         Vector3 position = target[0];
@@ -219,21 +229,21 @@ public class PlayerController : MonoBehaviour
         Move_CamTarget = target;
 
         // set offset and target for camera LOCAL pos & rot
-        Move_CamOffset[0] = CameraContainer.position; // position - leave Z at 0!
-        Move_CamOffset[1] = CameraContainer.eulerAngles; // rotation
+        Move_CamOffset[0] = CameraTunnelOffsetHelper.position; // position - leave Z at 0!
+        Move_CamOffset[1] = Camera.eulerAngles; // rotation
 
         // handle inverse rotations
         if (RhythmicGame.IsTunnelMode)
         {
             // LEFT
             // If the target is on the right part of the tunnel & the difference between target and camera is 180
-            if ((rotation.z > CameraContainer.eulerAngles.z) & (rotation.z - CameraContainer.eulerAngles.z > 180))
+            if ((rotation.z > Camera.eulerAngles.z) & (rotation.z - Camera.eulerAngles.z > 180))
                 Move_CamTarget[1].z = -(360 - rotation.z); // change to 0 - target
 
             // RIGHT
             // If the target is on the left part of the tunnel & the difference between camera and target is 180
-            else if ((rotation.z < CameraContainer.eulerAngles.z) & (CameraContainer.eulerAngles.z - rotation.z > 180)) // RIGHT
-                Move_CamOffset[1] = new Vector3(0, 0, -(360 - CameraContainer.eulerAngles.z)); // change to 360 + target
+            else if ((rotation.z < Camera.eulerAngles.z) & (Camera.eulerAngles.z - rotation.z > 180)) // RIGHT
+                Move_CamOffset[1] = new Vector3(0, 0, -(360 - Camera.eulerAngles.z)); // change to 360 + target
         }
 
         if (RhythmicGame.DebugPlayerCameraAnimEvents)
@@ -242,19 +252,22 @@ public class PlayerController : MonoBehaviour
                             Move_CamOffset[1].z, Move_CamTarget[1].z);
 
         // position & rotate player immediately!
-        transform.position = position;
-        transform.eulerAngles = rotation;
-
         // offset camera so it's at the previous pos & rot
-        CameraContainer.position = Move_CamOffset[0];
-        CameraContainer.eulerAngles = Move_CamOffset[1];
+        if (!RhythmicGame.IsTunnelMode) // in tunnel mode, don't change position!!
+        {
+            // In regular mode, we want to change the GLOBAL position of the tunnel helpers
+            TunnelOffsetHelper.position = position;
+            CameraTunnelOffsetHelper.position = Move_CamOffset[0];
+        }
+        transform.eulerAngles = rotation;
+        Camera.eulerAngles = Move_CamOffset[1];
 
         // play and wait for animation
         Move_Progress = 0f;
         IsMoving = true;
         move_anim.Stop(); move_anim.Play();
 
-        while (Move_Progress <= 1f)
+        while (Move_Progress < 1f)
             yield return null;
 
         // movement finished, stop animating
@@ -266,11 +279,12 @@ public class PlayerController : MonoBehaviour
         Vector3 pos = Vector3.Lerp(Move_CamOffset[0], Move_CamTarget[0], Move_Progress);
         Vector3 rot = Vector3.Lerp(Move_CamOffset[1], Move_CamTarget[1], Move_Progress);
 
-        CameraContainer.position = new Vector3(pos.x, pos.y, CameraContainer.position.z);
-        CameraContainer.eulerAngles = rot;
+        if (!RhythmicGame.IsTunnelMode)
+            CameraTunnelOffsetHelper.position = new Vector3(pos.x, pos.y, Camera.position.z);
+        Camera.eulerAngles = rot;
     }
 
-    public event EventHandler<int> OnTrackSwitched;
+    public event EventHandler<Track> OnTrackSwitched;
     public void MovePlayer(Vector3 position = new Vector3(), Vector3 rotation = new Vector3())
     {
         Vector3 finalPos = new Vector3(position.x, position.y, transform.position.z); // ignore Z!
@@ -279,7 +293,7 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(DoMovePlayerAnim(target));
     }
     public void MovePlayer(Track track) { MovePlayer(track.RealID); }
-    public void MovePlayer(int id, bool force = false)
+    public void MovePlayer(int id, bool ignoreSeek = false)
     {
         if (TracksController.Tracks.Count < 1)
         { Debug.LogWarning("PLAYER/SwitchToTrack(): No tracks are available"); return; }
@@ -300,7 +314,7 @@ public class PlayerController : MonoBehaviour
         // find the track by ID & seek if tunnel
         // TODO: improve seeking!
         Track track;
-        if (RhythmicGame.TrackSeekEmpty & TracksController.CurrentMeasure.measureNum >= 4 & !force) // seek
+        if (RhythmicGame.TrackSeekEmpty & TracksController.CurrentMeasure.measureNum >= 4 & !ignoreSeek) // seek
         {
             if (TracksController.Tracks[id].trackMeasures[TracksController.CurrentMeasure.measureNum + 1].IsMeasureEmpty)
             { MovePlayer(id > TracksController.CurrentTrackID ? id + 1 : id - 1); return; }
@@ -314,7 +328,7 @@ public class PlayerController : MonoBehaviour
         { Debug.LogErrorFormat("PLAYER/SwitchToTrack(): Could not switch to track {0}", id); return; }
 
         // let stuff know of the switch
-        OnTrackSwitched?.Invoke(null, track.RealID);
+        OnTrackSwitched?.Invoke(null, track);
 
         // move player!
         MovePlayer(track.transform.position, track.transform.eulerAngles);
@@ -343,7 +357,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // MAIN LOOP
-    public async void Update()
+    public virtual async void Update()
     {
         // TRACK SWITCHING
 
@@ -354,6 +368,8 @@ public class PlayerController : MonoBehaviour
             MovePlayer(TracksController.CurrentTrackID - 1, Input.GetKey(KeyCode.LeftShift));
         else if (Input.GetKeyDown(InputManager.Player.TrackSwitching[1]))
             MovePlayer(TracksController.CurrentTrackID + 1, Input.GetKey(KeyCode.LeftShift));
+        else if (Input.GetKeyDown(KeyCode.Q))
+            MovePlayer(0, true);
 
         // RESTART
         if (Input.GetKeyDown(KeyCode.R))
@@ -373,16 +389,15 @@ public class PlayerController : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.F2)) { RhythmicGame.SetFramerate(0); ScoreText.text = "No FPS Lock"; }
 
         // Track capturing debug
-
         if (Input.GetKeyDown(KeyCode.H)) // current track, 5
             TracksController.CurrentTrack.CaptureMeasuresRange(GetCurrentMeasure().measureNum, 5);
 
         else if (Input.GetKeyDown(KeyCode.Keypad5)) // 5
-            foreach (Track track in TracksController.Tracks)
+            foreach (Track track in TracksController.CurrentTrackSet)
                 track.CaptureMeasuresRange(GetCurrentMeasure().measureNum, 5);
 
         else if (Input.GetKeyDown(KeyCode.Keypad6)) // all!
-            foreach (Track track in TracksController.Tracks)
+            foreach (Track track in TracksController.CurrentTrackSet)
                 track.CaptureMeasures(GetCurrentMeasure().measureNum, track.trackMeasures.Count - 1);
 
         // Track restoration (buggy!)

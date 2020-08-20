@@ -690,6 +690,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd73dafe1d2f878428b8c656e91d7619, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  loadingText: {fileID: 1933246283}
+  dofLayer: {fileID: 0}
 --- !u!4 &1841250864
 Transform:
   m_ObjectHideFlags: 0
