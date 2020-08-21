@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using NAudio.Midi;
 using System.IO;
 using System;
+using System.Linq;
 
 // Source: https://gist.github.com/CustomPhase/033829c5c30f872d250a79e3d35b7048
 public class MidiReader : MonoBehaviour
@@ -17,8 +18,10 @@ public class MidiReader : MonoBehaviour
     public int ticks;
     public int offset;
 
+    public List<string> songTracks = new List<string>();
+
     public string songName = "tut0";
-    public string songFolder = RhythmicGame.AMP_songFolder;
+    public string songFolder { get { return RhythmicGame.AMP_songFolder; } }
 
     /// <summary>
     /// This returns the path based on the songName and songFolder variables.
@@ -60,6 +63,8 @@ public class MidiReader : MonoBehaviour
 
         // Ticks needed for timing calculations
         ticks = midi.DeltaTicksPerQuarterNote;
+
+        GetSongTracksFromMIDI();
 
         Debug.LogFormat(string.Format("MidiReader: MIDI loaded: \n" +
             "BPM: {0} | Tracks: {1} | Ticks: {2} | PPQ: {3}",
@@ -111,6 +116,28 @@ public class MidiReader : MonoBehaviour
         }
 
         return list;
+    }
+
+    public void GetSongTracksFromMIDI()
+    {
+        songTracks.Clear();
+
+        // go through each track in MIDI
+        for (int i = 0; i < midi.Tracks; i++)
+        {
+            string code = midi.Events[i][0].ToString(); // The first command on a track is meta info about the track
+            if (code.Contains("CATCH"))
+            {
+                string[] tokens = code.Substring(code.IndexOf("CATCH")).Split(':'); // CATCH:T:NAME
+                songTracks.Add(tokens.Last().ToLower());
+            }
+            else if (code.Contains("FREESTYLE"))
+                songTracks.Add("freestyle");
+            else if (code.Contains("BG_CLICK"))
+                songTracks.Add("bg_click");
+            else
+                continue;
+        }
     }
 
     /// <summary>

@@ -21,8 +21,8 @@ public class AmplitudeSongController : MonoBehaviour
     public MoggSong moggSong;
 
     public string songName;
-    public string songFolder = RhythmicGame.AMP_songFolder;
-    public List<string> songTracks { get { return moggSong.songTracks; } }
+    public string songFolder { get { return RhythmicGame.AMP_songFolder; } }
+    public List<string> songTracks { get { return reader.songTracks; } }
     public List<MeasureInfo> songMeasures;
 
     // If this is set to true, no song will load when this entity is spawned.
@@ -74,7 +74,7 @@ public class AmplitudeSongController : MonoBehaviour
         if (Enabled || songName == "")
         {
             // Check if song exists
-            string songPath = RhythmicGame.AMP_GetSongFilePath(songName, RhythmicGame.AMP_FileExtension.mogg);
+            string songPath = RhythmicGame.AMP_GetSongFilePath(songName, RhythmicGame.AMP_FileExtension.moggsong);
             if (!File.Exists(songPath))
             {
                 Debug.LogErrorFormat("Song {0} does not exist at path: {1}", songName, songPath);
@@ -109,7 +109,7 @@ public class AmplitudeSongController : MonoBehaviour
 
             // TODO: move elsewhere
             // Scale the catchers and CatcherController
-            CatcherController.Instance.BoxCollider.size = new Vector3(CatcherController.Instance.BoxCollider.size.x, CatcherController.Instance.BoxCollider.size.y, CatcherController.Instance.BoxCollider.size.z * TunnelSpeedAccountation * 2);
+            CatcherController.Instance.BoxCollider.size = new Vector3(CatcherController.Instance.BoxCollider.size.x, CatcherController.Instance.BoxCollider.size.y, CatcherController.Instance.BoxCollider.size.z * TunnelSpeedAccountation * 1.3f);
             CatcherController.Instance.CatcherRadiusExtra = CatcherController.Instance.CatcherRadiusExtra * TunnelSpeedAccountation;
 
             Time.timeScale = Time.timeScale * Mathf.Clamp(TunnelSpeedAccountation / 1.5f, 1f, 2f);
@@ -129,7 +129,7 @@ public class AmplitudeSongController : MonoBehaviour
 
         //determine how many seconds since the song started
         //songPosition = (float)(AudioSettings.dspTime - dspSongTime - firstBeatOffset + SongPositionOffset);
-        songPosition = audiosrcList[0].time;
+        songPosition = audiosrcList[0].time + SongPositionOffset;
 
         //determine how many beats since the song started
         songPositionInBeats = songPosition / secPerBeat;
@@ -142,7 +142,7 @@ public class AmplitudeSongController : MonoBehaviour
         int counter = 0;
         foreach (string track in songTracks)
         {
-            string path = string.Format("Songs/{0}_{1}", songName, track);
+            string path = string.Format("Songs/{0}/{1}", songName, track);
 
             ResourceRequest resourceRequest = Resources.LoadAsync<AudioClip>(path);
             //Debug.LogFormat("AMP_CTRL: Loading track {0}...", track);

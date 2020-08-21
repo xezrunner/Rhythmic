@@ -73,7 +73,9 @@ public class RhythmicGame : MonoBehaviour
     public static bool DebugCatcherCasting = true;
 
     // AMPLITUDE properties
-    public static string AMP_songFolder = @"H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs";
+    // @"H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs";
+    //public static string AMP_songFolder = string.Format("{0}//amp_songs", Application.dataPath);
+    public static string AMP_songFolder { get { return string.Format("{0}//amp_songs", Application.dataPath); } }
     public static string AMP_GetSongFilePath(string songName, AMP_FileExtension extension)
     {
         return string.Format("{0}//{1}//{1}.{2}", AMP_songFolder, songName, extension);

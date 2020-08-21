@@ -381,14 +381,15 @@ public class Track : MonoBehaviour
     public static InstrumentType InstrumentFromString(string s)
     {
         foreach (string type in Enum.GetNames(typeof(InstrumentType)))
-        {
-            if (s.Contains(type.ToString().ToLower()))
+            if (s.ToLower().Contains(type.ToString().ToLower())) // lowercase everything to ignore case
                 return (InstrumentType)Enum.Parse((typeof(InstrumentType)), type, true);
-        }
-        throw new Exception("MoggSong: Invalid track string! " + s);
+
+        Debug.LogError("TRACK/InstrumentFromString(): Invalid track string! " + s);
+        return 0;
     }
 
-    public enum InstrumentType { Drums = 0, Bass = 1, Synth = 2, Guitar = 3, gtr = 3, Vocals = 4, vox = 4, FREESTYLE = 5, bg_click = 6 }
+    public enum InstrumentType
+    { Drums = 0, DMS = 0, Bass = 1, Synth = 2, Guitar = 3, gtr = 3, Vocals = 4, vox = 4, FREESTYLE = 5, bg_click = 6 }
 
     // Colors
     public static class Colors

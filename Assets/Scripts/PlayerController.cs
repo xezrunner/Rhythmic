@@ -314,10 +314,22 @@ public class PlayerController : MonoBehaviour
         // find the track by ID & seek if tunnel
         // TODO: improve seeking!
         Track track;
-        if (RhythmicGame.TrackSeekEmpty & TracksController.CurrentMeasure.measureNum >= 4 & !ignoreSeek) // seek
+        if (RhythmicGame.TrackSeekEmpty & TracksController.CurrentMeasure.measureNum >= 4 & !force) // seek
         {
-            if (TracksController.Tracks[id].trackMeasures[TracksController.CurrentMeasure.measureNum + 1].IsMeasureEmpty)
-            { MovePlayer(id > TracksController.CurrentTrackID ? id + 1 : id - 1); return; }
+            Measure[] measuresToCheck = new Measure[3];
+            measuresToCheck[0] = TracksController.Tracks[id].trackMeasures[CatcherController.CurrentMeasureID];
+            measuresToCheck[1] = TracksController.Tracks[id].trackMeasures[CatcherController.CurrentMeasureID + 1];
+            //measuresToCheck[2] = TracksController.Tracks[id].trackMeasures[CatcherController.CurrentMeasureID + 2];
+
+            //if (TracksController.Tracks[id].trackMeasures[TracksController.CurrentMeasure.measureNum + 1].IsMeasureEmpty)
+            int availableMeasuresCounter = 0;
+            TracksController.Tracks.ForEach(t =>
+            {
+                if (!t.trackMeasures[CatcherController.CurrentMeasureID].IsMeasureEmptyOrCaptured)
+                    availableMeasuresCounter++;
+            });
+            if (availableMeasuresCounter > 2 & measuresToCheck[0].IsMeasureEmptyOrCaptured & measuresToCheck[1].IsMeasureEmptyOrCaptured)
+            { SwitchToTrack(id > TracksController.CurrentTrackID ? id + 1 : id - 1); return; }
             else
                 track = TracksController.GetTrackByID(id);
         }
