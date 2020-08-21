@@ -58,29 +58,7 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
-Assets/Resources/Songs/perfectbrain.bytes
-Assets/Resources/Songs/perfectbrain.bytes.meta
-Assets/Resources/Songs/perfectbrain_bass.wav
-Assets/Resources/Songs/perfectbrain_bass.wav.meta
-Assets/Resources/Songs/perfectbrain_bgclick.wav
-Assets/Resources/Songs/perfectbrain_bgclick.wav.meta
-Assets/Resources/Songs/perfectbrain_drums.wav
-Assets/Resources/Songs/perfectbrain_drums.wav.meta
-Assets/Resources/Songs/perfectbrain_synth.wav
-Assets/Resources/Songs/perfectbrain_synth.wav.meta
-Assets/Resources/Songs/tut0_bass.wav
-Assets/Resources/Songs/tut0_bass.wav.meta
-Assets/Resources/Songs/tut0_bgclick.wav
-Assets/Resources/Songs/tut0_drums.wav
-Assets/Resources/Songs/tut0_drums.wav.meta
-Assets/Resources/Songs/tut0_synth.wav
-Assets/Resources/Songs/tut0_synth.wav.meta
-Assets/Resources/Songs/tut0_bgclick.wav.meta
-Assets/Resources/Songs/tut1.mid
-Assets/Resources/Songs/tut1.mid.meta
-Assets/Resources/Songs/tut1script.moggsong.meta
-Assets/Resources/Songs/tut1script.moggsong
-Assets/Resources/Songs/dalatecht_bgclick.wav
-Assets/Resources/Songs/dalatecht_bgclick.wav.meta
+Assets/Resources/Songs/
+Assets/amp_songs/
 *.mp4
 *.wav
