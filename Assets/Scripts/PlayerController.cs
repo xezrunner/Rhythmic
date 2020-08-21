@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -78,7 +79,7 @@ public class PlayerController : MonoBehaviour
         CameraTunnelOffsetHelper.transform.localPosition = -Tunnel.center;
 
         // TODO: we should switch to the track when the game starts
-        MovePlayer(0, true);
+        SwitchToTrack(0, true);
 
         //StartCoroutine(Load("SnowMountains"));
     }
@@ -292,8 +293,8 @@ public class PlayerController : MonoBehaviour
 
         StartCoroutine(DoMovePlayerAnim(target));
     }
-    public void MovePlayer(Track track) { MovePlayer(track.RealID); }
-    public void MovePlayer(int id, bool ignoreSeek = false)
+    public void SwitchToTrack(Track track) { SwitchToTrack(track.RealID); }
+    public void SwitchToTrack(int id, bool force = false)
     {
         if (TracksController.Tracks.Count < 1)
         { Debug.LogWarning("PLAYER/SwitchToTrack(): No tracks are available"); return; }
@@ -364,12 +365,18 @@ public class PlayerController : MonoBehaviour
         if (IsMoving)
             MovePlayerUpdate();
 
-        if (Input.GetKeyDown(InputManager.Player.TrackSwitching[0]))
-            MovePlayer(TracksController.CurrentTrackID - 1, Input.GetKey(KeyCode.LeftShift));
-        else if (Input.GetKeyDown(InputManager.Player.TrackSwitching[1]))
-            MovePlayer(TracksController.CurrentTrackID + 1, Input.GetKey(KeyCode.LeftShift));
-        else if (Input.GetKeyDown(KeyCode.Q))
-            MovePlayer(0, true);
+        if (Input.GetButtonDown("Switch left") || InputManager.GetAxisDown("D-pad", -1f) || InputManager.GetAxisDown("Left stick", -0.43f))
+            SwitchToTrack(TracksController.CurrentTrackID - 1, Input.GetKey(KeyCode.LeftShift));
+        if (Input.GetButtonDown("Switch right") || InputManager.GetAxisDown("D-pad", 1f) || InputManager.GetAxisDown("Left stick", 0.43f))
+            SwitchToTrack(TracksController.CurrentTrackID + 1, Input.GetKey(KeyCode.LeftShift));
+
+        if (InputManager.GetAxisDown("Right stick", -0.35f))
+            SwitchToTrack(TracksController.CurrentTrackID - 1, true);
+        if (InputManager.GetAxisDown("Right stick", 0.35f))
+            SwitchToTrack(TracksController.CurrentTrackID + 1, true);
+
+        if (Input.GetKeyDown(KeyCode.Q))
+            SwitchToTrack(0, true);
 
         // RESTART
         if (Input.GetKeyDown(KeyCode.R))
@@ -429,7 +436,7 @@ public class PlayerController : MonoBehaviour
         // Debug move forward
         if (Input.GetKeyDown(KeyCode.Keypad8))
             transform.Translate(Vector3.forward * 62.9f);
-        else if (Input.GetKeyDown(KeyCode.Keypad9))
+        else if (Input.GetButtonDown("SkipForward"))
             foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
                 src.time += 2f;
 

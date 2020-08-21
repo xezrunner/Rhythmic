@@ -26,6 +26,9 @@ public class AmplitudePlayerController : PlayerController
         // base update
         base.Update();
 
+        if (RhythmicGame.IsLoading)
+            return;
+
         // PLAYER MOVEMENT
         if (IsSongPlaying)
         {
@@ -40,7 +43,8 @@ public class AmplitudePlayerController : PlayerController
         }
 
         // ENTER Key
-        if (Input.GetKeyDown(KeyCode.Return) & !RhythmicGame.IsLoading)
+
+        if (Input.GetButtonDown("Submit"))
             BeginPlay();
     }
 
