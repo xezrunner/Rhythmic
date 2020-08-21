@@ -135,6 +135,9 @@ public class CatcherController : MonoBehaviour
     {
         UpdateSubbeatDebug(e[1]);
 
+        /*if (e[1] == 0 || e[1] == 2 || e[1] == 4 || e[1] == 6)
+            InputManager.BeatHaptic();*/
+
         // IGNORE EMPTY TRACK NOTE DETECTION IN CONDITIONS:
         if (ShouldHit.Count == 0) // if ShouldHit is empty
             return;
@@ -387,14 +390,22 @@ public class CatcherController : MonoBehaviour
         OnCatch?.Invoke(null, e);
     }
 
-    KeyCode pressedKey = KeyCode.None;
+    string pressedKey = "";
     bool m_pressingButton = false;
     void Update()
     {
+        if (RhythmicGame.IsLoading)
+            return;
+
         // INPUT
-        foreach (KeyCode key in InputManager.Catcher.Catching)
+
+        foreach (string input in InputManager.Catcher.Inputs)
+            if (InputManager.GetButtonDown(input))
+                GetCatcherFromInput(input).PerformCatch();
+        /*
+        foreach (string key in InputManager.Catcher.Catching)
         {
-            if (Input.GetKeyDown(key)) // If the key is down
+            if (InputManager.GetCatcherButtonDown(key)) // If the key is down
             {
                 if (pressedKey == key) // If it's the same key that has been down before
                 {
@@ -410,18 +421,19 @@ public class CatcherController : MonoBehaviour
             }
         }
 
-        if (!m_pressingButton & Input.GetKey(pressedKey)) // if we're not holding the key and the input that's being held is the same as the previous key
+        if (!m_pressingButton & Input.GetButton(pressedKey)) // if we're not holding the key and the input that's being held is the same as the previous key
         {
-            GetCatcherFromKeyCode(pressedKey).PerformCatch();
+            GetCatcherFromInput(pressedKey).PerformCatch();
             m_pressingButton = true; // we're holding the button now - might not be needed because of the above checking? TODO: test!
         }
-        if (!Input.GetKey(pressedKey)) // if the prev key is not being pressed, set the prev key to none
-            pressedKey = KeyCode.None;
+        if (!Input.GetButton(pressedKey)) // if the prev key is not being pressed, set the prev key to none
+            pressedKey = "";
+        */
     }
 
-    public Catcher GetCatcherFromKeyCode(KeyCode key)
+    public Catcher GetCatcherFromInput(string input)
     {
-        return Catchers[(int)InputManager.Catcher.KeyCodeToTrackLane(key)];
+        return Catchers[(int)InputManager.Catcher.InputToTrackLane(input)];
     }
     public Catcher GetCatcherFromLane(Track.LaneType lane)
     {
