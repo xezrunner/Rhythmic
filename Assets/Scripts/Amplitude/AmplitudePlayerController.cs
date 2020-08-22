@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using static UnityEngine.InputSystem.InputAction;
 
 public class AmplitudePlayerController : PlayerController
 {
@@ -16,7 +17,7 @@ public class AmplitudePlayerController : PlayerController
 
     void CatcherController_OnCatch(object sender, CatcherController.CatchEventArgs e)
     {
-        
+
     }
 
     // MAIN LOOP
@@ -42,11 +43,10 @@ public class AmplitudePlayerController : PlayerController
                 Debug.LogFormat("PLAYER: [DEBUG] songPosition: {0} | songPositionInBeats: {1}", amp_ctrl.songPosition, amp_ctrl.songPositionInBeats);
         }
 
-        // ENTER Key
-
-        if (Input.GetButtonDown("Submit"))
+        if (Input.GetKeyDown(KeyCode.Return))
             BeginPlay();
     }
+
 
     public override void BeginPlay()
     {

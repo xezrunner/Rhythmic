@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
+using UnityEngine.InputSystem;
 
 public class Track : MonoBehaviour
 {
@@ -73,7 +74,7 @@ public class Track : MonoBehaviour
         set { identicalTracks.ForEach(t => t._isTrackCaptured = value); }
     }
 
-    bool _isTrackBeingCaptured = false;
+    public bool _isTrackBeingCaptured { get; set; } = false;
     public bool IsTrackBeingCaptured // Is this track being played right now? TODO: this being a prop and if changed, will update its own volume in SongController
     {
         get { return _isTrackBeingCaptured; }
@@ -83,9 +84,9 @@ public class Track : MonoBehaviour
                 CatcherController.Instance.FindNextMeasuresNotes(this, true);
 
             if (value)
-                identicalTracks.ForEach(t => t.IsTrackCaptured = false);
+            identicalTracks.ForEach(t => t.IsTrackCaptured = false);
 
-            identicalTracks.ForEach(t => t._isTrackBeingCaptured = value);
+            _isTrackBeingCaptured = value;
         }
     }
 
@@ -251,9 +252,14 @@ public class Track : MonoBehaviour
             return;
 
         // if all sequence measures have been cleared, capture the track
+        CaptureTrack();
+    }
 
+    public void CaptureTrack()
+    {
         IsTrackBeingCaptured = false;
         IsTrackCaptured = true;
+        PlayerController.Instance.Multiplier++;
 
         identicalTracks.ForEach(t =>
         {
@@ -265,7 +271,7 @@ public class Track : MonoBehaviour
         });
 
         CatcherController.Instance.FindNextMeasuresNotes();
-        if (AmplitudeSongController.Instance.songName != "tut0" || GameObject.Find("TUT_SCRIPT") == null)
+        if (AmplitudeSongController.songName != "tut0" || GameObject.Find("TUT_SCRIPT") == null)
             CaptureMeasuresRange(CatcherController.Instance.CurrentMeasureID, RhythmicGame.TrackCaptureLength);
         else
             CaptureMeasures(CatcherController.Instance.CurrentMeasureID, trackMeasures.Count - 1 - CatcherController.Instance.CurrentMeasureID);
@@ -385,7 +391,7 @@ public class Track : MonoBehaviour
                 return (InstrumentType)Enum.Parse((typeof(InstrumentType)), type, true);
 
         Debug.LogError("TRACK/InstrumentFromString(): Invalid track string! " + s);
-        return 0;
+        return InstrumentType.Synth;
     }
 
     public enum InstrumentType

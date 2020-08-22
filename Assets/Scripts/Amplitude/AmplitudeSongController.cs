@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
@@ -18,12 +19,16 @@ public class AmplitudeSongController : MonoBehaviour
     TracksController TracksController = (TracksController)TracksController.Instance;
 
     MidiReader reader;
-    public MoggSong moggSong;
+    public MoggSong moggSong { get; set; }
 
-    public string songName;
-    public string songFolder { get { return RhythmicGame.AMP_songFolder; } }
+    public string defaultSong;
+    public static string songName;
+    public static string songFolder { get { return RhythmicGame.AMP_songFolder; } }
+
     public List<string> songTracks { get { return reader.songTracks; } }
     public List<MeasureInfo> songMeasures;
+
+    public Vector3 beatHaptics;
 
     // If this is set to true, no song will load when this entity is spawned.
     // TODO: swap for Enabled?
@@ -61,17 +66,17 @@ public class AmplitudeSongController : MonoBehaviour
     //An AudioSource attached to this GameObject that will play the music.
     public List<AudioSource> audiosrcList = new List<AudioSource>();
 
-    public float SongPositionOffset = 0f;
+    public float SongOffset = 0f;
 
-    void Awake()
-    {
-        Instance = this;
-    }
+    void Awake() { Instance = this; }
     public void Start()
     {
         SceneManager.SetActiveScene(SceneManager.GetSceneByName("DevScene"));
 
-        if (Enabled || songName == "")
+        if (songName == null)
+            songName = defaultSong;
+
+        if (Enabled)
         {
             // Check if song exists
             string songPath = RhythmicGame.AMP_GetSongFilePath(songName, RhythmicGame.AMP_FileExtension.moggsong);
@@ -129,7 +134,7 @@ public class AmplitudeSongController : MonoBehaviour
 
         //determine how many seconds since the song started
         //songPosition = (float)(AudioSettings.dspTime - dspSongTime - firstBeatOffset + SongPositionOffset);
-        songPosition = audiosrcList[0].time + SongPositionOffset;
+        songPosition = audiosrcList[0].time + SongOffset;
 
         //determine how many beats since the song started
         songPositionInBeats = songPosition / secPerBeat;
@@ -153,6 +158,7 @@ public class AmplitudeSongController : MonoBehaviour
             if (resourceRequest.asset == null)
             {
                 Debug.LogWarningFormat("AMP_CTRL: Track {0} doesn't have audio clip - ignoring", track);
+                audiosrcList.Add(gameObject.AddComponent<AudioSource>());
                 continue;
             }
 
@@ -170,7 +176,7 @@ public class AmplitudeSongController : MonoBehaviour
         }
     }
 
-    public bool IsSongPlaying = false;
+    public static bool IsSongPlaying = false;
     public void PlayMusic()
     {
         IsSongPlaying = true;
@@ -212,6 +218,16 @@ public class AmplitudeSongController : MonoBehaviour
         }
 
         audiosrcList[track].volume = volume;
+    }
+
+    public async void BeatVibration()
+    {
+        if (!InputManager.IsController)
+            return;
+
+        Gamepad.current.SetMotorSpeeds(beatHaptics.x, beatHaptics.y);
+        await Task.Delay(TimeSpan.FromMilliseconds(beatHaptics.z));
+        Gamepad.current.SetMotorSpeeds(0f, 0f);
     }
 
     public List<NoteOnEvent> GetNoteOnEventsForTrack(int trackid)

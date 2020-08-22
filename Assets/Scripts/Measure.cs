@@ -343,7 +343,7 @@ public class Measure : MonoBehaviour
 
         detector.Begin();
 
-        while (IsMeasureActive)
+        while (IsMeasureCapturing)
             yield return null;
 
         UpdateEvent -= MeasureCaptureUpdate;

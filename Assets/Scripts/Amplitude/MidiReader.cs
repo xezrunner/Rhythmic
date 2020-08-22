@@ -5,6 +5,7 @@ using NAudio.Midi;
 using System.IO;
 using System;
 using System.Linq;
+using UnityEditor;
 
 // Source: https://gist.github.com/CustomPhase/033829c5c30f872d250a79e3d35b7048
 public class MidiReader : MonoBehaviour
@@ -118,18 +119,50 @@ public class MidiReader : MonoBehaviour
         return list;
     }
 
+    public class IdenticalTrack
+    {
+        public IdenticalTrack(string name, int counter)
+        { Name = name; Counter = counter; }
+        public string Name;
+        public int Counter;
+    }
+
     public void GetSongTracksFromMIDI()
     {
         songTracks.Clear();
 
+        List<IdenticalTrack> identicalList = new List<IdenticalTrack>();
+
         // go through each track in MIDI
         for (int i = 0; i < midi.Tracks; i++)
         {
-            string code = midi.Events[i][0].ToString(); // The first command on a track is meta info about the track
+            string code = midi.Events[i][0].ToString().Trim(); // The first command on a track is meta info about the track
+
             if (code.Contains("CATCH"))
             {
                 string[] tokens = code.Substring(code.IndexOf("CATCH")).Split(':'); // CATCH:T:NAME
-                songTracks.Add(tokens.Last().ToLower());
+
+                int identicalCounter = 0;
+                foreach (string track in songTracks)
+                {
+                    if (track == tokens.Last().ToLower())
+                    {
+                        // find identical
+                        var identical = identicalList.Find(x => x.Name == track);
+                        if (identical == null)
+                        {
+                            identical = new IdenticalTrack(track, 2);
+                            identicalList.Add(identical);
+                        }
+                        else
+                            identical.Counter++;
+                        tokens[2] = tokens[2] + identical.Counter;
+                        break;
+                    }
+                    identicalCounter++;
+                }
+
+                songTracks.Add(tokens[2].ToLower());
             }
             else if (code.Contains("FREESTYLE"))
                 songTracks.Add("freestyle");
@@ -138,6 +171,13 @@ public class MidiReader : MonoBehaviour
             else
                 continue;
         }
+        /*
+        List<string> identical = new List<string>();
+        int counter = 0;
+        foreach (string track in songTracks)
+        {
+
+        }*/
     }
 
     /// <summary>

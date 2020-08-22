@@ -17,10 +17,13 @@ public class CatcherController : MonoBehaviour
     public Measure CurrentMeasure { get { return CurrentTrack.GetMeasureForZPos(transform.position.z); } }
     //public int CurrentMeasureID { get { return CurrentMeasure.measureNum; } }
     public int CurrentMeasureID = 0;
+    public int CurrentBeatID = 0;
     public List<Catcher> Catchers = new List<Catcher>();
     public KeyCode[] keycodes = new KeyCode[] { KeyCode.LeftArrow, KeyCode.UpArrow, KeyCode.RightArrow };
 
     public BoxCollider BoxCollider;
+
+    public GameObject noteDestructPrefab;
 
     public float CatcherRadiusExtra
     {
@@ -53,12 +56,16 @@ public class CatcherController : MonoBehaviour
         //BoxCollider collider = gameObject.AddComponent<BoxCollider>();
 
         OnSubbeatTrigger += CatcherController_OnSubbeatTrigger;
+        OnSubbeatTriggerLate += CatcherController_OnSubbeatTriggerLate;
         OnMeasureTrigger += CatcherController_OnMeasureTrigger;
+        OnMeasureTriggerLate += CatcherController_OnMeasureTriggerLate;
         OnNoteExitTrigger += CatcherController_OnNoteTrigger;
     }
 
     public event EventHandler<int[]> OnSubbeatTrigger;
+    public event EventHandler<int[]> OnSubbeatTriggerLate;
     public event EventHandler<int> OnMeasureTrigger;
+    public event EventHandler<int> OnMeasureTriggerLate;
     public event EventHandler<Note> OnNoteExitTrigger;
 
     // TODO: Cleanup!
@@ -72,6 +79,16 @@ public class CatcherController : MonoBehaviour
             int measureNum = int.Parse(measureName[1].ToString());
             OnMeasureTrigger?.Invoke(null, measureNum);
         }
+        if (coll.name == "SubbeatTrigger")
+        {
+            string[] subbeat_objName = coll.gameObject.transform.parent.name.Split('_');
+            string[] measureName = subbeat_objName[0].Split(new string[] { "MEASURE" }, StringSplitOptions.None);
+            string[] subbeatName = subbeat_objName[1].Split(new string[] { "SUBBEAT" }, StringSplitOptions.None);
+
+            int measureNum = int.Parse(measureName[1].ToString());
+            int subbeatNum = int.Parse(subbeatName[1].ToString());
+            OnSubbeatTrigger?.Invoke(null, new int[] { measureNum, subbeatNum });
+        }
     }
     void OnTriggerExit(Collider coll)
     {
@@ -83,7 +100,15 @@ public class CatcherController : MonoBehaviour
 
             int measureNum = int.Parse(measureName[1].ToString());
             int subbeatNum = int.Parse(subbeatName[1].ToString());
-            OnSubbeatTrigger?.Invoke(null, new int[] { measureNum, subbeatNum });
+            OnSubbeatTriggerLate?.Invoke(null, new int[] { measureNum, subbeatNum });
+        }
+        if (coll.name == "MeasureTrigger")
+        {
+            string[] subbeat_objName = coll.gameObject.transform.parent.name.Split('_');
+            string[] measureName = subbeat_objName[0].Split(new string[] { "MEASURE" }, StringSplitOptions.None);
+
+            int measureNum = int.Parse(measureName[1].ToString());
+            OnMeasureTriggerLate?.Invoke(null, measureNum);
         }
         if (coll.tag == "Note")
         {
@@ -98,15 +123,13 @@ public class CatcherController : MonoBehaviour
     // When we trigger a measure | e: the measure num
     void CatcherController_OnMeasureTrigger(object sender, int e)
     {
-        if (RhythmicGame.IsLoading)
-            return;
-
-        // if the current measure we're on is not empty or captured, set all notes 'to be captured'
-        //Measure measure = CurrentTrack.GetMeasureForID(e);
+        // DEBUG
+        UpdateMeasureDebug(e);
 
         CurrentMeasureID = e;
 
-        string debugText = "";
+        if (RhythmicGame.IsLoading)
+            return;
 
         // increase current ACTIVE measure counter
         foreach (Track track in TracksController.Tracks)
@@ -116,36 +139,50 @@ public class CatcherController : MonoBehaviour
             Measure m = track.trackMeasures[e];
             if (!m.IsMeasureEmptyOrCaptured)
                 track.activeMeasureNum++;
-
-            debugText += track.activeMeasureNum.ToString() + " | ";
         }
-        //Debug.Log(debugText);
-
-        // find ShouldHit notes if there aren't any
-        /*
-        if (ShouldHit.Count == 0 & nearestNote == null)
-            FindNextMeasuresNotes(); // find the next measure for the [measure that we are on + 1]
-        */
-
-        // DEBUG
-        UpdateMeasureDebug(e);
     }
+    // (LATE) When we trigger a measure | e: the measure num
+    private void CatcherController_OnMeasureTriggerLate(object sender, int e)
+    {
+        // if the current measure we're on is not empty or captured, set all notes 'to be captured'
+        if (!CurrentMeasure.IsMeasureEmptyOrCaptured)
+            TracksController.DisableOtherMeasures();
+
+        foreach (Track track in TracksController.CurrentTrackSet)
+        {
+            if (track.IsTrackCaptured & !track.trackMeasures[CurrentMeasureID].IsMeasureCaptured)
+                track.IsTrackCaptured = false;
+
+            if (track.IsTrackBeingCaptured)
+                AmplitudeSongController.Instance.AdjustTrackVolume(track.ID, 1f);
+            else if (track.IsTrackCaptured)
+                AmplitudeSongController.Instance.AdjustTrackVolume(track.ID, 0.7f);
+            else
+                AmplitudeSongController.Instance.AdjustTrackVolume(track.ID, 0f);
+        }
+    }
+
     // When we trigger a subbeat | e[0]: measure num | e[1]: subbeat num
-    void CatcherController_OnSubbeatTrigger(object sender, int[] e)
+    private void CatcherController_OnSubbeatTrigger(object sender, int[] e)
     {
         UpdateSubbeatDebug(e[1]);
 
-        /*if (e[1] == 0 || e[1] == 2 || e[1] == 4 || e[1] == 6)
-            InputManager.BeatHaptic();*/
+        if (e[1] == 0 || e[1] % 2 == 0)
+            CurrentBeatID = e[1];
 
+
+    }
+    // (LATE) When we trigger a subbeat | e[0]: measure num | e[1]: subbeat num
+    void CatcherController_OnSubbeatTriggerLate(object sender, int[] e)
+    {
         // IGNORE EMPTY TRACK NOTE DETECTION IN CONDITIONS:
         if (ShouldHit.Count == 0) // if ShouldHit is empty
             return;
-        if (!CurrentMeasure.IsMeasureEnabled & !CurrentMeasure.IsMeasureCaptured & CurrentMeasure.IsMeasureActive)
+        if (!CurrentMeasure.IsMeasureEnabled & !CurrentMeasure.IsMeasureCaptured & CurrentMeasure.IsMeasureActive) // if measure is disabled
         { Subbeat_DetectNoteMisses(e); return; }
         else if (!CurrentMeasure.IsMeasureEmptyOrCapturedFull & e[0] < ShouldHit[0].measureNum) // if we are on an active measure
         { return; }
-        else if (!IsSuccessfullyCatching || e[0] < ShouldHit[0].measureNum) // if we are not successfully catching, only miss beyond closest ShouldHit note
+        else if (IsSuccessfullyCatching || e[0] < ShouldHit[0].measureNum) // if we are not successfully catching, only miss beyond closest ShouldHit note
         { return; }
 
         Subbeat_DetectNoteMisses(e);
@@ -173,7 +210,6 @@ public class CatcherController : MonoBehaviour
         {
             amp_ctrl.AdjustTrackVolume(e.noteTrack.ID, 0f);
             PlayerController.DeclareMiss(e, Catcher.NoteMissType.Ignore);
-            Debug.LogWarning("Note miss!");
         }
     }
 
@@ -277,7 +313,7 @@ public class CatcherController : MonoBehaviour
                     track.nearestNote = note;
                 }
                 else
-                    Debug.LogErrorFormat("CATCHER: The first note of a measure was not suitable for ShouldHit! | Note: {0}", note.name);
+                    Debug.LogErrorFormat("CATCHER: The first note of measure {0} was not suitable for ShouldHit!", measure.name);
             }
         }
 
@@ -358,7 +394,7 @@ public class CatcherController : MonoBehaviour
 
     public event EventHandler<CatchEventArgs> OnCatch;
 
-    public bool IsSuccessfullyCatching { get; set; } = false;
+    public bool IsSuccessfullyCatching { get; set; } = true;
     void Catcher_OnCatch(object sender, CatchEventArgs e)
     {
         LastHitNote = e.note;
@@ -375,23 +411,33 @@ public class CatcherController : MonoBehaviour
                 e.note.noteTrack.OnMeasureClear(e.note.noteMeasure);
 
             amp_ctrl.AdjustTrackVolume(e.note.noteTrack.ID, 1f);
+            CreateNoteDestruct(e.note.transform.position, e.note.transform.eulerAngles);
         }
         else
         {
             IsSuccessfullyCatching = false;
             TracksController.SetAllTracksCapturingState(false);
 
-            amp_ctrl.AdjustTrackVolume(CurrentTrack.ID, 0f);
+            //amp_ctrl.AdjustTrackVolume(CurrentTrack.ID, 0f);
         }
 
         if (e.catchresult == Catcher.CatchResult.Inactive)
+        {
             amp_ctrl.AdjustTrackVolume(e.note.noteTrack.ID, 1f);
+            CreateNoteDestruct(e.note.transform.position, e.note.transform.eulerAngles);
+        }
 
         OnCatch?.Invoke(null, e);
     }
 
-    string pressedKey = "";
-    bool m_pressingButton = false;
+    void CreateNoteDestruct(Vector3 pos, Vector3 rot)
+    {
+        var go = Instantiate(noteDestructPrefab);
+        go.transform.position = pos;
+        go.transform.localScale = new Vector3(0.21f, 0.05f, 0.21f);
+        go.transform.localEulerAngles = rot;
+    }
+
     void Update()
     {
         if (RhythmicGame.IsLoading)
@@ -399,10 +445,11 @@ public class CatcherController : MonoBehaviour
 
         // INPUT
 
+        /*
         foreach (string input in InputManager.Catcher.Inputs)
             if (InputManager.GetButtonDown(input))
                 GetCatcherFromInput(input).PerformCatch();
-        /*
+
         foreach (string key in InputManager.Catcher.Catching)
         {
             if (InputManager.GetCatcherButtonDown(key)) // If the key is down

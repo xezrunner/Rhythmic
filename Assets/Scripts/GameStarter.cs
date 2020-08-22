@@ -30,7 +30,7 @@ public class GameStarter : MonoBehaviour
         await Task.Delay(100);
 
         //if (Screen.fullScreenMode != FullScreenMode.ExclusiveFullScreen)
-        Screen.SetResolution(1366, 768, FullScreenMode.ExclusiveFullScreen);
+        RhythmicGame.SetResolution(RhythmicGame.PreferredResolution);
 
         //await Task.Delay(3000);
 
