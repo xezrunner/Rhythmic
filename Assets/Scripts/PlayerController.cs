@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour
 
     public Camera PlayerCamera;
     public Transform PlayerCameraTransform;
+    public GameObject StartCamera;
 
     public Animation move_anim;
 
@@ -69,7 +70,8 @@ public class PlayerController : MonoBehaviour
         UnityEngine.Cursor.visible = false;
         try
         { InputUser.PerformPairingWithDevice(Keyboard.current, InputUser.all[0]); }
-        catch { }
+        catch (Exception ex)
+        { Debug.LogWarningFormat("PLAYER: Keyboard pairing not required or failed.\n{0}", ex.Message); }
 
         // Push back player by the Start ZOffset
         transform.Translate(Vector3.back * StartZOffset);
@@ -347,7 +349,7 @@ public class PlayerController : MonoBehaviour
             {
                 seekTryCounter++;
                 try
-                { SwitchToTrack(id > TracksController.CurrentTrackID ? id + 1 : id - 1);  return; }
+                { SwitchToTrack(id > TracksController.CurrentTrackID ? id + 1 : id - 1); return; }
                 catch (Exception ex)
                 { Debug.LogError(ex.Message); }
             }

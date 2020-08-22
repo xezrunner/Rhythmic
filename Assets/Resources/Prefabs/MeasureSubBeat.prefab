@@ -99,7 +99,7 @@ GameObject:
   - component: {fileID: 4481602212742101799}
   - component: {fileID: 3071415226620000213}
   m_Layer: 0
-  m_Name: MeasureSubBeat
+  m_Name: MeasureSubbeat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -135,7 +135,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SubbeatTrigger: {fileID: 2504115769158467772}
   MeasureTrigger: {fileID: 1855608100299468085}
-  EdgeLights: {fileID: 0}
   subbeatNum: 0
   StartZPos: 0
   EndZPos: 0
