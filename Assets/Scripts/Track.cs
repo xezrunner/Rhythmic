@@ -407,7 +407,7 @@ public class Track : MonoBehaviour
         public static Color Drums = new Color(212, 93, 180, Opacity);
         public static Color Bass = new Color(87, 159, 221, Opacity);
         public static Color Synth = new Color(221, 219, 89, Opacity);
-        public static Color Guitar = new Color(255, 0, 0, Opacity);
+        public static Color Guitar = new Color(255, 15, 20, Opacity);
         public static Color Vocals = new Color(0, 255, 0, Opacity);
         public static Color Freestyle = new Color(255, 255, 255, Opacity);
 

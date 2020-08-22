@@ -14,6 +14,8 @@ public class GameStarter : MonoBehaviour
 
     public DepthOfField dofLayer = null;
 
+    public static bool SetResolutionOnce = false;
+
     void Awake()
     {
         RhythmicGame.IsLoading = true;
@@ -30,7 +32,9 @@ public class GameStarter : MonoBehaviour
         await Task.Delay(100);
 
         //if (Screen.fullScreenMode != FullScreenMode.ExclusiveFullScreen)
-        RhythmicGame.SetResolution(RhythmicGame.PreferredResolution);
+        if (!SetResolutionOnce)
+            RhythmicGame.SetResolution(RhythmicGame.PreferredResolution);
+        SetResolutionOnce = true;
 
         //await Task.Delay(3000);
 

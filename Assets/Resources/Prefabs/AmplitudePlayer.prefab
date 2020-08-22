@@ -612,7 +612,6 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 2b99bf46d7cf60540ac0064d0e3468a9, type: 3}
   CameraPullbackOffset: -5.5
   StartZOffset: 0
-  ZOffset: 0
   IsSongPlaying: 0
   PlayerSpeed: 4
   IsMultiplierEnabled: 1
@@ -621,7 +620,7 @@ MonoBehaviour:
   EnableStreaks: 1
   Move_Progress: 0
   IsCleanseDeployed: 0
-  cleanseHaptics: {x: 1, y: 1, z: 200}
+  cleanseHaptics: {x: 1, y: 1, z: 250}
 --- !u!82 &5759535520881636942
 AudioSource:
   m_ObjectHideFlags: 0

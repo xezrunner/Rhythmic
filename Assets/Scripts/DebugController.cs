@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -14,6 +15,12 @@ public class DebugController : MonoBehaviour
 
     public GameObject section_debug;
     public GameObject section_controllerinput;
+    public TextMeshProUGUI inputlagText;
+
+    private void Start()
+    {
+        inputlagText.text = string.Format("Player offset (zPos): {0}", PlayerController.ZOffset);
+    }
 
     public bool isDebugOn = true;
 
@@ -55,6 +62,18 @@ public class DebugController : MonoBehaviour
         {
             RhythmicGame.IsTunnelMode = !RhythmicGame.IsTunnelMode;
             Player.ScoreText.text = string.Format("Tunnel {0} - restart!", RhythmicGame.IsTunnelMode ? "ON" : "OFF");
+        }
+
+        // Lag compensation
+        if (Input.GetKeyDown(KeyCode.KeypadPlus))
+        {
+            PlayerController.ZOffset += 0.1f;
+            inputlagText.text = string.Format("Player offset (zPos): {0}", PlayerController.ZOffset);
+        }
+        else if (Input.GetKeyDown(KeyCode.KeypadMinus))
+        {
+            PlayerController.ZOffset -= 0.1f;
+            inputlagText.text = string.Format("Player offset (zPos): {0}", PlayerController.ZOffset);
         }
 
         // FPS Lock

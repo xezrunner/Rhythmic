@@ -53,7 +53,7 @@ public class PlayerController : MonoBehaviour
 
     public float CameraPullbackOffset = -5.5f;
     public float StartZOffset = 4f; // countin
-    public float ZOffset = 0f; // (DEBUG) additional position offset
+    public static float ZOffset = 0f; // (DEBUG) additional position offset
 
     public bool IsSongPlaying = false;
     public float PlayerSpeed = 8f;
@@ -340,12 +340,12 @@ public class PlayerController : MonoBehaviour
             int availableMeasuresCounter = 0;
             foreach (Track t in TracksController.Tracks)
             {
-                if (availableMeasuresCounter > 1)
+                if (availableMeasuresCounter >= 2)
                     break;
                 if (!t.trackMeasures[CatcherController.CurrentMeasureID].IsMeasureEmptyOrCaptured)
                     availableMeasuresCounter++;
             }
-            if (availableMeasuresCounter > 1 & seekTryCounter < TracksController.Tracks.Count & measuresToCheck[0].IsMeasureEmptyOrCaptured & measuresToCheck[1].IsMeasureEmptyOrCaptured)
+            if (availableMeasuresCounter >= 2 & seekTryCounter < TracksController.Tracks.Count & measuresToCheck[0].IsMeasureEmptyOrCaptured & measuresToCheck[1].IsMeasureEmptyOrCaptured)
             {
                 seekTryCounter++;
                 try
@@ -358,6 +358,8 @@ public class PlayerController : MonoBehaviour
         }
         else
             track = TracksController.GetTrackByID(id);
+
+        seekTryCounter = 0;
 
         if (track == null)
         { Debug.LogErrorFormat("PLAYER/SwitchToTrack(): Could not switch to track {0}", id); return; }
