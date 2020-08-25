@@ -35,6 +35,7 @@ public class TracksController : MonoBehaviour
     public GameObject trackPrefab;
     public GameObject notePrefab;
     public GameObject measurePrefab;
+    public GameObject subbeatPrefab;
     public void Awake()
     {
         Instance = this;
@@ -44,6 +45,7 @@ public class TracksController : MonoBehaviour
         trackPrefab = (GameObject)Resources.Load("Prefabs/Track");
         notePrefab = (GameObject)Resources.Load("Prefabs/Note");
         measurePrefab = (GameObject)Resources.Load("Prefabs/Measure");
+        subbeatPrefab = (GameObject)Resources.Load("Prefabs/MeasureSubbeat");
 
         songLength = SongController.songLengthInMeasures * SongController.measureLengthInzPos; // songLengthInzPos?
         songTracks = SongController.songTracks.ToList(); // copy
@@ -126,7 +128,7 @@ public class TracksController : MonoBehaviour
                 // Update loading screen progress
                 if (loadingText != null)
                 {
-                    float progress = ((float)realID / (float)(songTracks.Count * RhythmicGame.TunnelTrackDuplicationNum) * 100f);
+                    float progress = (realID / (float)(songTracks.Count * (float)RhythmicGame.TunnelTrackDuplicationNum) * 100f);
                     loadingText.text = string.Format("Charting song - {0}%...", progress.ToString("0"));
                 }
 
@@ -147,10 +149,15 @@ public class TracksController : MonoBehaviour
         Tracks.ForEach(t => t.identicalTracks = identicalList[t.ID]);
 
         watch.Stop(); Debug.LogFormat("TRACKS: Note chart creation took {0}ms", watch.ElapsedMilliseconds);
-        if (loadingText != null) loadingText.text = "Loading...";
-
-        while (Tracks.Last().trackMeasures.Count < 4)
+        while (Tracks.Last().trackMeasures.Count < AmplitudeSongController.Instance.songMeasures.Count)
+        {
+            if (loadingText != null)
+            {
+                float progress = ((float)Tracks.Last().trackMeasures.Count / (float)AmplitudeSongController.Instance.songMeasures.Count) * 100f;
+                loadingText.text = string.Format("Genereating measures - {0}%...", progress.ToString("0"));
+            }
             await Task.Delay(500);
+        }
 
         // Get closest notes
         // TODO: do this somewhere else during init!
@@ -160,6 +167,8 @@ public class TracksController : MonoBehaviour
         // TODO: move to a better place / optimize!
         if (SceneManager.GetSceneByName("Loading").isLoaded)
             SceneManager.UnloadSceneAsync("Loading");
+
+        Player.StartCamera.SetActive(false);
 
         RhythmicGame.IsLoading = false;
     }

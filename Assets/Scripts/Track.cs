@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
+using UnityEngine.InputSystem;
 
 public class Track : MonoBehaviour
 {
@@ -73,7 +74,7 @@ public class Track : MonoBehaviour
         set { identicalTracks.ForEach(t => t._isTrackCaptured = value); }
     }
 
-    bool _isTrackBeingCaptured = false;
+    public bool _isTrackBeingCaptured { get; set; } = false;
     public bool IsTrackBeingCaptured // Is this track being played right now? TODO: this being a prop and if changed, will update its own volume in SongController
     {
         get { return _isTrackBeingCaptured; }
@@ -83,9 +84,9 @@ public class Track : MonoBehaviour
                 CatcherController.Instance.FindNextMeasuresNotes(this, true);
 
             if (value)
-                identicalTracks.ForEach(t => t.IsTrackCaptured = false);
+            identicalTracks.ForEach(t => t.IsTrackCaptured = false);
 
-            identicalTracks.ForEach(t => t._isTrackBeingCaptured = value);
+            _isTrackBeingCaptured = value;
         }
     }
 
@@ -251,21 +252,26 @@ public class Track : MonoBehaviour
             return;
 
         // if all sequence measures have been cleared, capture the track
+        CaptureTrack();
+    }
 
+    public void CaptureTrack()
+    {
         IsTrackBeingCaptured = false;
         IsTrackCaptured = true;
+        PlayerController.Instance.Multiplier++;
 
         identicalTracks.ForEach(t =>
         {
             t.sequenceMeasures.Clear();
 
             // TODO: These have to be set here as the FindNextMeasureNotes() needs to know this immediately.
-            for (int i = CatcherController.Instance.CurrentMeasureID; i < CatcherController.Instance.CurrentMeasureID + RhythmicGame.TrackCaptureLength; i++)
+            for (int i = CatcherController.Instance.CurrentMeasureID; i <= CatcherController.Instance.CurrentMeasureID + RhythmicGame.TrackCaptureLength; i++)
                 t.trackMeasures[i].IsMeasureCaptured = true;
         });
 
         CatcherController.Instance.FindNextMeasuresNotes();
-        if (AmplitudeSongController.Instance.songName != "tut0" || GameObject.Find("TUT_SCRIPT") == null)
+        if (AmplitudeSongController.songName != "tut0" || GameObject.Find("TUT_SCRIPT") == null)
             CaptureMeasuresRange(CatcherController.Instance.CurrentMeasureID, RhythmicGame.TrackCaptureLength);
         else
             CaptureMeasures(CatcherController.Instance.CurrentMeasureID, trackMeasures.Count - 1 - CatcherController.Instance.CurrentMeasureID);
@@ -279,7 +285,7 @@ public class Track : MonoBehaviour
         OnTrackCaptureStart?.Invoke(this, new int[] { ID, start, end });
         identicalTracks.ForEach(t =>
         {
-            for (int i = start; i < end; i++)
+            for (int i = start; i <= end; i++)
                 t.trackMeasures[i].IsMeasureCaptured = true;
 
             t.StartCoroutine(_CaptureMeasures(start, end, t));
@@ -292,7 +298,7 @@ public class Track : MonoBehaviour
         OnTrackCaptureStart?.Invoke(this, new int[] { ID, start, start + count });
         identicalTracks.ForEach(t =>
         {
-            for (int i = start; i < start + count; i++)
+            for (int i = start; i <= start + count; i++)
                 t.trackMeasures[i].IsMeasureCaptured = true;
 
             t.StartCoroutine(_CaptureMeasuresRange(start, count, t));
@@ -303,12 +309,12 @@ public class Track : MonoBehaviour
 
     static IEnumerator _CaptureMeasures(int start, int end, Track t)
     {
-        for (int i = start; i < end; i++)
+        for (int i = start; i <= end; i++)
             yield return t.trackMeasures[i].CaptureMeasure();
     }
     static IEnumerator _CaptureMeasuresRange(int start, int count, Track t)
     {
-        for (int i = start; i < start + count; i++)
+        for (int i = start; i <= start + count; i++)
             yield return t.trackMeasures[i].CaptureMeasure();
     }
 
@@ -381,14 +387,15 @@ public class Track : MonoBehaviour
     public static InstrumentType InstrumentFromString(string s)
     {
         foreach (string type in Enum.GetNames(typeof(InstrumentType)))
-        {
-            if (s.Contains(type.ToString().ToLower()))
+            if (s.ToLower().Contains(type.ToString().ToLower())) // lowercase everything to ignore case
                 return (InstrumentType)Enum.Parse((typeof(InstrumentType)), type, true);
-        }
-        throw new Exception("MoggSong: Invalid track string! " + s);
+
+        Debug.LogError("TRACK/InstrumentFromString(): Invalid track string! " + s);
+        return InstrumentType.Synth;
     }
 
-    public enum InstrumentType { Drums = 0, Bass = 1, Synth = 2, Guitar = 3, gtr = 3, Vocals = 4, vox = 4, FREESTYLE = 5, bg_click = 6 }
+    public enum InstrumentType
+    { Drums = 0, DMS = 0, Bass = 1, Synth = 2, Guitar = 3, gtr = 3, Vocals = 4, vox = 4, FREESTYLE = 5, bg_click = 6 }
 
     // Colors
     public static class Colors
@@ -400,7 +407,7 @@ public class Track : MonoBehaviour
         public static Color Drums = new Color(212, 93, 180, Opacity);
         public static Color Bass = new Color(87, 159, 221, Opacity);
         public static Color Synth = new Color(221, 219, 89, Opacity);
-        public static Color Guitar = new Color(255, 0, 0, Opacity);
+        public static Color Guitar = new Color(255, 15, 20, Opacity);
         public static Color Vocals = new Color(0, 255, 0, Opacity);
         public static Color Freestyle = new Color(255, 255, 255, Opacity);
 

@@ -24,12 +24,14 @@ public class tut_test_script : MonoBehaviour
 
     public void Start()
     {
-        if (AmplitudeSongController.Instance.songName == "tut0" & !Input.GetKey(KeyCode.X))
-            BeginScript();
+        BeginScript();
     }
 
     async void BeginScript()
     {
+        if (AmplitudeSongController.songName != "tut0" || Input.GetKey(KeyCode.X))
+        return;
+
         if (SceneManager.GetSceneByName("Loading").isLoaded)
         {
             while (RhythmicGame.IsLoading)
@@ -43,12 +45,10 @@ public class tut_test_script : MonoBehaviour
             await Task.Delay(200);
 
         Player.ScoreText.gameObject.SetActive(false);
-
+        Player.IsMultiplierEnabled = false;
 
         TracksController.OnTrackCaptureStart += TracksController_OnTrackCaptureStart;
         TracksController.OnTrackCaptured += TracksController_OnTrackCaptured;
-
-        //Player.EnableStreaks = false;
 
         // hide other tracks
         TracksController.Tracks.ForEach(t => { if (t.ID > 0) t.TUT_SetTrackEnabledState(false); });
@@ -94,13 +94,25 @@ public class tut_test_script : MonoBehaviour
             PlayVO(VO.Success);
             ShowEndPanel();
             await Task.Delay(4000);
-            Player.DoFailTest();
+            DoFailTest();
             await Task.Delay(3000);
-            Player.Restart();
+            RhythmicGame.Restart();
             return;
         }
 
         NextTrack();
+    }
+
+    public async void DoFailTest()
+    {
+        int msCounter = 50;
+
+        for (float i = 1f; i > 0f; i -= 0.1f)
+        {
+            await Task.Delay(msCounter);
+            RhythmicGame.SetTimescale(i);
+            msCounter -= 5;
+        }
     }
 
     void ShowEndPanel()
@@ -110,14 +122,16 @@ public class tut_test_script : MonoBehaviour
         endPanelFading = !endPanelFading;
     }
 
+    float fadeValue = 0f;
     bool endPanelFading = false;
     bool startPanelFading = false;
-    float fadeValue = 0f;
-    bool worldEnded = false;
+    bool worldAnimPlayed = false;
     void Update()
     {
+        /*
         if (Input.GetKeyDown(KeyCode.Y))
             ShowEndPanel();
+        */
 
         CanvasRenderer panel = null;
         if (endPanelFading || startPanelFading)
@@ -134,16 +148,10 @@ public class tut_test_script : MonoBehaviour
         if (endPanelFading & fadeValue >= 1f)
             endPanelFading = false;
         else if (startPanelFading & fadeValue <= 0f)
-        {
             startPanelFading = false;
-            //tut0_start_text.ForEach(g => g.SetActive(false));
-        }
 
-        if (!worldEnded && Player.transform.position.z >= 300f)
-        {
-            GameObject.Find("WORLD_TUT").GetComponent<Animation>().Play();
-            worldEnded = true;
-        }
+        if (AmplitudeSongController.songName != "tut0" & AmplitudeSongController.IsSongPlaying & !worldAnimPlayed)
+        { GameObject.Find("WORLD_TUT").GetComponent<Animation>().Play(); worldAnimPlayed = true; }
     }
 
     void NextTrack()

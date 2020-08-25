@@ -26,6 +26,7 @@ public class Measure : MonoBehaviour
     public GameObject MeasurePlane;
     public GameObject MeasurePlane_Active;
     public GameObject MeasureSeparator;
+    public Material SubbeatSeparatorMaterial;
 
     public EdgeLightsController EdgeLightsController;
     public List<GameObject> EdgeLightsFrontBack = new List<GameObject>();
@@ -153,7 +154,6 @@ public class Measure : MonoBehaviour
     public bool IsMeasureEmptyAndCapturedFull { get { return IsMeasureEmpty & IsMeasureCapturedFull; } }
     */
 
-
     bool _isMeasureCapturable = true;
     public bool IsMeasureCapturable // Is this measure capable of being captured? TODO: revisit this. Perhaps some corrupt measures? Lose streak when not capturable.
     {
@@ -176,7 +176,7 @@ public class Measure : MonoBehaviour
     UnityEngine.Object subBeatPrefab;
     void Awake()
     {
-        subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
+        subBeatPrefab = TracksController.Instance.subbeatPrefab;
 
         // get front & back edge lights
         for (int i = 2; i <= 5; i++)
@@ -184,14 +184,28 @@ public class Measure : MonoBehaviour
 
         // unparent front & back edge lights
         // TODO: This is very hacky!
+        /*
         foreach (GameObject obj in EdgeLightsFrontBack)
             obj.transform.parent = null;
+        */
     }
     [ExecuteInEditMode]
     void Start()
     {
         if (amp_ctrl.Enabled)
             CreateSubbeats();
+
+        // Create subbeat separators
+        for (int i = 1; i < 8; i++)
+        {
+            var subbeatSeparator = Instantiate(MeasureSeparator);
+            subbeatSeparator.name = "SubbeatSeparator_" + i;
+            subbeatSeparator.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z + AmplitudeSongController.Instance.subbeatLengthInzPos * i);
+            subbeatSeparator.transform.eulerAngles = MeasureSeparator.transform.eulerAngles;
+            subbeatSeparator.transform.localScale = new Vector3(MeasureSeparator.transform.lossyScale.x, MeasureSeparator.transform.lossyScale.y, 0.03f);
+            subbeatSeparator.GetComponent<MeshRenderer>().material = SubbeatSeparatorMaterial;
+            subbeatSeparator.transform.parent = MeasurePlane.transform;
+        }
 
         // Move front & back edge lights to their correct positions
         // TODO: This is very hacky!
@@ -215,36 +229,27 @@ public class Measure : MonoBehaviour
     public void PositionFrontBackEdgeLights()
     {
         MeasureSeparator.transform.parent = null;
+        /*
         Vector3 pos = MeasureSeparator.transform.position;
+        Vector3 rot = MeasureSeparator.transform.eulerAngles;
         Vector3 scale = MeasureSeparator.transform.lossyScale;
         pos.z = transform.position.z;
-        scale.z = 0.01f;
+        scale.z = 0.01f; 
+
+        MeasureSeparator.transform.position = pos;
+        MeasureSeparator.transform.localEulerAngles = rot;*/
+        MeasureSeparator.transform.localScale = new Vector3(MeasureSeparator.transform.localScale.x, MeasureSeparator.transform.localScale.y, 0.1f);
+        MeasureSeparator.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z + (0.1f / 2f));
+        MeasureSeparator.transform.parent = MeasurePlane.transform;
 
         foreach (GameObject obj in EdgeLightsFrontBack)
         {
-            if (measureTrack.ID > 0)
-                Debug.DebugBreak();
-
+            
             obj.transform.parent = null;
-            Vector3 finalPos = obj.transform.position;
-            Vector3 finalScale = obj.transform.lossyScale;
-            Vector3 finalRot = transform.eulerAngles;
-            finalPos.z = obj.transform.name.Contains("Front") ? transform.position.z : (transform.position.z + transform.lossyScale.z);
-            finalScale.z = 0.01f;
-
-            obj.transform.position = finalPos;
-            obj.transform.localScale = finalScale;
-
-            obj.transform.Translate(transform.right * transform.position.x);
-
+            obj.transform.localScale = new Vector3(obj.transform.localScale.x, obj.transform.localScale.y, 0.01f);
             obj.transform.parent = EdgeLightsController.transform;
-            obj.transform.localEulerAngles = Vector3.zero;
-
-            //obj.transform.localEulerAngles = finalRot;
             EdgeLightsController.Color = EdgeLightsColor;
         }
-
-        MeasureSeparator.transform.parent = MeasurePlane.transform;
     }
 
     public void SetMeasureNotesActive(bool state)
@@ -343,7 +348,7 @@ public class Measure : MonoBehaviour
 
         detector.Begin();
 
-        while (IsMeasureActive)
+        while (IsMeasureCapturing)
             yield return null;
 
         UpdateEvent -= MeasureCaptureUpdate;
