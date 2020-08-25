@@ -608,16 +608,25 @@ MonoBehaviour:
   Camera: {fileID: 72519626436425977}
   PlayerCamera: {fileID: 5759535519322832053}
   PlayerCameraTransform: {fileID: 5759535519322832050}
+  StartCamera: {fileID: 0}
   move_anim: {fileID: 7200323222921865719}
+  src: {fileID: 5759535520881636942}
+  audioClips:
+  - {fileID: 8300000, guid: a4cb6bbf769200b4bb31d7a814d8898f, type: 3}
+  - {fileID: 8300000, guid: 90f1e39390fef3b428893078ab900cf2, type: 3}
+  - {fileID: 8300000, guid: 2b41a238b586b424daf6c8526111b974, type: 3}
+  - {fileID: 8300000, guid: 2b99bf46d7cf60540ac0064d0e3468a9, type: 3}
   CameraPullbackOffset: -5.5
   StartZOffset: 0
-  ZOffset: 0
   IsSongPlaying: 0
   PlayerSpeed: 4
+  IsMultiplierEnabled: 1
   Score: 0
   Multiplier: 1
   EnableStreaks: 1
   Move_Progress: 0
+  IsCleanseDeployed: 0
+  cleanseHaptics: {x: 1, y: 1, z: 250}
 --- !u!82 &5759535520881636942
 AudioSource:
   m_ObjectHideFlags: 0
@@ -790,7 +799,7 @@ Camera:
   field of view: 55
   orthographic: 0
   orthographic size: 5
-  m_Depth: 1
+  m_Depth: 2
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 8192
@@ -906,12 +915,12 @@ PrefabInstance:
     - target: {fileID: 217422865016143448, guid: 8dead002306c87a4eb1a893f1223acc1,
         type: 3}
       propertyPath: m_Center.z
-      value: -0.25
+      value: -0.265
       objectReference: {fileID: 0}
     - target: {fileID: 217422865016143448, guid: 8dead002306c87a4eb1a893f1223acc1,
         type: 3}
       propertyPath: m_Size.z
-      value: 1.45
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 2678567282228550694, guid: 8dead002306c87a4eb1a893f1223acc1,
         type: 3}
@@ -933,6 +942,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: CATCHER
       objectReference: {fileID: 0}
+    - target: {fileID: 6236332102543390599, guid: 8dead002306c87a4eb1a893f1223acc1,
+        type: 3}
+      propertyPath: noteDestructPrefab
+      value: 
+      objectReference: {fileID: 9107323175860949329, guid: 00d0fd4cfdd81724c848cea0e2142ed3,
+        type: 3}
     - target: {fileID: 7299747217390401641, guid: 8dead002306c87a4eb1a893f1223acc1,
         type: 3}
       propertyPath: m_RootOrder

@@ -16,6 +16,14 @@ public class RhythmicGame : MonoBehaviour
         QualitySettings.vSyncCount = vsync;
         Application.targetFrameRate = fps;
     }
+    public static void Restart() { SetTimescale(1f); AmplitudeSongController.IsSongPlaying = false; SceneManager.LoadScene("Loading", LoadSceneMode.Single); }
+    public static void SetTimescale(float speed)
+    {
+        Time.timeScale = speed;
+        foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
+            src.pitch = speed;
+    }
+    public static void SetResolution(Vector2 resolution) { Screen.SetResolution((int)resolution.x, (int)resolution.y, FullScreenMode.ExclusiveFullScreen); }
 
     /// <summary>
     /// The game supports playing Amplitude songs. By using AMPLITUDE, the game will use a different
@@ -39,6 +47,8 @@ public class RhythmicGame : MonoBehaviour
 
     public static bool IsLoading = true;
 
+    public static Vector2 PreferredResolution = new Vector2(1920, 1080);
+
     // Gameplay props
     public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
     public static bool TunnelTrackDuplication = true; // Whether to duplicate tracks when using tunnel mode
@@ -50,7 +60,7 @@ public class RhythmicGame : MonoBehaviour
     }
 
     public static bool TrackSeekEmpty = true; // Whether to skip empty tracks when switching tracks
-    public static int TrackCaptureLength = 11; // How many measures to capture when you clear a sequence
+    public static int TrackCaptureLength = 7; // How many measures to capture when you clear a sequence
 
     public static bool PlayableFreestyleTracks = false;
 
@@ -63,7 +73,7 @@ public class RhythmicGame : MonoBehaviour
     public static bool DebugNoteCreationEvents = false;
 
     public static bool DebugPlayerMovementEvents = false;
-    public static bool DebugPlayerCameraAnimEvents = true;
+    public static bool DebugPlayerCameraAnimEvents = false;
     public static bool DebugTrackSeekEvents = true;
 
     public static bool DebugNextNoteCheckEvents = true;
@@ -73,7 +83,9 @@ public class RhythmicGame : MonoBehaviour
     public static bool DebugCatcherCasting = true;
 
     // AMPLITUDE properties
-    public static string AMP_songFolder = @"H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs";
+    // @"H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs";
+    //public static string AMP_songFolder = string.Format("{0}//amp_songs", Application.dataPath);
+    public static string AMP_songFolder { get { return string.Format("{0}//amp_songs", Application.dataPath); } }
     public static string AMP_GetSongFilePath(string songName, AMP_FileExtension extension)
     {
         return string.Format("{0}//{1}//{1}.{2}", AMP_songFolder, songName, extension);

@@ -7,7 +7,7 @@ public class test : MonoBehaviour
 {
     async void Start()
     {
-        await Task.Delay(5000);
+        await Task.Delay(2000);
         Destroy(gameObject);
     }
 }

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using TMPro;
-using UnityEditor.Experimental.GraphView;
-using XInputDotNetPure;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 public class InputManager
 {
@@ -24,13 +24,7 @@ public class InputManager
 
     public static bool IsController
     {
-        get
-        {
-            if (Input.GetJoystickNames().Length > 0)
-                return Input.GetJoystickNames()[0] != "";
-            else
-                return false;
-        }
+        get { return Gamepad.current != null; }
     }
 
     static List<AxisState> axisStateList = new List<AxisState>();
@@ -56,10 +50,12 @@ public class InputManager
     // TODO: special checks for DS4
     public static bool GetAxisDown(string axisName, float? expectedValue = null, float zero = 0f, float? maxAxis = null, float? minAxis = null)
     {
+        return false;
+
         if (!IsController)
             return false;
 
-        var axisValue = Input.GetAxisRaw(axisName); // get value for input axis
+        var axisValue = 0f; // get value for input axis
         if (maxAxis.HasValue || minAxis.HasValue) // clamp value if min or max is given
         {
             /*if (minAxis.HasValue & zero > minAxis.Value)
@@ -116,19 +112,13 @@ public class InputManager
     }
     public static bool GetButtonDown(string inputName)
     {
+        return false;
         if (inputName.Contains("trigger"))
             // Not giving the GetAxisDown() method an expectedValue will make it check whether the input axis is anything other than the zero point.
             // Here, we specify a null expectedValue and override the zero point to the unpressed state of the DS4's R2 button (-1).
             return GetAxisDown(inputName, null, -1f);
         else
             return Input.GetButtonDown(inputName);
-    }
-
-    public async static void BeatHaptic(float strength = 60f)
-    {
-        GamePad.SetVibration(PlayerIndex.One, 1f, 0f);
-        await Task.Delay(100);
-        GamePad.SetVibration(PlayerIndex.One, 0, 0f);
     }
 
     public static class Player

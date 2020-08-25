@@ -165,12 +165,14 @@ MonoBehaviour:
   measureTrack: {fileID: 0}
   subbeatList: []
   subbeatObjectList: []
-  startTimeInZPos: 0
-  endTimeInZPos: 0
+  startTime: 0
+  endTime: 0
   Visuals: {fileID: 754285031214429389}
   MeasurePlane: {fileID: 754285031722559766}
   MeasurePlane_Active: {fileID: 5490714322569964640}
   MeasureSeparator: {fileID: 7348333367408467932}
+  SubbeatSeparatorMaterial: {fileID: 2100000, guid: 4b1c50a899b570e459681894a745af24,
+    type: 2}
   EdgeLightsController: {fileID: 4894331238374009535}
   EdgeLightsFrontBack: []
   anim: {fileID: 4395145425648499199}
@@ -794,7 +796,7 @@ PrefabInstance:
     - target: {fileID: 3538615951093641871, guid: 9f12ae69bf00ee9468c53baff0b3ef80,
         type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 3538615951241398504, guid: 9f12ae69bf00ee9468c53baff0b3ef80,
         type: 3}
@@ -814,7 +816,7 @@ PrefabInstance:
     - target: {fileID: 3538615951241398511, guid: 9f12ae69bf00ee9468c53baff0b3ef80,
         type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 3538615953074837756, guid: 9f12ae69bf00ee9468c53baff0b3ef80,
         type: 3}

@@ -4,6 +4,7 @@ using System.Collections;
 using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Linq;
+using static UnityEngine.InputSystem.InputAction;
 
 public class Catcher : MonoBehaviour
 {
@@ -16,6 +17,19 @@ public class Catcher : MonoBehaviour
     public float catchRadiusZOffset = 3.5f;
 
     public event EventHandler<CatcherController.CatchEventArgs> OnCatch;
+
+    public bool Locked;
+    public void FireCatch(CallbackContext context)
+    {
+        float axis = context.ReadValue<float>();
+
+        if (axis == 0)
+            Locked = false;
+
+        if (context.performed & !Locked & axis > 0.01f)
+        { Locked = true; PerformCatch(); }
+    }
+
     public void PerformCatch()
     {
         var result = new CatcherController.CatchEventArgs();

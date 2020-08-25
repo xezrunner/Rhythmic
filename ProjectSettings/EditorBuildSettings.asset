@@ -14,4 +14,6 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Snow Mountain/Scenes/SnowMountains.unity
     guid: 80a7b5808b43ae245bc2c97ce3cfc017
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: 430e216ca7c9ff74e87a328d0d260bc0,
+      type: 2}
