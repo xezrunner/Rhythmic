@@ -266,7 +266,7 @@ public class Track : MonoBehaviour
             t.sequenceMeasures.Clear();
 
             // TODO: These have to be set here as the FindNextMeasureNotes() needs to know this immediately.
-            for (int i = CatcherController.Instance.CurrentMeasureID; i < CatcherController.Instance.CurrentMeasureID + RhythmicGame.TrackCaptureLength; i++)
+            for (int i = CatcherController.Instance.CurrentMeasureID; i <= CatcherController.Instance.CurrentMeasureID + RhythmicGame.TrackCaptureLength; i++)
                 t.trackMeasures[i].IsMeasureCaptured = true;
         });
 
@@ -285,7 +285,7 @@ public class Track : MonoBehaviour
         OnTrackCaptureStart?.Invoke(this, new int[] { ID, start, end });
         identicalTracks.ForEach(t =>
         {
-            for (int i = start; i < end; i++)
+            for (int i = start; i <= end; i++)
                 t.trackMeasures[i].IsMeasureCaptured = true;
 
             t.StartCoroutine(_CaptureMeasures(start, end, t));
@@ -298,7 +298,7 @@ public class Track : MonoBehaviour
         OnTrackCaptureStart?.Invoke(this, new int[] { ID, start, start + count });
         identicalTracks.ForEach(t =>
         {
-            for (int i = start; i < start + count; i++)
+            for (int i = start; i <= start + count; i++)
                 t.trackMeasures[i].IsMeasureCaptured = true;
 
             t.StartCoroutine(_CaptureMeasuresRange(start, count, t));
@@ -309,12 +309,12 @@ public class Track : MonoBehaviour
 
     static IEnumerator _CaptureMeasures(int start, int end, Track t)
     {
-        for (int i = start; i < end; i++)
+        for (int i = start; i <= end; i++)
             yield return t.trackMeasures[i].CaptureMeasure();
     }
     static IEnumerator _CaptureMeasuresRange(int start, int count, Track t)
     {
-        for (int i = start; i < start + count; i++)
+        for (int i = start; i <= start + count; i++)
             yield return t.trackMeasures[i].CaptureMeasure();
     }
 
