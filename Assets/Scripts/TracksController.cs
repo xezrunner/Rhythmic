@@ -160,6 +160,7 @@ public class TracksController : MonoBehaviour
         // TODO: move to a better place / optimize!
         if (SceneManager.GetSceneByName("Loading").isLoaded)
             SceneManager.UnloadSceneAsync("Loading");
+        Player.StartCamera.SetActive(false);
 
         RhythmicGame.IsLoading = false;
     }

@@ -1,0 +1,58 @@
+(rotation_repeat_initial_delay_ms 100000) 
+(rotation_repeat_delay_ms 100000) 
+
+(strand_bars 12 5 3 2) 
+(strand_bars_nightmare 7 3 2 1) 
+(strand_bars_dynamic_gap 2 1 1 1 0)
+
+(slop_ms 100)
+(debounce_window 85)
+(bar_capture_threshold 2)
+
+(game_calibration_speed 0.1) 
+(game_calibration_max_ms 125) 
+(av_calibration_step_ms 16.67) 
+(av_calibration_max_ms 150) 
+(av_calibration_min_ms -150)
+
+(beat_duration_ms 100) 
+(beat_lead_ms 30)
+
+(mixer 
+   (low_volumes -0.5 -0.5 -1.25 -2.5 -3.5 -4) 
+   (low_volumes_freestyle 0 -0.5 -1.25 -2 -3) 
+   (fx_volumes -1.5 -1 -0.7 -0.35 0) 
+   (active_track_db 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0) 
+   (other_track_db -5.0) 
+   (solo_mute_track_db -100.0 -100.0 -100.0 -100.0 -100.0 -100.0 -100.0 -100.0 -100.0) 
+   (multi_mute_track_db -10.0 -10.0 -10.0 -10.0 -10.0 -10.0 -100.0 -100.0 -100.0) 
+   (victorylap_volume -0.5) 
+   (ramp_ms 1000) 
+   (mute_fade_ms 100) 
+   (freestyle_fade_ticks 1920)) 
+(axe_softfx_volume 2.0) 
+
+(initial_juice 8.0 8.0 8.0 8.0 8.0) 
+(checkpoint_juice 8.0 2.0 2.0 2.0 2.0) 
+(capture_juice 1.0 1.0 1.0 1.0 0.0) 
+(damage_juice -1.0 -1.0 -1.0 -1.0 -1.0) 
+(checkpoint_fail_juice -4.0 -4.0 -4.0 -4.0 -4.0) 
+(damage_invuln_time_ms 750)
+
+(checkpoint_bars 2) 
+(checkpoint_points 10 10 10 10 10) 
+(boss_gate_streak_requirement 2 3 4) 
+(boss_gate_break_bars 2) 
+(powerup_prob_solo 1.0) 
+(powerup_prob_boss 0 0 0) 
+(powerup_prob_multi 0.3 1.0) 
+
+(slowdown_start_ticks 960) 
+(slowdown_stop_ticks 960) 
+(slowdown_duration_bars 3) 
+(slowdown_speed 0.75) 
+(multiplier_value 2) 
+(multiplier_duration_bars 5) 
+(freestyle_duration_bars_solo 4) 
+
+(outro_durations 9 10 10 10))

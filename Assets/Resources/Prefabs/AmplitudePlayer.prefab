@@ -86,6 +86,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -110,6 +111,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2423956281356280422
 GameObject:
   m_ObjectHideFlags: 0
@@ -165,6 +167,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -189,6 +192,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2677113061444996429
 GameObject:
   m_ObjectHideFlags: 0
@@ -217,6 +221,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5759535519322832050}
+  - {fileID: 2907376650550884380}
   - {fileID: 4709665040744107080}
   - {fileID: 6972565499692552390}
   m_Father: {fileID: 72519626436425977}
@@ -231,7 +236,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6972565499692552390}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Catcher visuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -253,7 +258,7 @@ Transform:
   - {fileID: 7542491560951783907}
   - {fileID: 1286772076603995977}
   m_Father: {fileID: 7503251219967472187}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3904273063982621673
 GameObject:
@@ -384,6 +389,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -408,6 +414,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &5759535519322832055
 GameObject:
   m_ObjectHideFlags: 0
@@ -438,7 +445,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 8103151305400269017}
-  - {fileID: 2907376650550884380}
   m_Father: {fileID: 7503251219967472187}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 19, y: 0, z: 0}
@@ -452,7 +458,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.06666667, g: 0.06666667, b: 0.06666667, a: 1}
+  m_BackGroundColor: {r: 0.023529412, g: 0.023529412, b: 0.023529412, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -466,7 +472,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 405.5
+  far clip plane: 150
   field of view: 55
   orthographic: 0
   orthographic size: 5
@@ -749,11 +755,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7595758372744385695}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.16504757, y: -0, z: -0, w: 0.9862857}
+  m_LocalPosition: {x: 0, y: 3.05, z: -5.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 5759535519322832050}
+  m_Father: {fileID: 7503251219967472187}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &4718328837422673800
@@ -780,7 +786,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 500
+  far clip plane: 4005
   field of view: 55
   orthographic: 0
   orthographic size: 5
@@ -1113,7 +1119,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 2e9c70f1d4d952d468f485be07800f25, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 2e9c70f1d4d952d468f485be07800f25, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
