@@ -36,7 +36,7 @@ public class AmplitudeTrack : Track
 
             counter++;
         }
-        await Task.Delay(1);
+        //await Task.Delay(1);
     }
 
     public static LaneType GetLaneTypeFromNoteNumber(int num)

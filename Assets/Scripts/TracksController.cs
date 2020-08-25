@@ -85,30 +85,10 @@ public class TracksController : MonoBehaviour
         if (Tracks.Count == 0) // if the track list is empty, don't continue
             throw new Exception("TracksController/GetTrackByID(): track list is empty!");
 
-        /*
-        Track finalTrack = null;
-        // find Track by ID
-        foreach (Track track in trackList)
-        {
-            if (track.ID == id)
-                return track;
-        }
-        */
-
-        /*
-        if (finalTrack == null) // if we didn't find the track of this ID
-            throw new Exception(string.Format("TracksController/GetTrackByID(): could not find track ID {0}", id));
-        return null;
-        */
-
         try
-        {
-            return Tracks[id];
-        }
+        { return Tracks[id]; }
         catch
-        {
-            throw new Exception(string.Format("TRACKSCONTROLLER: Cannot find track {0}", id));
-        }
+        { throw new Exception(string.Format("TRACKSCONTROLLER: Cannot find track {0}", id)); }
     }
 
     public async void CreateTracks()
@@ -165,9 +145,8 @@ public class TracksController : MonoBehaviour
 
         // Unload loading scene
         // TODO: move to a better place / optimize!
-        if (SceneManager.GetSceneByName("Loading").isLoaded)
-            SceneManager.UnloadSceneAsync("Loading");
-        Player.StartCamera.SetActive(false);
+        if (SceneManager.GetSceneByBuildIndex(0).isLoaded)
+            SceneManager.UnloadSceneAsync(0);
 
         Player.StartCamera.SetActive(false);
 

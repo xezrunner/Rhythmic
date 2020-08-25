@@ -182,7 +182,7 @@ public class CatcherController : MonoBehaviour
         { Subbeat_DetectNoteMisses(e); return; }
         else if (!CurrentMeasure.IsMeasureEmptyOrCapturedFull & e[0] < ShouldHit[0].measureNum) // if we are on an active measure
         { return; }
-        else if (IsSuccessfullyCatching || e[0] < ShouldHit[0].measureNum) // if we are not successfully catching, only miss beyond closest ShouldHit note
+        else if (!IsSuccessfullyCatching & e[0] < ShouldHit[0].measureNum) // if we are not successfully catching, only miss beyond closest ShouldHit note
         { return; }
 
         Subbeat_DetectNoteMisses(e);

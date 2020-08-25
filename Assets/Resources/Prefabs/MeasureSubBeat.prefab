@@ -99,7 +99,7 @@ GameObject:
   - component: {fileID: 4481602212742101799}
   - component: {fileID: 3071415226620000213}
   m_Layer: 0
-  m_Name: MeasureSubbeat
+  m_Name: MeasureSubBeat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

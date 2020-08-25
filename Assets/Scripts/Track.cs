@@ -131,6 +131,7 @@ public class Track : MonoBehaviour
         PopulateNotes();
         PopulateMeasures();
     }
+
     public void TUT_SetTrackEnabledState(bool state = false)
     {
         transform.GetChild(0).gameObject.SetActive(state);

@@ -15,7 +15,7 @@ using UnityEngine.UIElements;
 public class AmplitudeSongController : MonoBehaviour
 {
     public static AmplitudeSongController Instance;
-    public PlayerController PlayerController { get { return PlayerController.Instance; } }
+    public PlayerController Player { get { return PlayerController.Instance; } }
     TracksController TracksController = (TracksController)TracksController.Instance;
 
     MidiReader reader;
@@ -50,6 +50,7 @@ public class AmplitudeSongController : MonoBehaviour
     public float songPosition; //Current song position, in seconds
     public float songPositionInBeats; //Current song position, in beats
     public int songPositionInMeasures { get { return (int)songPositionInBeats / 4; } } //Current song position, in measures
+    public float songLength;
     public float firstBeatOffset; //The offset to the first beat of the song in seconds
     public float dspSongTime; //How many seconds have passed since the song started
 
@@ -162,15 +163,17 @@ public class AmplitudeSongController : MonoBehaviour
                 continue;
             }
 
-            AudioSource src = gameObject.AddComponent<AudioSource>();
+            AudioSource src = gameObject.AddComponent<AudioSource>(); // create AudioSource
+            src.clip = resourceRequest.asset as AudioClip;
+            audiosrcList.Add(src); // add to AudioSource list
 
             if (track == "bg_click")
+            {
                 src.volume = 0.8f;
+                songLength = src.clip.length; // set song length to BG_CLICK clip length
+            }
             else
                 src.volume = counter == 0 ? 1f : 0f;
-
-            src.clip = resourceRequest.asset as AudioClip;
-            audiosrcList.Add(src);
 
             counter++;
         }
@@ -218,6 +221,34 @@ public class AmplitudeSongController : MonoBehaviour
         }
 
         audiosrcList[track].volume = volume;
+    }
+
+    public float songSpeed = 1f;
+    public void AdjustSongSpeed(float speed)
+    {
+        songSpeed = speed;
+        foreach (AudioSource src in audiosrcList)
+        {
+            src.pitch = speed;
+            if (speed == 0)
+            {
+                src.Pause();
+                IsSongPlaying = false;
+            }
+            else
+            {
+                src.UnPause();
+                if (src.time > 0.1f) IsSongPlaying = true;
+            }
+        }
+    }
+    public void OffsetSong(float offset)
+    {
+        //SongOffset += offset;
+        // TODO: Unity meter to time units conversions!
+        Player.transform.Translate(Vector3.forward * (Player.PlayerSpeed * secPerBeat * TunnelSpeedAccountation) * offset); // offset the player as well!
+        foreach (AudioSource src in audiosrcList)
+            src.time += offset;
     }
 
     public async void BeatVibration()

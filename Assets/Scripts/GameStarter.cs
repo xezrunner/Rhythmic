@@ -51,7 +51,6 @@ public class GameStarter : MonoBehaviour
         //AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Single);
         Application.backgroundLoadingPriority = ThreadPriority.Low;
         AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Additive);
-        Debug.Log("Loading progress: " + asyncOperation.progress);//should get 0 here, right?
 
         asyncOperation.allowSceneActivation = false;
 

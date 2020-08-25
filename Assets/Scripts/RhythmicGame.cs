@@ -9,7 +9,7 @@ public class RhythmicGame : MonoBehaviour
         Debug.LogFormat("GAME [init]: Game type is {0}", GameType.ToString());
     }
     private void Awake()
-    { SetFramerate(0); }
+    { SetFramerate(200); }
 
     public static void SetFramerate(int fps, int vsync = 0)
     {
@@ -20,8 +20,7 @@ public class RhythmicGame : MonoBehaviour
     public static void SetTimescale(float speed)
     {
         Time.timeScale = speed;
-        foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
-            src.pitch = speed;
+        AmplitudeSongController.Instance.AdjustSongSpeed(speed);
     }
     public static void SetResolution(Vector2 resolution) { Screen.SetResolution((int)resolution.x, (int)resolution.y, FullScreenMode.ExclusiveFullScreen); }
 

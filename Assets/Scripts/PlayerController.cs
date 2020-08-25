@@ -436,8 +436,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Keypad8))
             transform.Translate(Vector3.forward * 62.9f);
         else if (Input.GetKeyDown(KeyCode.Keypad9) || (Gamepad.current != null && Gamepad.current.dpad.up.wasPressedThisFrame))
-            foreach (AudioSource src in AmplitudeSongController.Instance.audiosrcList)
-                src.time += 2f;
+            AmplitudeSongController.Instance.OffsetSong(2f);
 
         // If the game is not Rhythmic, ignore everything below
         if (RhythmicGame.GameType != RhythmicGame._GameType.RHYTHMIC)
@@ -446,8 +445,22 @@ public class PlayerController : MonoBehaviour
 
     public virtual void BeginPlay() { }
 
+    public bool IsPaused;
+    public void TogglePause()
+    {
+        RhythmicGame.SetTimescale(Time.timeScale != 0 ? 0f : 1f);
+        IsSongPlaying = !IsSongPlaying;
+        IsPaused = !IsPaused;
+    }
+
     public void BeginPlay(CallbackContext context)
     {
-        if (context.performed) BeginPlay();
+        if (context.performed)
+        {
+            if (AmplitudeSongController.Instance.songPosition < 0.1f)
+                BeginPlay();
+            else
+                TogglePause();
+        }
     }
 }

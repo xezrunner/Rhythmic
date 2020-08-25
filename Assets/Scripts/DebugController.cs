@@ -16,6 +16,7 @@ public class DebugController : MonoBehaviour
     public GameObject section_debug;
     public GameObject section_controllerinput;
     public TextMeshProUGUI inputlagText;
+    public TextMeshProUGUI framerateText;
 
     private void Start()
     {
@@ -46,7 +47,7 @@ public class DebugController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
             RhythmicGame.Restart();
         if (Input.GetKeyDown(KeyCode.Escape))
-            RhythmicGame.SetTimescale(Time.timeScale != 0 ? 0f : 1f);
+            Player.TogglePause();
 
         // TEMP / DEBUG
 
@@ -56,6 +57,11 @@ public class DebugController : MonoBehaviour
             RhythmicGame.PreferredResolution = new Vector2(1280, 720);
             RhythmicGame.SetResolution(RhythmicGame.PreferredResolution);
         }
+
+        // FPS Lock
+        if (Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(60); Player.ScoreText.text = "60 FPS"; }
+        else if (Input.GetKeyDown(KeyCode.F2)) { RhythmicGame.SetFramerate(144); Player.ScoreText.text = "144 FPS"; }
+        else if (Input.GetKeyDown(KeyCode.F3)) { RhythmicGame.SetFramerate(200); Player.ScoreText.text = "200 FPS"; }
 
         // Toggle tunnel mode
         if (Input.GetKeyDown(KeyCode.F))
@@ -68,17 +74,15 @@ public class DebugController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.KeypadPlus))
         {
             PlayerController.ZOffset += 0.1f;
+            Player.transform.Translate(Vector3.forward * (Player.PlayerSpeed * amp_ctrl.secPerBeat * amp_ctrl.TunnelSpeedAccountation) * 0.1f); // offset the player as well!
             inputlagText.text = string.Format("Player offset (zPos): {0}", PlayerController.ZOffset);
         }
         else if (Input.GetKeyDown(KeyCode.KeypadMinus))
         {
             PlayerController.ZOffset -= 0.1f;
+            Player.transform.Translate(Vector3.back * (Player.PlayerSpeed * amp_ctrl.secPerBeat * amp_ctrl.TunnelSpeedAccountation) * 0.1f); // offset the player as well!
             inputlagText.text = string.Format("Player offset (zPos): {0}", PlayerController.ZOffset);
         }
-
-        // FPS Lock
-        if (Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(60); Player.ScoreText.text = "60 FPS"; }
-        else if (Input.GetKeyDown(KeyCode.F2)) { RhythmicGame.SetFramerate(0); Player.ScoreText.text = "No FPS Lock"; }
 
         // Track capturing debug
         if (Input.GetKeyDown(KeyCode.H)) // current track, 5
@@ -125,6 +129,20 @@ public class DebugController : MonoBehaviour
 
         if (!isDebugOn)
             return;
+    }
+
+    float deltaTime;
+    void Update()
+    {
+        if (!isDebugOn)
+            return;
+
+        // update framerate debug
+        if (Time.timeScale == 0f)
+            return;
+        deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
+        float fps = 1.0f / deltaTime;
+        framerateText.text = string.Format("Framerate: {0} FPS", Mathf.Ceil(fps).ToString());
     }
 
     public async void DoFailTest()

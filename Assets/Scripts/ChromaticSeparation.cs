@@ -20,10 +20,10 @@ public class ChromaticSeparation : MonoBehaviour
 
     [Range(0.0f, 30.0f)]
     public float Intensity = 0.0f;
-    [Range(-1.0f, 1.0f)]
+    [Range(0f, 1f)]
     public float XOffset = 0.5f;
-    [Range(-1.0f, 1.0f)]
-    public float YOffset = 0.5f;
+    [Range(0f, 1f)]
+    public float YOffset = 0f;
 
     public void Start()
     {
