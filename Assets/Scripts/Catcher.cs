@@ -63,6 +63,7 @@ public class Catcher : MonoBehaviour
         else if (noteList.Count != 0) // if there are notes
         {
             // if we have multiple notes in a single hit, sort the notes based on their zPos, so that we know which one is the first one.
+            // TODO: prioritize enabled notes!
             if (noteList.Count > 1)
             {
                 List<Note> newList = noteList.OrderBy(o => o.zPos).ToList();
