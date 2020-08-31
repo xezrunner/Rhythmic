@@ -203,17 +203,18 @@ public class SongController : MonoBehaviour
     // When the track changes, change music track volume | e[0]: old ID; e[1]: new ID
     void TracksController_OnTrackSwitched(object sender, int[] e)
     {
-        if (audioSrcList[e[1]].clip == null)
+        int trackID = TracksController.Tracks[e[1]].ID;
+        if (audioSrcList[trackID].clip == null)
         { Debug.LogWarningFormat("SONGCTRL: Track ID {0} does not have an audio clip! - ignoring track switch volume change", e); return; }
 
         // Set volumes
-        for (int i = 0; i < TracksController.Tracks.Count; i++)
+        for (int i = 0; i < TracksController.CurrentTrackSet.Count; i++)
         {
             AudioSource src = audioSrcList[i];
 
-            if (i == e[1] && TracksController.Tracks[i].IsTrackCaptured) // Current track should go full volume if it's captured | TODO: revise?
+            if (i == trackID && TracksController.CurrentTrackSet[i].IsTrackCaptured) // Current track should go full volume if it's captured | TODO: revise?
                 src.volume = 1f;
-            else if (TracksController.Tracks[i].IsTrackCaptured) // Other tracks that are captured should be quieter
+            else if (TracksController.CurrentTrackSet[i].IsTrackCaptured) // Other tracks that are captured should be quieter
                 src.volume = 0.4f;
             else // Other tracks that are NOT captured should be silent
                 src.volume = 0f;
