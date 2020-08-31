@@ -9,7 +9,13 @@ public class RhythmicGame : MonoBehaviour
         Debug.LogFormat("GAME [init]: Game type is {0}", GameType.ToString());
     }
     private void Awake()
-    { SetFramerate(200); }
+    {
+#if UNITY_ANDROID
+        SetFramerate(60);
+#elif UNITY_STANDALONE
+        SetFramerate(200); 
+#endif
+    }
 
     public static void SetFramerate(int fps, int vsync = 0)
     {
@@ -65,6 +71,11 @@ public class RhythmicGame : MonoBehaviour
 
     public static float TrackWidth = 2.36f;
 
+    public enum GameDifficulty { Beginner = 0, Intermediate = 1, Advanced = 2, Expert = 3, Super = 4 }
+    public static GameDifficulty Difficulty = GameDifficulty.Expert;
+
+    public static float[] DifficultyFudgeFactors = new float[] { 1f, 1f, 0.93f, 0.8f, 0.8f };
+
     // Event debug
     public static bool DebugTrackCreationEvents = true;
     public static bool DebugTrackMaterialEvents = false;
@@ -79,16 +90,5 @@ public class RhythmicGame : MonoBehaviour
 
     // Draw debug
     public static bool DebugDrawLanes = false;
-    public static bool DebugCatcherCasting = true;
-
-    // AMPLITUDE properties
-    // @"H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs";
-    //public static string AMP_songFolder = string.Format("{0}//amp_songs", Application.dataPath);
-    public static string AMP_songFolder { get { return string.Format("{0}//amp_songs", Application.dataPath); } }
-    public static string AMP_GetSongFilePath(string songName, AMP_FileExtension extension)
-    {
-        return string.Format("{0}//{1}//{1}.{2}", AMP_songFolder, songName, extension);
-    }
-
-    public enum AMP_FileExtension { mid, mogg, moggsong }
+    public static bool DebugCatcherCasting = true;    
 }

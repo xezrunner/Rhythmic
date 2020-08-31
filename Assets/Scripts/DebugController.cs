@@ -4,12 +4,13 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class DebugController : MonoBehaviour
 {
-    PlayerController Player { get { return PlayerController.Instance; } }
+    Player Player { get { return Player.Instance; } }
     AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
 
@@ -20,7 +21,7 @@ public class DebugController : MonoBehaviour
 
     private void Start()
     {
-        inputlagText.text = string.Format("Player offset (zPos): {0}", PlayerController.ZOffset);
+        inputlagText.text = string.Format("Player offset (zPos): {0}", Player.ZOffset);
     }
 
     public bool isDebugOn = true;
@@ -31,6 +32,7 @@ public class DebugController : MonoBehaviour
         Player.ScoreText.text = string.Format("Song changed: {0} - restart!", value);
     }
 
+    int android_songcounter = 0;
     private void LateUpdate()
     {
         // AMP songs debug
@@ -42,6 +44,34 @@ public class DebugController : MonoBehaviour
             AMP_ChangeSong("dreamer");
         else if (Input.GetKey(KeyCode.Alpha3))
             AMP_ChangeSong("dalatecht");
+
+        if (Touchscreen.current != null)
+        {
+            if (Touchscreen.current.press.wasPressedThisFrame)
+            {
+                if (android_songcounter == 4) android_songcounter = 0;
+                switch (android_songcounter)
+                {
+                    case 0:
+                        AMP_ChangeSong("tut0"); break;
+                    case 1:
+                        AMP_ChangeSong("perfectbrain"); break;
+                    case 2:
+                        AMP_ChangeSong("dreamer"); break;
+                    case 3:
+                        AMP_ChangeSong("dalatecht"); break;
+                }
+                android_songcounter++;
+            }
+        }
+
+        if (Gamepad.current != null && Gamepad.current.dpad.down.wasPressedThisFrame)
+        {
+            var world = GameObject.Find("WORLD_TUT");
+            var worldCamera = GameObject.Find("MainCamera");
+
+            world.SetActive(!world.activeInHierarchy); worldCamera.SetActive(!world.activeInHierarchy);
+        }
 
         // RESTART
         if (Input.GetKeyDown(KeyCode.R))
@@ -73,15 +103,15 @@ public class DebugController : MonoBehaviour
         // Lag compensation
         if (Input.GetKeyDown(KeyCode.KeypadPlus))
         {
-            PlayerController.ZOffset += 0.1f;
-            Player.transform.Translate(Vector3.forward * (Player.PlayerSpeed * amp_ctrl.secPerBeat * amp_ctrl.TunnelSpeedAccountation) * 0.1f); // offset the player as well!
-            inputlagText.text = string.Format("Player offset (zPos): {0}", PlayerController.ZOffset);
+            Player.ZOffset += 0.1f;
+            Player.transform.Translate(Vector3.forward * (Player.PlayerSpeed * amp_ctrl.secPerBeat / amp_ctrl.TunnelSpeedAccountation) * 0.1f); // offset the player as well!
+            inputlagText.text = string.Format("Player offset (zPos): {0}", Player.ZOffset);
         }
         else if (Input.GetKeyDown(KeyCode.KeypadMinus))
         {
-            PlayerController.ZOffset -= 0.1f;
-            Player.transform.Translate(Vector3.back * (Player.PlayerSpeed * amp_ctrl.secPerBeat * amp_ctrl.TunnelSpeedAccountation) * 0.1f); // offset the player as well!
-            inputlagText.text = string.Format("Player offset (zPos): {0}", PlayerController.ZOffset);
+            Player.ZOffset -= 0.1f;
+            Player.transform.Translate(Vector3.back * (Player.PlayerSpeed * amp_ctrl.secPerBeat / amp_ctrl.TunnelSpeedAccountation) * 0.1f); // offset the player as well!
+            inputlagText.text = string.Format("Player offset (zPos): {0}", Player.ZOffset);
         }
 
         // Track capturing debug

@@ -8,7 +8,7 @@ public class tut_test_script : MonoBehaviour
     AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
     TracksController TracksController { get { return (TracksController)TracksController.Instance; } }
     CatcherController CatcherController { get { return CatcherController.Instance; } }
-    PlayerController Player { get { return PlayerController.Instance; } }
+    Player Player { get { return Player.Instance; } }
 
     public AudioSource audioSrc;
     public List<AudioClip> audioClips;

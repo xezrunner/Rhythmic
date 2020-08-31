@@ -260,7 +260,7 @@ public class Track : MonoBehaviour
     {
         IsTrackBeingCaptured = false;
         IsTrackCaptured = true;
-        PlayerController.Instance.Multiplier++;
+        Player.Instance.Multiplier++;
 
         identicalTracks.ForEach(t =>
         {

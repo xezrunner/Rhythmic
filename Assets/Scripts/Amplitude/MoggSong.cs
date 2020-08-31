@@ -19,7 +19,7 @@ public class MoggSong : MonoBehaviour
     // Fudge Factor
     // If a song doesn't have a fudge factor defined, assume it's 0.
     float? _songFudgeFactor;
-    public float songFudgeFactor { get { if (!_songFudgeFactor.HasValue) return 0f; else return _songFudgeFactor.Value; } set { _songFudgeFactor = value; } }
+    public float songFudgeFactor { get { if (!_songFudgeFactor.HasValue) return 1f; else return _songFudgeFactor.Value; } set { _songFudgeFactor = value; } }
 
     // TOOD: Unknown props
     public int[] songEnableOrder { get; set; }
@@ -35,11 +35,11 @@ public class MoggSong : MonoBehaviour
     // TODO: IMPROVE THIS BY USING SWITCH STATEMENTS (?)
     public void LoadMoggSong(string songName)
     {
-        string finalPath = RhythmicGame.AMP_GetSongFilePath(songName, RhythmicGame.AMP_FileExtension.moggsong); // moggsong path
+        string finalPath = AmplitudeGame.AMP_GetSongFilePath(songName, AmplitudeGame.AMP_FileExtension.moggsong); // moggsong path
         char[] CRLF = new char[2] { '\n', '\r' }; // newline characters
 
         TextReader tr = File.OpenText(finalPath);
-        string[] fileLines = tr.ReadToEnd().Split(CRLF); // create array of moggsong lines
+        string[] fileLines = tr.ReadToEnd().Split(CRLF); // create array of moggsong lines 
 
         int counter = 0;
         foreach (string line in fileLines) // go through each line

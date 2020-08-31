@@ -15,7 +15,7 @@ using UnityEngine.UIElements;
 public class AmplitudeSongController : MonoBehaviour
 {
     public static AmplitudeSongController Instance;
-    public PlayerController Player { get { return PlayerController.Instance; } }
+    public Player Player { get { return Player.Instance; } }
     TracksController TracksController = (TracksController)TracksController.Instance;
 
     MidiReader reader;
@@ -23,7 +23,7 @@ public class AmplitudeSongController : MonoBehaviour
 
     public string defaultSong;
     public static string songName;
-    public static string songFolder { get { return RhythmicGame.AMP_songFolder; } }
+    public static string songFolder { get { return AmplitudeGame.AMP_songFolder; } }
 
     public List<string> songTracks { get { return reader.songTracks; } }
     public List<MeasureInfo> songMeasures;
@@ -44,7 +44,7 @@ public class AmplitudeSongController : MonoBehaviour
     // MIDI properties
     public float tickInMs { get { return 60000f / ((float)reader.bpm * (float)reader.midi.DeltaTicksPerQuarterNote); } } // 1 MIDI tick in milliseconds
     public float DeltaTicksPerQuarterNote { get { return Enabled ? reader.midi.DeltaTicksPerQuarterNote : 480; } } // 1 subbeat's length in MIDI ticks
-    public float TunnelSpeedAccountation { get { return (1f + fudgeFactor); } } // tunnel scaling multiplication value
+    public float TunnelSpeedAccountation { get { return (fudgeFactor == 0 ? 1f : fudgeFactor); } } // tunnel scaling multiplication value
 
     // Music playback properties
     public float songPosition; //Current song position, in seconds
@@ -58,7 +58,7 @@ public class AmplitudeSongController : MonoBehaviour
     public float GetTickTimeInzPos(float absoluteTime) // Convert MIDI ticks into zPos unit
     {
         //     |       tick time in seconds      |   |     offset by 1 beat length in seconds    ||unit||     fudge factor     |
-        return ((tickInMs * absoluteTime) / 1000f) / (tickInMs * DeltaTicksPerQuarterNote / 1000f) * 4 * TunnelSpeedAccountation;
+        return ((tickInMs * absoluteTime) / 1000f) / (tickInMs * DeltaTicksPerQuarterNote / 1000f) * 4 / TunnelSpeedAccountation;
     }
     public float GetzPosForNote(float absoluteTime) { return GetTickTimeInzPos(absoluteTime); } // Get note's zPos from its tick time | TODO: redundant?
     public float measureLengthInzPos { get { return GetTickTimeInzPos(DeltaTicksPerQuarterNote) * 4; } } // One measure's length in zPos unit (4 beats)
@@ -80,7 +80,7 @@ public class AmplitudeSongController : MonoBehaviour
         if (Enabled)
         {
             // Check if song exists
-            string songPath = RhythmicGame.AMP_GetSongFilePath(songName, RhythmicGame.AMP_FileExtension.moggsong);
+            string songPath = AmplitudeGame.AMP_GetSongFilePath(songName, AmplitudeGame.AMP_FileExtension.moggsong);
             if (!File.Exists(songPath))
             {
                 Debug.LogErrorFormat("Song {0} does not exist at path: {1}", songName, songPath);
@@ -115,10 +115,10 @@ public class AmplitudeSongController : MonoBehaviour
 
             // TODO: move elsewhere
             // Scale the catchers and CatcherController
-            CatcherController.Instance.BoxCollider.size = new Vector3(CatcherController.Instance.BoxCollider.size.x, CatcherController.Instance.BoxCollider.size.y, CatcherController.Instance.BoxCollider.size.z * TunnelSpeedAccountation * 1.3f);
-            CatcherController.Instance.CatcherRadiusExtra = CatcherController.Instance.CatcherRadiusExtra * TunnelSpeedAccountation;
+            CatcherController.Instance.BoxCollider.size = new Vector3(CatcherController.Instance.BoxCollider.size.x, CatcherController.Instance.BoxCollider.size.y, CatcherController.Instance.BoxCollider.size.z / TunnelSpeedAccountation * 1.3f);
+            CatcherController.Instance.CatcherRadiusExtra = CatcherController.Instance.CatcherRadiusExtra / TunnelSpeedAccountation;
 
-            Time.timeScale = Time.timeScale * Mathf.Clamp(TunnelSpeedAccountation / 1.5f, 1f, 2f);
+            Time.timeScale = Time.timeScale * Mathf.Clamp((1f + TunnelSpeedAccountation) / 1.5f, 1f, 2f);
 
             // Load song!
             // Assign clips to AudioSources
@@ -246,7 +246,7 @@ public class AmplitudeSongController : MonoBehaviour
     {
         //SongOffset += offset;
         // TODO: Unity meter to time units conversions!
-        Player.transform.Translate(Vector3.forward * (Player.PlayerSpeed * secPerBeat * TunnelSpeedAccountation) * offset); // offset the player as well!
+        Player.transform.Translate(Vector3.forward * (Player.PlayerSpeed * secPerBeat / TunnelSpeedAccountation) * offset); // offset the player as well!
         foreach (AudioSource src in audiosrcList)
             src.time += offset;
     }

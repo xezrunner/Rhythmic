@@ -15,7 +15,7 @@ public class TracksController : MonoBehaviour
 
     public AmplitudeSongController SongController { get { return AmplitudeSongController.Instance; } }
     public CatcherController CatcherController { get { return CatcherController.Instance; } }
-    public PlayerController Player { get { return PlayerController.Instance; } }
+    public Player Player { get { return Player.Instance; } }
 
     public int StartTrackID = 0; // start track ID
     public int CurrentTrackID = 0; // the track that the player is currently on

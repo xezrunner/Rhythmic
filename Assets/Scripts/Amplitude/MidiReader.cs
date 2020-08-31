@@ -22,7 +22,7 @@ public class MidiReader : MonoBehaviour
     public List<string> songTracks = new List<string>();
 
     public string songName = "tut0";
-    public string songFolder { get { return RhythmicGame.AMP_songFolder; } }
+    public string songFolder { get { return AmplitudeGame.AMP_songFolder; } }
 
     /// <summary>
     /// This returns the path based on the songName and songFolder variables.
@@ -30,7 +30,7 @@ public class MidiReader : MonoBehaviour
     /// <returns></returns>
     string GetMIDIPath()
     {
-        return RhythmicGame.AMP_GetSongFilePath(songName, RhythmicGame.AMP_FileExtension.mid);
+        return AmplitudeGame.AMP_GetSongFilePath(songName, AmplitudeGame.AMP_FileExtension.mid);
         //return string.Format("{0}//{1}//{1}.mid", songFolder, songName);
     }
 
@@ -113,7 +113,11 @@ public class MidiReader : MonoBehaviour
         foreach (MidiEvent midevent in midi.Events[track + 1])
         {
             if (midevent.CommandCode == MidiCommandCode.NoteOn) // note ON event was found!
-                list.Add((NoteOnEvent)midevent); // add the note to list
+            {
+                NoteOnEvent noteEvent = (NoteOnEvent)midevent;
+                if (AmplitudeGame.CurrentNoteNumberSet.Any(n => n == noteEvent.NoteNumber)) // is it any of the current difficulty note numbers?
+                    list.Add(noteEvent); // add the note to list
+            }
         }
 
         return list;
@@ -215,11 +219,11 @@ public class MidiReader : MonoBehaviour
         //Start coroutine for each note at the start of the playback
         //Really awful way to do stuff, but its simple
         // TODO: revise this! (?)
-        StartCoroutine(CreateAction(time, noteNumber, noe.NoteLength));
+        StartCoroutine(CreateAction(time, noteNumber));
     }
 
     public bool DebugOnEvent = false;
-    IEnumerator CreateAction(float t, int noteNumber, float length)
+    IEnumerator CreateAction(float t, int noteNumber)
     {
         //Wait for the start of the note
         yield return new WaitForSeconds(t);

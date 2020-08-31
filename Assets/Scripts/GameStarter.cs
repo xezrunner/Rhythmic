@@ -31,10 +31,11 @@ public class GameStarter : MonoBehaviour
     {
         await Task.Delay(100);
 
-        //if (Screen.fullScreenMode != FullScreenMode.ExclusiveFullScreen)
+#if UNITY_STANDALONE
         if (!SetResolutionOnce)
             RhythmicGame.SetResolution(RhythmicGame.PreferredResolution);
         SetResolutionOnce = true;
+#endif
 
         //await Task.Delay(3000);
 

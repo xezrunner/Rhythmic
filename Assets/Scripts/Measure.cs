@@ -244,7 +244,7 @@ public class Measure : MonoBehaviour
 
         foreach (GameObject obj in EdgeLightsFrontBack)
         {
-            
+
             obj.transform.parent = null;
             obj.transform.localScale = new Vector3(obj.transform.localScale.x, obj.transform.localScale.y, 0.01f);
             obj.transform.parent = EdgeLightsController.transform;
@@ -317,7 +317,7 @@ public class Measure : MonoBehaviour
     // It needs to run in Update()
     // TODO: revise
     Transform ogParent;
-    public void MeasureCaptureUpdate(object sender, EventArgs e)
+    public void MeasureCaptureUpdate()
     {
         if (IsMeasureCapturing)
         {
@@ -342,16 +342,15 @@ public class Measure : MonoBehaviour
         anim.Stop();
         anim.Play(); // play capture anim!
 
-        UpdateEvent += MeasureCaptureUpdate;
-
         IsMeasureCapturing = true;
 
         detector.Begin();
 
         while (IsMeasureCapturing)
+        {
+            MeasureCaptureUpdate();
             yield return null;
-
-        UpdateEvent -= MeasureCaptureUpdate;
+        }
     }
 
     // Captures this measure without an animation
@@ -384,12 +383,6 @@ public class Measure : MonoBehaviour
         //MeasureCaptureUpdate(null, null);
     }
 
-    public event EventHandler UpdateEvent;
-    void Update()
-    {
-        UpdateEvent?.Invoke(null, null);
-    }
-
     // Z position
 
     // TODO: optimize!
@@ -404,8 +397,8 @@ public class Measure : MonoBehaviour
             else if (zPos == subbeat.EndZPos)
                 return subbeatList[counter + 1];
             */
-        counter++;
-    }
+            counter++;
+        }
         throw new Exception("Cannot find subbeat for this zPos: " + zPos);
-}
+    }
 }

@@ -13,12 +13,12 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using static UnityEngine.InputSystem.InputAction;
 
-public class PlayerController : MonoBehaviour
+public class Player : MonoBehaviour
 {
 	// TODO: Global dynamic haptics controller!
 	// TODO: Input system wrapper!
 	
-    public static PlayerController Instance;
+    public static Player Instance;
     public TracksController TracksController { get { return TracksController.Instance; } }
     public CatcherController CatcherController { get { return CatcherController.Instance; } }
     Tunnel Tunnel { get { return Tunnel.Instance; } }

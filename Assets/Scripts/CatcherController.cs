@@ -11,7 +11,7 @@ public class CatcherController : MonoBehaviour
     public static CatcherController Instance;
 
     public AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
-    public PlayerController PlayerController { get { return PlayerController.Instance; } }
+    public Player PlayerController { get { return Player.Instance; } }
     public TracksController TracksController { get { return TracksController.Instance; } }
     public Track CurrentTrack { get { return TracksController.CurrentTrack; } }
     public Measure CurrentMeasure { get { return CurrentTrack.GetMeasureForZPos(transform.position.z); } }
