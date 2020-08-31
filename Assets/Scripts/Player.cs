@@ -15,14 +15,16 @@ using static UnityEngine.InputSystem.InputAction;
 
 public class Player : MonoBehaviour
 {
-	// TODO: Global dynamic haptics controller!
-	// TODO: Input system wrapper!
-	
+    // TODO: Global dynamic haptics controller!
+    // TODO: Input system wrapper!
+
     public static Player Instance;
+    public SongController SongController { get { return SongController.Instance; } }
     public TracksController TracksController { get { return TracksController.Instance; } }
     public CatcherController CatcherController { get { return CatcherController.Instance; } }
     Tunnel Tunnel { get { return Tunnel.Instance; } }
 
+    #region Object instances set in editor
     public TextMeshProUGUI ScoreText;
     public TextMeshProUGUI MissText;
 
@@ -41,9 +43,10 @@ public class Player : MonoBehaviour
     public Animation move_anim;
 
     public AudioSource src;
+    #endregion
 
     public List<AudioClip> audioClips = new List<AudioClip>();
-	// TODO: do NOT dynamically load AudioClips! Use the Editor instead!
+    // TODO: do NOT dynamically load AudioClips! Use the Editor instead!
     public AudioClip GetAudioClip(string name)
     {
         var clip = audioClips.Find(x => x.name == name);
@@ -54,13 +57,12 @@ public class Player : MonoBehaviour
     }
 
     // Props
-
     public float CameraPullbackOffset = -5.5f;
-    public float StartZOffset = 4f; // countin
-    public static float ZOffset = 0f; // (DEBUG) additional position offset
+    public float StartZOffset = 0f;
+    public static float ZOffset = 0f; // Lag compensation offset
 
-    public bool IsSongPlaying = false;
-    public float PlayerSpeed = 8f;
+    public bool IsPlaying; // Controlled by the SongController!
+    public float PlayerSpeed = 4f;
 
     // Awake & Start
     void Awake()
@@ -72,25 +74,32 @@ public class Player : MonoBehaviour
     {
         // Disable mouse support
         UnityEngine.Cursor.visible = false;
-		
-		// BUG: Unity's new Input System won't automatically pair the Keyboard if included in Supported Devices section.
-		// WORKAROUND: we manually pair it to Player 0 on startup and ignore if it's already paired
+
+        // BUG: Unity's new Input System won't automatically pair the Keyboard if included in Supported Devices section.
+        // WORKAROUND: we manually pair it to Player 0 on startup and ignore if it's already paired
         try
         { InputUser.PerformPairingWithDevice(Keyboard.current, InputUser.all[0]); }
         catch (Exception ex)
         { Debug.LogWarningFormat("PLAYER: Keyboard pairing not required or failed.\n{0}", ex.Message); }
-		
-		// If song controller is disabled, do not continue
+
+        // If song controller is disabled, do not continue
         if (!AmplitudeSongController.Instance.Enabled)
             return;
 
-		// Wait for the tracks to be loaded
-        while (TracksController == null || TracksController.enabled & TracksController.Tracks[0].trackMeasures.Count < 3)
+        // Wait for the tracks to be loaded
+        //while (TracksController == null || TracksController.enabled & TracksController.Tracks[0].trackMeasures.Count < 3)
+        while (RhythmicGame.IsLoading)
             await Task.Delay(500);
+
+        // Set song movement step | TODO: revise!!!
+        SongMovementStep = (PlayerSpeed * SongController.secInzPos) * Time.unscaledDeltaTime * SongController.songSpeed;
 
         // Push back player by the Start ZOffset
         transform.Translate(Vector3.back * StartZOffset);
         PlayerCameraTransform.position = new Vector3(PlayerCameraTransform.position.x, PlayerCameraTransform.position.y, CameraPullbackOffset);
+
+        // Push back player by the AV calibration value
+        //UpdateAVCalibrationOffset();
 
         // Wire up catcher events
         CatcherController.OnCatch += CatcherController_OnCatch;
@@ -105,33 +114,34 @@ public class Player : MonoBehaviour
     }
 
     // Score / streak system
-	// TODO: updating UI text is messy
-	public int Score = 0;
+    // TODO: updating UI text is messy
+    #region Score / streak system
+    public int Score = 0;
     [Range(1, 8)]
-	
-	// TODO: clarify ambigious naming! [ambiguity: Multiply powerup / score multiplier] [ideas: ScoreMultiplier, ScoreMult (?)]
-	// TODO: might even just be based on the streak counter?
+
+    // TODO: clarify ambigious naming! [ambiguity: Multiply powerup / score multiplier] [ideas: ScoreMultiplier, ScoreMult (?)]
+    // TODO: might even just be based on the streak counter?
     public bool IsMultiplierEnabled = true;
     public int Multiplier = 1;
 
-	// Add score based on streak counter
+    // Add score based on streak counter
     public void AddScore(int score = 1)
     {
         Score += score * (!IsMultiplierEnabled ? 1 : Mathf.Clamp(Multiplier, 1, 4)); // TODO: is Multiply powerup engaged
         ScoreText.text = Score.ToString();
     }
-	// Set the score to an arbitrary value, ignoring the streaking system
+    // Set the score to an arbitrary value, ignoring the streaking system
     public void SetScore(int score = 0)
     {
         Score = score;
         ScoreText.text = Score.ToString();
     }
-	
-	// Controls streak-ability. If this is false, the streak counter will not be increased by successful catches.
-	public bool EnableStreaks = true;
 
-	// Streak losing
-	// TOOD: improve!
+    // Controls streak-ability. If this is false, the streak counter will not be increased by successful catches.
+    public bool EnableStreaks = true;
+
+    // Streak losing
+    // TOOD: improve!
     bool canLoseStreak = true;
     public async void LoseStreak()
     {
@@ -156,6 +166,7 @@ public class Player : MonoBehaviour
         MissText.gameObject.SetActive(false);
         canLoseStreak = true;
     }
+    #endregion
 
     // Catcher
     void CatcherController_OnCatch(object sender, CatcherController.CatchEventArgs e)
@@ -195,7 +206,7 @@ public class Player : MonoBehaviour
     }
 
     // TODO: cleanup, perhaps move the entire tracks failing thing into TracksController by passing along the note? Maybe this isn't even neccessary?
-	// UPDATE: stuff that tackles track stuff should defo move to TracksController
+    // UPDATE: stuff that tackles track stuff should defo move to TracksController
     public void DeclareMiss(Note note = null, Catcher.NoteMissType? misstype = null)
     {
         switch (misstype)
@@ -215,8 +226,7 @@ public class Player : MonoBehaviour
     }
 
     // Player movement / track switching
-	// NOTE: mentions of 'rotation' actually refer to eulerAngles.
-	
+    // NOTE: mentions of 'rotation' actually refer to eulerAngles.
     #region Player movement & track switching
     [Range(0, 1f)]
     public float Move_Progress = 0f; // progress of camera animation
@@ -246,10 +256,10 @@ public class Player : MonoBehaviour
         Move_CamOffset[1] = Camera.eulerAngles; // rotation is current GLOBAL rotation of the camera
 
         // Handle inverse rotations
-		
-		// When rotating beyond 180, we want a smooth transition to the inverse angles instead. 
-		// We utilize the fact that negative angles are the same as 360 - (-angle) | (example:  -60 = 330) and vice-versa.
-		// This way, the camera can transition without having to rotate all the way and then some to arrive at its destination.
+
+        // When rotating beyond 180, we want a smooth transition to the inverse angles instead. 
+        // We utilize the fact that negative angles are the same as 360 - (-angle) | (example:  -60 = 330) and vice-versa.
+        // This way, the camera can transition without having to rotate all the way and then some to arrive at its destination.
         if (RhythmicGame.IsTunnelMode)
         {
             // LEFT
@@ -263,7 +273,7 @@ public class Player : MonoBehaviour
                 Move_CamOffset[1] = new Vector3(0, 0, -(360 - Camera.eulerAngles.z)); // change to 360 + target
         }
 
-		// Print debug information
+        // Print debug information
         if (RhythmicGame.DebugPlayerCameraAnimEvents)
             Debug.LogFormat("CamOffset POS: {0} | TargetCam POS: {1} | CamOffset ROT: {2} | CamTarget ROT: {3}",
                             new Vector2(Move_CamOffset[0].x, Move_CamOffset[0].y), new Vector2(Move_CamTarget[0].x, Move_CamTarget[0].y),
@@ -274,7 +284,7 @@ public class Player : MonoBehaviour
         if (force || !RhythmicGame.IsTunnelMode) // in tunnel mode, don't change position unless forced!
         {
             // In regular mode, we want to change the GLOBAL position of the tunnel helpers when moving the player!
-			// We want to keep the actual player Transform centered to the tunnel at all times.
+            // We want to keep the actual player Transform centered to the tunnel at all times.
             TunnelOffsetHelper.position = position;
             CameraTunnelOffsetHelper.position = Move_CamOffset[0];
         }
@@ -293,8 +303,8 @@ public class Player : MonoBehaviour
         // stop movement animation update control
         IsMoving = false;
     }
-	
-	// Applies movements to the camera according to the track switching animation - called in Update()
+
+    // Applies movements to the camera according to the track switching animation - called in Update()
     bool forcedPlayerMove;
     void MovePlayerUpdate()
     {
@@ -306,7 +316,7 @@ public class Player : MonoBehaviour
         Camera.eulerAngles = rot;
     }
 
-	// Moves player to specific POS & ROT coordinates (Z is ignored)
+    // Moves player to specific POS & ROT coordinates (Z is ignored)
     public void MovePlayer(Vector3 position = new Vector3(), Vector3 rotation = new Vector3(), bool force = false)
     {
         Vector3 finalPos = new Vector3(position.x, position.y, transform.position.z); // ignore Z!
@@ -314,12 +324,12 @@ public class Player : MonoBehaviour
 
         StartCoroutine(DoMovePlayerAnim(target, force));
     }
-	
-	public event EventHandler<Track> OnTrackSwitched;
+
+    public event EventHandler<Track> OnTrackSwitched;
     public void SwitchToTrack(Track track) { SwitchToTrack(track.RealID); }
-	
-	// Switches to a specific Track realID and handles seeking
-	// TODO: FIX SEEKING! (possibly without a recursive approach)
+
+    // Switches to a specific Track realID and handles seeking
+    // TODO: FIX SEEKING! (possibly without a recursive approach)
     int seekTryCounter = 0;
     public void SwitchToTrack(int id, bool force = false)
     {
@@ -393,9 +403,9 @@ public class Player : MonoBehaviour
     #endregion
 
     // Powerups | TODO: implementation!
-	// TODO: separate classes for powerups
-	
-	// PLAYTEST Cleanse
+    // TODO: separate classes for powerups
+
+    // PLAYTEST Cleanse
     public bool IsCleanseDeployed = false;
     public Vector3 cleanseHaptics; // large, small, duration
     public async void DeployPowerup()
@@ -430,48 +440,68 @@ public class Player : MonoBehaviour
         return GetCurrentMeasure().GetSubbeatForZpos(transform.position.z);
     }
 
+    // Song movement
+    public void UpdateAVCalibrationOffset()
+    {
+        float offset = RhythmicGame.AVCalibrationOffsetMs;
+        transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z + (offset * SongController.msInzPos));
+        ZOffset = offset;
+    }
+
+    // Offsets the player by given zPos
+    public void OffsetPlayer(float offset) => transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z + offset);
+
+    public float SongMovementStep;
+    void SongMovementUpdate()
+    {
+        float step = (PlayerSpeed * SongController.secInzPos) * Time.unscaledDeltaTime * SongController.songSpeed;
+        Vector3 currentPoint = transform.position;
+        Vector3 targetPoint = new Vector3(transform.position.x, transform.position.y, SongController.songLengthInzPos + SongController.SecTozPos(10f));
+        transform.position = Vector3.MoveTowards(currentPoint, targetPoint, step);
+    }
+
     // MAIN LOOP
     int prevSubbeat = 0;
     public virtual void Update()
     {
-        // Player movement
+        // Literal player movement | track switching & Freestyle
         if (IsMoving)
             MovePlayerUpdate();
 
-		// TODO: PLAYTEST CODE - temp controller haptics to the beat until there isn't a global haptics management system!
-        if (prevSubbeat != CatcherController.CurrentBeatID)
-        {
-            AmplitudeSongController.Instance.BeatVibration();
-            prevSubbeat = CatcherController.CurrentBeatID;
-        }
+        // Song player movement
+        if (IsPlaying)
+            SongMovementUpdate();
 
-		// Debug switch to 0th track
+        // TODO: PLAYTEST CODE - temp controller haptics to the beat until there isn't a global haptics management system!
+        if (prevSubbeat != CatcherController.CurrentBeatID) { SongController.BeatVibration(); prevSubbeat = CatcherController.CurrentBeatID; }
+
+        // Debug switch to 0th track
         if (Input.GetKeyDown(KeyCode.Q))
             SwitchToTrack(0, true);
-		// Debug switch to last track
-		if (Input.GetKeyDown(KeyCode.P))
+        // Debug switch to last track
+        if (Input.GetKeyDown(KeyCode.P))
             SwitchToTrack(TracksController.Tracks.Count - 1, true);
 
         // Debug move forward
         if (Input.GetKeyDown(KeyCode.Keypad9) || (Gamepad.current != null && Gamepad.current.dpad.up.wasPressedThisFrame))
-            AmplitudeSongController.Instance.OffsetSong(2f);
+            SongController.OffsetSong(2f);
 
         // If the game is not Rhythmic, ignore everything below
         if (RhythmicGame.GameType != RhythmicGame._GameType.RHYTHMIC)
             return;
-		
-		// RHYTHMIC PLAYER BEHAVIOR HERE
+
+        // RHYTHMIC PLAYER BEHAVIOR HERE
     }
 
     public virtual void BeginPlay() { }
 
-	// TODO: PLAYTEST CODE - temp pause & resume solution
-	// Improve this for stability & performance reasons!
+    // TODO: PLAYTEST CODE - temp pause & resume solution
+    // Improve this for stability & performance reasons!
     public bool IsPaused;
     public void TogglePause()
     {
         RhythmicGame.SetTimescale(Time.timeScale != 0 ? 0f : 1f);
-        IsSongPlaying = !IsSongPlaying;
+        IsPlaying = !IsPlaying;
         IsPaused = !IsPaused;
     }
 

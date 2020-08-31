@@ -65,6 +65,10 @@ public class MidiReader : MonoBehaviour
         // Ticks needed for timing calculations
         ticks = midi.DeltaTicksPerQuarterNote;
 
+        // BPM
+        TempoEvent bpmEvent = (TempoEvent)midi.Events[0][2];
+        bpm = (int)bpmEvent.Tempo;
+
         GetSongTracksFromMIDI();
 
         Debug.LogFormat(string.Format("MidiReader: MIDI loaded: \n" +

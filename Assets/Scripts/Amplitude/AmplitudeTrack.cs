@@ -8,7 +8,7 @@ using System.Linq;
 
 public class AmplitudeTrack : Track
 {
-    AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
+    AmplitudeSongController amp_ctrl { get { return (AmplitudeSongController)AmplitudeSongController.Instance; } }
 
     public List<NoteOnEvent> AMP_NoteOnEvents;
     public async override void PopulateNotes()

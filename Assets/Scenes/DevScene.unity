@@ -153,17 +153,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f0fbf93bdfe97d41a7159ea35bedf1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TracksController: {fileID: 0}
   defaultSong: perfectbrain
-  beatHaptics: {x: 0.25, y: 0.8, z: 85}
+  songName: 
+  IsFake: 0
   Enabled: 1
-  songPosition: 0
-  songPositionInBeats: 0
+  songBpm: 0
+  songCountIn: 0
   songLength: 0
-  firstBeatOffset: 0
-  dspSongTime: 0
-  audiosrcList: []
-  SongOffset: 0
+  songLengthInzPos: 0
+  songLengthInMeasures: 0
+  songFudgeFactor: 0
+  audioSrcList: []
+  mainAudioSource: {fileID: 0}
   songSpeed: 1
+  songOffset: 0
+  songDspTime: 0
+  beatHaptics: {x: 0.25, y: 0.8, z: 85}
+  beatTicks: 480
 --- !u!4 &22153599
 Transform:
   m_ObjectHideFlags: 0
@@ -176,7 +183,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &30252475
 GameObject:
@@ -1031,7 +1038,7 @@ Transform:
   m_Children:
   - {fileID: 1707867165}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &509037539
 AudioSource:
@@ -1189,7 +1196,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &654554962
 GameObject:
@@ -1348,7 +1355,7 @@ Transform:
   m_LocalScale: {x: 1.0000002, y: 1.0000002, z: 1.0000002}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 75.365005, y: -25.235, z: -81.741005}
 --- !u!1 &765851276
 GameObject:
@@ -1838,7 +1845,7 @@ Transform:
   - {fileID: 1117322938}
   - {fileID: 897577346}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!111 &1010288849
 Animation:
@@ -1999,6 +2006,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1052889308}
+  - component: {fileID: 1052889309}
   m_Layer: 0
   m_Name: User Interface
   m_TagString: Untagged
@@ -2021,8 +2029,25 @@ Transform:
   - {fileID: 952147856}
   - {fileID: 1707718259}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1052889309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1052889307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a6e18caee2803642bbe1cf1185519df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  section_debug: {fileID: 464471073}
+  section_controllerinput: {fileID: 654554962}
+  inputlagText: {fileID: 1371996219}
+  framerateText: {fileID: 1627078465}
+  isDebugOn: 1
 --- !u!1 &1054169924
 GameObject:
   m_ObjectHideFlags: 0
@@ -2327,7 +2352,7 @@ PrefabInstance:
     - target: {fileID: 4718328837422673800, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 8192
+      value: 9527
       objectReference: {fileID: 0}
     - target: {fileID: 5093479231452247939, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
@@ -2373,7 +2398,7 @@ PrefabInstance:
     - target: {fileID: 5759535519322832053, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 7991
+      value: 6656
       objectReference: {fileID: 0}
     - target: {fileID: 5759535519322832055, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
@@ -2383,7 +2408,7 @@ PrefabInstance:
     - target: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
@@ -8002,76 +8027,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 1
   m_ChildScaleHeight: 1
   m_ReverseArrangement: 0
---- !u!1 &1307272707
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1307272709}
-  - component: {fileID: 1307272708}
-  - component: {fileID: 1307272711}
-  - component: {fileID: 1307272710}
-  m_Layer: 0
-  m_Name: RhythmicGame
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1307272708
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1307272707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff87ba1f3bd80b94eafd7c058ea999e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &1307272709
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1307272707}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.9669106, y: -4.289925, z: 11.767744}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!81 &1307272710
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1307272707}
-  m_Enabled: 1
---- !u!114 &1307272711
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1307272707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a6e18caee2803642bbe1cf1185519df, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  section_debug: {fileID: 464471073}
-  section_controllerinput: {fileID: 654554962}
-  inputlagText: {fileID: 1371996219}
-  framerateText: {fileID: 1627078465}
-  isDebugOn: 1
 --- !u!1 &1314224195 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3904273063982621673, guid: c9077085010b3e0408e2309405d63a81,
@@ -8611,7 +8566,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Player offset (zPos): 0'
+  m_text: 'Player offset (ms): 0'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -9002,7 +8957,7 @@ MonoBehaviour:
     m_ActionName: Player/Start song[/DualShock4GamepadHID/start]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1307272708}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: RhythmicGame, Assembly-CSharp
         m_MethodName: Restart
         m_Mode: 1

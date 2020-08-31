@@ -10,7 +10,7 @@ using TMPro;
 
 public class Measure : MonoBehaviour
 {
-    AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
+    SongController SongController { get { return SongController.Instance; } }
 
     public int measureNum; // measure ID
     public List<Note> noteList = new List<Note>(); // notes in this measure
@@ -192,7 +192,7 @@ public class Measure : MonoBehaviour
     [ExecuteInEditMode]
     void Start()
     {
-        if (amp_ctrl.Enabled)
+        if (SongController.Enabled)
             CreateSubbeats();
 
         // Create subbeat separators
@@ -276,7 +276,7 @@ public class Measure : MonoBehaviour
         if (subBeatPrefab == null)
             subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
 
-        Vector3 subbeatScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos);
+        Vector3 subbeatScale = new Vector3(1, 1, SongController.subbeatLengthInzPos);
         float lastSubbeatPosition = startTime;
 
         for (int i = 0; i < 8; i++)
@@ -300,7 +300,7 @@ public class Measure : MonoBehaviour
             subbeatObjectList.Add(obj);
             subbeatList.Add(script);
 
-            lastSubbeatPosition += amp_ctrl.subbeatLengthInzPos;
+            lastSubbeatPosition += SongController.subbeatLengthInzPos;
             script.EndZPos = lastSubbeatPosition;
         }
     }

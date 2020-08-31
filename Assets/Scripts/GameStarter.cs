@@ -20,6 +20,14 @@ public class GameStarter : MonoBehaviour
     {
         RhythmicGame.IsLoading = true;
 
+        Debug.LogFormat("GAME [init]: Game type is {0}", RhythmicGame.GameType.ToString());
+
+#if UNITY_ANDROID
+        RhythmicGame.SetFramerate(60);
+#elif UNITY_STANDALONE
+        RhythmicGame.SetFramerate(200);
+#endif
+
         ppfx = GameObject.Find("ppfx");
 
         ppv = ppfx.GetComponent<PostProcessVolume>();

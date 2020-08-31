@@ -11,7 +11,7 @@ using UnityEngine.UI;
 public class DebugController : MonoBehaviour
 {
     Player Player { get { return Player.Instance; } }
-    AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
+    SongController SongController { get { return SongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
 
     public GameObject section_debug;
@@ -28,11 +28,13 @@ public class DebugController : MonoBehaviour
 
     public void AMP_ChangeSong(string value)
     {
-        AmplitudeSongController.songName = value;
+        SongController.songName = value;
         Player.ScoreText.text = string.Format("Song changed: {0} - restart!", value);
     }
 
+#if UNITY_ANDROID
     int android_songcounter = 0;
+#endif
     private void LateUpdate()
     {
         // AMP songs debug
@@ -45,6 +47,8 @@ public class DebugController : MonoBehaviour
         else if (Input.GetKey(KeyCode.Alpha3))
             AMP_ChangeSong("dalatecht");
 
+#if UNITY_ANDROID
+        // Test code for changing songs on an Android device
         if (Touchscreen.current != null)
         {
             if (Touchscreen.current.press.wasPressedThisFrame)
@@ -64,6 +68,7 @@ public class DebugController : MonoBehaviour
                 android_songcounter++;
             }
         }
+#endif
 
         if (Gamepad.current != null && Gamepad.current.dpad.down.wasPressedThisFrame)
         {
@@ -92,6 +97,7 @@ public class DebugController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(60); Player.ScoreText.text = "60 FPS"; }
         else if (Input.GetKeyDown(KeyCode.F2)) { RhythmicGame.SetFramerate(144); Player.ScoreText.text = "144 FPS"; }
         else if (Input.GetKeyDown(KeyCode.F3)) { RhythmicGame.SetFramerate(200); Player.ScoreText.text = "200 FPS"; }
+        else if (Input.GetKeyDown(KeyCode.F4)) { RhythmicGame.SetFramerate(0); Player.ScoreText.text = "∞ FPS"; }
 
         // Toggle tunnel mode
         if (Input.GetKeyDown(KeyCode.F))
@@ -103,15 +109,13 @@ public class DebugController : MonoBehaviour
         // Lag compensation
         if (Input.GetKeyDown(KeyCode.KeypadPlus))
         {
-            Player.ZOffset += 0.1f;
-            Player.transform.Translate(Vector3.forward * (Player.PlayerSpeed * amp_ctrl.secPerBeat / amp_ctrl.TunnelSpeedAccountation) * 0.1f); // offset the player as well!
-            inputlagText.text = string.Format("Player offset (zPos): {0}", Player.ZOffset);
+            RhythmicGame.SetAVCalibrationOffset(RhythmicGame.AVCalibrationOffsetMs + RhythmicGame.AVCalibrationStepMs);
+            inputlagText.text = string.Format("Player offset (ms): {0}", RhythmicGame.AVCalibrationOffsetMs);
         }
         else if (Input.GetKeyDown(KeyCode.KeypadMinus))
         {
-            Player.ZOffset -= 0.1f;
-            Player.transform.Translate(Vector3.back * (Player.PlayerSpeed * amp_ctrl.secPerBeat / amp_ctrl.TunnelSpeedAccountation) * 0.1f); // offset the player as well!
-            inputlagText.text = string.Format("Player offset (zPos): {0}", Player.ZOffset);
+            RhythmicGame.SetAVCalibrationOffset(RhythmicGame.AVCalibrationOffsetMs - RhythmicGame.AVCalibrationStepMs);
+            inputlagText.text = string.Format("Player offset (ms): {0}", RhythmicGame.AVCalibrationOffsetMs);
         }
 
         // Track capturing debug

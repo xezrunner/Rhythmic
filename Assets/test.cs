@@ -8,6 +8,6 @@ public class test : MonoBehaviour
     async void Start()
     {
         await Task.Delay(2000);
-        Destroy(gameObject);
+        if (gameObject != null) Destroy(gameObject);
     }
 }

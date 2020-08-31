@@ -2,33 +2,21 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 
-public class RhythmicGame : MonoBehaviour
+public static class RhythmicGame
 {
-    private void Start()
-    {
-        Debug.LogFormat("GAME [init]: Game type is {0}", GameType.ToString());
-    }
-    private void Awake()
-    {
-#if UNITY_ANDROID
-        SetFramerate(60);
-#elif UNITY_STANDALONE
-        SetFramerate(200); 
-#endif
-    }
-
     public static void SetFramerate(int fps, int vsync = 0)
     {
         QualitySettings.vSyncCount = vsync;
         Application.targetFrameRate = fps;
     }
-    public static void Restart() { SetTimescale(1f); AmplitudeSongController.IsSongPlaying = false; SceneManager.LoadScene("Loading", LoadSceneMode.Single); }
+    public static void Restart() { SetTimescale(1f); Player.Instance.IsPlaying = false; SongController.Instance.IsPlaying = false; SceneManager.LoadScene("Loading", LoadSceneMode.Single); }
     public static void SetTimescale(float speed)
     {
         Time.timeScale = speed;
-        AmplitudeSongController.Instance.AdjustSongSpeed(speed);
+        SongController.Instance.SetSongSpeed(speed);
     }
     public static void SetResolution(Vector2 resolution) { Screen.SetResolution((int)resolution.x, (int)resolution.y, FullScreenMode.ExclusiveFullScreen); }
+    public static void SetAVCalibrationOffset(float offsetMs) { AVCalibrationOffsetMs = offsetMs; Player.Instance.UpdateAVCalibrationOffset(); }
 
     /// <summary>
     /// The game supports playing Amplitude songs. By using AMPLITUDE, the game will use a different
@@ -49,10 +37,19 @@ public class RhythmicGame : MonoBehaviour
             Debug.LogFormat("GAME: Game type changed: {0}", GameType.ToString());
         }
     }
+    public static string GameTypeToFriendlyName()
+    {
+        if (GameType == _GameType.AMPLITUDE) return "Amplitude";
+        else if (GameType == _GameType.RHYTHMIC) return "Rhythmic";
+        else return "";
+    }
 
     public static bool IsLoading = true;
-
     public static Vector2 PreferredResolution = new Vector2(1920, 1080);
+
+    // A/V calibration props | milliseconds
+    public static float AVCalibrationOffsetMs = 0f;
+    public static float AVCalibrationStepMs = 16.67f;
 
     // Gameplay props
     public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
@@ -90,5 +87,5 @@ public class RhythmicGame : MonoBehaviour
 
     // Draw debug
     public static bool DebugDrawLanes = false;
-    public static bool DebugCatcherCasting = true;    
+    public static bool DebugCatcherCasting = true;
 }

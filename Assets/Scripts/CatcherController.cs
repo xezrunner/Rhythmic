@@ -10,7 +10,7 @@ public class CatcherController : MonoBehaviour
 {
     public static CatcherController Instance;
 
-    public AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
+    public SongController SongController { get { return SongController.Instance; } }
     public Player PlayerController { get { return Player.Instance; } }
     public TracksController TracksController { get { return TracksController.Instance; } }
     public Track CurrentTrack { get { return TracksController.CurrentTrack; } }
@@ -208,7 +208,7 @@ public class CatcherController : MonoBehaviour
     {
         if (e.IsNoteEnabled & !e.IsNoteCaptured)
         {
-            amp_ctrl.AdjustTrackVolume(e.noteTrack.ID, 0f);
+            SongController.AdjustTrackVolume(e.noteTrack.ID, 0f);
             PlayerController.DeclareMiss(e, Catcher.NoteMissType.Ignore);
         }
     }
@@ -410,7 +410,7 @@ public class CatcherController : MonoBehaviour
             if (e.note.IsLastNote) // if it's the last note in the measure, consider measure as cleared
                 e.note.noteTrack.OnMeasureClear(e.note.noteMeasure);
 
-            amp_ctrl.AdjustTrackVolume(e.note.noteTrack.ID, 1f);
+            SongController.AdjustTrackVolume(e.note.noteTrack.ID, 1f);
             CreateNoteDestruct(e.note.transform.position, e.note.transform.eulerAngles);
         }
         else
@@ -423,7 +423,7 @@ public class CatcherController : MonoBehaviour
 
         if (e.catchresult == Catcher.CatchResult.Inactive)
         {
-            amp_ctrl.AdjustTrackVolume(e.note.noteTrack.ID, 1f);
+            SongController.AdjustTrackVolume(e.note.noteTrack.ID, 1f);
             CreateNoteDestruct(e.note.transform.position, e.note.transform.eulerAngles);
         }
 

@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 8461084029029324552}
   - component: {fileID: 7392843705906290106}
   - component: {fileID: 2268102552163773865}
-  - component: {fileID: 5500684381453800839}
   m_Layer: 0
   m_Name: Sphere_cell.010
   m_TagString: Untagged
@@ -56,6 +55,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -80,18 +80,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &5500684381453800839
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4462988054908156}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92e6ef785bdfe8448b46c4db441fac20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &1340647355169754932
 GameObject:
   m_ObjectHideFlags: 0
@@ -103,7 +92,6 @@ GameObject:
   - component: {fileID: 6254700873019085401}
   - component: {fileID: 2117706377584934853}
   - component: {fileID: 6946408508330476890}
-  - component: {fileID: 33498350455114810}
   m_Layer: 0
   m_Name: Sphere_cell.006
   m_TagString: Untagged
@@ -148,6 +136,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -172,18 +161,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &33498350455114810
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1340647355169754932}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92e6ef785bdfe8448b46c4db441fac20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &1787099354113621658
 GameObject:
   m_ObjectHideFlags: 0
@@ -195,7 +173,6 @@ GameObject:
   - component: {fileID: 4551224979072789042}
   - component: {fileID: 4818736947114953641}
   - component: {fileID: 5734121406451871477}
-  - component: {fileID: 7079568230689944549}
   m_Layer: 0
   m_Name: Sphere_cell.007
   m_TagString: Untagged
@@ -240,6 +217,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -264,18 +242,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &7079568230689944549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1787099354113621658}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92e6ef785bdfe8448b46c4db441fac20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &1992108913771897652
 GameObject:
   m_ObjectHideFlags: 0
@@ -286,6 +253,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1220110650235369870}
   - component: {fileID: 6107579424801150234}
+  - component: {fileID: -4510559223305307016}
   m_Layer: 0
   m_Name: note_destruct
   m_TagString: Untagged
@@ -337,6 +305,18 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &-4510559223305307016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1992108913771897652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92e6ef785bdfe8448b46c4db441fac20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2304419228817003205
 GameObject:
   m_ObjectHideFlags: 0
@@ -348,7 +328,6 @@ GameObject:
   - component: {fileID: 2414161577893336725}
   - component: {fileID: 4235103950338033264}
   - component: {fileID: 2964764625183942869}
-  - component: {fileID: 5274239391066048584}
   m_Layer: 0
   m_Name: Sphere_cell.008
   m_TagString: Untagged
@@ -393,6 +372,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -417,18 +397,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &5274239391066048584
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2304419228817003205}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92e6ef785bdfe8448b46c4db441fac20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &4739385381477113896
 GameObject:
   m_ObjectHideFlags: 0
@@ -440,7 +409,6 @@ GameObject:
   - component: {fileID: 847952283297674147}
   - component: {fileID: 8228220542735782356}
   - component: {fileID: 2272852741121249881}
-  - component: {fileID: 3140111671180525921}
   m_Layer: 0
   m_Name: Sphere_cell.009
   m_TagString: Untagged
@@ -485,6 +453,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -509,18 +478,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &3140111671180525921
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4739385381477113896}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92e6ef785bdfe8448b46c4db441fac20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &5505232715423847143
 GameObject:
   m_ObjectHideFlags: 0
@@ -532,7 +490,6 @@ GameObject:
   - component: {fileID: 3666375698533597914}
   - component: {fileID: 636499537381856128}
   - component: {fileID: 2159993962190470968}
-  - component: {fileID: 1808832893448065313}
   m_Layer: 0
   m_Name: Sphere_cell.001
   m_TagString: Untagged
@@ -577,6 +534,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -601,18 +559,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &1808832893448065313
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5505232715423847143}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92e6ef785bdfe8448b46c4db441fac20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &5699796162614416956
 GameObject:
   m_ObjectHideFlags: 0
@@ -624,7 +571,6 @@ GameObject:
   - component: {fileID: 5150578971034035764}
   - component: {fileID: 5528339310047510946}
   - component: {fileID: 4951460497375000014}
-  - component: {fileID: 197770066077969998}
   m_Layer: 0
   m_Name: Sphere_cell.002
   m_TagString: Untagged
@@ -669,6 +615,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -693,18 +640,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &197770066077969998
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5699796162614416956}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92e6ef785bdfe8448b46c4db441fac20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &6742421587067540132
 GameObject:
   m_ObjectHideFlags: 0
@@ -716,7 +652,6 @@ GameObject:
   - component: {fileID: 506396932770734991}
   - component: {fileID: 5128730383960521258}
   - component: {fileID: 2868078848109513140}
-  - component: {fileID: 2684139885151591193}
   m_Layer: 0
   m_Name: Sphere_cell
   m_TagString: Untagged
@@ -761,6 +696,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -785,18 +721,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &2684139885151591193
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6742421587067540132}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92e6ef785bdfe8448b46c4db441fac20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &6815883366232556581
 GameObject:
   m_ObjectHideFlags: 0
@@ -808,7 +733,6 @@ GameObject:
   - component: {fileID: 2339286761582578034}
   - component: {fileID: 6181611158007051981}
   - component: {fileID: 6910491708491625289}
-  - component: {fileID: 356668528472075437}
   m_Layer: 0
   m_Name: Sphere_cell.005
   m_TagString: Untagged
@@ -853,6 +777,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -877,18 +802,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &356668528472075437
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6815883366232556581}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92e6ef785bdfe8448b46c4db441fac20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &8225787865912260043
 GameObject:
   m_ObjectHideFlags: 0
@@ -900,7 +814,6 @@ GameObject:
   - component: {fileID: 4983581898793839135}
   - component: {fileID: 178683875882105108}
   - component: {fileID: 7367967308169377831}
-  - component: {fileID: 4536819785199560192}
   m_Layer: 0
   m_Name: Sphere_cell.004
   m_TagString: Untagged
@@ -945,6 +858,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -969,18 +883,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &4536819785199560192
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8225787865912260043}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92e6ef785bdfe8448b46c4db441fac20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &8876172570846474282
 GameObject:
   m_ObjectHideFlags: 0
@@ -992,7 +895,6 @@ GameObject:
   - component: {fileID: 5546073437452212828}
   - component: {fileID: 8163574424980693484}
   - component: {fileID: 5092381694928908812}
-  - component: {fileID: 902479600566157890}
   m_Layer: 0
   m_Name: Sphere_cell.003
   m_TagString: Untagged
@@ -1037,6 +939,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1061,15 +964,4 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &902479600566157890
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8876172570846474282}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92e6ef785bdfe8448b46c4db441fac20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_AdditionalVertexStreams: {fileID: 0}

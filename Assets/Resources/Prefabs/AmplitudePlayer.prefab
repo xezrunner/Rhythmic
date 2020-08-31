@@ -563,6 +563,7 @@ GameObject:
   - component: {fileID: 9078876527922160011}
   - component: {fileID: 5759535520881636942}
   - component: {fileID: 7200323222921865719}
+  - component: {fileID: 2085121089118799553}
   m_Layer: 0
   m_Name: AmplitudePlayer
   m_TagString: Player
@@ -618,7 +619,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 2b99bf46d7cf60540ac0064d0e3468a9, type: 3}
   CameraPullbackOffset: -5.5
   StartZOffset: 0
-  IsSongPlaying: 0
+  IsPlaying: 0
   PlayerSpeed: 4
   Score: 0
   IsMultiplierEnabled: 1
@@ -628,7 +629,6 @@ MonoBehaviour:
   IsCleanseDeployed: 0
   cleanseHaptics: {x: 1, y: 1, z: 250}
   IsPaused: 0
-  amp_ctrl: {fileID: 0}
 --- !u!82 &5759535520881636942
 AudioSource:
   m_ObjectHideFlags: 0
@@ -741,6 +741,14 @@ Animation:
   m_PlayAutomatically: 0
   m_AnimatePhysics: 0
   m_CullingType: 0
+--- !u!81 &2085121089118799553
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5759535520881636931}
+  m_Enabled: 1
 --- !u!1 &7595758372744385695
 GameObject:
   m_ObjectHideFlags: 0
