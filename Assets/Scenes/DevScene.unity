@@ -319,12 +319,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 30252475}
   m_CullTransparentMesh: 0
---- !u!54 &36772121 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 4789142431228790088, guid: c9077085010b3e0408e2309405d63a81,
-    type: 3}
-  m_PrefabInstance: {fileID: 1082314616}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &70271543
 GameObject:
   m_ObjectHideFlags: 0
@@ -593,18 +587,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 112551184}
   m_CullTransparentMesh: 0
---- !u!114 &188662167 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 931307377839759503, guid: c9077085010b3e0408e2309405d63a81,
-    type: 3}
-  m_PrefabInstance: {fileID: 1082314616}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5af01112072ab1c43bb09ee58c50ece9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &223974229 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5759535520881636929, guid: c9077085010b3e0408e2309405d63a81,
@@ -2199,6 +2181,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 318616882503967059, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 442806660436292219, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: catchRadiusExtra
@@ -2238,6 +2225,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1713668190666599929, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2105427860874166252, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
@@ -2455,6 +2447,11 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6207803257846747077, guid: c9077085010b3e0408e2309405d63a81,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6972565499692552390, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: m_RootOrder
@@ -2473,7 +2470,7 @@ PrefabInstance:
     - target: {fileID: 7503251219967472187, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7536636954746905305, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
@@ -2544,7 +2541,7 @@ PrefabInstance:
         type: 3}
       propertyPath: Rigidbody
       value: 
-      objectReference: {fileID: 36772121}
+      objectReference: {fileID: 0}
     - target: {fileID: 9078876527922160011, guid: c9077085010b3e0408e2309405d63a81,
         type: 3}
       propertyPath: StartCamera
@@ -8903,7 +8900,7 @@ MonoBehaviour:
     m_ActionName: Player/Track switch right (force)[/DualShock4GamepadHID/rightStick/right,/Keyboard/shift,/Keyboard/d]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2012741882}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: FireCatch
         m_Mode: 0
@@ -8919,7 +8916,7 @@ MonoBehaviour:
     m_ActionName: Player/Catch left[/Keyboard/leftArrow,/DualShock4GamepadHID/leftShoulder,/DualShock4GamepadHID/buttonWest]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1547639092}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: FireCatch
         m_Mode: 0
@@ -8935,7 +8932,7 @@ MonoBehaviour:
     m_ActionName: Player/Catch center[/Keyboard/upArrow,/DualShock4GamepadHID/rightShoulder,/DualShock4GamepadHID/buttonNorth]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 188662167}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: FireCatch
         m_Mode: 0
@@ -9160,18 +9157,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 1
   m_ChildScaleHeight: 1
   m_ReverseArrangement: 0
---- !u!114 &1547639092 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 442806660436292219, guid: c9077085010b3e0408e2309405d63a81,
-    type: 3}
-  m_PrefabInstance: {fileID: 1082314616}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5af01112072ab1c43bb09ee58c50ece9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1627078463
 GameObject:
   m_ObjectHideFlags: 0
@@ -10225,18 +10210,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 1
   m_ChildScaleHeight: 1
   m_ReverseArrangement: 0
---- !u!114 &2012741882 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7745618178818144863, guid: c9077085010b3e0408e2309405d63a81,
-    type: 3}
-  m_PrefabInstance: {fileID: 1082314616}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5af01112072ab1c43bb09ee58c50ece9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2144000023
 GameObject:
   m_ObjectHideFlags: 0
@@ -10268,7 +10241,7 @@ Transform:
   m_LocalScale: {x: 10, y: 10, z: 0}
   m_Children: []
   m_Father: {fileID: 223974229}
-  m_RootOrder: 4
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &2144000025
 BoxCollider:

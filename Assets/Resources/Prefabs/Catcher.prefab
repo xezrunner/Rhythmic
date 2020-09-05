@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6425268245428532861}
   - component: {fileID: 928346369368759119}
   - component: {fileID: 3931632297344864396}
-  - component: {fileID: 8934781805556474213}
   - component: {fileID: 8656494522990969247}
   - component: {fileID: 2074154462928838795}
   m_Layer: 9
@@ -58,6 +57,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -82,19 +82,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!135 &8934781805556474213
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2392193514684275458}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &8656494522990969247
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -123,6 +111,7 @@ MonoBehaviour:
   laneType: 0
   catchRadiusExtra: 1
   catchRadiusZOffset: 4
+  Locked: 0
 --- !u!1 &5491892807177101391
 GameObject:
   m_ObjectHideFlags: 0
@@ -150,7 +139,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5491892807177101391}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.95, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4866426359432300932}
@@ -172,9 +161,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentMeasureID: 0
+  CurrentBeatID: 0
   Catchers: []
   keycodes: 140100001101000013010000
   BoxCollider: {fileID: 217422865016143448}
+  noteDestructPrefab: {fileID: 0}
   LastHitNote: {fileID: 0}
   ShouldHit: []
 --- !u!65 &217422865016143448
@@ -188,8 +179,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 2.11, y: 1, z: 1.4}
-  m_Center: {x: 0, y: 0, z: -0.25}
+  m_Size: {x: 2.11, y: 1, z: 1.75}
+  m_Center: {x: 0, y: 0, z: -0.265}
 --- !u!54 &5931866281112782156
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -217,7 +208,6 @@ GameObject:
   - component: {fileID: 8712007091138155631}
   - component: {fileID: 1192958931625567099}
   - component: {fileID: 2678567282228550694}
-  - component: {fileID: 411681163334028832}
   - component: {fileID: 8728254708061849607}
   - component: {fileID: 1585655271056192127}
   m_Layer: 9
@@ -264,6 +254,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -288,19 +279,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!135 &411681163334028832
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5623497125467203239}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &8728254708061849607
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -329,6 +308,7 @@ MonoBehaviour:
   laneType: 0
   catchRadiusExtra: 1
   catchRadiusZOffset: 4
+  Locked: 0
 --- !u!1 &8320980251516813637
 GameObject:
   m_ObjectHideFlags: 0
@@ -340,6 +320,7 @@ GameObject:
   - component: {fileID: 4866426359432300932}
   - component: {fileID: 3183427635879615288}
   - component: {fileID: 8602252083650359984}
+  - component: {fileID: 3382102377482481267}
   - component: {fileID: 8888344163297245787}
   m_Layer: 9
   m_Name: Catcher_Left
@@ -385,6 +366,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -409,6 +391,20 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &3382102377482481267
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8320980251516813637}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8888344163297245787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -424,3 +420,4 @@ MonoBehaviour:
   laneType: 0
   catchRadiusExtra: 1
   catchRadiusZOffset: 4
+  Locked: 0

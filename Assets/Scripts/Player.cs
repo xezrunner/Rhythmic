@@ -107,7 +107,8 @@ public class Player : MonoBehaviour
 
         // Move player to Tunnel center and offset the Transversal content so they're at the intended place
         transform.position = Tunnel.center;
-        foreach (Transform trans in Transversal) { trans.localPosition = -Tunnel.center; };
+        Transversal.position = Tunnel.center;
+        foreach (Transform trans in Transversal) { trans.localPosition = -Tunnel.center; }
 
         // TODO: we should switch to the first track when the game starts, not here!
         SwitchToTrack(0, true);
@@ -117,11 +118,11 @@ public class Player : MonoBehaviour
     // TODO: updating UI text is messy
     #region Score / streak system
     public int Score = 0;
-    [Range(1, 8)]
+    public bool IsMultiplierEnabled = true;
 
     // TODO: clarify ambigious naming! [ambiguity: Multiply powerup / score multiplier] [ideas: ScoreMultiplier, ScoreMult (?)]
     // TODO: might even just be based on the streak counter?
-    public bool IsMultiplierEnabled = true;
+    [Range(1, 8)]
     public int Multiplier = 1;
 
     // Add score based on streak counter
@@ -285,9 +286,7 @@ public class Player : MonoBehaviour
         {
             // In regular mode, we want to change the GLOBAL position of the tunnel helpers when moving the player!
             // We want to keep the actual player Transform centered to the tunnel at all times.
-            /*TunnelOffsetHelper.position = position;
-            CameraTunnelOffsetHelper.position = Move_CamOffset[0];*/
-            Transversal.position = position;
+            Transversal.position = new Vector3(position.x, Transversal.position.y, Transversal.position.z); // Ignore Y and Z!!!
             Camera.position = Move_CamOffset[0];
         }
         transform.eulerAngles = rotation;
