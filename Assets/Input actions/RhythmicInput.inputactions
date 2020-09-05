@@ -1,5 +1,5 @@
 {
-    "name": "Player",
+    "name": "RhythmicInput",
     "maps": [
         {
             "name": "Player",
@@ -76,13 +76,21 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "Restart",
+                    "type": "Button",
+                    "id": "6292db2c-f96b-4780-8930-cf4cd36315e3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
                 {
                     "name": "",
                     "id": "18d1744e-3d86-4e60-bb39-2f1f53fb553e",
-                    "path": "<DualShockGamepad>/leftStick/left",
+                    "path": "<Gamepad>/leftStick/left",
                     "interactions": "Press(pressPoint=0.45)",
                     "processors": "",
                     "groups": "",
@@ -104,7 +112,7 @@
                 {
                     "name": "",
                     "id": "0d63c315-5412-45b4-a8a6-778a7767f259",
-                    "path": "<DualShockGamepad>/dpad/left",
+                    "path": "<Gamepad>/dpad/left",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -115,7 +123,7 @@
                 {
                     "name": "",
                     "id": "9ee5b573-86c1-49b3-ab22-fcec05313aba",
-                    "path": "<DualShockGamepad>/leftStick/right",
+                    "path": "<Gamepad>/leftStick/right",
                     "interactions": "Press(pressPoint=0.45)",
                     "processors": "",
                     "groups": "",
@@ -137,7 +145,7 @@
                 {
                     "name": "",
                     "id": "9e6db5c8-ad69-4dda-835c-5c37fcf2b0c2",
-                    "path": "<DualShockGamepad>/rightStick/right",
+                    "path": "<Gamepad>/rightStick/right",
                     "interactions": "Press(pressPoint=0.45)",
                     "processors": "",
                     "groups": "",
@@ -148,7 +156,7 @@
                 {
                     "name": "",
                     "id": "3f9b9f84-c1e8-4079-8b37-eefa38fef643",
-                    "path": "<DualShockGamepad>/rightStick/left",
+                    "path": "<Gamepad>/rightStick/left",
                     "interactions": "Press(pressPoint=0.45)",
                     "processors": "",
                     "groups": "",
@@ -236,7 +244,7 @@
                 {
                     "name": "",
                     "id": "4e071f62-8fe6-48c2-9cc9-240187772e8a",
-                    "path": "<DualShockGamepad>/leftShoulder",
+                    "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -247,7 +255,7 @@
                 {
                     "name": "",
                     "id": "c03317f1-ec10-4b9c-8c46-5326855c4b5a",
-                    "path": "<DualShockGamepad>/buttonWest",
+                    "path": "<Gamepad>/buttonWest",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -269,7 +277,7 @@
                 {
                     "name": "",
                     "id": "2d44583e-fef2-4240-9951-2588edc985f1",
-                    "path": "<DualShockGamepad>/rightShoulder",
+                    "path": "<Gamepad>/rightShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -280,7 +288,7 @@
                 {
                     "name": "",
                     "id": "a702c606-163f-4266-8b49-e0fcac9d123d",
-                    "path": "<DualShockGamepad>/buttonNorth",
+                    "path": "<Gamepad>/buttonNorth",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -302,7 +310,7 @@
                 {
                     "name": "",
                     "id": "7f20068e-3325-49a1-8fbf-75ce33894524",
-                    "path": "<DualShockGamepad>/rightTrigger",
+                    "path": "<Gamepad>/rightTrigger",
                     "interactions": "",
                     "processors": "AxisDeadzone(min=0.001)",
                     "groups": "",
@@ -313,7 +321,7 @@
                 {
                     "name": "",
                     "id": "8accea3a-4aed-4e03-b39a-1d4f2b0c94c5",
-                    "path": "<DualShockGamepad>/buttonEast",
+                    "path": "<Gamepad>/buttonEast",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -324,7 +332,7 @@
                 {
                     "name": "",
                     "id": "8a700f1b-0b05-4a99-8f4d-b9b8e3872ac5",
-                    "path": "<DualShockGamepad>/start",
+                    "path": "<Gamepad>/start",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -335,7 +343,7 @@
                 {
                     "name": "",
                     "id": "1c56b313-0b3d-485e-ac03-40096617a990",
-                    "path": "<DualShockGamepad>/buttonSouth",
+                    "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -346,11 +354,22 @@
                 {
                     "name": "",
                     "id": "93822c36-73b1-41c0-aadd-c28a0cf3564f",
-                    "path": "<DualShockGamepad>/dpad/right",
+                    "path": "<Gamepad>/dpad/right",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Track switch right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d6515246-f157-4bc3-bb0d-18e3aadb202b",
+                    "path": "<Gamepad>/select",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Restart",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

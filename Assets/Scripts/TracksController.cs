@@ -13,9 +13,10 @@ public class TracksController : MonoBehaviour
     public static TracksController Instance;
     public TextMeshProUGUI loadingText;
 
-    public AmplitudeSongController SongController { get { return AmplitudeSongController.Instance; } }
+    AmplitudeSongController amp_ctrl { get { return (AmplitudeSongController)SongController.Instance; } }
+    public SongController SongController { get { return SongController.Instance; } }
     public CatcherController CatcherController { get { return CatcherController.Instance; } }
-    public PlayerController Player { get { return PlayerController.Instance; } }
+    public Player Player { get { return Player.Instance; } }
 
     public int StartTrackID = 0; // start track ID
     public int CurrentTrackID = 0; // the track that the player is currently on
@@ -129,11 +130,11 @@ public class TracksController : MonoBehaviour
         Tracks.ForEach(t => t.identicalTracks = identicalList[t.ID]);
 
         watch.Stop(); Debug.LogFormat("TRACKS: Note chart creation took {0}ms", watch.ElapsedMilliseconds);
-        while (Tracks.Last().trackMeasures.Count < AmplitudeSongController.Instance.songMeasures.Count)
+        while (Tracks.Last().trackMeasures.Count < amp_ctrl.songMeasures.Count)
         {
             if (loadingText != null)
             {
-                float progress = ((float)Tracks.Last().trackMeasures.Count / (float)AmplitudeSongController.Instance.songMeasures.Count) * 100f;
+                float progress = ((float)Tracks.Last().trackMeasures.Count / (float)amp_ctrl.songMeasures.Count) * 100f;
                 loadingText.text = string.Format("Genereating measures - {0}%...", progress.ToString("0"));
             }
             await Task.Delay(500);
@@ -216,9 +217,11 @@ public class TracksController : MonoBehaviour
             track.IsTrackBeingCaptured = value;
     }
 
-    public event EventHandler<int> OnTrackSwitched;
+    public event EventHandler<int[]> OnTrackSwitched;
     private void Player_OnTrackSwitched(object sender, Track e)
     {
+        int[] eventArg = new int[2] { CurrentTrackID, e.RealID };
+
         // change props of tracks
         foreach (Track track in Tracks)
             track.IsTrackFocused = Tracks.IndexOf(track) == e.RealID;
@@ -231,7 +234,7 @@ public class TracksController : MonoBehaviour
         if (CurrentTrackSetID != e.RealID)
             SetCurrentTrackSet(e.SetID);
 
-        OnTrackSwitched?.Invoke(null, e.RealID);
+        OnTrackSwitched?.Invoke(null, eventArg);
     }
 
     public void SetCurrentTrackSet(int setID)

@@ -4,13 +4,14 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class DebugController : MonoBehaviour
 {
-    PlayerController Player { get { return PlayerController.Instance; } }
-    AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
+    Player Player { get { return Player.Instance; } }
+    SongController SongController { get { return SongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
 
     public GameObject section_debug;
@@ -20,17 +21,20 @@ public class DebugController : MonoBehaviour
 
     private void Start()
     {
-        inputlagText.text = string.Format("Player offset (zPos): {0}", PlayerController.ZOffset);
+        inputlagText.text = string.Format("Player offset (zPos): {0}", Player.ZOffset);
     }
 
     public bool isDebugOn = true;
 
     public void AMP_ChangeSong(string value)
     {
-        AmplitudeSongController.songName = value;
+        SongController.songName = value;
         Player.ScoreText.text = string.Format("Song changed: {0} - restart!", value);
     }
 
+#if UNITY_ANDROID
+    int android_songcounter = 0;
+#endif
     private void LateUpdate()
     {
         // AMP songs debug
@@ -42,6 +46,37 @@ public class DebugController : MonoBehaviour
             AMP_ChangeSong("dreamer");
         else if (Input.GetKey(KeyCode.Alpha3))
             AMP_ChangeSong("dalatecht");
+
+#if UNITY_ANDROID
+        // Test code for changing songs on an Android device
+        if (Touchscreen.current != null)
+        {
+            if (Touchscreen.current.press.wasPressedThisFrame)
+            {
+                if (android_songcounter == 4) android_songcounter = 0;
+                switch (android_songcounter)
+                {
+                    case 0:
+                        AMP_ChangeSong("tut0"); break;
+                    case 1:
+                        AMP_ChangeSong("perfectbrain"); break;
+                    case 2:
+                        AMP_ChangeSong("dreamer"); break;
+                    case 3:
+                        AMP_ChangeSong("dalatecht"); break;
+                }
+                android_songcounter++;
+            }
+        }
+#endif
+
+        if (Gamepad.current != null && Gamepad.current.dpad.down.wasPressedThisFrame)
+        {
+            var world = GameObject.Find("WORLD_TUT");
+            var worldCamera = GameObject.Find("MainCamera");
+
+            world.SetActive(!world.activeInHierarchy); worldCamera.SetActive(!world.activeInHierarchy);
+        }
 
         // RESTART
         if (Input.GetKeyDown(KeyCode.R))
@@ -62,6 +97,7 @@ public class DebugController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(60); Player.ScoreText.text = "60 FPS"; }
         else if (Input.GetKeyDown(KeyCode.F2)) { RhythmicGame.SetFramerate(144); Player.ScoreText.text = "144 FPS"; }
         else if (Input.GetKeyDown(KeyCode.F3)) { RhythmicGame.SetFramerate(200); Player.ScoreText.text = "200 FPS"; }
+        else if (Input.GetKeyDown(KeyCode.F4)) { RhythmicGame.SetFramerate(0); Player.ScoreText.text = "∞ FPS"; }
 
         // Toggle tunnel mode
         if (Input.GetKeyDown(KeyCode.F))
@@ -73,15 +109,13 @@ public class DebugController : MonoBehaviour
         // Lag compensation
         if (Input.GetKeyDown(KeyCode.KeypadPlus))
         {
-            PlayerController.ZOffset += 0.1f;
-            Player.transform.Translate(Vector3.forward * (Player.PlayerSpeed * amp_ctrl.secPerBeat * amp_ctrl.TunnelSpeedAccountation) * 0.1f); // offset the player as well!
-            inputlagText.text = string.Format("Player offset (zPos): {0}", PlayerController.ZOffset);
+            RhythmicGame.SetAVCalibrationOffset(RhythmicGame.AVCalibrationOffsetMs + RhythmicGame.AVCalibrationStepMs);
+            inputlagText.text = string.Format("Player offset (ms): {0}", RhythmicGame.AVCalibrationOffsetMs);
         }
         else if (Input.GetKeyDown(KeyCode.KeypadMinus))
         {
-            PlayerController.ZOffset -= 0.1f;
-            Player.transform.Translate(Vector3.back * (Player.PlayerSpeed * amp_ctrl.secPerBeat * amp_ctrl.TunnelSpeedAccountation) * 0.1f); // offset the player as well!
-            inputlagText.text = string.Format("Player offset (zPos): {0}", PlayerController.ZOffset);
+            RhythmicGame.SetAVCalibrationOffset(RhythmicGame.AVCalibrationOffsetMs - RhythmicGame.AVCalibrationStepMs);
+            inputlagText.text = string.Format("Player offset (ms): {0}", RhythmicGame.AVCalibrationOffsetMs);
         }
 
         // Track capturing debug

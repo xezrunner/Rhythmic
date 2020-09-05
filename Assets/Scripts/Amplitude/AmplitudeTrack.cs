@@ -4,10 +4,11 @@ using UnityEngine;
 using NAudio.Midi;
 using System.Collections;
 using System.Threading.Tasks;
+using System.Linq;
 
 public class AmplitudeTrack : Track
 {
-    AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
+    AmplitudeSongController amp_ctrl { get { return (AmplitudeSongController)AmplitudeSongController.Instance; } }
 
     public List<NoteOnEvent> AMP_NoteOnEvents;
     public async override void PopulateNotes()
@@ -23,7 +24,7 @@ public class AmplitudeTrack : Track
         foreach (NoteOnEvent note in AMP_NoteOnEvents)
         {
             // get lane type for note lane
-            LaneType laneType = GetLaneTypeFromNoteNumber(note.NoteNumber);
+            LaneType laneType = AmplitudeGame.GetLaneTypeFromNoteNumber(note.NoteNumber);
             if (laneType == LaneType.UNKNOWN)
                 continue;
 
@@ -39,19 +40,5 @@ public class AmplitudeTrack : Track
         //await Task.Delay(1);
     }
 
-    public static LaneType GetLaneTypeFromNoteNumber(int num)
-    {
-        switch (num)
-        {
-            case 114: // left
-                return LaneType.Left;
-            case 116: // center
-                return LaneType.Center;
-            case 118: // right
-                return LaneType.Right;
-
-            default: // if it isn't either of these notes, go to next note
-                return LaneType.UNKNOWN;
-        }
-    }
+    
 }

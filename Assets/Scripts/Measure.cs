@@ -10,7 +10,7 @@ using TMPro;
 
 public class Measure : MonoBehaviour
 {
-    AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
+    SongController SongController { get { return SongController.Instance; } }
 
     public int measureNum; // measure ID
     public List<Note> noteList = new List<Note>(); // notes in this measure
@@ -192,7 +192,7 @@ public class Measure : MonoBehaviour
     [ExecuteInEditMode]
     void Start()
     {
-        if (amp_ctrl.Enabled)
+        if (SongController.Enabled)
             CreateSubbeats();
 
         // Create subbeat separators
@@ -244,7 +244,7 @@ public class Measure : MonoBehaviour
 
         foreach (GameObject obj in EdgeLightsFrontBack)
         {
-            
+
             obj.transform.parent = null;
             obj.transform.localScale = new Vector3(obj.transform.localScale.x, obj.transform.localScale.y, 0.01f);
             obj.transform.parent = EdgeLightsController.transform;
@@ -276,7 +276,7 @@ public class Measure : MonoBehaviour
         if (subBeatPrefab == null)
             subBeatPrefab = Resources.Load("Prefabs/MeasureSubBeat");
 
-        Vector3 subbeatScale = new Vector3(1, 1, amp_ctrl.subbeatLengthInzPos);
+        Vector3 subbeatScale = new Vector3(1, 1, SongController.subbeatLengthInzPos);
         float lastSubbeatPosition = startTime;
 
         for (int i = 0; i < 8; i++)
@@ -300,7 +300,7 @@ public class Measure : MonoBehaviour
             subbeatObjectList.Add(obj);
             subbeatList.Add(script);
 
-            lastSubbeatPosition += amp_ctrl.subbeatLengthInzPos;
+            lastSubbeatPosition += SongController.subbeatLengthInzPos;
             script.EndZPos = lastSubbeatPosition;
         }
     }
@@ -317,7 +317,7 @@ public class Measure : MonoBehaviour
     // It needs to run in Update()
     // TODO: revise
     Transform ogParent;
-    public void MeasureCaptureUpdate(object sender, EventArgs e)
+    public void MeasureCaptureUpdate()
     {
         if (IsMeasureCapturing)
         {
@@ -342,16 +342,15 @@ public class Measure : MonoBehaviour
         anim.Stop();
         anim.Play(); // play capture anim!
 
-        UpdateEvent += MeasureCaptureUpdate;
-
         IsMeasureCapturing = true;
 
         detector.Begin();
 
         while (IsMeasureCapturing)
+        {
+            MeasureCaptureUpdate();
             yield return null;
-
-        UpdateEvent -= MeasureCaptureUpdate;
+        }
     }
 
     // Captures this measure without an animation
@@ -384,12 +383,6 @@ public class Measure : MonoBehaviour
         //MeasureCaptureUpdate(null, null);
     }
 
-    public event EventHandler UpdateEvent;
-    void Update()
-    {
-        UpdateEvent?.Invoke(null, null);
-    }
-
     // Z position
 
     // TODO: optimize!
@@ -404,8 +397,8 @@ public class Measure : MonoBehaviour
             else if (zPos == subbeat.EndZPos)
                 return subbeatList[counter + 1];
             */
-        counter++;
-    }
+            counter++;
+        }
         throw new Exception("Cannot find subbeat for this zPos: " + zPos);
-}
+    }
 }

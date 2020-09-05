@@ -7,7 +7,8 @@ using UnityEngine.InputSystem;
 
 public class Track : MonoBehaviour
 {
-    AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
+    AmplitudeSongController amp_ctrl { get { return (AmplitudeSongController)SongController.Instance; } }
+    SongController SongController { get { return SongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
     public GameObject LaneContainer
     {
@@ -167,8 +168,8 @@ public class Track : MonoBehaviour
         note.noteType = noteType;
         note.noteLane = laneType;
         note.noteTrack = this;
-        note.measureNum = amp_ctrl.GetMeasureNumForZPos(zPos);
-        note.subbeatNum = amp_ctrl.GetSubbeatNumForZPos(note.measureNum, zPos);
+        note.measureNum = SongController.GetMeasureNumForZPos(zPos);
+        note.subbeatNum = SongController.GetSubbeatNumForZPos(note.measureNum, zPos);
         note.DotLightColor = Colors.ColorFromTrackType(Instrument);
 
         trackNotes.Add(note);
@@ -177,8 +178,12 @@ public class Track : MonoBehaviour
     // Measures
     public async void PopulateMeasures()
     {
+        // TODO: DO NOT USE MEASUREINFO!!!
+        if (RhythmicGame.GameType == RhythmicGame._GameType.RHYTHMIC)
+        { Debug.LogErrorFormat("TRACK: We are still using MeasureInfo for populating measures - this only works in Amplitude gamemode!"); return; }
+
         int counter = 0;
-        foreach (AmplitudeSongController.MeasureInfo MeasureInfo in AmplitudeSongController.Instance.songMeasures)
+        foreach (AmplitudeSongController.MeasureInfo MeasureInfo in amp_ctrl.songMeasures)
         {
             // create GameObject for measure
             Vector3 measurePosition = new Vector3(MeasureContainer.transform.position.x, MeasureContainer.transform.position.y, MeasureInfo.startTimeInzPos);
@@ -188,7 +193,7 @@ public class Track : MonoBehaviour
             obj.name = string.Format("MEASURE_{0}", MeasureInfo.measureNum);
             obj.transform.localPosition = measurePosition;
             obj.transform.localEulerAngles = gameObject.transform.eulerAngles;
-            obj.transform.localScale = new Vector3(1, 1, amp_ctrl.measureLengthInzPos);
+            obj.transform.localScale = new Vector3(1, 1, SongController.measureLengthInzPos);
             obj.transform.SetParent(MeasureContainer.transform, true);
 
             // get Measure script and add component
@@ -199,7 +204,7 @@ public class Track : MonoBehaviour
             measure.trackInstrument = Instrument;
             measure.startTime = MeasureInfo.startTimeInzPos;
             measure.endTime = MeasureInfo.endTimeInzPos;
-            measure.FullLength = amp_ctrl.subbeatLengthInzPos * 8;
+            measure.FullLength = SongController.subbeatLengthInzPos * 8;
             measure.MeasureColor = Colors.ConvertColor(Colors.ColorFromTrackType(Instrument));
             measure.OnCaptureFinished += Measure_OnCaptureFinished;
 
@@ -260,7 +265,7 @@ public class Track : MonoBehaviour
     {
         IsTrackBeingCaptured = false;
         IsTrackCaptured = true;
-        PlayerController.Instance.Multiplier++;
+        Player.Instance.Multiplier++;
 
         identicalTracks.ForEach(t =>
         {
@@ -272,7 +277,7 @@ public class Track : MonoBehaviour
         });
 
         CatcherController.Instance.FindNextMeasuresNotes();
-        if (AmplitudeSongController.songName != "tut0" || GameObject.Find("TUT_SCRIPT") == null)
+        if (SongController.songName != "tut0" || GameObject.Find("TUT_SCRIPT") == null)
             CaptureMeasuresRange(CatcherController.Instance.CurrentMeasureID, RhythmicGame.TrackCaptureLength);
         else
             CaptureMeasures(CatcherController.Instance.CurrentMeasureID, trackMeasures.Count - 1 - CatcherController.Instance.CurrentMeasureID);
@@ -340,7 +345,7 @@ public class Track : MonoBehaviour
     }
     public Measure GetMeasureForZPos(float zPos)
     {
-        return trackMeasures[amp_ctrl.GetMeasureNumForZPos(zPos)];
+        return trackMeasures[SongController.GetMeasureNumForZPos(zPos)];
     }
     public Measure GetMeasureForID(int id)
     {

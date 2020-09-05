@@ -2,27 +2,21 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 
-public class RhythmicGame : MonoBehaviour
+public static class RhythmicGame
 {
-    private void Start()
-    {
-        Debug.LogFormat("GAME [init]: Game type is {0}", GameType.ToString());
-    }
-    private void Awake()
-    { SetFramerate(200); }
-
     public static void SetFramerate(int fps, int vsync = 0)
     {
         QualitySettings.vSyncCount = vsync;
         Application.targetFrameRate = fps;
     }
-    public static void Restart() { SetTimescale(1f); AmplitudeSongController.IsSongPlaying = false; SceneManager.LoadScene("Loading", LoadSceneMode.Single); }
+    public static void Restart() { SetTimescale(1f); Player.Instance.IsPlaying = false; SongController.Instance.IsPlaying = false; SceneManager.LoadScene("Loading", LoadSceneMode.Single); }
     public static void SetTimescale(float speed)
     {
         Time.timeScale = speed;
-        AmplitudeSongController.Instance.AdjustSongSpeed(speed);
+        SongController.Instance.SetSongSpeed(speed);
     }
     public static void SetResolution(Vector2 resolution) { Screen.SetResolution((int)resolution.x, (int)resolution.y, FullScreenMode.ExclusiveFullScreen); }
+    public static void SetAVCalibrationOffset(float offsetMs) { AVCalibrationOffsetMs = offsetMs; Player.Instance.UpdateAVCalibrationOffset(); }
 
     /// <summary>
     /// The game supports playing Amplitude songs. By using AMPLITUDE, the game will use a different
@@ -43,10 +37,19 @@ public class RhythmicGame : MonoBehaviour
             Debug.LogFormat("GAME: Game type changed: {0}", GameType.ToString());
         }
     }
+    public static string GameTypeToFriendlyName()
+    {
+        if (GameType == _GameType.AMPLITUDE) return "Amplitude";
+        else if (GameType == _GameType.RHYTHMIC) return "Rhythmic";
+        else return "";
+    }
 
     public static bool IsLoading = true;
-
     public static Vector2 PreferredResolution = new Vector2(1920, 1080);
+
+    // A/V calibration props | milliseconds
+    public static float AVCalibrationOffsetMs = 0f;
+    public static float AVCalibrationStepMs = 16.67f;
 
     // Gameplay props
     public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
@@ -65,6 +68,11 @@ public class RhythmicGame : MonoBehaviour
 
     public static float TrackWidth = 2.36f;
 
+    public enum GameDifficulty { Beginner = 0, Intermediate = 1, Advanced = 2, Expert = 3, Super = 4 }
+    public static GameDifficulty Difficulty = GameDifficulty.Expert;
+
+    public static float[] DifficultyFudgeFactors = new float[] { 1f, 1f, 0.93f, 0.8f, 0.8f };
+
     // Event debug
     public static bool DebugTrackCreationEvents = true;
     public static bool DebugTrackMaterialEvents = false;
@@ -80,15 +88,4 @@ public class RhythmicGame : MonoBehaviour
     // Draw debug
     public static bool DebugDrawLanes = false;
     public static bool DebugCatcherCasting = true;
-
-    // AMPLITUDE properties
-    // @"H://HMXAMPLITUDE//Extractions//amplitude_ps4_extraction//ps4//songs";
-    //public static string AMP_songFolder = string.Format("{0}//amp_songs", Application.dataPath);
-    public static string AMP_songFolder { get { return string.Format("{0}//amp_songs", Application.dataPath); } }
-    public static string AMP_GetSongFilePath(string songName, AMP_FileExtension extension)
-    {
-        return string.Format("{0}//{1}//{1}.{2}", AMP_songFolder, songName, extension);
-    }
-
-    public enum AMP_FileExtension { mid, mogg, moggsong }
 }

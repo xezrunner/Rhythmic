@@ -47,6 +47,8 @@
 (powerup_prob_boss 0 0 0) 
 (powerup_prob_multi 0.3 1.0) 
 
+(difficulty_scale_tweaks 1.0 1.0 0.93 0.8 0.8))
+
 (slowdown_start_ticks 960) 
 (slowdown_stop_ticks 960) 
 (slowdown_duration_bars 3) 

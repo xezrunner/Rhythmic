@@ -5,10 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class tut_test_script : MonoBehaviour
 {
-    AmplitudeSongController amp_ctrl { get { return AmplitudeSongController.Instance; } }
+    SongController SongController { get { return SongController.Instance; } }
     TracksController TracksController { get { return (TracksController)TracksController.Instance; } }
     CatcherController CatcherController { get { return CatcherController.Instance; } }
-    PlayerController Player { get { return PlayerController.Instance; } }
+    Player Player { get { return Player.Instance; } }
 
     public AudioSource audioSrc;
     public List<AudioClip> audioClips;
@@ -29,7 +29,7 @@ public class tut_test_script : MonoBehaviour
 
     async void BeginScript()
     {
-        if (AmplitudeSongController.songName != "tut0" || Input.GetKey(KeyCode.X))
+        if (SongController.songName != "tut0" || Input.GetKey(KeyCode.X))
         return;
 
         if (SceneManager.GetSceneByName("Loading").isLoaded)
@@ -150,7 +150,7 @@ public class tut_test_script : MonoBehaviour
         else if (startPanelFading & fadeValue <= 0f)
             startPanelFading = false;
 
-        if (AmplitudeSongController.songName != "tut0" & AmplitudeSongController.IsSongPlaying & !worldAnimPlayed)
+        if (SongController.songName != "tut0" & SongController.IsPlaying & !worldAnimPlayed)
         { GameObject.Find("WORLD_TUT").GetComponent<Animation>().Play(); worldAnimPlayed = true; }
     }
 

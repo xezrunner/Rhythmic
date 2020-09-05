@@ -12,8 +12,8 @@ public class MeasureDestructionNoteDetector : MonoBehaviour
     void Start()
     {
         // Get measure numbers for start and end pos
-        int startMeasure = AmplitudeSongController.Instance.GetMeasureNumForZPos(startPos);
-        int endMeasure = AmplitudeSongController.Instance.GetMeasureNumForZPos(endPos);
+        int startMeasure = SongController.Instance.GetMeasureNumForZPos(startPos);
+        int endMeasure = SongController.Instance.GetMeasureNumForZPos(endPos);
 
         deltaMeasures = (endMeasure - startMeasure); // how many measures between start and end
     }
@@ -21,7 +21,7 @@ public class MeasureDestructionNoteDetector : MonoBehaviour
     void Update()
     {
         //transform.position = new Vector3(transform.position.x, transform.position.y, startPos + ((endPos - startPos)));
-        transform.Translate(Vector3.forward * (AmplitudeSongController.Instance.subbeatLengthInzPos * 8) / 30);
+        transform.Translate(Vector3.forward * (SongController.Instance.subbeatLengthInzPos * 8) / 30);
 
         if (transform.position.z >= endPos)
             Destroy(gameObject);
