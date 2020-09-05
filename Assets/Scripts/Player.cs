@@ -32,6 +32,7 @@ public class Player : MonoBehaviour
     public TextMeshProUGUI MeasureCounterText;
     public TextMeshProUGUI NextNoteText;
 
+    public Transform Transversal;
     public Transform TunnelOffsetHelper;
     public Transform CameraTunnelOffsetHelper;
     public Transform Camera;
@@ -104,10 +105,9 @@ public class Player : MonoBehaviour
         // Wire up catcher events
         CatcherController.OnCatch += CatcherController_OnCatch;
 
-        // Move player to Tunnel center and offset its content so they're at the intended place
+        // Move player to Tunnel center and offset the Transversal content so they're at the intended place
         transform.position = Tunnel.center;
-        TunnelOffsetHelper.transform.localPosition = -Tunnel.center;
-        CameraTunnelOffsetHelper.transform.localPosition = -Tunnel.center;
+        foreach (Transform trans in Transversal) { trans.localPosition = -Tunnel.center; };
 
         // TODO: we should switch to the first track when the game starts, not here!
         SwitchToTrack(0, true);
@@ -252,7 +252,7 @@ public class Player : MonoBehaviour
         Move_CamTarget = target;
 
         // set offset and target for camera LOCAL pos & rot
-        Move_CamOffset[0] = CameraTunnelOffsetHelper.position; // offset is current GLOBAL position of the camera
+        Move_CamOffset[0] = Camera.position; // offset is current GLOBAL position of the camera
         Move_CamOffset[1] = Camera.eulerAngles; // rotation is current GLOBAL rotation of the camera
 
         // Handle inverse rotations
@@ -285,11 +285,13 @@ public class Player : MonoBehaviour
         {
             // In regular mode, we want to change the GLOBAL position of the tunnel helpers when moving the player!
             // We want to keep the actual player Transform centered to the tunnel at all times.
-            TunnelOffsetHelper.position = position;
-            CameraTunnelOffsetHelper.position = Move_CamOffset[0];
+            /*TunnelOffsetHelper.position = position;
+            CameraTunnelOffsetHelper.position = Move_CamOffset[0];*/
+            Transversal.position = position;
+            Camera.position = Move_CamOffset[0];
         }
         transform.eulerAngles = rotation;
-        Camera.eulerAngles = Move_CamOffset[1];
+        Transversal.eulerAngles = Move_CamOffset[1];
 
         // play and wait for animation
         Move_Progress = 0f;
@@ -312,8 +314,8 @@ public class Player : MonoBehaviour
         Vector3 rot = Vector3.Lerp(Move_CamOffset[1], Move_CamTarget[1], Move_Progress);
 
         if (forcedPlayerMove || !RhythmicGame.IsTunnelMode)
-            CameraTunnelOffsetHelper.position = new Vector3(pos.x, pos.y, Camera.position.z);
-        Camera.eulerAngles = rot;
+            Camera.position = new Vector3(pos.x, pos.y, Camera.position.z);
+        Transversal.eulerAngles = rot;
     }
 
     // Moves player to specific POS & ROT coordinates (Z is ignored)

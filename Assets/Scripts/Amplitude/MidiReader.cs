@@ -66,8 +66,7 @@ public class MidiReader : MonoBehaviour
         ticks = midi.DeltaTicksPerQuarterNote;
 
         // BPM
-        TempoEvent bpmEvent = (TempoEvent)midi.Events[0][2];
-        bpm = (int)bpmEvent.Tempo;
+        bpm = GetBPMfromMidi();
 
         GetSongTracksFromMIDI();
 
@@ -87,22 +86,17 @@ public class MidiReader : MonoBehaviour
     // REDUNDANT - we get the BPM from moggsong (amp_ctrl) instead
     public int GetBPMfromMidi()
     {
-        int finalBPM = 0;
-
         foreach (MidiEvent midevent in midi.Events[0])
         {
             if (midevent is TempoEvent) // tempo was found!
             {
                 var tEvent = (TempoEvent)midevent;
-                finalBPM = 60000 / (tEvent.MicrosecondsPerQuarterNote / 1000); // assign tempo
-                break;
+                int finalBPM = 60000 / (tEvent.MicrosecondsPerQuarterNote / 1000);
+                return finalBPM;
             }
         }
 
-        if (finalBPM != 0)
-            return finalBPM;
-        else
-            throw new Exception("MidiReader: Tempo not found or BPM is 0!");
+        throw new Exception("MidiReader: Tempo not found or BPM is 0!");
     }
 
     /// <summary>
