@@ -12,7 +12,6 @@ public class TracksController : MonoBehaviour
 {
     public static TracksController Instance;
     public TextMeshProUGUI loadingText;
-
     AmplitudeSongController amp_ctrl { get { return (AmplitudeSongController)SongController.Instance; } }
     public SongController SongController { get { return SongController.Instance; } }
     public CatcherController CatcherController { get { return CatcherController.Instance; } }
@@ -40,6 +39,7 @@ public class TracksController : MonoBehaviour
     public void Awake()
     {
         Instance = this;
+
         try { loadingText = GameObject.Find("loadingText").GetComponent<TextMeshProUGUI>(); }
         catch { Debug.LogWarning("TRACKS: loading text no found - won't report progress stats to GameStarter"); }
 
@@ -162,7 +162,7 @@ public class TracksController : MonoBehaviour
         Vector3[] transform = Tunnel.GetTransformForTrackID(realID.HasValue ? realID.Value : id);
         obj.transform.position = transform[0];
         obj.transform.eulerAngles = transform[1];
-        obj.transform.localScale = new Vector3(1, 1, songLength);
+        //obj.transform.localScale = new Vector3(1, 1, songLength);
         obj.transform.SetParent(gameObject.transform); // parent to TracksController
 
         // Create script for track

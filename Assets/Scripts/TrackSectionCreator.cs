@@ -18,6 +18,10 @@ public class TrackSectionCreator : PathSceneTool
 
     [SerializeField, HideInInspector]
     GameObject meshHolder;
+    List<GameObject> meshHolderList = new List<GameObject>();
+
+    public float xOffset = 0f;
+    public float zOffset = 0f;
 
     MeshFilter meshFilter;
     MeshRenderer meshRenderer;
@@ -33,16 +37,24 @@ public class TrackSectionCreator : PathSceneTool
         }*/
     }
 
-    public void CreateTrackMesh(Vector3 pos, Vector3 angle, string trackName)
+    private void Awake()
+    {
+        if (!pathCreator) pathCreator = GameObject.Find("Path").GetComponent<PathCreator>(); // temp!
+    }
+
+    public GameObject CreateTrackMesh(string trackName = "asd")
     {
         if (!pathCreator)
-            return;
+            throw new System.Exception("TrackMeshCreator: No PathCreator was found!");
 
         // Create track mesh object!
-        AssignMeshComponents(pos, angle, trackName);
+        var go = AssignMeshComponents(trackName);
+        go.transform.position = path.GetPointAtDistance(zOffset) + new Vector3(xOffset, 0, 0);
+        //go.transform.rotation = path.GetRotationAtDistance(zOffset) * Quaternion.Euler(0, 0, 90);
         AssignMaterials();
         CreateSectionMesh();
 
+        return go;
     }
 
     void CreateSectionMesh()
@@ -138,12 +150,13 @@ public class TrackSectionCreator : PathSceneTool
     }
 
     // Add MeshRenderer and MeshFilter components to this gameobject if not already attached
-    void AssignMeshComponents(Vector3 pos, Vector3 angle, string objectName)
+    GameObject AssignMeshComponents(string objectName)
     {
-        meshHolder = new GameObject(objectName);
+        var meshHolder = new GameObject();
+        meshHolder.name = objectName;
 
-        meshHolder.transform.eulerAngles = angle;
-        meshHolder.transform.position = pos;
+        meshHolder.transform.rotation = Quaternion.identity;
+        meshHolder.transform.position = Vector3.zero;
         meshHolder.transform.localScale = Vector3.one;
 
         // Ensure mesh renderer and filter components are assigned
@@ -163,6 +176,9 @@ public class TrackSectionCreator : PathSceneTool
             mesh = new Mesh();
         }
         meshFilter.sharedMesh = mesh;
+
+        meshHolderList.Add(meshHolder);
+        return meshHolder;
     }
 
     void AssignMaterials()

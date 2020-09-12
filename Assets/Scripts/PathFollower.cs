@@ -15,7 +15,12 @@ public class PathFollower : MonoBehaviour
     public EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop; // The instruction to perform when we reached the end of the path.
 
     public float speed = 5f;
+    public float smoothStrength = 0.1f;
     public float distanceTravelled;
+    public Quaternion vel = Quaternion.identity;
+
+    public Transform NonInterpolatable;
+    public Transform Interpolatable;
 
     void Awake()
     {
@@ -37,9 +42,23 @@ public class PathFollower : MonoBehaviour
         transform.position = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction);
         // The path normals face 90 degrees to the left to make the path.
         // Here, we get the rotation but rotate the result by 90 degrees to the right to correctly orient the follower on the path.
-        transform.rotation = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction) * Quaternion.Euler(0, 0, 90);
+        Quaternion currentRot = Interpolatable.rotation;
+        Quaternion targetRot = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction) * Quaternion.Euler(0, 0, 90);
+        Interpolatable.rotation = QuaternionUtil.SmoothDamp(currentRot, targetRot, ref vel, smoothStrength);
+        NonInterpolatable.rotation = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction) * Quaternion.Euler(0, 0, 90);
 
-        
+        //Debug.Log("Target: " + targetRot);
+    }
+
+    void Rotate(Quaternion startRot, Quaternion endRot, float rotateTime)
+    {
+        var i = 0.0f;
+        var rate = 1.0f / rotateTime;
+        while (i < 1.0f)
+        {
+            i += Time.deltaTime * rate;
+            transform.rotation = Quaternion.Lerp(startRot, endRot, Mathf.SmoothStep(0.0f, 1.0f, i));
+        }
     }
 
     // If the path changes during the game, update the distance travelled so that the follower's position on the new path

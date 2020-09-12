@@ -72,6 +72,8 @@ public class GameStarter : MonoBehaviour
 
             yield return null;
         }
+
+        SceneManager.UnloadSceneAsync("Loading");
     }
 
     void FixedUpdate()
