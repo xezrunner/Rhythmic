@@ -9,6 +9,7 @@ public class SongController : MonoBehaviour
 {
     public static SongController Instance;
     public Player Player { get { return Player.Instance; } }
+    public Clock Clock;
     public TracksController TracksController;
 
     // Controller properties
@@ -70,11 +71,11 @@ public class SongController : MonoBehaviour
 
     // ms (Milliseconds)
     public float tickInMs { get { return (60000f / (songBpm * beatTicks)) / songFudgeFactor; } }
-    public float msIntick { get { return tickInMs * (songBpm * beatTicks) / 60000f; } }
+    public float msIntick { get { return (songBpm * beatTicks) / 60000f / songFudgeFactor; } }
     public float msInzPos { get { return (secPerBeat / 1000) / songFudgeFactor; } }
     // s (Seconds)
-    public float tickInSec { get { return (60f / (songBpm * beatTicks)) / songFudgeFactor; } }
-    public float secInTick { get { return tickInSec * (songBpm * beatTicks) / 60f; } }
+    public float tickInSec { get { return (60f / (songBpm * beatTicks) / songFudgeFactor); } }
+    public float secInTick { get { return (songBpm * beatTicks) / 60f / songFudgeFactor; } }
     public float secInzPos { get { return secPerBeat / songFudgeFactor; } }
     // zPos (Meters)
     public float tickInzPos { get { return tickInSec / (tickInSec * beatTicks) * 4 / songFudgeFactor; } }
@@ -172,6 +173,8 @@ public class SongController : MonoBehaviour
         LoadSong(songName == "" ? defaultSong : songName); // load default song in case the prop is empty, for testing purposes only!
     }
 
+    //void Update() { if (_isPlaying) Clock.seconds = mainAudioSource.time; } // update clock!
+
     public virtual void CreateTracksController()
     {
         Debug.LogFormat("TRACKS: Created track controller!");
@@ -181,6 +184,14 @@ public class SongController : MonoBehaviour
 
         TracksController.OnTrackSwitched += TracksController_OnTrackSwitched;
     }
+    void CreateClock()
+    {
+        Clock = gameObject.AddComponent<Clock>();
+        Clock.OnBeat += Clock_OnBeat;
+    }
+
+    // Vibrate on every clock beat!
+    private void Clock_OnBeat(object sender, int e) => BeatVibration();
 
     public event EventHandler<float> LoadingProgress;
     public event EventHandler LoadingFinished;
@@ -189,6 +200,8 @@ public class SongController : MonoBehaviour
     {
         // Set basic song metadata
         songName = song;
+        // Create clock
+        CreateClock();
         /* Handle rest of the loading in the game-specific song controller */
     }
 
@@ -276,8 +289,5 @@ public class SongController : MonoBehaviour
     /// Functions that relate to gameplay ///
 
     // Vibrate controller to the beat
-    public void BeatVibration()
-    {
-        VibrationController.VibrateLinear(beatHaptics);
-    }
+    public void BeatVibration() => VibrationController.VibrateLinear(beatHaptics);
 }

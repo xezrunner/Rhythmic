@@ -162,10 +162,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CurrentMeasureID: 0
   CurrentBeatID: 0
-  Catchers: []
+  Catchers:
+  - {fileID: 8888344163297245787}
+  - {fileID: 1585655271056192127}
+  - {fileID: 2074154462928838795}
   keycodes: 140100001101000013010000
   BoxCollider: {fileID: 217422865016143448}
-  noteDestructPrefab: {fileID: 0}
+  noteDestructPrefab: {fileID: 1992108913771897652, guid: 9acddde6df1bea54381709bc97ffed71,
+    type: 3}
   LastHitNote: {fileID: 0}
   ShouldHit: []
 --- !u!65 &217422865016143448

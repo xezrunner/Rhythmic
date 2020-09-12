@@ -473,8 +473,10 @@ public class Player : MonoBehaviour
         if (IsPlaying)
             SongMovementUpdate();
 
+        /*
         // TODO: PLAYTEST CODE - temp controller haptics to the beat until there isn't a global haptics management system!
         if (prevSubbeat != CatcherController.CurrentBeatID) { SongController.BeatVibration(); prevSubbeat = CatcherController.CurrentBeatID; }
+        */
 
         // Debug switch to 0th track
         if (Input.GetKeyDown(KeyCode.Q))

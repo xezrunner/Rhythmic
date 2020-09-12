@@ -52,6 +52,8 @@ public static class RhythmicGame
     public static float AVCalibrationStepMs = 16.67f;
 
     // Gameplay props
+    public static float SlopMs = 100f;
+    public static float DebounceWindowMs = 85f;
     public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
     public static bool TunnelTrackDuplication = true; // Whether to duplicate tracks when using tunnel mode
     static int _tunnelTrackDuplicationNum = 3; // How many times to duplicate each track
