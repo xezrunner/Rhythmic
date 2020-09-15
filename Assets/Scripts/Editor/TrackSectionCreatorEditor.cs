@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(TrackSectionCreator))]
+[CustomEditor(typeof(TrackMeshCreator))]
 public class TrackSectionCreatorEditor : Editor
 {
-
-
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
 
-        TrackSectionCreator script = (TrackSectionCreator)target;
+        TrackMeshCreator script = (TrackMeshCreator)target;
 
         if (GUILayout.Button("Create object"))
             script.CreateTrackMesh();

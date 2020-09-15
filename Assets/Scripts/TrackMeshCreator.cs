@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TrackSectionCreator : PathSceneTool
+public class TrackMeshCreator : PathSceneTool
 {
     [Header("Road settings")]
     public float roadWidth = 1.18f;
@@ -49,15 +49,14 @@ public class TrackSectionCreator : PathSceneTool
 
         // Create track mesh object!
         var go = AssignMeshComponents(trackName);
-        go.transform.position = path.GetPointAtDistance(zOffset) + new Vector3(xOffset, 0, 0);
-        //go.transform.rotation = path.GetRotationAtDistance(zOffset) * Quaternion.Euler(0, 0, 90);
+        //go.transform.position = new Vector3(xOffset, 0, 0);
         AssignMaterials();
-        CreateSectionMesh();
+        CreateMesh();
 
         return go;
     }
 
-    void CreateSectionMesh()
+    void CreateMesh()
     {
         Vector3[] verts = new Vector3[path.NumPoints * 8];
         Vector2[] uvs = new Vector2[verts.Length];
@@ -88,6 +87,12 @@ public class TrackSectionCreator : PathSceneTool
             // Find position to left and right of current path vertex
             Vector3 vertSideA = path.GetPoint(i) - localRight * Mathf.Abs(roadWidth);
             Vector3 vertSideB = path.GetPoint(i) + localRight * Mathf.Abs(roadWidth);
+
+            // ***** OFFSET VERTEX POINTS *****
+            // The calculations below create the Beziér path based on the vertex positions.
+            // By offseting the vertex positions, the calculations will take place according to their positions and the curve will thus be bigger or smaller, depending on the vertex positions.
+            vertSideA += localRight * xOffset;
+            vertSideB += localRight * xOffset;
 
             // Add top of road vertices
             verts[vertIndex + 0] = vertSideA;
@@ -171,10 +176,7 @@ public class TrackSectionCreator : PathSceneTool
 
         meshRenderer = meshHolder.GetComponent<MeshRenderer>();
         meshFilter = meshHolder.GetComponent<MeshFilter>();
-        if (mesh == null)
-        {
-            mesh = new Mesh();
-        }
+        mesh = new Mesh();
         meshFilter.sharedMesh = mesh;
 
         meshHolderList.Add(meshHolder);
