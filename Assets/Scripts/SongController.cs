@@ -14,7 +14,7 @@ public class SongController : MonoBehaviour
 
     // Controller properties
     public string defaultSong;
-    public string songName;
+    public static string songName;
     public virtual string songFolder { get; set; }
 
     public virtual List<string> songTracks { get; set; }
@@ -170,7 +170,7 @@ public class SongController : MonoBehaviour
 
         // TODO: Loading the song should not be based on what property is set!
         // LoadSong() should be called by the UI or loading mechanism!
-        LoadSong(songName == "" ? defaultSong : songName); // load default song in case the prop is empty, for testing purposes only!
+        LoadSong(songName == null ? defaultSong : songName); // load default song in case the prop is empty, for testing purposes only!
     }
 
     //void Update() { if (_isPlaying) Clock.seconds = mainAudioSource.time; } // update clock!

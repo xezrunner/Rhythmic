@@ -43,14 +43,8 @@ public class GameStarter : MonoBehaviour
         if (!SetResolutionOnce)
             RhythmicGame.SetResolution(RhythmicGame.PreferredResolution);
         SetResolutionOnce = true;
+        Debug.LogFormat("GameStarter: Preferred resolution applied - {0}x{1}.", RhythmicGame.PreferredResolution.x, RhythmicGame.PreferredResolution.y);
 #endif
-
-        //await Task.Delay(3000);
-
-        /*
-        SceneManager.LoadSceneAsync("DevScene", LoadSceneMode.Additive);
-        SceneManager.LoadSceneAsync("SnowMountains", LoadSceneMode.Additive);
-        */
 
         StartCoroutine(Load("DevScene"));
     }

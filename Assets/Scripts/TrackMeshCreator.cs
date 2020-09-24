@@ -2,9 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class TrackMeshCreator : PathSceneTool
 {
+    public static TrackMeshCreator Instance;
+
     [Header("Road settings")]
     public float roadWidth = 1.18f;
     [Range(0, .5f)]
@@ -16,48 +19,59 @@ public class TrackMeshCreator : PathSceneTool
     public Material undersideMaterial;
     public float textureTiling = 1;
 
-    [SerializeField, HideInInspector]
-    GameObject meshHolder;
-    List<GameObject> meshHolderList = new List<GameObject>();
+    [Header("Rhythmic track creation")]
+    public float debug_startPoint;
+    public float debug_length;
+    [Range(-10, 10)]
+    public int debug_xPosition;
 
-    public float xOffset = 0f;
-    public float zOffset = 0f;
+    public bool reactToPathChanges;
 
-    MeshFilter meshFilter;
-    MeshRenderer meshRenderer;
-    Mesh mesh;
+    [HideInInspector]
+    public List<GameObject> TrackObjects = new List<GameObject>();
 
     protected override void PathUpdated()
     {
-        /*if (pathCreator != null)
+        if (TrackObjects != null && reactToPathChanges)
         {
-            AssignMeshComponents();
-            AssignMaterials();
-            CreateSectionMesh();
-        }*/
+            int counter = 0;
+            foreach (GameObject trackObj in TrackObjects)
+            {
+                if (trackObj) trackObj.GetComponent<MeshFilter>().sharedMesh = CreateMesh(debug_startPoint, debug_length, RhythmicGame.TrackWidth * int.Parse(trackObj.name));
+                counter++;
+            }
+        }
     }
 
     private void Awake()
     {
+        Instance = this;
         if (!pathCreator) pathCreator = GameObject.Find("Path").GetComponent<PathCreator>(); // temp!
     }
 
-    public GameObject CreateTrackMesh(string trackName = "asd")
+    public GameObject Debug_CreateTestMesh(bool keepCurrentXPosition = false, bool keepIncreasingStartPoint = false)
     {
         if (!pathCreator)
             throw new System.Exception("TrackMeshCreator: No PathCreator was found!");
 
         // Create track mesh object!
-        var go = AssignMeshComponents(trackName);
-        //go.transform.position = new Vector3(xOffset, 0, 0);
-        AssignMaterials();
-        CreateMesh();
+        var go = CreateTestMesh();
+
+        // Automatically increase track index counter
+        if (!keepCurrentXPosition)
+            debug_xPosition++;
+        if (keepIncreasingStartPoint)
+            debug_startPoint += debug_length;
+
+        TrackObjects.Add(go);
 
         return go;
     }
 
-    void CreateMesh()
+    public Mesh CreateMesh(float startDistance = 0f, float length = 8f, float xPosition = 0f, float width = 0f)
     {
+        if (width == 0f) width = roadWidth;
+
         Vector3[] verts = new Vector3[path.NumPoints * 8];
         Vector2[] uvs = new Vector2[verts.Length];
         Vector3[] normals = new Vector3[verts.Length];
@@ -67,19 +81,25 @@ public class TrackMeshCreator : PathSceneTool
         int[] underRoadTriangles = new int[numTris * 3];
         int[] sideOfRoadTriangles = new int[numTris * 2 * 3];
 
-        int vertIndex = 0;
-        int triIndex = 0;
+        bool usePathNormals = !(path.space == PathSpace.xyz && flattenSurface);
 
-        // Vertices for the top of the road are layed out:
-        // 0  1
-        // 8  9
-        // and so on... So the triangle map 0,8,1 for example, defines a triangle from top left to bottom left to bottom right.
+        /* Vertices for the top of the road are laid out like this:
+           0  1
+           8  9
+        and so on... So the triangle map 0,8,1 for example, defines a triangle from top left to bottom left to bottom right. */
         int[] triangleMap = { 0, 8, 1, 1, 8, 9 };
         int[] sidesTriangleMap = { 4, 6, 14, 12, 4, 14, 5, 15, 7, 13, 15, 5 };
 
-        bool usePathNormals = !(path.space == PathSpace.xyz && flattenSurface);
+        // Get start and end vertex index data
+        if (length == -1) // -1 means full path length
+            length = path.length;
+        var startVertex = path.GetIndexAtDistance(startDistance, EndOfPathInstruction.Stop);
+        var endVertex = path.GetIndexAtDistance(startDistance + length, EndOfPathInstruction.Stop);
 
-        for (int i = 0; i < path.NumPoints; i++)
+        int vertIndex = 0;
+        int triIndex = 0;
+
+        for (int i = startVertex.previousIndex; i <= endVertex.nextIndex; i++) // Go through indexes between start and end (end is not included) // TODO: investigate into non-inclusion of end index?
         {
             Vector3 localUp = (usePathNormals) ? Vector3.Cross(path.GetTangent(i), path.GetNormal(i)) : path.up;
             Vector3 localRight = (usePathNormals) ? path.GetNormal(i) : Vector3.Cross(localUp, path.GetTangent(i));
@@ -88,12 +108,13 @@ public class TrackMeshCreator : PathSceneTool
             Vector3 vertSideA = path.GetPoint(i) - localRight * Mathf.Abs(roadWidth);
             Vector3 vertSideB = path.GetPoint(i) + localRight * Mathf.Abs(roadWidth);
 
-            // ***** OFFSET VERTEX POINTS *****
-            // The calculations below create the Beziér path based on the vertex positions.
+            // ***** OFFSET VERTEX POINTS FOR PARALLEL CURVES *****
+            // The calculations below create the mesh based on the vertex positions.
             // By offseting the vertex positions, the calculations will take place according to their positions and the curve will thus be bigger or smaller, depending on the vertex positions.
-            vertSideA += localRight * xOffset;
-            vertSideB += localRight * xOffset;
+            vertSideA += localRight * xPosition;
+            vertSideB += localRight * xPosition;
 
+            #region Add vertices, UVs and normals
             // Add top of road vertices
             verts[vertIndex + 0] = vertSideA;
             verts[vertIndex + 1] = vertSideB;
@@ -122,43 +143,49 @@ public class TrackMeshCreator : PathSceneTool
             normals[vertIndex + 5] = localRight;
             normals[vertIndex + 6] = -localRight;
             normals[vertIndex + 7] = localRight;
+            #endregion
 
             // Set triangle indices
-            if (i < path.NumPoints - 1 || path.isClosedLoop)
+            if (i < endVertex.previousIndex || path.isClosedLoop)
             {
                 for (int j = 0; j < triangleMap.Length; j++)
                 {
                     roadTriangles[triIndex + j] = (vertIndex + triangleMap[j]) % verts.Length;
+
                     // reverse triangle map for under road so that triangles wind the other way and are visible from underneath
                     underRoadTriangles[triIndex + j] = (vertIndex + triangleMap[triangleMap.Length - 1 - j] + 2) % verts.Length;
                 }
                 for (int j = 0; j < sidesTriangleMap.Length; j++)
-                {
                     sideOfRoadTriangles[triIndex * 2 + j] = (vertIndex + sidesTriangleMap[j]) % verts.Length;
-                }
-
             }
 
+            // add to vert and tri index counters
             vertIndex += 8;
             triIndex += 6;
         }
 
-        mesh.Clear();
+        // Create and setup mesh
+        Mesh mesh = new Mesh();
+
         mesh.vertices = verts;
         mesh.uv = uvs;
         mesh.normals = normals;
         mesh.subMeshCount = 3;
+
         mesh.SetTriangles(roadTriangles, 0);
         mesh.SetTriangles(underRoadTriangles, 1);
         mesh.SetTriangles(sideOfRoadTriangles, 2);
+
         mesh.RecalculateBounds();
+
+        return mesh;
     }
 
     // Add MeshRenderer and MeshFilter components to this gameobject if not already attached
-    GameObject AssignMeshComponents(string objectName)
+    GameObject CreateTestMesh(string objectName = "TestTrackMesh")
     {
         var meshHolder = new GameObject();
-        meshHolder.name = objectName;
+        meshHolder.name = debug_xPosition.ToString();
 
         meshHolder.transform.rotation = Quaternion.identity;
         meshHolder.transform.position = Vector3.zero;
@@ -166,29 +193,20 @@ public class TrackMeshCreator : PathSceneTool
 
         // Ensure mesh renderer and filter components are assigned
         if (!meshHolder.gameObject.GetComponent<MeshFilter>())
-        {
             meshHolder.gameObject.AddComponent<MeshFilter>();
-        }
         if (!meshHolder.GetComponent<MeshRenderer>())
-        {
             meshHolder.gameObject.AddComponent<MeshRenderer>();
-        }
 
-        meshRenderer = meshHolder.GetComponent<MeshRenderer>();
-        meshFilter = meshHolder.GetComponent<MeshFilter>();
-        mesh = new Mesh();
-        meshFilter.sharedMesh = mesh;
+        var meshRenderer = meshHolder.GetComponent<MeshRenderer>();
+        var meshFilter = meshHolder.GetComponent<MeshFilter>();
+        meshFilter.sharedMesh = CreateMesh(debug_startPoint, debug_length, debug_xPosition * RhythmicGame.TrackWidth);
 
-        meshHolderList.Add(meshHolder);
-        return meshHolder;
-    }
-
-    void AssignMaterials()
-    {
         if (roadMaterial != null && undersideMaterial != null)
         {
             meshRenderer.sharedMaterials = new Material[] { roadMaterial, undersideMaterial, undersideMaterial };
             meshRenderer.sharedMaterials[0].mainTextureScale = new Vector3(1, textureTiling);
         }
+
+        return meshHolder;
     }
 }

@@ -45,18 +45,18 @@ namespace PathCreation {
         /// <summary> Splits bezier path into array of vertices along the path.</summary>
         ///<param name="maxAngleError">How much can the angle of the path change before a vertex is added. This allows fewer vertices to be generated in straighter sections.</param>
         ///<param name="minVertexDst">Vertices won't be added closer together than this distance, regardless of angle error.</param>
-        public VertexPath (BezierPath bezierPath, Transform transform, float maxAngleError = 0.3f, float minVertexDst = 0):
-            this (bezierPath, VertexPathUtility.SplitBezierPathByAngleError (bezierPath, maxAngleError, minVertexDst, VertexPath.accuracy), transform) { }
+        public VertexPath(BezierPath bezierPath, Transform transform, float maxAngleError = 0.3f, float minVertexDst = 0) :
+            this(bezierPath, VertexPathUtility.SplitBezierPathByAngleError(bezierPath, maxAngleError, minVertexDst, VertexPath.accuracy), transform) { }
 
         /// <summary> Splits bezier path into array of vertices along the path.</summary>
         ///<param name="maxAngleError">How much can the angle of the path change before a vertex is added. This allows fewer vertices to be generated in straighter sections.</param>
         ///<param name="minVertexDst">Vertices won't be added closer together than this distance, regardless of angle error.</param>
         ///<param name="accuracy">Higher value means the change in angle is checked more frequently.</param>
-        public VertexPath (BezierPath bezierPath, Transform transform, float vertexSpacing):
-            this (bezierPath, VertexPathUtility.SplitBezierPathEvenly (bezierPath, Mathf.Max (vertexSpacing, minVertexSpacing), VertexPath.accuracy), transform) { }
+        public VertexPath(BezierPath bezierPath, Transform transform, float vertexSpacing) :
+            this(bezierPath, VertexPathUtility.SplitBezierPathEvenly(bezierPath, Mathf.Max(vertexSpacing, minVertexSpacing), VertexPath.accuracy), transform) { }
 
         /// Internal contructor
-        VertexPath (BezierPath bezierPath, VertexPathUtility.PathSplitData pathSplitData, Transform transform) {
+        VertexPath(BezierPath bezierPath, VertexPathUtility.PathSplitData pathSplitData, Transform transform) {
             this.transform = transform;
             space = bezierPath.Space;
             isClosedLoop = bezierPath.IsClosed;
@@ -68,7 +68,7 @@ namespace PathCreation {
             localTangents = new Vector3[numVerts];
             cumulativeLengthAtEachVertex = new float[numVerts];
             times = new float[numVerts];
-            bounds = new Bounds ((pathSplitData.minMax.Min + pathSplitData.minMax.Max) / 2, pathSplitData.minMax.Max - pathSplitData.minMax.Min);
+            bounds = new Bounds((pathSplitData.minMax.Min + pathSplitData.minMax.Max) / 2, pathSplitData.minMax.Max - pathSplitData.minMax.Min);
 
             // Figure out up direction for path
             up = (bounds.size.z > bounds.size.y) ? Vector3.up : -Vector3.forward;
@@ -84,39 +84,39 @@ namespace PathCreation {
                 // Calculate normals
                 if (space == PathSpace.xyz) {
                     if (i == 0) {
-                        localNormals[0] = Vector3.Cross (lastRotationAxis, pathSplitData.tangents[0]).normalized;
+                        localNormals[0] = Vector3.Cross(lastRotationAxis, pathSplitData.tangents[0]).normalized;
                     } else {
                         // First reflection
                         Vector3 offset = (localPoints[i] - localPoints[i - 1]);
                         float sqrDst = offset.sqrMagnitude;
-                        Vector3 r = lastRotationAxis - offset * 2 / sqrDst * Vector3.Dot (offset, lastRotationAxis);
-                        Vector3 t = localTangents[i - 1] - offset * 2 / sqrDst * Vector3.Dot (offset, localTangents[i - 1]);
+                        Vector3 r = lastRotationAxis - offset * 2 / sqrDst * Vector3.Dot(offset, lastRotationAxis);
+                        Vector3 t = localTangents[i - 1] - offset * 2 / sqrDst * Vector3.Dot(offset, localTangents[i - 1]);
 
                         // Second reflection
                         Vector3 v2 = localTangents[i] - t;
-                        float c2 = Vector3.Dot (v2, v2);
+                        float c2 = Vector3.Dot(v2, v2);
 
-                        Vector3 finalRot = r - v2 * 2 / c2 * Vector3.Dot (v2, r);
-                        Vector3 n = Vector3.Cross (finalRot, localTangents[i]).normalized;
+                        Vector3 finalRot = r - v2 * 2 / c2 * Vector3.Dot(v2, r);
+                        Vector3 n = Vector3.Cross(finalRot, localTangents[i]).normalized;
                         localNormals[i] = n;
                         lastRotationAxis = finalRot;
                     }
                 } else {
-                    localNormals[i] = Vector3.Cross (localTangents[i], up) * ((bezierPath.FlipNormals) ? 1 : -1);
+                    localNormals[i] = Vector3.Cross(localTangents[i], up) * ((bezierPath.FlipNormals) ? 1 : -1);
                 }
             }
 
             // Apply correction for 3d normals along a closed path
             if (space == PathSpace.xyz && isClosedLoop) {
                 // Get angle between first and last normal (if zero, they're already lined up, otherwise we need to correct)
-                float normalsAngleErrorAcrossJoin = Vector3.SignedAngle (localNormals[localNormals.Length - 1], localNormals[0], localTangents[0]);
+                float normalsAngleErrorAcrossJoin = Vector3.SignedAngle(localNormals[localNormals.Length - 1], localNormals[0], localTangents[0]);
                 // Gradually rotate the normals along the path to ensure start and end normals line up correctly
-                if (Mathf.Abs (normalsAngleErrorAcrossJoin) > 0.1f) // don't bother correcting if very nearly correct
+                if (Mathf.Abs(normalsAngleErrorAcrossJoin) > 0.1f) // don't bother correcting if very nearly correct
                 {
                     for (int i = 1; i < localNormals.Length; i++) {
                         float t = (i / (localNormals.Length - 1f));
                         float angle = normalsAngleErrorAcrossJoin * t;
-                        Quaternion rot = Quaternion.AngleAxis (angle, localTangents[i]);
+                        Quaternion rot = Quaternion.AngleAxis(angle, localTangents[i]);
                         localNormals[i] = rot * localNormals[i] * ((bezierPath.FlipNormals) ? -1 : 1);
                     }
                 }
@@ -127,9 +127,9 @@ namespace PathCreation {
                 for (int anchorIndex = 0; anchorIndex < pathSplitData.anchorVertexMap.Count - 1; anchorIndex++) {
                     int nextAnchorIndex = (isClosedLoop) ? (anchorIndex + 1) % bezierPath.NumSegments : anchorIndex + 1;
 
-                    float startAngle = bezierPath.GetAnchorNormalAngle (anchorIndex) + bezierPath.GlobalNormalsAngle;
-                    float endAngle = bezierPath.GetAnchorNormalAngle (nextAnchorIndex) + bezierPath.GlobalNormalsAngle;
-                    float deltaAngle = Mathf.DeltaAngle (startAngle, endAngle);
+                    float startAngle = bezierPath.GetAnchorNormalAngle(anchorIndex) + bezierPath.GlobalNormalsAngle;
+                    float endAngle = bezierPath.GetAnchorNormalAngle(nextAnchorIndex) + bezierPath.GlobalNormalsAngle;
+                    float deltaAngle = Mathf.DeltaAngle(startAngle, endAngle);
 
                     int startVertIndex = pathSplitData.anchorVertexMap[anchorIndex];
                     int endVertIndex = pathSplitData.anchorVertexMap[anchorIndex + 1];
@@ -142,7 +142,7 @@ namespace PathCreation {
                         int vertIndex = startVertIndex + i;
                         float t = i / (num - 1f);
                         float angle = startAngle + deltaAngle * t;
-                        Quaternion rot = Quaternion.AngleAxis (angle, localTangents[vertIndex]);
+                        Quaternion rot = Quaternion.AngleAxis(angle, localTangents[vertIndex]);
                         localNormals[vertIndex] = (rot * localNormals[vertIndex]) * ((bezierPath.FlipNormals) ? -1 : 1);
                     }
                 }
@@ -153,7 +153,7 @@ namespace PathCreation {
 
         #region Public methods and accessors
 
-        public void UpdateTransform (Transform transform) {
+        public void UpdateTransform(Transform transform) {
             this.transform = transform;
         }
         public int NumPoints {
@@ -162,32 +162,44 @@ namespace PathCreation {
             }
         }
 
-        public Vector3 GetTangent (int index) {
-            return MathUtility.TransformDirection (localTangents[index], transform, space);
+        public Vector3 GetTangent(int index) {
+            return MathUtility.TransformDirection(localTangents[index], transform, space);
         }
 
-        public Vector3 GetNormal (int index) {
-            return MathUtility.TransformDirection (localNormals[index], transform, space);
+        public Vector3 GetNormal(int index) {
+            return MathUtility.TransformDirection(localNormals[index], transform, space);
         }
 
-        public Vector3 GetPoint (int index) {
-            return MathUtility.TransformPoint (localPoints[index], transform, space);
+        public Vector3 GetPoint(int index) {
+            return MathUtility.TransformPoint(localPoints[index], transform, space);
         }
 
         /// Gets point on path based on distance travelled.
-        public Vector3 GetPointAtDistance (float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop) {
+        public Vector3 GetPointAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop) {
             float t = dst / length;
-            return GetPointAtTime (t, endOfPathInstruction);
+            return GetPointAtTime(t, endOfPathInstruction);
+        }
+
+        public TimeOnPathData GetIndexAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
+        {
+            float t = dst / length;
+            var data = CalculatePercentOnPathData(t, endOfPathInstruction);
+            return data;
         }
 
         /// Gets forward direction on path based on distance travelled.
-        public Vector3 GetDirectionAtDistance (float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop) {
+        public Vector3 GetDirectionAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop) {
             float t = dst / length;
-            return GetDirection (t, endOfPathInstruction);
+            return GetDirection(t, endOfPathInstruction);
         }
 
-        /// Gets normal vector on path based on distance travelled.
-        public Vector3 GetNormalAtDistance (float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop) {
+        public Vector3 GetTangentAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop) {
+            float t = dst / length;
+            return GetTangent(t, endOfPathInstruction);
+        }
+
+            /// Gets normal vector on path based on distance travelled.
+            public Vector3 GetNormalAtDistance (float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop) {
             float t = dst / length;
             return GetNormal (t, endOfPathInstruction);
         }
@@ -204,11 +216,19 @@ namespace PathCreation {
             return Vector3.Lerp (GetPoint (data.previousIndex), GetPoint (data.nextIndex), data.percentBetweenIndices);
         }
 
+
         /// Gets forward direction on path based on 'time' (where 0 is start, and 1 is end of path).
         public Vector3 GetDirection (float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop) {
             var data = CalculatePercentOnPathData (t, endOfPathInstruction);
             Vector3 dir = Vector3.Lerp (localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
             return MathUtility.TransformDirection (dir, transform, space);
+        }
+
+        public Vector3 GetTangent(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
+        {
+            var data = CalculatePercentOnPathData(t, endOfPathInstruction);
+            Vector3 tangent = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
+            return MathUtility.TransformDirection(tangent, transform, space);
         }
 
         /// Gets normal vector on path based on 'time' (where 0 is start, and 1 is end of path).

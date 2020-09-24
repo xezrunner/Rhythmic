@@ -2,15 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Transactions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
-using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
 using static UnityEngine.InputSystem.InputAction;
 
 public class Player : MonoBehaviour

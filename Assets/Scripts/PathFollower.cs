@@ -1,5 +1,6 @@
 ﻿using PathCreation;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 // Original: https://assetstore.unity.com/packages/tools/utilities/b-zier-path-creator-136082
 // Modified for Rhythmic by xezrunner @ XesignSoftware vInc.
@@ -19,8 +20,13 @@ public class PathFollower : MonoBehaviour
     public float distanceTravelled;
     public Quaternion vel = Quaternion.identity;
 
+    public Transform ContentContainer;
+
     public Transform NonInterpolatable;
     public Transform Interpolatable;
+
+    public GameObject NotePrefab;
+    public GameObject Plane;
 
     void Awake()
     {
@@ -31,6 +37,28 @@ public class PathFollower : MonoBehaviour
         pathCreator.pathUpdated += OnPathChanged;
     }
 
+    void Start()
+    {
+        return;
+        int trackCounter = 0;
+        foreach (GameObject trGo in TrackMeshCreator.Instance.TrackObjects)
+        {
+            for (int i = 0; i < Random.Range(150, 250); i++)
+            {
+                var go = Instantiate(NotePrefab);
+                float distance = Random.Range(0, pathCreator.path.length);
+                go.transform.rotation = pathCreator.path.GetRotationAtDistance(distance) * Quaternion.Euler(0, 0, 90);
+                go.transform.position = pathCreator.path.GetPointAtDistance(distance);
+                go.transform.GetChild(0).gameObject.SetActive(false);
+                go.transform.Translate(Vector3.right * (Track.GetLocalXPosFromLaneType((Track.LaneType)Random.Range(0, 3)) + (RhythmicGame.TrackWidth * trackCounter)));
+                go.transform.parent = trGo.transform;
+            }
+            trackCounter++;
+        }
+    }
+
+    public float offset;
+
     void Update()
     {
         if (pathCreator == null) return;
@@ -39,13 +67,22 @@ public class PathFollower : MonoBehaviour
         distanceTravelled += speed * Time.deltaTime;
 
         // Position player along the path (pos & rot)
-        transform.position = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction);
+        Vector3 localRight = pathCreator.path.GetNormalAtDistance(distanceTravelled, endOfPathInstruction);
+        Vector3 finalPos = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction) + localRight * Mathf.Abs(offset);
+        //transform.position = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction) + Vector3.right * offset;
+        transform.position = finalPos;
         // The path normals face 90 degrees to the left to make the path.
         // Here, we get the rotation but rotate the result by 90 degrees to the right to correctly orient the follower on the path.
         Quaternion currentRot = Interpolatable.rotation;
         Quaternion targetRot = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction) * Quaternion.Euler(0, 0, 90);
         Interpolatable.rotation = QuaternionUtil.SmoothDamp(currentRot, targetRot, ref vel, smoothStrength);
-        NonInterpolatable.rotation = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction) * Quaternion.Euler(0, 0, 90);
+        NonInterpolatable.rotation = targetRot;
+
+        Plane.transform.position = pathCreator.path.GetPointAtDistance(distanceTravelled + 64);
+        Plane.transform.rotation = pathCreator.path.GetRotationAtDistance(distanceTravelled + 64) * Quaternion.Euler(90, 0, 0);
+
+        if (Keyboard.current.gKey.wasPressedThisFrame)
+            offset += RhythmicGame.TrackWidth;
 
         //Debug.Log("Target: " + targetRot);
     }

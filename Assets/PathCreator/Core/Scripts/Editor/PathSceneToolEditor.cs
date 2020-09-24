@@ -25,7 +25,6 @@ public class PathSceneToolEditor : Editor
                 if (pathTool.autoUpdate)
                 {
                     TriggerUpdate();
-
                 }
             }
         }

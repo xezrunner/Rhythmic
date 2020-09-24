@@ -163,6 +163,7 @@ public class TracksController : MonoBehaviour
         obj.transform.position = transform[0];
         obj.transform.eulerAngles = transform[1];
         //obj.transform.localScale = new Vector3(1, 1, songLength);
+        obj.transform.GetChild(3).localScale = new Vector3(1, 1, songLength);
         obj.transform.SetParent(gameObject.transform); // parent to TracksController
 
         // Create script for track

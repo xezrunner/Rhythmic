@@ -196,6 +196,7 @@ public class Measure : MonoBehaviour
             CreateSubbeats();
 
         // Create subbeat separators
+        /*
         for (int i = 1; i < 8; i++)
         {
             var subbeatSeparator = Instantiate(MeasureSeparator);
@@ -205,7 +206,7 @@ public class Measure : MonoBehaviour
             subbeatSeparator.transform.localScale = new Vector3(MeasureSeparator.transform.lossyScale.x, MeasureSeparator.transform.lossyScale.y, 0.03f);
             subbeatSeparator.GetComponent<MeshRenderer>().material = SubbeatSeparatorMaterial;
             subbeatSeparator.transform.parent = MeasurePlane.transform;
-        }
+        }*/
 
         // Move front & back edge lights to their correct positions
         // TODO: This is very hacky!
@@ -219,6 +220,8 @@ public class Measure : MonoBehaviour
         // setup particles
         detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.color = Colors.ConvertColor(EdgeLightsColor);
         detector.transform.GetChild(0).GetComponent<ParticleSystemRenderer>().material.SetColor("_EmissionColor", Colors.ConvertColor(EdgeLightsColor * 1.3f));
+
+        MeasurePlane.GetComponent<MeshRenderer>().material.SetTextureScale("_MainTex", new Vector2(1, transform.localScale.z));
     }
 
     // Edge lights
@@ -244,7 +247,6 @@ public class Measure : MonoBehaviour
 
         foreach (GameObject obj in EdgeLightsFrontBack)
         {
-
             obj.transform.parent = null;
             obj.transform.localScale = new Vector3(obj.transform.localScale.x, obj.transform.localScale.y, 0.01f);
             obj.transform.parent = EdgeLightsController.transform;
@@ -327,7 +329,7 @@ public class Measure : MonoBehaviour
             transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, FullLength * (Length - CaptureLength)); // scale measure based on capture length
             transform.position = new Vector3(ogPosition.x, ogPosition.y, startTime + (FullLength * CaptureLength)); // with the un-parenting, we need to use the stored position instead
 
-            transform.parent = ogParent;
+            MeasurePlane.GetComponent<MeshRenderer>().material.SetTextureScale("_MainTex", new Vector2(1, transform.localScale.z));
             /*
             if (Application.isPlaying)
                PositionFrontBackEdgeLights();
@@ -380,7 +382,7 @@ public class Measure : MonoBehaviour
     [ExecuteInEditMode]
     private void OnValidate()
     {
-        //MeasureCaptureUpdate(null, null);
+        //MeasureCaptureUpdate();
     }
 
     // Z position
