@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine.InputSystem;
 
 [CustomEditor(typeof(TrackMeshCreator))]
-public class TrackSectionCreatorEditor : PathSceneToolEditor
+public class TrackMeshCreatorEditor : PathSceneToolEditor
 {
     int numberOfSections;
     TrackMeshCreator script;
@@ -52,5 +52,12 @@ public class TrackSectionCreatorEditor : PathSceneToolEditor
             if (Keyboard.current.leftShiftKey.isPressed)
                 script.debug_xPosition++;
         }
+
+        if (GUILayout.Button("Create edge lights"))
+        {
+            var gObj = script.CreateEdgeLights(script.debug_startPoint, script.debug_length, script.debug_xPosition);
+            script.TrackObjects.Add(gObj);
+            script.debug_xPosition++;
+        }    
     }
 }

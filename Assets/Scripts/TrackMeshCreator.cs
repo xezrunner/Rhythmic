@@ -8,10 +8,11 @@ public class TrackMeshCreator : PathSceneTool
 {
     public static TrackMeshCreator Instance;
 
+    #region Properties
     [Header("Road settings")]
-    public float roadWidth = 1.18f;
+    public float roadWidth = 2.36f;
     [Range(0, .5f)]
-    public float thickness = .2f;
+    public float roadThickness = .4f;
     public bool flattenSurface;
 
     [Header("Material settings")]
@@ -25,11 +26,27 @@ public class TrackMeshCreator : PathSceneTool
     [Range(-10, 10)]
     public int debug_xPosition;
 
+    public float edgeLightsThickness = 0.1f;
+
     public bool reactToPathChanges;
+    #endregion
 
-    [HideInInspector]
-    public List<GameObject> TrackObjects = new List<GameObject>();
+    #region Prefabs & Materials
+    public GameObject EdgeLightsPrefab;
+    public GameObject TrackPrefab;
+    public GameObject SectionPrefab;
 
+    public Material EdgeLightsMaterial;
+    #endregion
+
+    private void Awake()
+    {
+        Instance = this;
+        if (!pathCreator) pathCreator = GameObject.Find("Path").GetComponent<PathCreator>(); // temp!
+
+        EdgeLightsPrefab = (GameObject)Resources.Load("Prefabs/EdgeLights");
+        EdgeLightsMaterial = (Material)Resources.Load("Materials/EdgeLightsMaterial");
+    }
     protected override void PathUpdated()
     {
         if (TrackObjects != null && reactToPathChanges)
@@ -43,34 +60,14 @@ public class TrackMeshCreator : PathSceneTool
         }
     }
 
-    private void Awake()
-    {
-        Instance = this;
-        if (!pathCreator) pathCreator = GameObject.Find("Path").GetComponent<PathCreator>(); // temp!
-    }
+    [HideInInspector]
+    public List<GameObject> TrackObjects = new List<GameObject>();
 
-    public GameObject Debug_CreateTestMesh(bool keepCurrentXPosition = false, bool keepIncreasingStartPoint = false)
-    {
-        if (!pathCreator)
-            throw new System.Exception("TrackMeshCreator: No PathCreator was found!");
-
-        // Create track mesh object!
-        var go = CreateTestMesh();
-
-        // Automatically increase track index counter
-        if (!keepCurrentXPosition)
-            debug_xPosition++;
-        if (keepIncreasingStartPoint)
-            debug_startPoint += debug_length;
-
-        TrackObjects.Add(go);
-
-        return go;
-    }
-
-    public Mesh CreateMesh(float startDistance = 0f, float length = 8f, float xPosition = 0f, float width = 0f)
+    // Functions
+    public Mesh CreateMesh(float startDistance = 0f, float length = 8f, float xPosition = 0f, float width = 0f, float thickness = 0f, float yElevation = 0f)
     {
         if (width == 0f) width = roadWidth;
+        if (thickness == 0f) thickness = roadThickness;
 
         Vector3[] verts = new Vector3[path.NumPoints * 8];
         Vector2[] uvs = new Vector2[verts.Length];
@@ -79,7 +76,7 @@ public class TrackMeshCreator : PathSceneTool
         int numTris = 2 * (path.NumPoints - 1) + ((path.isClosedLoop) ? 2 : 0);
         int[] roadTriangles = new int[numTris * 3];
         int[] underRoadTriangles = new int[numTris * 3];
-        int[] sideOfRoadTriangles = new int[numTris * 2 * 3];
+        int[] sideOfRoadTriangles = new int[numTris * 4 * 3];
 
         bool usePathNormals = !(path.space == PathSpace.xyz && flattenSurface);
 
@@ -88,7 +85,23 @@ public class TrackMeshCreator : PathSceneTool
            8  9
         and so on... So the triangle map 0,8,1 for example, defines a triangle from top left to bottom left to bottom right. */
         int[] triangleMap = { 0, 8, 1, 1, 8, 9 };
-        int[] sidesTriangleMap = { 4, 6, 14, 12, 4, 14, 5, 15, 7, 13, 15, 5 };
+        /*int[] sidesTriangleMap = { 
+           4, 6, 14,
+           12, 4, 14,
+           5, 15, 7,
+           13, 15, 5 };*/
+
+        // Doubled the sides so that we have both outside and inside materials
+        int[] sidesTriangleMap = {
+           4, 6, 14,
+           12, 4, 14,
+           5, 15, 7,
+           13, 15, 5,
+
+           4, 12, 14,
+           6, 4, 14,
+           5, 15, 13,
+           7, 15, 5 };
 
         // Get start and end vertex index data
         if (length == -1) // -1 means full path length
@@ -105,22 +118,22 @@ public class TrackMeshCreator : PathSceneTool
             Vector3 localRight = (usePathNormals) ? path.GetNormal(i) : Vector3.Cross(localUp, path.GetTangent(i));
 
             // Find position to left and right of current path vertex
-            Vector3 vertSideA = path.GetPoint(i) - localRight * Mathf.Abs(roadWidth);
-            Vector3 vertSideB = path.GetPoint(i) + localRight * Mathf.Abs(roadWidth);
+            Vector3 vertSideA = path.GetPoint(i) - localRight * Mathf.Abs(roadWidth / 2f);
+            Vector3 vertSideB = path.GetPoint(i) + localRight * Mathf.Abs(roadWidth / 2f);
 
             // ***** OFFSET VERTEX POINTS FOR PARALLEL CURVES *****
             // The calculations below create the mesh based on the vertex positions.
             // By offseting the vertex positions, the calculations will take place according to their positions and the curve will thus be bigger or smaller, depending on the vertex positions.
-            vertSideA += localRight * xPosition;
-            vertSideB += localRight * xPosition;
+            vertSideB += (localRight * xPosition) + (localUp * yElevation);
+            vertSideA += (localRight * xPosition) + (localUp * yElevation);
 
             #region Add vertices, UVs and normals
             // Add top of road vertices
             verts[vertIndex + 0] = vertSideA;
             verts[vertIndex + 1] = vertSideB;
             // Add bottom of road vertices
-            verts[vertIndex + 2] = vertSideA - localUp * thickness;
-            verts[vertIndex + 3] = vertSideB - localUp * thickness;
+            verts[vertIndex + 2] = vertSideA - localUp * (thickness / 2f);
+            verts[vertIndex + 3] = vertSideB - localUp * (thickness / 2f);
 
             // Duplicate vertices to get flat shading for sides of road
             verts[vertIndex + 4] = verts[vertIndex + 0];
@@ -146,7 +159,7 @@ public class TrackMeshCreator : PathSceneTool
             #endregion
 
             // Set triangle indices
-            if (i < endVertex.previousIndex || path.isClosedLoop)
+            if (i < endVertex.nextIndex || path.isClosedLoop)
             {
                 for (int j = 0; j < triangleMap.Length; j++)
                 {
@@ -156,7 +169,7 @@ public class TrackMeshCreator : PathSceneTool
                     underRoadTriangles[triIndex + j] = (vertIndex + triangleMap[triangleMap.Length - 1 - j] + 2) % verts.Length;
                 }
                 for (int j = 0; j < sidesTriangleMap.Length; j++)
-                    sideOfRoadTriangles[triIndex * 2 + j] = (vertIndex + sidesTriangleMap[j]) % verts.Length;
+                    sideOfRoadTriangles[triIndex * 4 + j] = (vertIndex + sidesTriangleMap[j]) % verts.Length;
             }
 
             // add to vert and tri index counters
@@ -173,16 +186,55 @@ public class TrackMeshCreator : PathSceneTool
         mesh.subMeshCount = 3;
 
         mesh.SetTriangles(roadTriangles, 0);
-        mesh.SetTriangles(underRoadTriangles, 1);
-        mesh.SetTriangles(sideOfRoadTriangles, 2);
+        mesh.SetTriangles(sideOfRoadTriangles, 1);
+        mesh.SetTriangles(underRoadTriangles, 2);
 
         mesh.RecalculateBounds();
 
         return mesh;
     }
 
+    public GameObject CreateEdgeLights(float startPoint, float length = 16f, int trackID = 0, Color? color = null, string name = "Edge lights")
+    {
+        // Create object and mesh
+        var gObj = Instantiate(EdgeLightsPrefab); gObj.name = name; gObj.layer = 11;
+
+        var meshFilter = gObj.GetComponent<MeshFilter>();
+        var meshRenderer = gObj.GetComponent<MeshRenderer>();
+
+        meshFilter.mesh = CreateMesh(startPoint, length, trackID * RhythmicGame.TrackWidth, RhythmicGame.TrackWidth, edgeLightsThickness, edgeLightsThickness / 2);
+        meshRenderer.sharedMaterials = new Material[2] { EdgeLightsMaterial, EdgeLightsMaterial };
+
+        var edgeLightCom = gObj.GetComponent<EdgeLightsController>();
+        if (color.HasValue) edgeLightCom.Color = color.Value;
+
+        return gObj;
+    }
+
+    // Debug functions
+    public GameObject Debug_CreateTestMesh(bool keepCurrentXPosition = false, bool keepIncreasingStartPoint = false)
+    {
+        if (!pathCreator)
+            throw new System.Exception("TrackMeshCreator: No PathCreator was found!");
+
+        // Create track mesh object!
+        var go = CreateTestObject(); go.layer = 11;
+        var edgelight = CreateEdgeLights(debug_startPoint, debug_length, debug_xPosition);
+        edgelight.GetComponent<EdgeLights>().GlowIntenstiy = 1.2f;
+        edgelight.transform.parent = go.transform;
+
+        // Automatically increase track index counter
+        if (!keepCurrentXPosition)
+            debug_xPosition++;
+        if (keepIncreasingStartPoint)
+            debug_startPoint += debug_length;
+
+        TrackObjects.Add(go);
+
+        return go;
+    }
     // Add MeshRenderer and MeshFilter components to this gameobject if not already attached
-    GameObject CreateTestMesh(string objectName = "TestTrackMesh")
+    GameObject CreateTestObject(string objectName = "TestTrackMesh")
     {
         var meshHolder = new GameObject();
         meshHolder.name = debug_xPosition.ToString();
@@ -204,9 +256,11 @@ public class TrackMeshCreator : PathSceneTool
         if (roadMaterial != null && undersideMaterial != null)
         {
             meshRenderer.sharedMaterials = new Material[] { roadMaterial, undersideMaterial, undersideMaterial };
-            meshRenderer.sharedMaterials[0].mainTextureScale = new Vector3(1, textureTiling);
+            meshRenderer.sharedMaterials[0].mainTextureScale = new Vector3(1, path.length);
         }
 
         return meshHolder;
     }
+
+
 }

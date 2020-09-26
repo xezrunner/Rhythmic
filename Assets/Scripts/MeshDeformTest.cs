@@ -48,10 +48,9 @@ public class MeshDeformTest : MonoBehaviour
         Vector3 splinePoint = path.GetPointAtDistance(meshVertex.z);
         Vector3 futureSplinePoint = path.GetPointAtDistance(meshVertex.z + 0.01f);
         Vector3 forwardVector = futureSplinePoint - splinePoint;
-        Quaternion imaginaryPlaneRotation = Quaternion.LookRotation(forwardVector, Vector3.up);
+        Quaternion imaginaryPlaneRotation = Quaternion.LookRotation(forwardVector, Vector3.back);
         Vector3 pointWithinPlane = new Vector3(meshVertex.x, meshVertex.y, 0f);
-
-        return splinePoint + imaginaryPlaneRotation * pointWithinPlane;
+        return splinePoint + (imaginaryPlaneRotation * pointWithinPlane);
     }
 
     List<Vector3[]> gizmosList = new List<Vector3[]>();
