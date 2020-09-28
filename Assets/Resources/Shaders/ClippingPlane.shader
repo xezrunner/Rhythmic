@@ -5,6 +5,7 @@
 		_MainTex ("Texture", 2D) = "white" {}
 		_Smoothness ("Smoothness", Range(0, 1)) = 0
 		_Metallic ("Metalness", Range(0, 1)) = 0
+		_Plane ("Plane", Float) = (0, 0, 0, 0)
 		[HDR]_Emission ("Emission", color) = (0,0,0)
 
 		[HDR]_CutoffColor("Cutoff Color", Color) = (1,0,0,0)

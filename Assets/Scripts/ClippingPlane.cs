@@ -8,7 +8,12 @@ public class ClippingPlane : MonoBehaviour
     public MeshFilter filter;
 
     //material we pass the values to
-    public Material[] mat;
+    Material[] mat;
+
+    void Awake()
+    {
+        mat = gameObject.GetComponent<MeshRenderer>().materials;
+    }
 
     //execute every frame
     void Update()
