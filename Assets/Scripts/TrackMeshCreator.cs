@@ -65,7 +65,7 @@ public class TrackMeshCreator : PathSceneTool
     public List<GameObject> TrackObjects = new List<GameObject>();
 
     // Functions
-    public Mesh CreateMesh(float startDistance = 0f, float length = 8f, float xPosition = 0f, float width = 0f, float thickness = 0f, float yElevation = 0f)
+    public Mesh CreateMeshFloat(float startDistance = 0f, float length = 8f, float xPosition = 0f, float width = 0f, float thickness = 0f, float yElevation = 0f)
     {
         if (width == 0f) width = roadWidth;
         if (thickness == 0f) thickness = roadThickness;
@@ -109,7 +109,7 @@ public class TrackMeshCreator : PathSceneTool
         int triIndex = 0;
 
         int indexCounter = 0;
-        for (float i = startDistance; i <= startDistance + length + 0.01; i += 0.01f) // Go through indexes between start and end
+        for (float i = startDistance; i <= startDistance + length; i += 0.01f) // Go through indexes between start and end
         {
             Vector3 localUp = (usePathNormals) ? Vector3.Cross(path.GetTangentAtDistance(i), path.GetNormalAtDistance(i)) : path.up;
             Vector3 localRight = (usePathNormals) ? path.GetNormalAtDistance(i) : Vector3.Cross(localUp, path.GetTangentAtDistance(i));
@@ -213,7 +213,7 @@ public class TrackMeshCreator : PathSceneTool
 
         return mesh;
     }
-    public Mesh CreateMeshInt(float startDistance = 0f, float length = 8f, float xPosition = 0f, float width = 0f, float thickness = 0f, float yElevation = 0f)
+    public Mesh CreateMesh(float startDistance = 0f, float length = 8f, float xPosition = 0f, float width = 0f, float thickness = 0f, float yElevation = 0f)
     {
         if (width == 0f) width = roadWidth;
         if (thickness == 0f) thickness = roadThickness;
@@ -405,7 +405,7 @@ public class TrackMeshCreator : PathSceneTool
         if (roadMaterial != null && undersideMaterial != null)
         {
             meshRenderer.sharedMaterials = new Material[] { roadMaterial, undersideMaterial, undersideMaterial };
-            //meshRenderer.sharedMaterials[0].mainTextureScale = new Vector3(1, path.length);
+            meshRenderer.sharedMaterials[0].mainTextureScale = new Vector3(1, path.length);
         }
 
         return meshHolder;
