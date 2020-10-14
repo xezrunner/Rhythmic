@@ -39,7 +39,7 @@ public class PathFollower : MonoBehaviour
 
     void Start()
     {
-        //return;
+        return;
         int trackCounter = 0;
         foreach (GameObject trGo in TrackMeshCreator.Instance.TrackObjects)
         {

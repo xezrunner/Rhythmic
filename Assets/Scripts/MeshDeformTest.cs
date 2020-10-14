@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.ProBuilder;
 
@@ -48,6 +49,8 @@ public class MeshDeformTest : MonoBehaviour
     }
 
     List<int> verticesToDrop = new List<int>();
+    List<int> triangles = new List<int>();
+    Vector3[] vertices;
 
     public void DeformMesh()
     {
@@ -63,7 +66,7 @@ public class MeshDeformTest : MonoBehaviour
         mesh = meshFilter.mesh;
 
         // Grab OG mesh vertices
-        Vector3[] vertices = new Vector3[ogMesh.vertices.Length];
+        vertices = new Vector3[ogMesh.vertices.Length];
         Array.Copy(ogMesh.vertices, vertices, ogMesh.vertices.Length);
 
         // Transform vertices
@@ -78,38 +81,17 @@ public class MeshDeformTest : MonoBehaviour
             vertices[i] = TransformVertex(vertices[i]);
         }
 
-        if (DesiredLength != -1 || DesiredLength != 0)
+        triangles = mesh.triangles.ToList<int>();
+        if (DesiredLength != -1f)
         {
-            List<int> triangles = mesh.triangles.ToList<int>();
-            List<int> triangles2 = new List<int>();
+            //List<int> triangles2 = new List<int>();
 
-            /*
-            for (int i = 0; i < vertices.Length; i += 3)
-            {
-                if (vertices[triangles[i]].x < path.GetPointAtDistance(DesiredLength).z &
-                    vertices[triangles[i + 1]].x < path.GetPointAtDistance(DesiredLength).z &
-                    vertices[triangles[i + 2]].x < path.GetPointAtDistance(DesiredLength).z)
-                {
-                    triangles2.Add(triangles[i]);
-                    triangles2.Add(triangles[i + 1]);
-                    triangles2.Add(triangles[i + 2]);
-                    triangles2.Add(triangles[i + 3]);
-                    triangles2.Add(triangles[i + 4]);
-                    triangles2.Add(triangles[i + 5]);
-                }
-                //if (vertices[triangles[i + 2]].z < DesiredLength) triangles2.Add(i + 2);
-                //if (vertices[triangles[i + 1]].z < DesiredLength) triangles2.Add(i + 1);
-                //if (vertices[triangles[i]].z < DesiredLength) triangles2.Add(i);
-            }
-            */
-            for (int i = 0; i < triangles.Count; i++)
-            {
-                if (vertices[triangles[i]].z > path.GetPointAtDistance(DesiredLength).z)
-                {
-                    //vertices[triangles[i]].z = path.GetPointAtDistance(DesiredLength).z;
-                    //triangles2.Add(triangles[i]);
-                }
-            }
+            //for (int i = 0; i < triangles.Count; i++)
+            //{
+            //    Vector3 result = path.GetPointAtDistance(DesiredLength);
+            //    if (vertices[triangles[i]].z < result.z)
+            //        triangles2.Add(triangles[i]);
+            //}
 
             //mesh.triangles = triangles2.ToArray();
         }
@@ -118,12 +100,89 @@ public class MeshDeformTest : MonoBehaviour
 
         // Set result mesh!
         mesh.vertices = vertices;
-        mesh.RecalculateNormals();
-        mesh.RecalculateTangents();
-        mesh.RecalculateBounds();
+        if (DesiredLength != -1f)
+            mesh.triangles = new int[triangles.Count];
+        else
+            mesh.triangles = triangles.ToArray();
 
         // "Temporarily" set transform to 0,0,0
         targetObject.transform.position = Vector3.zero;
+
+        if (DesiredLength != -1F)
+            StreamTriangles();
+
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+        mesh.RecalculateBounds();
+    }
+
+    void StreamTriangles()
+    {
+        List<Vector3> verts = new List<Vector3>();
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            Vector3 vert = vertices[i];
+            if (vert.z < DesiredLength)
+                verts.Add(vertices[i]);
+        }
+
+        List<int> tris = new List<int>();
+        for (int i = 0; i < triangles.Count; i += 6)
+            if (vertices[triangles[i]].z < DesiredLength)
+            {
+                // Try using index from verts list instead...
+                tris.Add(triangles[i+1]);
+                tris.Add(triangles[i+3]);
+                tris.Add(triangles[i+2]);
+                tris.Add(triangles[i + 5]);
+                tris.Add(triangles[i + 4]);
+                tris.Add(triangles[i]);
+            }
+
+        mesh.triangles = tris.ToArray();
+    }
+
+    void StreamTriangles_OLD()
+    {
+        Vector3 pathVector = ((path.GetRotationAtDistance(DesiredLength) * Quaternion.Euler(0, 0, 90)) * path.GetPointAtDistance(DesiredLength));
+
+        // VERTS
+        Vector3[] verts2 = new Vector3[vertices.Length];
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            Vector3 meshVertex = vertices[i];
+
+            Vector3 splinePoint = path.GetPointAtDistance(meshVertex.z + targetObject.transform.position.z);
+            Vector3 futureSplinePoint = path.GetPointAtDistance(meshVertex.z + targetObject.transform.position.z + 0.01f);
+            Vector3 forwardVector = futureSplinePoint - splinePoint;
+            Quaternion imaginaryPlaneRotation = Quaternion.LookRotation(forwardVector, Vector3.up);
+            Vector3 pointWithinPlane = new Vector3(meshVertex.x, meshVertex.y, 0f);
+
+            Vector3 result = splinePoint + (imaginaryPlaneRotation * pointWithinPlane);
+
+            if (Vector3.Distance(result, path.GetPointAtDistance(DesiredLength)) > DesiredLength) continue;
+            verts2[i] = vertices[i];
+            mesh.vertices = verts2;
+        }
+
+        // TRIS
+        int[] triangles2 = new int[triangles.Count];
+        for (int i = 0; i < triangles.Count; i += 1)
+        {
+            Vector3 meshVertex = vertices[triangles[i]];
+
+            Vector3 splinePoint = path.GetPointAtDistance(meshVertex.z + targetObject.transform.position.z);
+            Vector3 futureSplinePoint = path.GetPointAtDistance(meshVertex.z + targetObject.transform.position.z + 0.01f);
+            Vector3 forwardVector = futureSplinePoint - splinePoint;
+            Quaternion imaginaryPlaneRotation = Quaternion.LookRotation(forwardVector, Vector3.up);
+            Vector3 pointWithinPlane = new Vector3(meshVertex.x, meshVertex.y, 0f);
+
+            Vector3 result = splinePoint + (imaginaryPlaneRotation * pointWithinPlane);
+
+            if (Vector3.Distance(result, path.GetPointAtDistance(DesiredLength)) > DesiredLength) continue;
+            triangles2[i] = triangles[i];
+            mesh.triangles = triangles2;
+        }
     }
 
     List<GameObject> cubes = new List<GameObject>();
