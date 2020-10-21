@@ -70,15 +70,6 @@ public class TrackMeshCreator : PathSceneTool
         if (width == 0f) width = roadWidth;
         if (thickness == 0f) thickness = roadThickness;
 
-        Vector3[] verts = new Vector3[path.NumPoints * 8];
-        Vector2[] uvs = new Vector2[verts.Length];
-        Vector3[] normals = new Vector3[verts.Length];
-
-        int numTris = 2 * (path.NumPoints - 1) + ((path.isClosedLoop) ? 2 : 0);
-        int[] roadTriangles = new int[numTris * 3];
-        int[] underRoadTriangles = new int[numTris * 3];
-        int[] sideOfRoadTriangles = new int[numTris * 4 * 3];
-
         bool usePathNormals = !(path.space == PathSpace.xyz && flattenSurface);
 
         /* Vertices for the top of the road are laid out like this:
@@ -105,11 +96,22 @@ public class TrackMeshCreator : PathSceneTool
         var startVertex = path.GetIndexAtDistance(startDistance, EndOfPathInstruction.Stop);
         var endVertex = path.GetIndexAtDistance(startDistance + length, EndOfPathInstruction.Stop);
 
+        Debug.LogFormat("startVertex: {0} | endVertex: {1}", startVertex.previousIndex, endVertex.nextIndex);
+
+        Vector3[] verts = new Vector3[(startVertex.previousIndex + endVertex.nextIndex) * 2 * 8];
+        Vector2[] uvs = new Vector2[verts.Length];
+        Vector3[] normals = new Vector3[verts.Length];
+
+        int numTris = 2 * (path.NumPoints - 1) + ((path.isClosedLoop) ? 2 : 0);
+        int[] roadTriangles = new int[numTris * 3];
+        int[] underRoadTriangles = new int[numTris * 3];
+        int[] sideOfRoadTriangles = new int[numTris * 4 * 3];
+
         int vertIndex = 0;
         int triIndex = 0;
 
         int indexCounter = 0;
-        for (float i = startDistance; i <= startDistance + length; i += 0.01f) // Go through indexes between start and end
+        for (float i = startDistance; i <= startDistance + length; i += 1f) // Go through indexes between start and end
         {
             Vector3 localUp = (usePathNormals) ? Vector3.Cross(path.GetTangentAtDistance(i), path.GetNormalAtDistance(i)) : path.up;
             Vector3 localRight = (usePathNormals) ? path.GetNormalAtDistance(i) : Vector3.Cross(localUp, path.GetTangentAtDistance(i));
@@ -167,22 +169,30 @@ public class TrackMeshCreator : PathSceneTool
         vertIndex = 0;
         triIndex = 0;
 
-        for (int i = startVertex.previousIndex; i <= endVertex.nextIndex; i++)
+        List<int> roadTris = new List<int>();
+        List<int> underRoadTris = new List<int>();
+        List<int> sideRoadTris = new List<int>();
+
+        //for (int i = startVertex.previousIndex; i < endVertex.nextIndex; i++)
+        for (int i = 0; i < 1; i++)
         {
             // Set triangle indices
-            if (i < endVertex.nextIndex || path.isClosedLoop)
+            //if (i < endVertex.nextIndex || path.isClosedLoop)
             {
                 try
                 {
                     for (int j = 0; j < triangleMap.Length; j++)
                     {
-                        roadTriangles[triIndex + j] = (vertIndex + triangleMap[j]) % verts.Length;
+                        //roadTriangles[triIndex + j] = (vertIndex + triangleMap[j]) % verts.Length;
+                        roadTris.Add((vertIndex + triangleMap[j]) % verts.Length);
 
                         // reverse triangle map for under road so that triangles wind the other way and are visible from underneath
-                        underRoadTriangles[triIndex + j] = (vertIndex + triangleMap[triangleMap.Length - 1 - j] + 2) % verts.Length;
+                        //underRoadTriangles[triIndex + j] = (vertIndex + triangleMap[triangleMap.Length - 1 - j] + 2) % verts.Length;
+                        underRoadTris.Add((vertIndex + triangleMap[triangleMap.Length - 1 - j] + 2) % verts.Length);
                     }
                     for (int j = 0; j < sidesTriangleMap.Length; j++)
-                        sideOfRoadTriangles[triIndex * 4 + j] = (vertIndex + sidesTriangleMap[j]) % verts.Length;
+                        //sideOfRoadTriangles[triIndex * 4 + j] = (vertIndex + sidesTriangleMap[j]) % verts.Length;
+                        sideRoadTris.Add((vertIndex + sidesTriangleMap[j]) % verts.Length);
                 }
                 catch
                 {
@@ -194,6 +204,10 @@ public class TrackMeshCreator : PathSceneTool
             vertIndex += 8;
             triIndex += 6;
         }
+
+        roadTriangles = roadTris.ToArray();
+        underRoadTriangles = underRoadTris.ToArray();
+        sideOfRoadTriangles = sideRoadTris.ToArray();
 
         // Create and setup mesh
         Mesh mesh = new Mesh();
@@ -258,6 +272,8 @@ public class TrackMeshCreator : PathSceneTool
         var startVertex = path.GetIndexAtDistance(startDistance, EndOfPathInstruction.Stop);
         var endVertex = path.GetIndexAtDistance(startDistance + length, EndOfPathInstruction.Stop);
 
+        //Debug.LogFormat("startVertex: {0} | endVertex: {1}", startVertex.previousIndex, endVertex.nextIndex);
+
         int vertIndex = 0;
         int triIndex = 0;
 
@@ -308,7 +324,7 @@ public class TrackMeshCreator : PathSceneTool
             #endregion
 
             // Set triangle indices
-            if (i < endVertex.previousIndex || path.isClosedLoop)
+            if (i <= endVertex.previousIndex || path.isClosedLoop)
             {
                 for (int j = 0; j < triangleMap.Length; j++)
                 {
@@ -343,7 +359,29 @@ public class TrackMeshCreator : PathSceneTool
         return mesh;
     }
 
-    public GameObject CreateEdgeLights(float startPoint, float length = 16f, int trackID = 0, Color? color = null, string name = "Edge lights")
+    public GameObject CreateTrackObject(string name = "", Track.InstrumentType inst = Track.InstrumentType.Bass, float startDistance = 0f, float length = 8f, float xPosition = 0f, float yElevation = 0f)
+    {
+        GameObject obj = new GameObject() { name = name };
+
+        // Create and add mesh
+        var mesh = CreateMesh(startDistance, length, xPosition, RhythmicGame.TrackWidth, RhythmicGame.TrackHeight, yElevation);
+
+        obj.AddComponent<MeshFilter>().mesh = mesh;
+        var renderer = obj.AddComponent<MeshRenderer>();
+        renderer.sharedMaterial = Track.Colors.GetMaterialForInstrument(inst);
+        renderer.sharedMaterials[0].mainTextureScale = new Vector2(1, path.length); // TODO: texture scaling seems wrong (?)
+
+        // Create and add Edge lights!
+        var edgelights = CreateEdgeLights(startDistance, length, xPosition, Track.Colors.ColorFromTrackType(inst));
+        edgelights.transform.parent = obj.transform;
+
+        // Add measure script!
+        // TODO!!!
+
+        return obj;
+    }
+
+    public GameObject CreateEdgeLights(float startPoint, float length = 16f, float xPosition = 0f, Color? color = null, string name = "Edge lights")
     {
         // Create object and mesh
         var gObj = Instantiate(EdgeLightsPrefab); gObj.name = name; gObj.layer = 11;
@@ -351,10 +389,10 @@ public class TrackMeshCreator : PathSceneTool
         var meshFilter = gObj.GetComponent<MeshFilter>();
         var meshRenderer = gObj.GetComponent<MeshRenderer>();
 
-        meshFilter.mesh = CreateMesh(startPoint, length, trackID * RhythmicGame.TrackWidth, RhythmicGame.TrackWidth, edgeLightsThickness, edgeLightsThickness / 2);
+        meshFilter.mesh = CreateMesh(startPoint, length, xPosition, RhythmicGame.TrackWidth, edgeLightsThickness, edgeLightsThickness / 2);
         meshRenderer.sharedMaterials = new Material[2] { EdgeLightsMaterial, EdgeLightsMaterial };
 
-        var edgeLightCom = gObj.GetComponent<EdgeLightsController>();
+        var edgeLightCom = gObj.GetComponent<EdgeLights>();
         if (color.HasValue) edgeLightCom.Color = color.Value;
 
         return gObj;
@@ -368,7 +406,7 @@ public class TrackMeshCreator : PathSceneTool
 
         // Create track mesh object!
         var go = CreateTestObject(); go.layer = 11;
-        var edgelight = CreateEdgeLights(debug_startPoint, debug_length, debug_xPosition);
+        var edgelight = CreateEdgeLights(debug_startPoint, debug_length, debug_xPosition * RhythmicGame.TrackWidth);
         edgelight.GetComponent<EdgeLights>().GlowIntenstiy = 1.2f;
         edgelight.transform.parent = go.transform;
 

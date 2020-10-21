@@ -208,7 +208,7 @@ namespace PathCreation
         public TimeOnPathData GetIndexAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
         {
             float t = dst / length;
-            var data = CalculatePercentOnPathData(t, endOfPathInstruction, dst);
+            var data = CalculatePercentOnPathData(t, endOfPathInstruction);
             return data;
         }
 
@@ -306,7 +306,7 @@ namespace PathCreation
 
         /// For a given value 't' between 0 and 1, calculate the indices of the two vertices before and after t. 
         /// Also calculate how far t is between those two vertices as a percentage between 0 and 1.
-        TimeOnPathData CalculatePercentOnPathData(float t, EndOfPathInstruction endOfPathInstruction, float ogLength = 0f)
+        TimeOnPathData CalculatePercentOnPathData(float t, EndOfPathInstruction endOfPathInstruction)
         {
             // Constrain t based on the end of path instruction
             switch (endOfPathInstruction)

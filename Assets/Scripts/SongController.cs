@@ -163,6 +163,13 @@ public class SongController : MonoBehaviour
         // For now, we use the SongController to manage the scenes during and after loading.
         SceneManager.SetActiveScene(SceneManager.GetSceneByName("DevScene"));
 
+        // Create clock
+        CreateClock();
+
+        // TODO: temp location
+        // Track streamer init
+        CreateTrackStreamer();
+
         if (!Enabled)
         { Debug.LogWarningFormat("SongCtrl: Disabled"); return; }
         if (IsFake) // TODO: fake song information implementation!
@@ -173,7 +180,19 @@ public class SongController : MonoBehaviour
         LoadSong(songName == null ? defaultSong : songName); // load default song in case the prop is empty, for testing purposes only!
     }
 
-    //void Update() { if (_isPlaying) Clock.seconds = mainAudioSource.time; } // update clock!
+    // Track streamer
+    public TrackStreamer trackStreamer;
+
+    public void CreateTrackStreamer()
+    {
+        if (!trackStreamer)
+        {
+            GameObject obj = new GameObject() { name = "TrackStreamer" };
+            trackStreamer = obj.AddComponent<TrackStreamer>();
+        }
+        else
+            Debug.LogWarning("AMP_CTRL: TrackStreamer already exists!");
+    }
 
     public virtual void CreateTracksController()
     {
@@ -200,8 +219,6 @@ public class SongController : MonoBehaviour
     {
         // Set basic song metadata
         songName = song;
-        // Create clock
-        CreateClock();
         /* Handle rest of the loading in the game-specific song controller */
     }
 

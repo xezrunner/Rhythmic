@@ -54,7 +54,7 @@ public class MeshDeformTest : MonoBehaviour
     List<int> triangles = new List<int>();
     Vector3[] vertices;
 
-    public void DeformMesh()
+    public async void DeformMesh()
     {
         ClearAllCubes();
         //gizmosList.Clear();
@@ -76,9 +76,11 @@ public class MeshDeformTest : MonoBehaviour
         {
             //if (vertices[i].z < 0) continue;
             //else
+            /*
             if (DesiredLength != -1 &&
                 (vertices[i].x > path.GetPointAtDistance(DesiredLength).x || vertices[i].y > path.GetPointAtDistance(DesiredLength).y || vertices[i].z > path.GetPointAtDistance(DesiredLength).z))
             { verticesToDrop.Add(i); }
+            */
 
             vertices[i] = TransformVertex(vertices[i]);
         }
@@ -86,24 +88,16 @@ public class MeshDeformTest : MonoBehaviour
         triangles = mesh.triangles.ToList<int>();
         if (DesiredLength != -1f)
         {
-            //List<int> triangles2 = new List<int>();
 
-            //for (int i = 0; i < triangles.Count; i++)
-            //{
-            //    Vector3 result = path.GetPointAtDistance(DesiredLength);
-            //    if (vertices[triangles[i]].z < result.z)
-            //        triangles2.Add(triangles[i]);
-            //}
 
-            //mesh.triangles = triangles2.ToArray();
         }
 
         verticesToDrop.Clear();
 
         // Set result mesh!
         mesh.vertices = vertices;
-        if (DesiredLength != -1f)
-            mesh.triangles = new int[triangles.Count];
+        if (DesiredLength != -1f) { }
+        //mesh.triangles = new int[triangles.Count];
         else
             mesh.triangles = triangles.ToArray();
 
@@ -111,15 +105,107 @@ public class MeshDeformTest : MonoBehaviour
         targetObject.transform.position = Vector3.zero;
 
         if (DesiredLength != -1F)
-            StreamTriangles();
+            await StreamTriangles();
 
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
         mesh.RecalculateBounds();
     }
 
-    void StreamTriangles()
+    public Transform Cube;
+
+    public Vector3 GetVectorCustom(Vector3 point)
     {
+        Vector3 splinePoint = path.GetPointAtDistance(point.z + targetObject.transform.position.z);
+        Vector3 futureSplinePoint = path.GetPointAtDistance(point.z + targetObject.transform.position.z + 0.01f);
+        Vector3 forwardVector = futureSplinePoint - splinePoint;
+        Quaternion imaginaryPlaneRotation = Quaternion.LookRotation(forwardVector, Vector3.up);
+        Vector3 pointWithinPlane = new Vector3(point.x, point.y, 0f);
+        //Vector3 pointWithinPlane = new Vector3(0f, 0f, 0f);
+
+        Vector3 result = splinePoint + (imaginaryPlaneRotation * pointWithinPlane);
+        return result;
+    }
+
+    public GameObject container;
+    List<GameObject> averageSphereList = new List<GameObject>();
+
+    async Task StreamTriangles()
+    {
+        List<int> tris = new List<int>();
+        foreach (GameObject o in averageSphereList)
+            DestroyImmediate(o);
+        averageSphereList.Clear();
+
+        // Get cutoff point
+        Vector3 cutoff = path.GetPointAtDistance(ogPos.Value.z + DesiredLength /* - 1 */);
+        //Vector3 cutoff = GetVectorCustom(new Vector3(0, 0, ogPos.Value.z + DesiredLength));
+
+        for (int t = 0; t < triangles.Count; t += 3)
+        {
+            // Calculate the average vector for 3 triangles
+            Vector3 average = Vector3.zero;
+            Vector3 tempVector = Vector3.zero;
+            for (int i = 0; i < 3; i++)
+                tempVector += vertices[triangles[t + i]];
+            average = tempVector / 3;
+
+            // Calculate the distance between the triangle average and the cutoff point
+            float distance = Vector3.Distance(average, cutoff);
+            //distance = (float)System.Math.Round(distance, 2, MidpointRounding.AwayFromZero);
+
+            //float distance = average.z - cutoff.z;
+
+            // If we're behind the cutoff point, add triangles
+            //if (distance < DesiredLength)
+            if (average.z < cutoff.z)
+            {
+                for (int i = 0; i < 3; i++)
+                    tris.Add(triangles[t + i]);
+
+                for (int i = 0; i < 3; i++)
+                {
+                    var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    go.transform.position = vertices[triangles[t + i]];
+                    go.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                    go.transform.parent = container.transform;
+                    averageSphereList.Add(go);
+                }
+
+                /*
+                    var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                go.transform.position = average;
+                go.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                go.transform.parent = container.transform;
+                averageSphereList.Add(go);
+                */
+            }
+
+
+            //Debug.Log(distance);
+            //if (Cube)
+            //    Cube.transform.position = average;
+
+            Cube.transform.position = cutoff;
+            Cube.transform.rotation = path.GetRotationAtDistance(ogPos.Value.z + DesiredLength);
+
+            //await Task.Delay(1);
+        }
+        mesh.triangles = tris.ToArray();
+
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+        mesh.RecalculateBounds();
+
+        /*
+        if (tris.Count % 3 != 0)
+            for (int i = 0; i < tris.Count % 3; i++)
+                tris.Add(0);
+        */
+
+        /* ----- */
+
+        /*
         List<Vector3> verts = new List<Vector3>();
         for (int i = 0; i < vertices.Length; i++)
         {
@@ -142,6 +228,7 @@ public class MeshDeformTest : MonoBehaviour
             }
 
         mesh.triangles = tris.ToArray();
+        */
     }
 
     void StreamTriangles_OLD()

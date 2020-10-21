@@ -52,6 +52,8 @@ public class PathFollower : MonoBehaviour
     {
         StartCoroutine(LoadStepValue());
 
+        TransformPlayerToPath(0f); // Position player to start of the path
+
         return;
         int trackCounter = 0;
         foreach (GameObject trGo in TrackMeshCreator.Instance.TrackObjects)
@@ -74,6 +76,20 @@ public class PathFollower : MonoBehaviour
 
     float step;
 
+    public void TransformPlayerToPath(float dist)
+    {
+        Vector3 localRight = pathCreator.path.GetNormalAtDistance(dist, endOfPathInstruction);
+        Vector3 currentPos = transform.position;
+        Vector3 targetPos = pathCreator.path.GetPointAtDistance(dist, endOfPathInstruction) + localRight * Mathf.Abs(offset);
+
+        transform.position = targetPos;
+
+        Quaternion currentRot = Interpolatable.rotation;
+        Quaternion targetRot = pathCreator.path.GetRotationAtDistance(dist, endOfPathInstruction) * Quaternion.Euler(0, 0, 90);
+        Interpolatable.rotation = QuaternionUtil.SmoothDamp(currentRot, targetRot, ref Qvel, smoothStrength);
+        NonInterpolatable.rotation = targetRot;
+    }
+
     void Update()
     {
         if (pathCreator == null) return;
@@ -89,16 +105,7 @@ public class PathFollower : MonoBehaviour
         else
             distanceTravelled += speed * Time.deltaTime;
 
-        Vector3 localRight = pathCreator.path.GetNormalAtDistance(distanceTravelled, endOfPathInstruction);
-        Vector3 currentPos = transform.position;
-        Vector3 targetPos = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction) + localRight * Mathf.Abs(offset);
-
-        transform.position = targetPos;
-
-        Quaternion currentRot = Interpolatable.rotation;
-        Quaternion targetRot = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction) * Quaternion.Euler(0, 0, 90);
-        Interpolatable.rotation = QuaternionUtil.SmoothDamp(currentRot, targetRot, ref Qvel, smoothStrength);
-        NonInterpolatable.rotation = targetRot;
+        TransformPlayerToPath(distanceTravelled);
 
         /*
 

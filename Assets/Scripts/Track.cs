@@ -433,6 +433,23 @@ public class Track : MonoBehaviour
         public static Color Vocals = new Color(0, 255, 0, Opacity);
         public static Color Freestyle = new Color(255, 255, 255, Opacity);
 
+        public static Material[] materialCache = new Material[6];
+        public static Material GetMaterialForInstrument(InstrumentType inst)
+        {
+            // Try getting material from cache
+            Material mat = materialCache[(int)inst];
+            if (mat) return mat;
+            else
+            {
+                // If not cached, cache material for later use
+                mat = (Material)Resources.Load("Materials/Tracks/TrackMaterial");
+                materialCache[(int)inst] = mat;
+
+                return mat;
+            }
+                    
+        }
+
         public static Color ColorFromTrackType(InstrumentType type)
         {
             switch ((int)type)
