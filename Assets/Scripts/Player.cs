@@ -91,15 +91,20 @@ public class Player : MonoBehaviour
         // Set song movement step | TODO: revise!!!
         SongMovementStep = (PlayerSpeed * SongController.secInzPos) * Time.unscaledDeltaTime * SongController.songSpeed;
 
+        // Wire up catcher events
+        CatcherController.OnCatch += CatcherController_OnCatch;
+
+        TracksController.gameObject.transform.Translate(Vector3.left * 50f);
+        TracksController.Instance.gameObject.SetActive(false);
+
+        return;
+
         // Push back player by the Start ZOffset
         transform.Translate(Vector3.back * StartZOffset);
         PlayerCameraTransform.position = new Vector3(PlayerCameraTransform.position.x, PlayerCameraTransform.position.y, CameraPullbackOffset);
 
         // Push back player by the AV calibration value
         //UpdateAVCalibrationOffset();
-
-        // Wire up catcher events
-        CatcherController.OnCatch += CatcherController_OnCatch;
 
         // Move player to Tunnel center and offset the Transversal content so they're at the intended place
         transform.position = Tunnel.center;
@@ -466,8 +471,10 @@ public class Player : MonoBehaviour
             MovePlayerUpdate();
 
         // Song player movement
+        /*
         if (IsPlaying)
             SongMovementUpdate();
+        */
 
         /*
         // TODO: PLAYTEST CODE - temp controller haptics to the beat until there isn't a global haptics management system!

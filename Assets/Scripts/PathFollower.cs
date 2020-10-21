@@ -1,4 +1,5 @@
 ﻿using PathCreation;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,13 +13,17 @@ using UnityEngine.InputSystem;
 
 public class PathFollower : MonoBehaviour
 {
+    Player Player { get { return Player.Instance; } }
+    SongController SongController { get { return SongController.Instance; } }
+
     public PathCreator pathCreator; // The PathCreator to follow
     public EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop; // The instruction to perform when we reached the end of the path.
 
     public float speed = 5f;
     public float smoothStrength = 0.1f;
     public float distanceTravelled;
-    public Quaternion vel = Quaternion.identity;
+    public Quaternion Qvel = Quaternion.identity;
+    public Vector3 Vvel = Vector3.zero;
 
     public Transform ContentContainer;
 
@@ -27,6 +32,12 @@ public class PathFollower : MonoBehaviour
 
     public GameObject NotePrefab;
     public GameObject Plane;
+
+    IEnumerator LoadStepValue()
+    {
+        while (float.IsNaN(SongController.secInzPos))
+            yield return null;
+    }
 
     void Awake()
     {
@@ -39,6 +50,8 @@ public class PathFollower : MonoBehaviour
 
     void Start()
     {
+        StartCoroutine(LoadStepValue());
+
         return;
         int trackCounter = 0;
         foreach (GameObject trGo in TrackMeshCreator.Instance.TrackObjects)
@@ -59,9 +72,35 @@ public class PathFollower : MonoBehaviour
 
     public float offset;
 
+    float step;
+
     void Update()
     {
         if (pathCreator == null) return;
+        if (!Player.IsPlaying) return;
+
+        float step;
+
+        if (SongController.Enabled)
+        {
+            step = (Player.PlayerSpeed * SongController.secInzPos) * Time.unscaledDeltaTime * SongController.songSpeed;
+            distanceTravelled = Mathf.MoveTowards(distanceTravelled, pathCreator.path.length - 0.01f, step);
+        }
+        else
+            distanceTravelled += speed * Time.deltaTime;
+
+        Vector3 localRight = pathCreator.path.GetNormalAtDistance(distanceTravelled, endOfPathInstruction);
+        Vector3 currentPos = transform.position;
+        Vector3 targetPos = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction) + localRight * Mathf.Abs(offset);
+
+        transform.position = targetPos;
+
+        Quaternion currentRot = Interpolatable.rotation;
+        Quaternion targetRot = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction) * Quaternion.Euler(0, 0, 90);
+        Interpolatable.rotation = QuaternionUtil.SmoothDamp(currentRot, targetRot, ref Qvel, smoothStrength);
+        NonInterpolatable.rotation = targetRot;
+
+        /*
 
         // TODO: This might end up being controlled by the Player
         distanceTravelled += speed * Time.deltaTime;
@@ -77,6 +116,8 @@ public class PathFollower : MonoBehaviour
         Quaternion targetRot = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction) * Quaternion.Euler(0, 0, 90);
         Interpolatable.rotation = QuaternionUtil.SmoothDamp(currentRot, targetRot, ref vel, smoothStrength);
         NonInterpolatable.rotation = targetRot;
+
+        */
 
         /*
         Plane.transform.position = pathCreator.path.GetPointAtDistance(distanceTravelled);

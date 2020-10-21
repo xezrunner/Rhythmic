@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 using UnityEngine.InputSystem;
+using PathCreation;
 
 public class Track : MonoBehaviour
 {
@@ -85,7 +86,7 @@ public class Track : MonoBehaviour
                 CatcherController.Instance.FindNextMeasuresNotes(this, true);
 
             if (value)
-            identicalTracks.ForEach(t => t.IsTrackCaptured = false);
+                identicalTracks.ForEach(t => t.IsTrackCaptured = false);
 
             _isTrackBeingCaptured = value;
         }
@@ -117,8 +118,13 @@ public class Track : MonoBehaviour
 
     GameObject measurePrefab;
     GameObject notePrefab;
+
+    VertexPath path;
+
     private void Awake()
     {
+        path = GameObject.Find("Path").GetComponent<PathCreator>().path;
+
         measurePrefab = TracksController.measurePrefab;
         notePrefab = TracksController.notePrefab;
     }
@@ -158,9 +164,17 @@ public class Track : MonoBehaviour
 
         // create GameObject
         GameObject obj = Instantiate(notePrefab);
-        obj.transform.position = position;
-        obj.transform.eulerAngles = transform.eulerAngles; // angled on the track
-        obj.transform.SetParent(lane); // parent to the lane
+
+        //obj.transform.position = position;
+        //obj.transform.eulerAngles = transform.eulerAngles; // angled on the track
+
+        //obj.transform.SetParent(lane, false); // parent to the lane
+
+        obj.transform.position = path.GetPointAtDistance(zPos);
+        obj.transform.rotation = path.GetRotationAtDistance(zPos) * Quaternion.Euler(0, 0, 90);
+        obj.transform.transform.Translate(Vector3.right * lane.position.x);
+
+        //obj.transform.parent = lane;
 
         // set up
         var note = obj.AddComponent<Note>();
@@ -191,9 +205,11 @@ public class Track : MonoBehaviour
             GameObject obj = (GameObject)GameObject.Instantiate(measurePrefab);
 
             obj.name = string.Format("MEASURE_{0}", MeasureInfo.measureNum);
+
             obj.transform.localPosition = measurePosition;
             obj.transform.localEulerAngles = gameObject.transform.eulerAngles;
             obj.transform.localScale = new Vector3(1, 1, SongController.measureLengthInzPos);
+
             obj.transform.SetParent(MeasureContainer.transform, true);
 
             // get Measure script and add component

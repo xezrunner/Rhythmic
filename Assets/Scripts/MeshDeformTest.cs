@@ -29,6 +29,8 @@ public class MeshDeformTest : MonoBehaviour
 
     void GetMesh()
     {
+        if (!targetObject) return;
+
         // Get MeshFilter from targetObject
         //meshFilter = targetObject.GetComponent<MeshFilter>();
         //if (!meshFilter) { Debug.LogErrorFormat("MeshDeformTest: The GameObject {0} does not have a MeshFilter component!", targetObject.name); return; }
