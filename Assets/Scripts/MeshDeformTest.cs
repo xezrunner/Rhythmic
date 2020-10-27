@@ -288,6 +288,7 @@ public class MeshDeformTest : MonoBehaviour
 
         //meshVertex.z = Mathf.Abs(meshVertex.z);
         Vector3 splinePoint = path.GetPointAtDistance(meshVertex.z + targetObject.transform.position.z);
+        // Position modification
         Vector3 futureSplinePoint = path.GetPointAtDistance(meshVertex.z + targetObject.transform.position.z + 0.01f);
         Vector3 forwardVector = futureSplinePoint - splinePoint;
         Quaternion imaginaryPlaneRotation = Quaternion.LookRotation(forwardVector, Vector3.up);
@@ -295,6 +296,8 @@ public class MeshDeformTest : MonoBehaviour
         //Vector3 pointWithinPlane = new Vector3(0f, 0f, 0f);
 
         Vector3 result = splinePoint + (imaginaryPlaneRotation * pointWithinPlane);
+        result += Vector3.right * targetObject.transform.position.x;
+        result += Vector3.up * targetObject.transform.position.y;
 
         //var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
         //go.transform.parent = gameObject.transform;

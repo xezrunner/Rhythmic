@@ -168,7 +168,7 @@ public class SongController : MonoBehaviour
 
         // TODO: temp location
         // Track streamer init
-        CreateTrackStreamer();
+        //CreateTrackStreamer();
 
         if (!Enabled)
         { Debug.LogWarningFormat("SongCtrl: Disabled"); return; }

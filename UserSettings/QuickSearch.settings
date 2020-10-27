@@ -16,7 +16,7 @@ filters = {
 	settings = true
 }
 scopes = {
-	"last_search.AB59B443" = "meshdef"
+	"last_search.AB59B443" = "plane"
 }
 providers = {
 	asset = {

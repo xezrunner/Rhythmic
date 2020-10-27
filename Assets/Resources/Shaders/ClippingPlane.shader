@@ -6,6 +6,7 @@
 		_Smoothness ("Smoothness", Range(0, 1)) = 0
 		_Metallic ("Metalness", Range(0, 1)) = 0
 		_Plane ("Plane", Float) = (0, 0, 0, 0)
+		_InversePlane ("InversePlane", Float) = (0, 0, 0, 0)
 		[HDR]_Emission ("Emission", color) = (0,0,0)
 
 		[HDR]_CutoffColor("Cutoff Color", Color) = (1,0,0,0)
@@ -35,6 +36,7 @@
 		half3 _Emission;
 
 		float4 _Plane;
+		float4 _InversePlane;
 
 		float4 _CutoffColor;
 
@@ -50,8 +52,13 @@
 			//calculate signed distance to plane
 			float distance = dot(i.worldPos, _Plane.xyz);
 			distance = distance + _Plane.w;
+
+			float inverse_distance = dot(i.worldPos, _InversePlane.xyz);
+			inverse_distance = inverse_distance + _InversePlane.w;
+
 			//discard surface above plane
 			clip(-distance);
+			clip(inverse_distance);
 
 			float facing = i.facing * 0.5 + 0.5;
 			

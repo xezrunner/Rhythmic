@@ -73,8 +73,6 @@ public class AmplitudeSongController : SongController
         // TODO: eliminate!!!!!
         songMeasures = CreateMeasureList();
 
-        return;
-
         // Create Tracks controller!
         CreateTracksController();
 
