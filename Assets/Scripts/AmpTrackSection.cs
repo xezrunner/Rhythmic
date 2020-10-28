@@ -25,10 +25,8 @@ public class AmpTrackSection : MonoBehaviour
     public PathCreation.PathCreator PathCreator { get { return GameObject.Find("Path").GetComponent<PathCreator>(); } }
     public PathCreation.VertexPath Path { get { if (PathCreator) return PathCreator.path; else { Debug.LogError("AmpTrack: Path not available - PathCreator is null!"); return null; } } }
 
-    // TODO: make these properties that'll move the track along the path!
-    Vector3 _prevPositionOnPath;
     public Vector3 PositionOnPath;
-    public Vector3 RotationOnPath; // Note: in Euler angles!
+    public float RotationOnPath; // Note: in Euler angles!
 
     /// Global variables and properties
     public float Length = 32f; // in zPos!
@@ -52,20 +50,18 @@ public class AmpTrackSection : MonoBehaviour
 
     /// Temporary variables
     Mesh originalMesh; // Live update - original mesh copy
+    Vector3 _prevPositionOnPath;
+    float _prevRotationOnPath;
+    float _prevLength;
 
     void Awake()
     {
         if (MeshFilter)
             originalMesh = MeshFilter.sharedMesh;
 
-        // Keep copy of original mesh if live update is supported
-        //if (DeformLiveUpdate)
-        //{
-        //    if (MeshFilter)
-        //        originalMesh = MeshFilter.sharedMesh;
-        //    else
-        //        Debug.LogError("TrackMeasure [live mesh updating]: No mesh specified! Live updating will not work.");
-        //}
+        _prevLength = Length;
+        _prevPositionOnPath = PositionOnPath;
+        _prevRotationOnPath = RotationOnPath;
     }
 
     [ExecuteInEditMode]
@@ -79,8 +75,14 @@ public class AmpTrackSection : MonoBehaviour
     {
 #if PATH_LIVE_UPDATE
         if (DeformLiveUpdate)
+        {
+            if (_prevLength != Length)
+            { _prevLength = Length; UpdateModelLength(); }
             if (_prevPositionOnPath != PositionOnPath)
             { _prevPositionOnPath = PositionOnPath; DeformMeshToPath(); } // Deform mesh when position changes
+            if (_prevRotationOnPath != RotationOnPath)
+            { _prevRotationOnPath = RotationOnPath; DeformMeshToPath(); }
+        }
 #endif
     }
 
@@ -89,7 +91,7 @@ public class AmpTrackSection : MonoBehaviour
     // Deforms the mesh to the path
     // TODO: Deformation live updating!
     public void DeformMeshToPath() => DeformMeshToPath(Path, Length, PositionOnPath, RotationOnPath);
-    public void DeformMeshToPath(VertexPath path, float length, Vector3 position, Vector3 rotation) // Deforms the mesh at the given position and length
+    public void DeformMeshToPath(VertexPath path, float length, Vector3 position, float angle) // Deforms the mesh at the given position and length
     {
         if (!Application.isPlaying & BlockDeformsInEditMode)
             return;
@@ -108,8 +110,8 @@ public class AmpTrackSection : MonoBehaviour
         UpdateModelLength();
     }
 
-    public void UpdateModelLength() => ChangeModelLength(Length, PositionOnPath, RotationOnPath);
-    public void ChangeModelLength(float length, Vector3 pos, Vector3 rot)
+    public void UpdateModelLength() => ChangeModelLength(Length, PositionOnPath);
+    public void ChangeModelLength(float length, Vector3 pos)
     {
         Vector3 planePos = Path.GetPointAtDistance(pos.z + length);
         Quaternion planeRot = Path.GetRotationAtDistance(planePos.z + length) * Quaternion.Euler(90, 0, 0);
