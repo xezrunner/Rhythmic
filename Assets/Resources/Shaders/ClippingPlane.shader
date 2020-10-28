@@ -7,6 +7,8 @@
 		_Metallic ("Metalness", Range(0, 1)) = 0
 		_Plane ("Plane", Float) = (0, 0, 0, 0)
 		_InversePlane ("InversePlane", Float) = (0, 0, 0, 0)
+		_PlaneEnabled ("PlaneEnabled", Int) = 0
+		_InversePlaneEnabled ("InversePlaneEnabled", Int) = 0
 		[HDR]_Emission ("Emission", color) = (0,0,0)
 
 		[HDR]_CutoffColor("Cutoff Color", Color) = (1,0,0,0)
@@ -37,6 +39,8 @@
 
 		float4 _Plane;
 		float4 _InversePlane;
+		int _PlaneEnabled;
+		int _InversePlaneEnabled;
 
 		float4 _CutoffColor;
 
@@ -49,6 +53,8 @@
 
 		//the surface shader function which sets parameters the lighting function then uses
 		void surf (Input i, inout SurfaceOutputStandard o) {
+		if (_PlaneEnabled == 1 | _InversePlaneEnabled == 1)
+		{
 			//calculate signed distance to plane
 			float distance = dot(i.worldPos, _Plane.xyz);
 			distance = distance + _Plane.w;
@@ -57,8 +63,11 @@
 			inverse_distance = inverse_distance + _InversePlane.w;
 
 			//discard surface above plane
-			clip(-distance);
-			clip(inverse_distance);
+			if (_PlaneEnabled == 1)
+				clip(-distance);
+			if (_InversePlaneEnabled == 1)
+				clip(inverse_distance);
+		}
 
 			float facing = i.facing * 0.5 + 0.5;
 			

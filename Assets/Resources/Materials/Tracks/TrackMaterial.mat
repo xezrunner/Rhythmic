@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: TrackMaterial
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 4800000, guid: 5800f3aa84ec8df40ac18ac3c6939b85, type: 3}
   m_ShaderKeywords: _EMISSION _GLOSSYREFLECTIONS_OFF _NORMALMAP
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 1
@@ -59,6 +59,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _BumpScale: 0.53
     - _Cutoff: 0
@@ -67,10 +68,12 @@ Material:
     - _GlossMapScale: 0.57
     - _Glossiness: 0.91
     - _GlossyReflections: 0
+    - _InversePlaneEnabled: 0
     - _Metallic: 0.909
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _PlaneEnabled: 0
     - _Smoothness: 0.819
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -85,7 +88,7 @@ Material:
     - _CutoffColor: {r: 0, g: 0, b: 0, a: 0}
     - _Emission: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _InversePlane: {r: 0, g: 0, b: -1, a: 1}
-    - _Plane: {r: 0, g: -0.000000119209275, b: -1, a: 0}
+    - _InversePlane: {r: 0, g: 0, b: -1, a: 0}
+    - _Plane: {r: 0, g: -0.000000119209275, b: -1, a: -0.5}
     - _PlaneVector: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

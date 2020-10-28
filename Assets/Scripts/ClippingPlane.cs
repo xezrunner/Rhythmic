@@ -5,6 +5,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class ClippingPlane : MonoBehaviour
 {
+    public MeshRenderer MeshRenderer;
     public MeshFilter filter;
     public MeshFilter inverse_filter;
 
@@ -13,13 +14,24 @@ public class ClippingPlane : MonoBehaviour
 
     void Awake()
     {
-        mat = gameObject.GetComponent<MeshRenderer>().materials;
+        if (MeshRenderer != null)
+            GetMaterials();
+    }
+
+    void GetMaterials()
+    {
+        if (MeshRenderer)
+            mat = MeshRenderer.materials;
+        else
+            mat = gameObject.GetComponent<MeshRenderer>().materials;
     }
 
     //execute every frame
     [ExecuteInEditMode]
     void Update()
     {
+        if (mat == null) GetMaterials();
+
         Vector4 planeRepresentation = Vector4.zero;
         Vector4 inverse_planeRepresentation = Vector4.zero;
 
@@ -61,9 +73,20 @@ public class ClippingPlane : MonoBehaviour
         foreach (Material _mat in mat)
         {
             if (filter)
+            {
                 _mat.SetVector("_Plane", planeRepresentation);
+                _mat.SetInt("_PlaneEnabled", 1);
+            }
+            else
+                _mat.SetInt("_PlaneEnabled", 0);
+
             if (inverse_filter)
+            {
                 _mat.SetVector("_InversePlane", inverse_planeRepresentation);
+                _mat.SetInt("_InversePlaneEnabled", 1);
+            }
+            else
+                _mat.SetInt("_InversePlaneEnabled", 0);
         }
     }
 }

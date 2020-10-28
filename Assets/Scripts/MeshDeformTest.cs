@@ -278,35 +278,55 @@ public class MeshDeformTest : MonoBehaviour
 
     public Vector3 TransformVertex(Vector3 meshVertex)
     {
-        //meshVertex.z = Mathf.Abs(meshVertex.z);
-        //Vector3 splinePoint = path.GetPointAtDistance(meshVertex.z);
-        //Vector3 futureSplinePoint = path.GetPointAtDistance(meshVertex.z + 0.01f);
-        //Vector3 forwardVector = futureSplinePoint - splinePoint;
-        //Quaternion imaginaryPlaneRotation = Quaternion.LookRotation(forwardVector, Vector3.forward) * Quaternion.Euler(0, 0, 90);
-        //Vector3 pointWithinPlane = new Vector3(meshVertex.x, meshVertex.y, 0f);
-        //return splinePoint + (imaginaryPlaneRotation * pointWithinPlane);
+        float dist = meshVertex.z + targetObject.transform.position.z; // Vertex Z distance along path + desired Z offset
+        Vector3 localUp = Vector3.Cross(path.GetTangentAtDistance(dist), path.GetNormalAtDistance(dist));
+        Vector3 localRight = path.GetNormalAtDistance(dist);
 
-        //meshVertex.z = Mathf.Abs(meshVertex.z);
-        Vector3 splinePoint = path.GetPointAtDistance(meshVertex.z + targetObject.transform.position.z);
-        // Position modification
-        Vector3 futureSplinePoint = path.GetPointAtDistance(meshVertex.z + targetObject.transform.position.z + 0.01f);
-        Vector3 forwardVector = futureSplinePoint - splinePoint;
-        Quaternion imaginaryPlaneRotation = Quaternion.LookRotation(forwardVector, Vector3.up);
-        Vector3 pointWithinPlane = new Vector3(meshVertex.x, meshVertex.y, 0f);
-        //Vector3 pointWithinPlane = new Vector3(0f, 0f, 0f);
+        Vector3 splinePoint = path.GetPointAtDistance(dist); // Point on path at the distance
+        splinePoint += (localRight * targetObject.transform.position.x) + (localUp * targetObject.transform.position.y); // Parallel offsetting
 
-        Vector3 result = splinePoint + (imaginaryPlaneRotation * pointWithinPlane);
-        result += Vector3.right * targetObject.transform.position.x;
-        result += Vector3.up * targetObject.transform.position.y;
+        Quaternion pathRotation = path.GetRotationAtDistance(dist) * Quaternion.Euler(0, 0, 90); // Rot on path at the distance
+        Vector3 vertexHorizontal = new Vector3(meshVertex.x, meshVertex.y, 0f); // Vertex X and Y points (horizontal)
 
-        //var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        //go.transform.parent = gameObject.transform;
-        //go.transform.localScale = new Vector3(0.1f, 0.1f, 0f);
-        //go.transform.position = result;
-        //cubes.Add(go);
-
-        return result;
+        return splinePoint + (pathRotation * vertexHorizontal);
     }
+
+    //public Vector3 TransformVertex(Vector3 meshVertex)
+    //{
+    //    float dist = meshVertex.z + targetObject.transform.position.z;
+
+    //    Vector3 localUp = Vector3.Cross(path.GetTangentAtDistance(dist), path.GetNormalAtDistance(dist));
+    //    Vector3 localRight = path.GetNormalAtDistance(dist);
+
+    //    Vector3 splinePoint = path.GetPointAtDistance(dist);
+    //    Vector3 futureSplinePoint = path.GetPointAtDistance(dist + 0.01f);
+
+    //    splinePoint += (localRight * targetObject.transform.position.x) + (localUp * targetObject.transform.position.y);
+    //    futureSplinePoint += (localRight * targetObject.transform.position.x) + (localUp * targetObject.transform.position.y);
+
+    //    Vector3 forwardVector = futureSplinePoint - splinePoint;
+    //    Quaternion imaginaryPlaneRotation = path.GetRotationAtDistance(dist) * Quaternion.Euler(0, 0, 90);
+    //    Vector3 pointWithinPlane = new Vector3(meshVertex.x, meshVertex.y, 0f);
+
+    //    Vector3 result = splinePoint + (imaginaryPlaneRotation * pointWithinPlane);
+
+    //    return result;
+    //}
+
+    //public Vector3 TransformVertex(Vector3 meshVertex)
+    //{
+    //    Vector3 splinePoint = path.GetPointAtDistance(meshVertex.z + targetObject.transform.position.z);
+    //    Vector3 futureSplinePoint = path.GetPointAtDistance(meshVertex.z + targetObject.transform.position.z + 0.01f);
+    //    Vector3 forwardVector = futureSplinePoint - splinePoint;
+    //    Quaternion imaginaryPlaneRotation = Quaternion.LookRotation(forwardVector, Vector3.up);
+    //    Vector3 pointWithinPlane = new Vector3(meshVertex.x, meshVertex.y, 0f);
+
+    //    Vector3 result = splinePoint + (imaginaryPlaneRotation * pointWithinPlane);
+    //    //result += Vector3.right * targetObject.transform.position.x;
+    //    //result += Vector3.up * targetObject.transform.position.y;
+
+    //    return result;
+    //}
 
     List<Vector3[]> gizmosList = new List<Vector3[]>();
 
