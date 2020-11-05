@@ -54,7 +54,7 @@ public static class RhythmicGame
     // Gameplay props
     public static float SlopMs = 100f;
     public static float DebounceWindowMs = 85f;
-    public static int HorizonMeasures = 5; // How many measures should we be able to see ahead of us
+    public static int HorizonMeasures = 3; // How many measures should we be able to see ahead of us
 
     public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
     public static bool TunnelTrackDuplication = true; // Whether to duplicate tracks when using tunnel mode
@@ -70,8 +70,8 @@ public static class RhythmicGame
 
     public static bool PlayableFreestyleTracks = false;
 
-    public static float TrackWidth = 2.36f;
-    public static float TrackHeight = 0.4f;
+    public static float TrackWidth = 3.6f; // 2.36f // 3.6755f
+    public static float TrackHeight = 0.62f; // 0.4f
 
     public enum GameDifficulty { Beginner = 0, Intermediate = 1, Advanced = 2, Expert = 3, Super = 4 }
     public static GameDifficulty Difficulty = GameDifficulty.Expert;

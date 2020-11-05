@@ -1,15 +1,16 @@
-﻿using System.Collections;
+﻿#undef LIVE_UPDATE
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteInEditMode]
 public class ClippingPlane : MonoBehaviour
 {
     public MeshRenderer MeshRenderer;
     public MeshFilter filter;
     public MeshFilter inverse_filter;
 
-    //material we pass the values to
+    // Materials to pass values to
     Material[] mat;
 
     void Awake()
@@ -17,6 +18,11 @@ public class ClippingPlane : MonoBehaviour
         if (MeshRenderer != null)
             GetMaterials();
     }
+    void Start() => Clip();
+
+#if LIVE_UPDATE // Live test clipping for dev testing purposes only!
+    void Update() => Clip();
+#endif
 
     void GetMaterials()
     {
@@ -26,9 +32,7 @@ public class ClippingPlane : MonoBehaviour
             mat = gameObject.GetComponent<MeshRenderer>().materials;
     }
 
-    //execute every frame
-    [ExecuteInEditMode]
-    void Update()
+    void Clip()
     {
         if (mat == null) GetMaterials();
 
@@ -70,6 +74,7 @@ public class ClippingPlane : MonoBehaviour
             mat[MaterialID].SetVector("_Plane", planeRepresentation);
         }
         else*/
+
         foreach (Material _mat in mat)
         {
             if (filter)

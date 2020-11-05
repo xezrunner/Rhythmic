@@ -10,7 +10,8 @@ public class SongController : MonoBehaviour
     public static SongController Instance;
     public Player Player { get { return Player.Instance; } }
     public Clock Clock;
-    public TracksController TracksController;
+    public TracksController TrackController;
+    public AmpTrackController AmpTrackController;
 
     // Controller properties
     public string defaultSong;
@@ -166,10 +167,6 @@ public class SongController : MonoBehaviour
         // Create clock
         CreateClock();
 
-        // TODO: temp location
-        // Track streamer init
-        //CreateTrackStreamer();
-
         if (!Enabled)
         { Debug.LogWarningFormat("SongCtrl: Disabled"); return; }
         if (IsFake) // TODO: fake song information implementation!
@@ -189,20 +186,36 @@ public class SongController : MonoBehaviour
         {
             GameObject obj = new GameObject() { name = "TrackStreamer" };
             trackStreamer = obj.AddComponent<TrackStreamer>();
+            Debug.LogFormat("TRACKS: Created track streamer!");
+
         }
         else
             Debug.LogWarning("AMP_CTRL: TrackStreamer already exists!");
     }
 
-    public virtual void CreateTracksController()
+    public virtual void CreateTracksController_OLD()
     {
+        GameObject ctrlGameObject = new GameObject() { name = "TRACKS" };
+        TrackController = ctrlGameObject.AddComponent<TracksController>();
+
+        TrackController.OnTrackSwitched += TracksController_OnTrackSwitched;
+
+        Debug.LogFormat("TRACKS: Created track controller!");
+    }
+
+    public virtual void CreateAmpTrackController()
+    {
+        GameObject ctrlGameObject = new GameObject() { name = "AMP_TRACKS" };
+        AmpTrackController = ctrlGameObject.AddComponent<AmpTrackController>();
+
+        //AmpTrackController.OnTrackSwitched += TracksController_OnTrackSwitched;
         Debug.LogFormat("TRACKS: Created track controller!");
 
-        GameObject ctrlGameObject = new GameObject() { name = "TRACKS" };
-        TracksController = ctrlGameObject.AddComponent<TracksController>();
+        // Track streamer init
+        CreateTrackStreamer();
 
-        TracksController.OnTrackSwitched += TracksController_OnTrackSwitched;
     }
+
     void CreateClock()
     {
         Clock = gameObject.AddComponent<Clock>();
@@ -233,18 +246,18 @@ public class SongController : MonoBehaviour
     // When the track changes, change music track volume | e[0]: old ID; e[1]: new ID
     void TracksController_OnTrackSwitched(object sender, int[] e)
     {
-        int trackID = TracksController.Tracks[e[1]].ID;
+        int trackID = TrackController.Tracks[e[1]].ID;
         if (audioSrcList[trackID].clip == null)
         { Debug.LogWarningFormat("SONGCTRL: Track ID {0} does not have an audio clip! - ignoring track switch volume change", e); return; }
 
         // Set volumes
-        for (int i = 0; i < TracksController.CurrentTrackSet.Count; i++)
+        for (int i = 0; i < songTracks.Count; i++)
         {
             AudioSource src = audioSrcList[i];
 
-            if (i == trackID && TracksController.CurrentTrackSet[i].IsTrackCaptured) // Current track should go full volume if it's captured | TODO: revise?
+            if (i == trackID && TrackController.Tracks[i].IsTrackCaptured) // Current track should go full volume if it's captured | TODO: revise?
                 src.volume = 1f;
-            else if (TracksController.CurrentTrackSet[i].IsTrackCaptured) // Other tracks that are captured should be quieter
+            else if (TrackController.Tracks[i].IsTrackCaptured) // Other tracks that are captured should be quieter
                 src.volume = 0.4f;
             else // Other tracks that are NOT captured should be silent
                 src.volume = 0f;

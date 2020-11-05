@@ -32,6 +32,8 @@ public static class MeshDeformer
     public static Vector3 TransformVertex(VertexPath path, Vector3 meshVertex, Vector3 position, float angle)
     {
         float dist = meshVertex.z + position.z; // Vertex Z distance along path + desired Z offset
+        bool isNegative = dist < 0f; // TODO: negative path values should just over/under-flow the path! Right now, it wraps around the path.
+
         Vector3 localUp = Vector3.Cross(path.GetTangentAtDistance(dist), path.GetNormalAtDistance(dist));
         Vector3 localRight = path.GetNormalAtDistance(dist);
 

@@ -74,7 +74,8 @@ public class AmplitudeSongController : SongController
         songMeasures = CreateMeasureList();
 
         // Create Tracks controller!
-        CreateTracksController();
+        //CreateTracksController_OLD();
+        CreateAmpTrackController();
 
         // TODO: move elsewhere
         // Scale the catchers and CatcherController

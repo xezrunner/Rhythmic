@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 // Track streaming system
 // Purpose: stream in the measures and notes in real-time as we are playing
@@ -8,26 +10,25 @@ using UnityEngine;
 public class TrackStreamer : MonoBehaviour
 {
     SongController SongController { get { return SongController.Instance; } }
-    TracksController TracksController { get { return TracksController.Instance; } }
+    AmpTrackController TrackController { get { return AmpTrackController.Instance; } }
     Clock Clock { get { return Clock.Instance; } }
-    TrackMeshCreator TrackMeshCreator { get { return TrackMeshCreator.Instance; } } // TODO: performance?
+
     public List<IDictionary<int, MetaMeasure>> metaMeasures = new List<IDictionary<int, MetaMeasure>>();
 
     void Awake()
     {
         Clock.OnBar += Clock_OnBar;
     }
-
     void Start()
     {
         // Build metalist
-        foreach (string track in SongController.songTracks)
+        foreach (string track in TrackController.songTracks)
         {
-            var inst = Track.InstrumentFromString(track);
+            var inst = AmpTrack.InstrumentFromString(track);
 
             // create dictionary and metameasures
             IDictionary<int, MetaMeasure> dict = new Dictionary<int, MetaMeasure>();
-            for (int i = 0; i < SongController.songLengthInMeasures + 3; i++)
+            for (int i = 0; i < SongController.songLengthInMeasures + 1; i++)
             {
                 MetaMeasure metameasure = new MetaMeasure() { ID = i, Instrument = inst };
                 dict.Add(i, metameasure);
@@ -36,46 +37,81 @@ public class TrackStreamer : MonoBehaviour
             metaMeasures.Add(dict);
         }
 
-        // Stream in the starting horizon
-        StartCoroutine(StreamMeasure(0, 0));
-        StartCoroutine(StreamMeasure(1, 0));
+        // Stream in the horizon!
+        StreamMeasureRange(0, RhythmicGame.HorizonMeasures);
+    }
+
+    /// ***** ----- DEBUG TEST ----- *****
+    int wowCounter = 1;
+    void LateUpdate()
+    {
+        if (Keyboard.current.iKey.wasPressedThisFrame)
+        {
+            StreamMeasure((int)SongController.Clock.bar + RhythmicGame.HorizonMeasures + wowCounter);
+            wowCounter++;
+        }
     }
 
     private void Clock_OnBar(object sender, int e)
     {
-        // Stream measures on every bar tick
+        Debug.Log(e);
 
+        // Stream measures on every bar tick
+        StreamMeasure(RhythmicGame.HorizonMeasures + e);
+
+        // Delete measures behind us
+        if (e < 2) return;
+        for (int t = 0; t < TrackController.Tracks.Count; t++)
+        {
+            var track = TrackController.Tracks[t];
+            var measure = track.Measures[0];
+            Destroy(measure.gameObject);
+            track.Measures.RemoveAt(0);
+        }
     }
 
     /// <summary>
     /// Streams in a specific measure ID.
     /// </summary>
     /// <param name="id">Measure ID to stream in</param>
-    /// <param name="inst">Measure instrument to stream in - use -1 to stream in all instruments!</param>
+    /// <param name="trackID">Track to stream in from - use -1 to stream in from all the tracks!</param>
     /// <returns></returns>
-    public IEnumerator StreamMeasure(int id, int trackID = -1)
+    public void StreamMeasure(int id, int trackID = -1) => StartCoroutine(_StreamMeasure(id, trackID));
+    IEnumerator _StreamMeasure(int id, int trackID = -1)
     {
         if (trackID != -1)
         {
-            float startDist = (id * SongController.measureLengthInzPos);
-            GameObject obj = TrackMeshCreator.CreateTrackObject(startDistance: startDist, length: SongController.measureLengthInzPos, xPosition: trackID);
-        }
-        else
-        {
+            MetaMeasure meta = metaMeasures[trackID][id];
+            AmpTrack track = TrackController.Tracks[trackID];
 
+            // Create section!
+            track.CreateMeasure(meta);
         }
-        yield return new WaitForSeconds(0.1f);
+        else // Stream in the measure from all of the tracks!
+        {
+            for (int i = 0; i < TrackController.songTracks.Count; i++)
+            {
+                StartCoroutine(_StreamMeasure(id, i));
+                yield return new WaitForSeconds(0.1f); // delay by a bit to account for performance drop
+            }
+            yield return null;
+        }
     }
 
     /// <summary>
-    /// Streams in multiple measure IDs asynchronously
+    /// Streams in multiple measure IDs (range from start to end) asynchronously
     /// </summary>
     /// <param name="startID"></param>
     /// <param name="endID"></param>
-    /// <param name="inst">Measure instrument to stream in - use -1 to stream in all instruments!</param>
+    /// <param name="trackID">Tracks to stream in from - use -1 to stream in all the tracks!</param>
     /// <returns></returns>
-    public IEnumerator StreamMeasureRange(int startID, int endID, int trackID = -1)
+    public void StreamMeasureRange(int startID, int endID, int trackID = -1) => StartCoroutine(_StreamMeasureRange(startID, endID, trackID));
+    IEnumerator _StreamMeasureRange(int startID, int endID, int trackID = -1)
     {
-        yield return new WaitForSeconds(0.1f);
+        for (int i = startID; i < endID; i++)
+        {
+            StreamMeasure(i, trackID);
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 }

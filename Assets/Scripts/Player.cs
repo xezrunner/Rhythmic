@@ -70,7 +70,9 @@ public class Player : MonoBehaviour
     public async virtual void Start()
     {
         // Disable mouse support
-        UnityEngine.Cursor.visible = false;
+#if !UNITY_EDITOR
+        Cursor.visible = false;
+#endif
 
         // BUG: Unity's new Input System won't automatically pair the Keyboard if included in Supported Devices section.
         // WORKAROUND: we manually pair it to Player 0 on startup and ignore if it's already paired
@@ -94,10 +96,11 @@ public class Player : MonoBehaviour
         // Wire up catcher events
         CatcherController.OnCatch += CatcherController_OnCatch;
 
+        return;
+
         TracksController.gameObject.transform.Translate(Vector3.left * 50f);
         TracksController.Instance.gameObject.SetActive(false);
 
-        return;
 
         // Push back player by the Start ZOffset
         transform.Translate(Vector3.back * StartZOffset);
@@ -117,7 +120,7 @@ public class Player : MonoBehaviour
 
     // Score / streak system
     // TODO: updating UI text is messy
-    #region Score / streak system
+#region Score / streak system
     public int Score = 0;
     public bool IsMultiplierEnabled = true;
 
@@ -168,7 +171,7 @@ public class Player : MonoBehaviour
         MissText.gameObject.SetActive(false);
         canLoseStreak = true;
     }
-    #endregion
+#endregion
 
     // Catcher
     void CatcherController_OnCatch(object sender, CatcherController.CatchEventArgs e)
@@ -229,7 +232,7 @@ public class Player : MonoBehaviour
 
     // Player movement / track switching
     // NOTE: mentions of 'rotation' actually refer to eulerAngles.
-    #region Player movement & track switching
+#region Player movement & track switching
     [Range(0, 1f)]
     public float Move_Progress = 0f; // progress of camera animation
     public bool IsMoving { get; set; } = false; // controls player camera update function
@@ -402,7 +405,7 @@ public class Player : MonoBehaviour
     public void SwitchTrackRight(CallbackContext context) { if (context.performed) SwitchToTrack(TracksController.CurrentTrackID + 1); }
     public void SwitchTrackLeftForce(CallbackContext context) { if (context.performed) SwitchToTrack(TracksController.CurrentTrackID - 1, true); }
     public void SwitchTrackRightForce(CallbackContext context) { if (context.performed) SwitchToTrack(TracksController.CurrentTrackID + 1, true); }
-    #endregion
+#endregion
 
     // Powerups | TODO: implementation!
     // TODO: separate classes for powerups

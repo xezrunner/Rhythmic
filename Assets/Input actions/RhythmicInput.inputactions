@@ -342,6 +342,17 @@
                 },
                 {
                     "name": "",
+                    "id": "9e51180c-3688-4707-acda-8d4d46f4de47",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Start song",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "1c56b313-0b3d-485e-ac03-40096617a990",
                     "path": "<Gamepad>/buttonSouth",
                     "interactions": "",

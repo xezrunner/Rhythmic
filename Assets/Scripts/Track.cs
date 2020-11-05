@@ -118,6 +118,7 @@ public class Track : MonoBehaviour
 
     GameObject measurePrefab;
     GameObject notePrefab;
+    GameObject trackSectionPrefab;
 
     VertexPath path;
 
@@ -127,6 +128,7 @@ public class Track : MonoBehaviour
 
         measurePrefab = TracksController.measurePrefab;
         notePrefab = TracksController.notePrefab;
+        trackSectionPrefab = (GameObject)Resources.Load("Prefabs/AmpTrackSection");
     }
     void Start()
     {
@@ -190,7 +192,7 @@ public class Track : MonoBehaviour
     }
 
     // Measures
-    public async void PopulateMeasures()
+    public async void PopulateMeasures1()
     {
         // TODO: DO NOT USE MEASUREINFO!!!
         if (RhythmicGame.GameType == RhythmicGame._GameType.RHYTHMIC)
@@ -242,6 +244,76 @@ public class Track : MonoBehaviour
             await Task.Delay(1); // fake async
         }
     }
+    public async void PopulateMeasures()
+    {
+        // TODO: DO NOT USE MEASUREINFO!!!
+        if (RhythmicGame.GameType == RhythmicGame._GameType.RHYTHMIC)
+        { Debug.LogErrorFormat("TRACK: We are still using MeasureInfo for populating measures - this only works in Amplitude gamemode!"); return; }
+
+        int counter = 0;
+        foreach (AmplitudeSongController.MeasureInfo MeasureInfo in amp_ctrl.songMeasures)
+        {
+            if (counter > 15) break;
+            // create GameObject for measure
+            Vector3 measurePosition = new Vector3(MeasureContainer.transform.position.x, MeasureContainer.transform.position.y, MeasureInfo.startTimeInzPos);
+
+            GameObject obj = Instantiate(trackSectionPrefab);
+            AmpTrackSection s = obj.GetComponent<AmpTrackSection>();
+            s.PositionOnPath = measurePosition;
+            s.RotationOnPath = gameObject.transform.eulerAngles.z;
+            s.Length = SongController.measureLengthInzPos;
+
+            //GameObject obj = (GameObject)GameObject.Instantiate(measurePrefab);
+
+            obj.name = string.Format("MEASURE_{0}", MeasureInfo.measureNum);
+
+            /*
+            obj.transform.localPosition = measurePosition;
+            obj.transform.localEulerAngles = gameObject.transform.eulerAngles;
+            obj.transform.localScale = new Vector3(1, 1, SongController.measureLengthInzPos);
+            */
+
+            obj.transform.SetParent(MeasureContainer.transform, true);
+
+            /*
+            // get Measure script and add component
+            Measure measure = obj.GetComponent<Measure>();
+
+            measure.measureNum = counter;
+            measure.measureTrack = this;
+            measure.trackInstrument = Instrument;
+            measure.startTime = MeasureInfo.startTimeInzPos;
+            measure.endTime = MeasureInfo.endTimeInzPos;
+            measure.FullLength = SongController.subbeatLengthInzPos * 8;
+            measure.MeasureColor = Colors.ConvertColor(Colors.ColorFromTrackType(Instrument));
+            measure.OnCaptureFinished += Measure_OnCaptureFinished;
+
+            foreach (Note note in trackNotes) // add notes to measure note list
+                if (note.measureNum == counter)
+                    measure.noteList.Add(note);
+
+            // deactivate measure if doesn't contain notes
+            if (Instrument != InstrumentType.FREESTYLE & measure.noteList.Count == 0 & DisableEmptyMeasures)
+                measure.IsMeasureEmpty = true;
+
+            if (!measure.IsMeasureEmpty)
+                trackActiveMeasures.Add(measure);
+
+            trackMeasures.Add(measure);
+            */
+            counter++;
+
+            //if (!RhythmicGame.IsTunnelMode) // tunnel mode can't do async as rotation needs to happen right away
+            await Task.Delay(1); // fake async
+        }
+    }
+
+    /* 
+                GameObject go = Instantiate(trackSectionPrefab);
+                AmpTrackSection s = go.GetComponent<AmpTrackSection>();
+                s.PositionOnPath = script.TestTrackSectionPos;
+                s.RotationOnPath = script.TestTrackSectionRot;
+     */
 
     public void AddSequenceMeasure(Measure m)
     {
