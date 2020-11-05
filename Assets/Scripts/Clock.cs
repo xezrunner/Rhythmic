@@ -14,8 +14,8 @@ public class Clock : MonoBehaviour
         SongController = SongController.Instance;
 
         // reset clocks!
-        seconds = 0; tick = 0; bar = 0; beat = 0; subbeat = 0; zPos = 0;
-        lastTick = 0; lastBar = 0; lastBeat = 0; lastSubbeat = 0;
+        //seconds = 0; tick = 0; bar = 0; beat = 0; subbeat = 0; zPos = 0;
+        //lastTick = 0; lastBar = 0; lastBeat = 0; lastSubbeat = 0;
     }
 
     // Clocks
@@ -26,10 +26,10 @@ public class Clock : MonoBehaviour
     public float subbeat;
     public float zPos;
 
-    int lastTick;
-    int lastBar;
-    int lastBeat;
-    int lastSubbeat;
+    int lastTick = -1;
+    int lastBar = -1;
+    int lastBeat = -1;
+    int lastSubbeat = -1;
 
     double slopMsCounter = 0;
 
@@ -47,12 +47,7 @@ public class Clock : MonoBehaviour
 
         // Smoothly interpolate clock ticks
         float step = Time.unscaledDeltaTime * SongController.songSpeed;
-        Vector3 currentPoint = new Vector3(0, 0, seconds);
-        Vector3 targetPoint = new Vector3(0, 0, SongController.songLength);
-        Vector3 finalPoint = Vector3.MoveTowards(currentPoint, targetPoint, step);
-
-        // Main clock value is seconds
-        seconds = finalPoint.z;
+        seconds = Mathf.MoveTowards(seconds, SongController.songLength, step); // Main clock value is seconds
 
         // Set tick, bar, beat and subbeat values based on seconds
         tick = SongController.secInTick * seconds;
