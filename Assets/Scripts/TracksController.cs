@@ -168,9 +168,9 @@ public class TracksController : MonoBehaviour
 
         // Create script for track
         Track track = null;
-        if (RhythmicGame.GameType == RhythmicGame._GameType.AMPLITUDE)
+        if (RhythmicGame.GameLogic == GameLogic.AMPLITUDE)
             track = obj.AddComponent<AmplitudeTrack>();
-        else if (RhythmicGame.GameType == RhythmicGame._GameType.RHYTHMIC)
+        else if (RhythmicGame.GameLogic == GameLogic.RHYTHMIC)
             track = obj.AddComponent<Track>();
 
         track.ID = id;

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Track;
+using static AmpTrack;
 
 public static class AmplitudeGame
 {
@@ -43,24 +44,24 @@ public static class AmplitudeGame
 
     public static int[] CurrentNoteNumberSet { get { return difficultyNoteNumbers[(int)RhythmicGame.Difficulty]; } }
 
-    public static LaneType GetLaneTypeFromNoteNumber(int num)
+    public static LaneSide GetLaneTypeFromNoteNumber(int num)
     {
         int? index = Array.IndexOf(CurrentNoteNumberSet, num);
 
         if (index == null)
-        { Debug.LogErrorFormat("AMP_TRACK: Couldn't find the lane type for note number {0}!", num); return LaneType.UNKNOWN; }
+        { Debug.LogErrorFormat("AMP_TRACK: Couldn't find the lane type for note number {0}!", num); return LaneSide.UNKNOWN; }
 
         switch (index)
         {
             case 0: // left
-                return LaneType.Left;
+                return LaneSide.Left;
             case 1: // center
-                return LaneType.Center;
+                return LaneSide.Center;
             case 2: // right
-                return LaneType.Right;
+                return LaneSide.Right;
 
             default:
-                return LaneType.UNKNOWN;
+                return LaneSide.UNKNOWN;
         }
     }
 }

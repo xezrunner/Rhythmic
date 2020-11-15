@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PathCreation;
 
 /// New track controller
 // Manages the new tracks, section creations, captures etc...
@@ -27,11 +28,14 @@ public class AmpTrackController : MonoBehaviour
     /// Events
     public event EventHandler<int[]> OnTrackSwitched;
 
+    PathCreator pathCreator;
+
     void Awake()
     {
         Instance = this; // static instance
         gameObject.layer = 11; // Assign to Tracks layer
 
+        pathCreator = GameObject.Find("Path").GetComponent<PathCreator>();
         trackPrefab = (GameObject)Resources.Load("Prefabs/AmpTrack");
 
         Player.OnTrackSwitched += Player_OnTrackSwitched; // wire up Player track switching event
@@ -78,12 +82,15 @@ public class AmpTrackController : MonoBehaviour
     public AmpTrack CreateTrack(int ID, string name, AmpTrack.InstrumentType instrument, int? realID = null)
     {
         //GameObject trackObject = new GameObject() { name = name };
-        var trackObject = Instantiate(trackPrefab, gameObject.transform);
-        trackObject.name = name;
+        var obj = Instantiate(trackPrefab, gameObject.transform);
+        obj.name = name;
 
         // Add Track component:
-        AmpTrack com = trackObject.GetComponent<AmpTrack>();
+        AmpTrack com = obj.GetComponent<AmpTrack>();
 
+        // TODO: temp - assign PathCreator here until it isn't global
+
+        com.PathCreator = pathCreator;
         com.ID = ID;
         com.RealID = realID.HasValue ? realID.Value : ID; // Assign the same ID if realID was not desired
         com.TrackName = name;

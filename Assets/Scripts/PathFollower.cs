@@ -1,5 +1,6 @@
 ﻿using PathCreation;
 using System.Collections;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -99,13 +100,14 @@ public class PathFollower : MonoBehaviour
 
         if (SongController.Enabled)
         {
-            step = (Player.PlayerSpeed * SongController.secInzPos) * Time.unscaledDeltaTime * SongController.songSpeed;
-            distanceTravelled = Mathf.MoveTowards(distanceTravelled, pathCreator.path.length - 0.01f, step);
+            step = (Player.PlayerSpeed * SongController.secInzPos) * Time.unscaledDeltaTime * SongController.songSpeed / SongController.songFudgeFactor;
+            distanceTravelled = Mathf.MoveTowards(distanceTravelled, float.MaxValue, step);
         }
         else
             distanceTravelled += speed * Time.deltaTime;
 
-        TransformPlayerToPath(distanceTravelled);
+        //TransformPlayerToPath(distanceTravelled + SongController.SecTozPos(RhythmicGame.AVCalibrationOffsetMs / 1000));
+        TransformPlayerToPath(distanceTravelled + SongController.msInzPos * RhythmicGame.AVCalibrationOffsetMs);
 
         /*
 

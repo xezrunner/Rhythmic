@@ -357,7 +357,7 @@ public class Player : MonoBehaviour
         // find the track by ID & seek
         // TODO: PLAYTEST CODE - improve seeking for main dev!
         Track track = null;
-        if (RhythmicGame.TrackSeekEmpty & TracksController.CurrentMeasure.measureNum >= 4 & !force) // seek
+        if (RhythmicGame.TrackSeekingEnabled & TracksController.CurrentMeasure.measureNum >= 4 & !force) // seek
         {
             Measure[] measuresToCheck = new Measure[3];
             measuresToCheck[0] = TracksController.Tracks[id].trackMeasures[CatcherController.CurrentMeasureID];
@@ -496,7 +496,7 @@ public class Player : MonoBehaviour
             SongController.OffsetSong(2f);
 
         // If the game is not Rhythmic, ignore everything below
-        if (RhythmicGame.GameType != RhythmicGame._GameType.RHYTHMIC)
+        if (RhythmicGame.GameLogic != GameLogic.RHYTHMIC)
             return;
 
         // RHYTHMIC PLAYER BEHAVIOR HERE

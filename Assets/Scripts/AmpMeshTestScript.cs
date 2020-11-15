@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PathCreation;
+using System.Linq;
 
 public class AmpMeshTestScript : MonoBehaviour
 {
@@ -47,43 +48,7 @@ public class AmpMeshTestScript : MonoBehaviour
     #endregion
 
     /// Standalone functionality
-    /// TODO:
-        /// Optimize nearest division in some way
-        /// Right now, nearest division correction takes time for the CPU to perform every time.
-        /// Possible solutions: 
-            /// - caching the value
-            /// - using a (default) global static value and correcting only once [ Seems more favorable ]
-
     public static bool TestDivisibility = true;
-
-    /// <summary>
-    /// Finds the nearest number to divide the sizing pieces by.
-    /// If it can't find one, it'll reset the original numbers and continue working as normal.
-    /// </summary>
-    public static void FindNearestDivisionForPieces(float desiredX, float desiredZ, ref float pieceX, ref float pieceZ)
-    {
-        float ogWidth = pieceX; float ogLength = pieceZ;
-
-        var watch = new System.Diagnostics.Stopwatch(); watch.Start();
-        while (desiredX % pieceX != 0 || pieceX == 1)
-        {
-            if (pieceX - 0.01f > 0) pieceX = (float)Math.Round(pieceX - 0.01, 2);
-            else pieceX = (float)Math.Round(pieceX + 0.01, 2);
-
-            if (watch.ElapsedMilliseconds > 1000f) { Debug.Log("MeshTest: failed to find nearest division!"); pieceX = ogWidth; break; }
-        }
-
-        while (desiredZ % pieceZ != 0 || pieceZ == 1)
-        {
-            if (pieceZ - 0.01f > 0) pieceZ = (float)Math.Round(pieceZ - 0.01, 2);
-            else pieceZ = (float)Math.Round(pieceZ + 0.01, 2);
-
-            if (watch.ElapsedMilliseconds > 1000f) { Debug.Log("MeshTest: failed to find nearest division!"); pieceZ = ogLength; break; }
-        }
-
-        watch.Stop();
-    }
-    public void FindNearestDivisionForPieces() => FindNearestDivisionForPieces(DesiredWidth, DesiredLength, ref width, ref length);
 
     /// <summary>
     /// Checks whether the piece sizings are divisible.
@@ -94,21 +59,33 @@ public class AmpMeshTestScript : MonoBehaviour
     /// </returns>
     public static bool TestPieceSizingDivisibility(float desiredX, float desiredZ, float pieceX, float pieceZ) { return (desiredX % pieceX == 0 & desiredZ % pieceZ == 0); }
     public bool TestPieceSizingDivisibility() { return TestPieceSizingDivisibility(DesiredWidth, DesiredLength, width, length); }
-    public static Mesh CreateMesh(float desiredX, float desiredZ, float pieceX = 0.45f, float pieceZ = 0.45f)
+
+    public static Mesh CreateMesh(float desiredX, float desiredZ, float pieceX = 0.45f, float pieceZ = 0.5f)
     {
+        if (Application.isPlaying)
+        {
+            //pieceX = RhythmicGame.TrackWidth / 8;
+            pieceX = RhythmicGame.TrackWidth;
+            pieceZ = desiredZ / 32;
+        }
+
+        //if (SongController.Instance != null)
+        //    pieceZ = SongController.Instance.measureLengthInzPos / 32;
+
         // Test whether individual piece sizings are divisible0
         if (TestDivisibility & !TestPieceSizingDivisibility(desiredX, desiredZ, pieceX, pieceZ))
-        {
             // TODO: logging control here
             Debug.LogWarningFormat("MeshTest/CreateMesh(): Piece sizings are not divisible! (width: {0} | length: {1})", pieceX, pieceZ);
-            FindNearestDivisionForPieces(desiredX, desiredZ, ref pieceX, ref pieceZ);
-        }
 
         // Get counts for the individual pieces
         int xSize = 0;
         int zSize = 0;
         for (float x = 0f; x < desiredX; x += pieceX) xSize++;
         for (float z = 0f; z < desiredZ; z += pieceZ) zSize++;
+
+        // TODO: it adds 1 extra piece for some reason...
+        //if (desiredZ % pieceZ != 0)
+        zSize--;
 
         Mesh mesh = new Mesh() { name = "Procedurally generated mesh" };
 

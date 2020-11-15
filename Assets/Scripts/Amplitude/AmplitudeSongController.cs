@@ -72,6 +72,7 @@ public class AmplitudeSongController : SongController
         // Create measure list!
         // TODO: eliminate!!!!!
         songMeasures = CreateMeasureList();
+        songNotes = CreateNoteList();
 
         // Create Tracks controller!
         //CreateTracksController_OLD();
@@ -132,15 +133,52 @@ public class AmplitudeSongController : SongController
         }
     }
 
-    public List<NoteOnEvent> GetNoteOnEventsForTrack(int trackid)
-    {
-        return reader.GetNoteOnEventsForTrack(trackid);
-    }
-    private void Reader_OnNoteEvent(object sender, EventArgs e)
-    {
+    public List<NoteOnEvent> GetNoteOnEventsForTrack(int trackid) { return reader.GetNoteOnEventsForTrack(trackid); }
+    private void Reader_OnNoteEvent(object sender, EventArgs e) { }
 
-    }
+    public override List<List<KeyValuePair<int, MetaNote>>> CreateNoteList()
+    {
+        List<List<KeyValuePair<int, MetaNote>>> list = new List<List<KeyValuePair<int, MetaNote>>>();
+        for (int i = 0; i < songTracks.Count; i++)
+        {
+            var AMP_NoteOnEvents = GetNoteOnEventsForTrack(i);
 
+            if (AMP_NoteOnEvents == null)
+                throw new Exception("AMP_TRACK: Note on events are null for track " + songTracks[i]);
+
+            int counter = 0;
+            List<KeyValuePair<int, MetaNote>> kvList = new List<KeyValuePair<int, MetaNote>>();
+            foreach (NoteOnEvent note in AMP_NoteOnEvents)
+            {
+                // get lane type for note lane
+                AmpTrack.LaneSide laneType = AmplitudeGame.GetLaneTypeFromNoteNumber(note.NoteNumber);
+                if (laneType == AmpTrack.LaneSide.UNKNOWN)
+                    continue;
+
+                string noteName = string.Format("CATCH_{0}_{1}_{2}", laneType, i, counter);
+                Note.NoteType noteType = Note.NoteType.Generic; // TODO: AMP note types for powerups?!
+
+                float zPos = GetTickTimeInzPos(note.AbsoluteTime);
+                int measureID = (int)note.AbsoluteTime / measureTicks;
+
+                MetaNote metaNote = new MetaNote()
+                {
+                    Name = noteName,
+                    Type = noteType,
+                    Lane = laneType,
+                    MeasureID = measureID,
+                    Distance = zPos
+                };
+
+                kvList.Add(new KeyValuePair<int, MetaNote>(measureID, metaNote));
+
+                counter++;
+            }
+
+            list.Add(kvList);
+        }
+        return list;
+    }
     List<MeasureInfo> CreateMeasureList()
     {
         List<MeasureInfo> finalList = new List<MeasureInfo>();

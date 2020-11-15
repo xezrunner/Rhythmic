@@ -195,7 +195,7 @@ public class Track : MonoBehaviour
     public async void PopulateMeasures1()
     {
         // TODO: DO NOT USE MEASUREINFO!!!
-        if (RhythmicGame.GameType == RhythmicGame._GameType.RHYTHMIC)
+        if (RhythmicGame.GameLogic == GameLogic.RHYTHMIC)
         { Debug.LogErrorFormat("TRACK: We are still using MeasureInfo for populating measures - this only works in Amplitude gamemode!"); return; }
 
         int counter = 0;
@@ -247,7 +247,7 @@ public class Track : MonoBehaviour
     public async void PopulateMeasures()
     {
         // TODO: DO NOT USE MEASUREINFO!!!
-        if (RhythmicGame.GameType == RhythmicGame._GameType.RHYTHMIC)
+        if (RhythmicGame.GameLogic == GameLogic.RHYTHMIC)
         { Debug.LogErrorFormat("TRACK: We are still using MeasureInfo for populating measures - this only works in Amplitude gamemode!"); return; }
 
         int counter = 0;

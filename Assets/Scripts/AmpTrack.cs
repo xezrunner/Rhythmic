@@ -2,17 +2,20 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AmpTrack : MonoBehaviour
+public partial class AmpTrack : MonoBehaviour
 {
     // TODO: performance accessing these might be a bit concerning?
     SongController SongController { get { return SongController.Instance; } }
 
+    /// References to the contents
+    [Header("Containers")]
+    public Transform MeasureContainer;
+    public Transform NoteContainer;
+
     /// Declarations, global variables, properties, events ...
     #region 
-    /// References to the contents
-    public Transform MeasureContainer;
-
     /// Path-related stuff
+    [Header("Path stuff")]
     public PathCreation.PathCreator PathCreator; // TODO: Global property? !!!
     public PathCreation.VertexPath Path
     {
@@ -24,14 +27,11 @@ public class AmpTrack : MonoBehaviour
     }
 
     /// Global variables and properties
-    public GameObject TrackSectionPrefab;
-
+    [Header("Properties & variables")]
     public int ID = -1; // Song track ID (in case of TUNNEL DUPLICATION, it's still the original song track ID!)
     public int RealID = -1; // The individual ID of each track. (in case of TUNNEL DUPLICATION, it's its own particular ID!)
-    public string TrackName = ""; // Instrument name of the track. Object name *should* be the same.
     public int SetID = 0; // TUNNEL DUPLICATION: which track set does this track belong to?
-
-    public List<AmpTrackSection> Measures = new List<AmpTrackSection>();
+    public string TrackName = ""; // Instrument name of the track. Object name *should* be the same.
 
     InstrumentType _instrument;
     public InstrumentType Instrument
@@ -45,6 +45,9 @@ public class AmpTrack : MonoBehaviour
     }
 
     public float zRot; // The Z rotation (looks like X-axis rotation from front) of this particular track.
+
+    public List<AmpTrackSection> Measures = new List<AmpTrackSection>();
+    // Notes
 
     bool _isEnabled;
     public bool IsEnabled // Disable notes within track, grey out everything
@@ -80,34 +83,6 @@ public class AmpTrack : MonoBehaviour
     #endregion
 
     /// Functionality
-
-    /// <summary>
-    /// Creates a measure and adds it to the measure list.
-    /// </summary>
-    public AmpTrackSection CreateMeasure(MetaMeasure meta)
-    {
-        /// Create object
-        var obj = Instantiate(TrackSectionPrefab);
-        obj.transform.parent = MeasureContainer;
-
-        /// Get and configure script
-        AmpTrackSection measure = obj.GetComponent<AmpTrackSection>();
-        measure.ID = meta.ID;
-        measure.Instrument = Instrument;
-        measure.Length = SongController.measureLengthInzPos;
-
-        // TODO: possibly simplify position &/ rotation properties?
-        Vector3 measurePos = new Vector3(
-            RhythmicGame.TrackWidth * ID, // X is the track's horizontal position
-            0, meta.StartDistance // Z is the distance at which the measure needs to be placed
-            );
-
-        measure.PositionOnPath = measurePos;
-
-        /// Add measure to measure list
-        Measures.Add(measure);
-        return measure;
-    }
 
     // Measure capturing
     /// <summary>

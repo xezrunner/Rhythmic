@@ -18,7 +18,8 @@ public class SongController : MonoBehaviour
     public static string songName;
     public virtual string songFolder { get; set; }
 
-    public virtual List<string> songTracks { get; set; }
+    public List<string> songTracks = new List<string>();
+    public List<List<KeyValuePair<int, MetaNote>>> songNotes = new List<List<KeyValuePair<int, MetaNote>>>();
 
     public bool IsFake = false;
     public bool Enabled = true;
@@ -192,6 +193,7 @@ public class SongController : MonoBehaviour
         else
             Debug.LogWarning("AMP_CTRL: TrackStreamer already exists!");
     }
+    public virtual List<List<KeyValuePair<int, MetaNote>>> CreateNoteList() { return new List<List<KeyValuePair<int, MetaNote>>>(); }
 
     public virtual void CreateTracksController_OLD()
     {
@@ -202,7 +204,6 @@ public class SongController : MonoBehaviour
 
         Debug.LogFormat("TRACKS: Created track controller!");
     }
-
     public virtual void CreateAmpTrackController()
     {
         GameObject ctrlGameObject = new GameObject() { name = "AMP_TRACKS" };
@@ -214,6 +215,7 @@ public class SongController : MonoBehaviour
         // Track streamer init
         CreateTrackStreamer();
 
+        Debug.Log(measureLengthInzPos);
     }
 
     void CreateClock()
