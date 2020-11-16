@@ -45,13 +45,17 @@ public class AmpTrackController : MonoBehaviour
         // Create a list of playable song tracks in string form
         // Used for tunnel and track creation
         songTracks.Clear();
-        foreach (string s in SongController.songTracks)
-        {
-            var inst = AmpTrack.InstrumentFromString(s);
 
-            if (inst == AmpTrack.InstrumentType.FREESTYLE & !RhythmicGame.PlayableFreestyleTracks) continue;
-            if (inst == AmpTrack.InstrumentType.bg_click) continue;
-            songTracks.Add(s);
+        for (int i = 0; i < RhythmicGame.TunnelTrackDuplicationNum; i++)
+        {
+            foreach (string s in SongController.songTracks)
+            {
+                var inst = AmpTrack.InstrumentFromString(s);
+
+                if (inst == AmpTrack.InstrumentType.FREESTYLE & !RhythmicGame.PlayableFreestyleTracks) continue;
+                if (inst == AmpTrack.InstrumentType.bg_click) continue;
+                songTracks.Add(s);
+            }
         }
 
         // Create Tunnel component

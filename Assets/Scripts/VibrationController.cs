@@ -19,12 +19,14 @@ public static class VibrationController
 
     // The current vibration
     static Vibration currentVibration;
+    static bool Enabled = false;
 
     // Vibrates the controller for a specific duration.
     // The motor values get set, then re-set to 0,0 without easing effects.
     // If another vibration comes in, the motors will not be re-set to 0,0, in order to not cancel the new vibration.
     public static async void VibrateLinear(Vector3 haptics)
     {
+        if (!Enabled) return;
         if (Gamepad.current == null) // no controller detected
             return;
 

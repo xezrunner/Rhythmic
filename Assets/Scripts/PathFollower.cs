@@ -100,7 +100,7 @@ public class PathFollower : MonoBehaviour
 
         if (SongController.Enabled)
         {
-            step = (Player.PlayerSpeed * SongController.secInzPos) * Time.unscaledDeltaTime * SongController.songSpeed / SongController.songFudgeFactor;
+            step = (Player.PlayerSpeed * SongController.secInzPos) * Time.unscaledDeltaTime * SongController.songSpeed /* * SongController.songFudgeFactor*/;
             distanceTravelled = Mathf.MoveTowards(distanceTravelled, float.MaxValue, step);
         }
         else
@@ -108,30 +108,6 @@ public class PathFollower : MonoBehaviour
 
         //TransformPlayerToPath(distanceTravelled + SongController.SecTozPos(RhythmicGame.AVCalibrationOffsetMs / 1000));
         TransformPlayerToPath(distanceTravelled + SongController.msInzPos * RhythmicGame.AVCalibrationOffsetMs);
-
-        /*
-
-        // TODO: This might end up being controlled by the Player
-        distanceTravelled += speed * Time.deltaTime;
-
-        // Position player along the path (pos & rot)
-        Vector3 localRight = pathCreator.path.GetNormalAtDistance(distanceTravelled, endOfPathInstruction);
-        Vector3 finalPos = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction) + localRight * Mathf.Abs(offset);
-        //transform.position = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction) + Vector3.right * offset;
-        transform.position = finalPos;
-        // The path normals face 90 degrees to the left to make the path.
-        // Here, we get the rotation but rotate the result by 90 degrees to the right to correctly orient the follower on the path.
-        Quaternion currentRot = Interpolatable.rotation;
-        Quaternion targetRot = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction) * Quaternion.Euler(0, 0, 90);
-        Interpolatable.rotation = QuaternionUtil.SmoothDamp(currentRot, targetRot, ref vel, smoothStrength);
-        NonInterpolatable.rotation = targetRot;
-
-        */
-
-        /*
-        Plane.transform.position = pathCreator.path.GetPointAtDistance(distanceTravelled);
-        Plane.transform.rotation = pathCreator.path.GetRotationAtDistance(distanceTravelled) * Quaternion.Euler(-90, 0, 0);
-        */
 
         if (Keyboard.current.gKey.wasPressedThisFrame)
         {

@@ -31,6 +31,7 @@ public partial class AmpTrack
             0, meta.StartDistance); // Z is the distance at which the measure needs to be placed
 
         measure.PositionOnPath = measurePos;
+        measure.PositionOnPath.z = measurePos.z;
 
         /// Add measure to measure list
         Measures.Add(measure);
@@ -49,7 +50,6 @@ public partial class AmpTrack
         obj.transform.rotation = Path.GetRotationAtDistance(meta.Distance) * Quaternion.Euler(0, 0, 90);
         // TODO: Why does this work but directly changing position like above doesn't?
         obj.transform.Translate(Vector3.right * (GetLocalXPosFromLaneType(meta.Lane) + (RhythmicGame.TrackWidth * ID)));
-        obj.transform.parent = NoteContainer;
 
         // set up
         obj.name = meta.Name;

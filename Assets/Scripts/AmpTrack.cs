@@ -10,7 +10,6 @@ public partial class AmpTrack : MonoBehaviour
     /// References to the contents
     [Header("Containers")]
     public Transform MeasureContainer;
-    public Transform NoteContainer;
 
     /// Declarations, global variables, properties, events ...
     #region 

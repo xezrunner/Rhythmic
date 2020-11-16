@@ -72,15 +72,16 @@ public class SongController : MonoBehaviour
     // TODO: REVISE!!!
 
     // ms (Milliseconds)
-    public float tickInMs { get { return (60000f / (songBpm * beatTicks)) / songFudgeFactor; } }
-    public float msIntick { get { return (songBpm * beatTicks) / 60000f / songFudgeFactor; } }
-    public float msInzPos { get { return (secPerBeat / 1000) / songFudgeFactor; } }
+    public float tickInMs { get { return (60000f / (songBpm * beatTicks)); } }
+    public float msIntick { get { return (songBpm * beatTicks) / 60000f; } }
+    public float msInzPos { get { return (secPerBeat / 1000) * songFudgeFactor; } }
     // s (Seconds)
-    public float tickInSec { get { return (60f / (songBpm * beatTicks) / songFudgeFactor); } }
-    public float secInTick { get { return (songBpm * beatTicks) / 60f / songFudgeFactor; } }
-    public float secInzPos { get { return secPerBeat / songFudgeFactor; } }
+    public float tickInSec { get { return (60f / (songBpm * beatTicks)); } }
+    public float secInTick { get { return (songBpm * beatTicks) / 60f; } }
+    public float secInzPos { get { return secPerBeat * songFudgeFactor; } }
     // zPos (Meters)
-    public float tickInzPos { get { return tickInSec / (tickInSec * beatTicks) * 4 / songFudgeFactor; } }
+    // TODO: these zPos conversions do not work!!!
+    public float tickInzPos { get { return tickInSec / (tickInSec * beatTicks) * 4 * songFudgeFactor; } }
     public float zPosInTick { get { return (tickInzPos / 4f * (tickInSec * beatTicks)) * (songBpm * beatTicks); } }
     public float zPosInSec { get { return 60f / songBpm; } }
     public float zPosInMs { get { return 60000f / songBpm; } }
@@ -314,7 +315,7 @@ public class SongController : MonoBehaviour
     public void OffsetSong(float offset)
     {
         audioSrcList.ForEach(src => src.time += offset); // offset music by seconds!
-        Player.OffsetPlayer(offset * (Player.PlayerSpeed * secPerBeat / songFudgeFactor)); // offset player by zPos!
+        Player.OffsetPlayer(offset * (Player.PlayerSpeed * secPerBeat * songFudgeFactor)); // offset player by zPos!
     }
 
     // GAMEPLAY

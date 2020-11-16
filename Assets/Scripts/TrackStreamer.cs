@@ -51,12 +51,11 @@ public class TrackStreamer : MonoBehaviour
 
     private void Clock_OnBar(object sender, int e)
     {
-        Debug.Log(e);
-
         // Stream measures on every bar tick
         StreamMeasure(RhythmicGame.HorizonMeasures + e);
 
         // Delete measures behind us
+        // TODO: revise!
         if (e < 2) return;
         for (int t = 0; t < TrackController.Tracks.Count; t++)
         {
@@ -86,11 +85,17 @@ public class TrackStreamer : MonoBehaviour
 
             // Stream notes!
             // Get all meta notes from the current measure
-            IEnumerable measureNotes = SongController.songNotes[trackID].Where(i => i.Key == id);
-            foreach (KeyValuePair<int, MetaNote> kv in measureNotes)
+            var measureNotes = SongController.songNotes[trackID].Where(i => i.Key == id);
+            if (measureNotes.Count() == 0)
+                measure.gameObject.SetActive(false);
+            else
             {
-                AmpNote note = track.CreateNote(kv.Value); note.transform.parent = measure.transform;
-                yield return new WaitForSeconds(0.1f);
+                foreach (KeyValuePair<int, MetaNote> kv in measureNotes)
+                {
+                    // TODO: move note creation process elsewhere?
+                    AmpNote note = track.CreateNote(kv.Value); note.transform.parent = measure.transform;
+                    yield return new WaitForSeconds(0.1f);
+                }
             }
         }
         else // Stream in the measure from all of the tracks!

@@ -27,7 +27,7 @@ public class AmplitudeSongController : SongController
     public float GetTickTimeInzPos(float absoluteTime) // Convert MIDI ticks into zPos unit
     {
         //     |       tick time in seconds      |   |     offset by 1 beat length in seconds    ||unit||     fudge factor     |
-        return ((tickInMs * absoluteTime) / 1000f) / (tickInMs * DeltaTicksPerQuarterNote / 1000f) * 4 / TunnelSpeedAccountation;
+        return ((tickInMs * absoluteTime) / 1000f) / (tickInMs * DeltaTicksPerQuarterNote / 1000f) * 4 * TunnelSpeedAccountation;
     }
     public float GetzPosForNote(float absoluteTime) { return GetTickTimeInzPos(absoluteTime); } // Get note's zPos from its tick time | TODO: redundant?
 
@@ -136,6 +136,7 @@ public class AmplitudeSongController : SongController
     public List<NoteOnEvent> GetNoteOnEventsForTrack(int trackid) { return reader.GetNoteOnEventsForTrack(trackid); }
     private void Reader_OnNoteEvent(object sender, EventArgs e) { }
 
+    // Create notes!
     public override List<List<KeyValuePair<int, MetaNote>>> CreateNoteList()
     {
         List<List<KeyValuePair<int, MetaNote>>> list = new List<List<KeyValuePair<int, MetaNote>>>();
@@ -179,6 +180,7 @@ public class AmplitudeSongController : SongController
         }
         return list;
     }
+
     List<MeasureInfo> CreateMeasureList()
     {
         List<MeasureInfo> finalList = new List<MeasureInfo>();

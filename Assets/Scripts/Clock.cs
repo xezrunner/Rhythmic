@@ -40,13 +40,13 @@ public class Clock : MonoBehaviour
 
     public event EventHandler OnPlayerSlop;
 
-    // Update every frame (?, maybe FixedUpdate would be a better idea?)
-    void Update()
+    // Main clock loop
+    void FixedUpdate()
     {
         if (!SongController.IsPlaying) return;
 
         // Smoothly interpolate clock ticks
-        float step = Time.unscaledDeltaTime * SongController.songSpeed;
+        float step = 1 * SongController.songSpeed * Time.unscaledDeltaTime;
         seconds = Mathf.MoveTowards(seconds, SongController.songLength, step); // Main clock value is seconds
 
         // Set tick, bar, beat and subbeat values based on seconds
@@ -54,7 +54,7 @@ public class Clock : MonoBehaviour
         bar = tick / SongController.measureTicks; // 1920
         beat = tick / SongController.beatTicks; // 480
         subbeat = tick / SongController.subbeatTicks; // 240
-        zPos = SongController.tickInzPos * tick;
+        zPos = SongController.secInzPos * seconds;
 
         // Invoke events if last integer values aren't the same as current (changed!)
         if ((int)tick != lastTick) OnTick?.Invoke(this, (int)tick);
