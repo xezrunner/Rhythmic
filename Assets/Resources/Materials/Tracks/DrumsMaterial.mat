@@ -8,8 +8,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: DrumsMaterial
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
+  m_Shader: {fileID: 4800000, guid: a6460c4fabfac0c4ba5b6d9469a271cf, type: 3}
+  m_ShaderKeywords: _INVERT_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -72,6 +72,10 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
+    - _invert: 1
     m_Colors:
+    - _ClippingCentre: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 0.8301887, g: 0.36418653, b: 0.7051643, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Plane: {r: 0, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.SceneManagement;
 
@@ -20,7 +21,7 @@ public class GameStarter : MonoBehaviour
     {
         RhythmicGame.IsLoading = true;
 
-        Debug.LogFormat("GAME [init]: Game type is {0}", RhythmicGame.GameType.ToString());
+        Debug.LogFormat("GAME [init]: Game type is {0}", RhythmicGame.GameLogic.ToString());
 
 #if UNITY_ANDROID
         RhythmicGame.SetFramerate(60);
@@ -40,17 +41,11 @@ public class GameStarter : MonoBehaviour
         await Task.Delay(100);
 
 #if UNITY_STANDALONE
-        if (!SetResolutionOnce)
-            RhythmicGame.SetResolution(RhythmicGame.PreferredResolution);
+        if (!SetResolutionOnce & Keyboard.current.leftCtrlKey.isPressed)
+            RhythmicGame.SetResolution(RhythmicGame.PreferredResolution); // TODO: this forces you in to exclusive fullscreen mode
         SetResolutionOnce = true;
+        Debug.LogFormat("GameStarter: Preferred resolution applied - {0}x{1}.", RhythmicGame.PreferredResolution.x, RhythmicGame.PreferredResolution.y);
 #endif
-
-        //await Task.Delay(3000);
-
-        /*
-        SceneManager.LoadSceneAsync("DevScene", LoadSceneMode.Additive);
-        SceneManager.LoadSceneAsync("SnowMountains", LoadSceneMode.Additive);
-        */
 
         StartCoroutine(Load("DevScene"));
     }
@@ -72,6 +67,8 @@ public class GameStarter : MonoBehaviour
 
             yield return null;
         }
+
+        SceneManager.UnloadSceneAsync("Loading");
     }
 
     void FixedUpdate()

@@ -37,11 +37,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 8, y: 29.65}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 8, y: 29.65}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
@@ -55,24 +55,40 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _BumpScale: 0.53
     - _Cutoff: 0
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 0.57
-    - _Glossiness: 1
+    - _Glossiness: 0.79
     - _GlossyReflections: 0
+    - _InversePlaneEnabled: 0
     - _Metallic: 1
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _PlaneEnabled: 0
+    - _Smoothness: 0.498
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
+    - _UseWorldSpace: 1
     - _ZWrite: 1
+    - _invert: 0
     m_Colors:
-    - _Color: {r: 0.34117648, g: 0.62352943, b: 0.8666667, a: 1}
+    - _ClippingCentre: {r: 0, g: 0, b: -1.1, a: 0}
+    - _Color: {r: 0.46226418, g: 0.46226418, b: 0.46226418, a: 1}
+    - _CutoffColor: {r: 0, g: 0, b: 0, a: 0}
+    - _Emission: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _InversePlane: {r: 0, g: 0, b: -1, a: 0}
+    - _Plane: {r: 0, g: -0.000000119209275, b: -1, a: -0.5}
+    - _PlaneVector: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

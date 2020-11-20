@@ -58,7 +58,11 @@ public class MoggSong : MonoBehaviour
             else if (line.Contains("countin ")) // TODO: this might be the accountation for song length reporting 4 less than actual. But why?
                 songCountInTime = int.Parse(line.Substring(line.IndexOf("countin ") + 8, 1));
             else if (line.Contains("tunnel_scale ")) // Song fudge factor
-                songFudgeFactor = float.Parse(line.Substring(14, 3), CultureInfo.InvariantCulture.NumberFormat);
+            {
+                float parse = float.Parse(line.Substring(14, 3), CultureInfo.InvariantCulture.NumberFormat);
+                if (parse > 0.5f) songFudgeFactor = 1f + parse;
+                else songFudgeFactor = 1f / parse;
+            }
             else if (line.Contains("bpm ")) // Song BPM | TODO: this is really hacky!
             {
                 string finalBPM = line.Substring(5, 3);

@@ -9,14 +9,17 @@ public class SongController : MonoBehaviour
 {
     public static SongController Instance;
     public Player Player { get { return Player.Instance; } }
-    public TracksController TracksController;
+    public Clock Clock;
+    public TracksController TrackController;
+    public AmpTrackController AmpTrackController;
 
     // Controller properties
     public string defaultSong;
-    public string songName;
+    public static string songName;
     public virtual string songFolder { get; set; }
 
-    public virtual List<string> songTracks { get; set; }
+    public List<string> songTracks = new List<string>();
+    public List<List<KeyValuePair<int, MetaNote>>> songNotes = new List<List<KeyValuePair<int, MetaNote>>>();
 
     public bool IsFake = false;
     public bool Enabled = true;
@@ -69,15 +72,16 @@ public class SongController : MonoBehaviour
     // TODO: REVISE!!!
 
     // ms (Milliseconds)
-    public float tickInMs { get { return (60000f / (songBpm * beatTicks)) / songFudgeFactor; } }
-    public float msIntick { get { return tickInMs * (songBpm * beatTicks) / 60000f; } }
-    public float msInzPos { get { return (secPerBeat / 1000) / songFudgeFactor; } }
+    public float tickInMs { get { return (60000f / (songBpm * beatTicks)); } }
+    public float msIntick { get { return (songBpm * beatTicks) / 60000f; } }
+    public float msInzPos { get { return (secPerBeat / 1000) * songFudgeFactor; } }
     // s (Seconds)
-    public float tickInSec { get { return (60f / (songBpm * beatTicks)) / songFudgeFactor; } }
-    public float secInTick { get { return tickInSec * (songBpm * beatTicks) / 60f; } }
-    public float secInzPos { get { return secPerBeat / songFudgeFactor; } }
+    public float tickInSec { get { return (60f / (songBpm * beatTicks)); } }
+    public float secInTick { get { return (songBpm * beatTicks) / 60f; } }
+    public float secInzPos { get { return secPerBeat * songFudgeFactor; } }
     // zPos (Meters)
-    public float tickInzPos { get { return tickInSec / (tickInSec * beatTicks) * 4 / songFudgeFactor; } }
+    // TODO: these zPos conversions do not work!!!
+    public float tickInzPos { get { return tickInSec / (tickInSec * beatTicks) * 4 * songFudgeFactor; } }
     public float zPosInTick { get { return (tickInzPos / 4f * (tickInSec * beatTicks)) * (songBpm * beatTicks); } }
     public float zPosInSec { get { return 60f / songBpm; } }
     public float zPosInMs { get { return 60000f / songBpm; } }
@@ -162,6 +166,9 @@ public class SongController : MonoBehaviour
         // For now, we use the SongController to manage the scenes during and after loading.
         SceneManager.SetActiveScene(SceneManager.GetSceneByName("DevScene"));
 
+        // Create clock
+        CreateClock();
+
         if (!Enabled)
         { Debug.LogWarningFormat("SongCtrl: Disabled"); return; }
         if (IsFake) // TODO: fake song information implementation!
@@ -169,18 +176,55 @@ public class SongController : MonoBehaviour
 
         // TODO: Loading the song should not be based on what property is set!
         // LoadSong() should be called by the UI or loading mechanism!
-        LoadSong(songName == "" ? defaultSong : songName); // load default song in case the prop is empty, for testing purposes only!
+        LoadSong(songName == null ? defaultSong : songName); // load default song in case the prop is empty, for testing purposes only!
     }
 
-    public virtual void CreateTracksController()
+    // Track streamer
+    public TrackStreamer trackStreamer;
+
+    public void CreateTrackStreamer()
     {
+        if (!trackStreamer)
+        {
+            GameObject obj = new GameObject() { name = "TrackStreamer" };
+            trackStreamer = obj.AddComponent<TrackStreamer>();
+            Debug.LogFormat("TRACKS: Created track streamer!");
+
+        }
+        else
+            Debug.LogWarning("AMP_CTRL: TrackStreamer already exists!");
+    }
+    public virtual List<List<KeyValuePair<int, MetaNote>>> CreateNoteList() { return new List<List<KeyValuePair<int, MetaNote>>>(); }
+
+    public virtual void CreateTracksController_OLD()
+    {
+        GameObject ctrlGameObject = new GameObject() { name = "TRACKS" };
+        TrackController = ctrlGameObject.AddComponent<TracksController>();
+
+        TrackController.OnTrackSwitched += TracksController_OnTrackSwitched;
+
+        Debug.LogFormat("TRACKS: Created track controller!");
+    }
+    public virtual void CreateAmpTrackController()
+    {
+        GameObject ctrlGameObject = new GameObject() { name = "AMP_TRACKS" };
+        AmpTrackController = ctrlGameObject.AddComponent<AmpTrackController>();
+
+        //AmpTrackController.OnTrackSwitched += TracksController_OnTrackSwitched;
         Debug.LogFormat("TRACKS: Created track controller!");
 
-        GameObject ctrlGameObject = new GameObject() { name = "TRACKS" };
-        TracksController = ctrlGameObject.AddComponent<TracksController>();
-
-        TracksController.OnTrackSwitched += TracksController_OnTrackSwitched;
+        // Track streamer init
+        CreateTrackStreamer();
     }
+
+    void CreateClock()
+    {
+        Clock = gameObject.AddComponent<Clock>();
+        Clock.OnBeat += Clock_OnBeat;
+    }
+
+    // Vibrate on every clock beat!
+    private void Clock_OnBeat(object sender, int e) => BeatVibration();
 
     public event EventHandler<float> LoadingProgress;
     public event EventHandler LoadingFinished;
@@ -203,18 +247,18 @@ public class SongController : MonoBehaviour
     // When the track changes, change music track volume | e[0]: old ID; e[1]: new ID
     void TracksController_OnTrackSwitched(object sender, int[] e)
     {
-        int trackID = TracksController.Tracks[e[1]].ID;
+        int trackID = TrackController.Tracks[e[1]].ID;
         if (audioSrcList[trackID].clip == null)
         { Debug.LogWarningFormat("SONGCTRL: Track ID {0} does not have an audio clip! - ignoring track switch volume change", e); return; }
 
         // Set volumes
-        for (int i = 0; i < TracksController.CurrentTrackSet.Count; i++)
+        for (int i = 0; i < songTracks.Count; i++)
         {
             AudioSource src = audioSrcList[i];
 
-            if (i == trackID && TracksController.CurrentTrackSet[i].IsTrackCaptured) // Current track should go full volume if it's captured | TODO: revise?
+            if (i == trackID && TrackController.Tracks[i].IsTrackCaptured) // Current track should go full volume if it's captured | TODO: revise?
                 src.volume = 1f;
-            else if (TracksController.CurrentTrackSet[i].IsTrackCaptured) // Other tracks that are captured should be quieter
+            else if (TrackController.Tracks[i].IsTrackCaptured) // Other tracks that are captured should be quieter
                 src.volume = 0.4f;
             else // Other tracks that are NOT captured should be silent
                 src.volume = 0f;
@@ -269,15 +313,12 @@ public class SongController : MonoBehaviour
     public void OffsetSong(float offset)
     {
         audioSrcList.ForEach(src => src.time += offset); // offset music by seconds!
-        Player.OffsetPlayer(offset * (Player.PlayerSpeed * secPerBeat / songFudgeFactor)); // offset player by zPos!
+        Player.OffsetPlayer(offset * (Player.PlayerSpeed * secPerBeat * songFudgeFactor)); // offset player by zPos!
     }
 
     // GAMEPLAY
     /// Functions that relate to gameplay ///
 
     // Vibrate controller to the beat
-    public void BeatVibration()
-    {
-        VibrationController.VibrateLinear(beatHaptics);
-    }
+    public void BeatVibration() => VibrationController.VibrateLinear(beatHaptics);
 }

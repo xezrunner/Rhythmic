@@ -2,15 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Transactions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
-using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
 using static UnityEngine.InputSystem.InputAction;
 
 public class Player : MonoBehaviour
@@ -74,7 +70,9 @@ public class Player : MonoBehaviour
     public async virtual void Start()
     {
         // Disable mouse support
-        UnityEngine.Cursor.visible = false;
+#if !UNITY_EDITOR
+        Cursor.visible = false;
+#endif
 
         // BUG: Unity's new Input System won't automatically pair the Keyboard if included in Supported Devices section.
         // WORKAROUND: we manually pair it to Player 0 on startup and ignore if it's already paired
@@ -95,15 +93,21 @@ public class Player : MonoBehaviour
         // Set song movement step | TODO: revise!!!
         SongMovementStep = (PlayerSpeed * SongController.secInzPos) * Time.unscaledDeltaTime * SongController.songSpeed;
 
+        // Wire up catcher events
+        CatcherController.OnCatch += CatcherController_OnCatch;
+
+        return;
+
+        TracksController.gameObject.transform.Translate(Vector3.left * 50f);
+        TracksController.Instance.gameObject.SetActive(false);
+
+
         // Push back player by the Start ZOffset
         transform.Translate(Vector3.back * StartZOffset);
         PlayerCameraTransform.position = new Vector3(PlayerCameraTransform.position.x, PlayerCameraTransform.position.y, CameraPullbackOffset);
 
         // Push back player by the AV calibration value
         //UpdateAVCalibrationOffset();
-
-        // Wire up catcher events
-        CatcherController.OnCatch += CatcherController_OnCatch;
 
         // Move player to Tunnel center and offset the Transversal content so they're at the intended place
         transform.position = Tunnel.center;
@@ -116,7 +120,7 @@ public class Player : MonoBehaviour
 
     // Score / streak system
     // TODO: updating UI text is messy
-    #region Score / streak system
+#region Score / streak system
     public int Score = 0;
     public bool IsMultiplierEnabled = true;
 
@@ -167,7 +171,7 @@ public class Player : MonoBehaviour
         MissText.gameObject.SetActive(false);
         canLoseStreak = true;
     }
-    #endregion
+#endregion
 
     // Catcher
     void CatcherController_OnCatch(object sender, CatcherController.CatchEventArgs e)
@@ -228,7 +232,7 @@ public class Player : MonoBehaviour
 
     // Player movement / track switching
     // NOTE: mentions of 'rotation' actually refer to eulerAngles.
-    #region Player movement & track switching
+#region Player movement & track switching
     [Range(0, 1f)]
     public float Move_Progress = 0f; // progress of camera animation
     public bool IsMoving { get; set; } = false; // controls player camera update function
@@ -353,7 +357,7 @@ public class Player : MonoBehaviour
         // find the track by ID & seek
         // TODO: PLAYTEST CODE - improve seeking for main dev!
         Track track = null;
-        if (RhythmicGame.TrackSeekEmpty & TracksController.CurrentMeasure.measureNum >= 4 & !force) // seek
+        if (RhythmicGame.TrackSeekingEnabled & TracksController.CurrentMeasure.measureNum >= 4 & !force) // seek
         {
             Measure[] measuresToCheck = new Measure[3];
             measuresToCheck[0] = TracksController.Tracks[id].trackMeasures[CatcherController.CurrentMeasureID];
@@ -401,7 +405,7 @@ public class Player : MonoBehaviour
     public void SwitchTrackRight(CallbackContext context) { if (context.performed) SwitchToTrack(TracksController.CurrentTrackID + 1); }
     public void SwitchTrackLeftForce(CallbackContext context) { if (context.performed) SwitchToTrack(TracksController.CurrentTrackID - 1, true); }
     public void SwitchTrackRightForce(CallbackContext context) { if (context.performed) SwitchToTrack(TracksController.CurrentTrackID + 1, true); }
-    #endregion
+#endregion
 
     // Powerups | TODO: implementation!
     // TODO: separate classes for powerups
@@ -470,11 +474,15 @@ public class Player : MonoBehaviour
             MovePlayerUpdate();
 
         // Song player movement
+        /*
         if (IsPlaying)
             SongMovementUpdate();
+        */
 
+        /*
         // TODO: PLAYTEST CODE - temp controller haptics to the beat until there isn't a global haptics management system!
         if (prevSubbeat != CatcherController.CurrentBeatID) { SongController.BeatVibration(); prevSubbeat = CatcherController.CurrentBeatID; }
+        */
 
         // Debug switch to 0th track
         if (Input.GetKeyDown(KeyCode.Q))
@@ -488,7 +496,7 @@ public class Player : MonoBehaviour
             SongController.OffsetSong(2f);
 
         // If the game is not Rhythmic, ignore everything below
-        if (RhythmicGame.GameType != RhythmicGame._GameType.RHYTHMIC)
+        if (RhythmicGame.GameLogic != GameLogic.RHYTHMIC)
             return;
 
         // RHYTHMIC PLAYER BEHAVIOR HERE

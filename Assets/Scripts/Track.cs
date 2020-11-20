@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 using UnityEngine.InputSystem;
+using PathCreation;
 
 public class Track : MonoBehaviour
 {
@@ -85,7 +86,7 @@ public class Track : MonoBehaviour
                 CatcherController.Instance.FindNextMeasuresNotes(this, true);
 
             if (value)
-            identicalTracks.ForEach(t => t.IsTrackCaptured = false);
+                identicalTracks.ForEach(t => t.IsTrackCaptured = false);
 
             _isTrackBeingCaptured = value;
         }
@@ -117,10 +118,17 @@ public class Track : MonoBehaviour
 
     GameObject measurePrefab;
     GameObject notePrefab;
+    GameObject trackSectionPrefab;
+
+    VertexPath path;
+
     private void Awake()
     {
+        path = GameObject.Find("Path").GetComponent<PathCreator>().path;
+
         measurePrefab = TracksController.measurePrefab;
         notePrefab = TracksController.notePrefab;
+        trackSectionPrefab = (GameObject)Resources.Load("Prefabs/AmpTrackSection");
     }
     void Start()
     {
@@ -158,9 +166,17 @@ public class Track : MonoBehaviour
 
         // create GameObject
         GameObject obj = Instantiate(notePrefab);
-        obj.transform.position = position;
-        obj.transform.eulerAngles = transform.eulerAngles; // angled on the track
-        obj.transform.SetParent(lane); // parent to the lane
+
+        //obj.transform.position = position;
+        //obj.transform.eulerAngles = transform.eulerAngles; // angled on the track
+
+        //obj.transform.SetParent(lane, false); // parent to the lane
+
+        obj.transform.position = path.GetPointAtDistance(zPos);
+        obj.transform.rotation = path.GetRotationAtDistance(zPos) * Quaternion.Euler(0, 0, 90);
+        obj.transform.transform.Translate(Vector3.right * lane.position.x);
+
+        //obj.transform.parent = lane;
 
         // set up
         var note = obj.AddComponent<Note>();
@@ -176,10 +192,10 @@ public class Track : MonoBehaviour
     }
 
     // Measures
-    public async void PopulateMeasures()
+    public async void PopulateMeasures1()
     {
         // TODO: DO NOT USE MEASUREINFO!!!
-        if (RhythmicGame.GameType == RhythmicGame._GameType.RHYTHMIC)
+        if (RhythmicGame.GameLogic == GameLogic.RHYTHMIC)
         { Debug.LogErrorFormat("TRACK: We are still using MeasureInfo for populating measures - this only works in Amplitude gamemode!"); return; }
 
         int counter = 0;
@@ -191,9 +207,11 @@ public class Track : MonoBehaviour
             GameObject obj = (GameObject)GameObject.Instantiate(measurePrefab);
 
             obj.name = string.Format("MEASURE_{0}", MeasureInfo.measureNum);
+
             obj.transform.localPosition = measurePosition;
             obj.transform.localEulerAngles = gameObject.transform.eulerAngles;
             obj.transform.localScale = new Vector3(1, 1, SongController.measureLengthInzPos);
+
             obj.transform.SetParent(MeasureContainer.transform, true);
 
             // get Measure script and add component
@@ -226,6 +244,76 @@ public class Track : MonoBehaviour
             await Task.Delay(1); // fake async
         }
     }
+    public async void PopulateMeasures()
+    {
+        // TODO: DO NOT USE MEASUREINFO!!!
+        if (RhythmicGame.GameLogic == GameLogic.RHYTHMIC)
+        { Debug.LogErrorFormat("TRACK: We are still using MeasureInfo for populating measures - this only works in Amplitude gamemode!"); return; }
+
+        int counter = 0;
+        foreach (AmplitudeSongController.MeasureInfo MeasureInfo in amp_ctrl.songMeasures)
+        {
+            if (counter > 15) break;
+            // create GameObject for measure
+            Vector3 measurePosition = new Vector3(MeasureContainer.transform.position.x, MeasureContainer.transform.position.y, MeasureInfo.startTimeInzPos);
+
+            GameObject obj = Instantiate(trackSectionPrefab);
+            AmpTrackSection s = obj.GetComponent<AmpTrackSection>();
+            s.PositionOnPath = measurePosition;
+            s.RotationOnPath = gameObject.transform.eulerAngles.z;
+            s.Length = SongController.measureLengthInzPos;
+
+            //GameObject obj = (GameObject)GameObject.Instantiate(measurePrefab);
+
+            obj.name = string.Format("MEASURE_{0}", MeasureInfo.measureNum);
+
+            /*
+            obj.transform.localPosition = measurePosition;
+            obj.transform.localEulerAngles = gameObject.transform.eulerAngles;
+            obj.transform.localScale = new Vector3(1, 1, SongController.measureLengthInzPos);
+            */
+
+            obj.transform.SetParent(MeasureContainer.transform, true);
+
+            /*
+            // get Measure script and add component
+            Measure measure = obj.GetComponent<Measure>();
+
+            measure.measureNum = counter;
+            measure.measureTrack = this;
+            measure.trackInstrument = Instrument;
+            measure.startTime = MeasureInfo.startTimeInzPos;
+            measure.endTime = MeasureInfo.endTimeInzPos;
+            measure.FullLength = SongController.subbeatLengthInzPos * 8;
+            measure.MeasureColor = Colors.ConvertColor(Colors.ColorFromTrackType(Instrument));
+            measure.OnCaptureFinished += Measure_OnCaptureFinished;
+
+            foreach (Note note in trackNotes) // add notes to measure note list
+                if (note.measureNum == counter)
+                    measure.noteList.Add(note);
+
+            // deactivate measure if doesn't contain notes
+            if (Instrument != InstrumentType.FREESTYLE & measure.noteList.Count == 0 & DisableEmptyMeasures)
+                measure.IsMeasureEmpty = true;
+
+            if (!measure.IsMeasureEmpty)
+                trackActiveMeasures.Add(measure);
+
+            trackMeasures.Add(measure);
+            */
+            counter++;
+
+            //if (!RhythmicGame.IsTunnelMode) // tunnel mode can't do async as rotation needs to happen right away
+            await Task.Delay(1); // fake async
+        }
+    }
+
+    /* 
+                GameObject go = Instantiate(trackSectionPrefab);
+                AmpTrackSection s = go.GetComponent<AmpTrackSection>();
+                s.PositionOnPath = script.TestTrackSectionPos;
+                s.RotationOnPath = script.TestTrackSectionRot;
+     */
 
     public void AddSequenceMeasure(Measure m)
     {
@@ -416,6 +504,23 @@ public class Track : MonoBehaviour
         public static Color Guitar = new Color(255, 15, 20, Opacity);
         public static Color Vocals = new Color(0, 255, 0, Opacity);
         public static Color Freestyle = new Color(255, 255, 255, Opacity);
+
+        public static Material[] materialCache = new Material[6];
+        public static Material GetMaterialForInstrument(InstrumentType inst)
+        {
+            // Try getting material from cache
+            Material mat = materialCache[(int)inst];
+            if (mat) return mat;
+            else
+            {
+                // If not cached, cache material for later use
+                mat = (Material)Resources.Load("Materials/Tracks/TrackMaterial");
+                materialCache[(int)inst] = mat;
+
+                return mat;
+            }
+                    
+        }
 
         public static Color ColorFromTrackType(InstrumentType type)
         {

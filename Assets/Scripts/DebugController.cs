@@ -107,12 +107,12 @@ public class DebugController : MonoBehaviour
         }
 
         // Lag compensation
-        if (Input.GetKeyDown(KeyCode.KeypadPlus))
+        if (Input.GetKey(KeyCode.KeypadPlus))
         {
             RhythmicGame.SetAVCalibrationOffset(RhythmicGame.AVCalibrationOffsetMs + RhythmicGame.AVCalibrationStepMs);
             inputlagText.text = string.Format("Player offset (ms): {0}", RhythmicGame.AVCalibrationOffsetMs);
         }
-        else if (Input.GetKeyDown(KeyCode.KeypadMinus))
+        else if (Input.GetKey(KeyCode.KeypadMinus))
         {
             RhythmicGame.SetAVCalibrationOffset(RhythmicGame.AVCalibrationOffsetMs - RhythmicGame.AVCalibrationStepMs);
             inputlagText.text = string.Format("Player offset (ms): {0}", RhythmicGame.AVCalibrationOffsetMs);
