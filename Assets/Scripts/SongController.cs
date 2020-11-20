@@ -215,8 +215,6 @@ public class SongController : MonoBehaviour
 
         // Track streamer init
         CreateTrackStreamer();
-
-        Debug.Log(measureLengthInzPos);
     }
 
     void CreateClock()
