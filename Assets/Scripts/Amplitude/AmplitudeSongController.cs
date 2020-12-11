@@ -1,4 +1,5 @@
 ﻿using NAudio.Midi;
+using PathCreation;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ public class AmplitudeSongController : SongController
     public float GetTickTimeInzPos(float absoluteTime) // Convert MIDI ticks into zPos unit
     {
         //     |       tick time in seconds      |   |     offset by 1 beat length in seconds    ||unit||     fudge factor     |
-        return ((tickInMs * absoluteTime) / 1000f) / (tickInMs * DeltaTicksPerQuarterNote / 1000f) * 4 * TunnelSpeedAccountation;
+        return (((tickInMs * absoluteTime) / 1000f) / (tickInMs * DeltaTicksPerQuarterNote / 1000f) * 4) / TunnelSpeedAccountation * (1f + 0.8f);
     }
     public float GetzPosForNote(float absoluteTime) { return GetTickTimeInzPos(absoluteTime); } // Get note's zPos from its tick time | TODO: redundant?
 
@@ -84,7 +85,7 @@ public class AmplitudeSongController : SongController
         CatcherController.Instance.CatcherRadiusExtra = CatcherController.Instance.CatcherRadiusExtra / TunnelSpeedAccountation;
         CatcherController.Instance.gameObject.SetActive(false);
 
-        Time.timeScale = Time.timeScale * Mathf.Clamp((1f + TunnelSpeedAccountation) / 1.5f, 1f, 2f);
+        Time.timeScale = 1f;
 
         // Load song!
         // Assign clips to AudioSources
@@ -185,6 +186,13 @@ public class AmplitudeSongController : SongController
     {
         List<MeasureInfo> finalList = new List<MeasureInfo>();
         float prevTime = 0f;
+
+        if (songLengthInMeasures * measureLengthInzPos > GameObject.Find("Path").GetComponent<PathCreator>().path.length)
+        {
+            prevTime = GameObject.Find("Path").GetComponent<PathCreator>().path.length - songLengthInMeasures * measureLengthInzPos;
+            Debug.LogFormat("Offsetting tracks: {0}", prevTime);
+        }
+
         for (int i = 0; i < songLengthInMeasures + 3; i++)
         {
             MeasureInfo measure = new MeasureInfo() { measureNum = i, startTimeInzPos = prevTime, endTimeInzPos = prevTime + measureLengthInzPos };

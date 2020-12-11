@@ -6,17 +6,16 @@ using UnityEngine;
 
 public class ClippingPlane : MonoBehaviour
 {
-    public MeshRenderer MeshRenderer;
-    public MeshFilter filter;
-    public MeshFilter inverse_filter;
+    public List<MeshRenderer> MeshRenderer;
+    public GameObject plane;
+    public GameObject inverse_plane;
 
     // Materials to pass values to
-    Material[] mat;
+    List<Material> mat = new List<Material>();
 
     void Awake()
     {
-        if (MeshRenderer != null)
-            GetMaterials();
+        GetMaterials();
     }
     void Start() => Clip();
 
@@ -26,13 +25,19 @@ public class ClippingPlane : MonoBehaviour
 
     void GetMaterials()
     {
-        if (MeshRenderer)
-            mat = MeshRenderer.materials;
+        if (MeshRenderer.Count > 0)
+            foreach (MeshRenderer r in MeshRenderer)
+                foreach (Material m in r.materials)
+                    mat.Add(m);
         else
-            mat = gameObject.GetComponent<MeshRenderer>().materials;
+        {
+            MeshRenderer r = gameObject.GetComponent<MeshRenderer>();
+            foreach (Material m in r.materials)
+                mat.Add(r.material);
+        }
     }
 
-    void Clip()
+    public void Clip()
     {
         if (mat == null) GetMaterials();
 
@@ -40,58 +45,54 @@ public class ClippingPlane : MonoBehaviour
         Vector4 inverse_planeRepresentation = Vector4.zero;
 
         // Regular plane
-        if (filter)
+        if (plane)
         {
-            Vector3 normal = new Vector3();
-            if (filter && filter.sharedMesh.normals.Length > 0)
-                normal = filter.transform.TransformDirection(filter.sharedMesh.normals[0]);
+            MeshFilter plane_mesh = plane.GetComponent<MeshFilter>();
 
-            Plane plane = new Plane(normal, filter.gameObject.transform.position);
+            Vector3 normal = new Vector3();
+            if (plane_mesh && plane_mesh.mesh.normals.Length > 0)
+                normal = plane_mesh.transform.TransformDirection(plane_mesh.mesh.normals[0]);
+
+            Plane _plane = new Plane(normal, plane.transform.position);
 
             //transfer values from plane to vector4
-            planeRepresentation = new Vector4(plane.normal.x, plane.normal.y, plane.normal.z, plane.distance);
+            planeRepresentation = new Vector4(_plane.normal.x, _plane.normal.y, _plane.normal.z, _plane.distance);
         }
 
         // Inverse plane
-        if (inverse_filter)
+        if (inverse_plane)
         {
-            Vector3 inverse_normal = new Vector3();
-            if (inverse_filter && inverse_filter.sharedMesh.normals.Length > 0)
-                inverse_normal = inverse_filter.transform.TransformDirection(inverse_filter.sharedMesh.normals[0]);
+            MeshFilter plane_mesh = inverse_plane.GetComponent<MeshFilter>();
 
-            Plane inverse_plane = new Plane(inverse_normal, inverse_filter.gameObject.transform.position);
+            Vector3 normal = new Vector3();
+            if (plane_mesh && plane_mesh.mesh.normals.Length > 0)
+                normal = plane_mesh.transform.TransformDirection(plane_mesh.mesh.normals[0]);
+
+            Plane _plane = new Plane(normal, inverse_plane.transform.position);
 
             //transfer values from plane to vector4
-            inverse_planeRepresentation = new Vector4(inverse_plane.normal.x, inverse_plane.normal.y, inverse_plane.normal.z, inverse_plane.distance);
+            planeRepresentation = new Vector4(_plane.normal.x, _plane.normal.y, _plane.normal.z, _plane.distance);
         }
 
         //pass vector to shader
 
-        /*
-        if (MaterialID != -1)
-        {
-            mat = gameObject.GetComponent<MeshRenderer>().materials;
-            mat[MaterialID].SetVector("_Plane", planeRepresentation);
-        }
-        else*/
-
         foreach (Material _mat in mat)
         {
-            if (filter)
+            if (plane)
             {
                 _mat.SetVector("_Plane", planeRepresentation);
-                _mat.SetInt("_PlaneEnabled", 1);
+                _mat.SetFloat("_PlaneEnabled", 1);
             }
             else
-                _mat.SetInt("_PlaneEnabled", 0);
+                _mat.SetFloat("_PlaneEnabled", 0);
 
-            if (inverse_filter)
+            if (inverse_plane)
             {
                 _mat.SetVector("_InversePlane", inverse_planeRepresentation);
-                _mat.SetInt("_InversePlaneEnabled", 1);
+                _mat.SetFloat("_InversePlaneEnabled", 1);
             }
             else
-                _mat.SetInt("_InversePlaneEnabled", 0);
+                _mat.SetFloat("_InversePlaneEnabled", 0);
         }
     }
 }

@@ -35,6 +35,7 @@ public class DebugController : MonoBehaviour
 #if UNITY_ANDROID
     int android_songcounter = 0;
 #endif
+
     private void LateUpdate()
     {
         // AMP songs debug
@@ -120,11 +121,11 @@ public class DebugController : MonoBehaviour
 
         // Track capturing debug
         if (Input.GetKeyDown(KeyCode.H)) // current track, 5
-            Player.DeployPowerup();
+            AmpTrackController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), 7, 0);
 
         else if (Input.GetKeyDown(KeyCode.Keypad5)) // 5
-            foreach (Track track in TracksController.CurrentTrackSet)
-                track.CaptureMeasuresRange(Player.GetCurrentMeasure().measureNum, 5);
+            foreach (AmpTrack track in AmpTrackController.Instance.Tracks)
+                AmpTrackController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), 7, track);
 
         else if (Input.GetKeyDown(KeyCode.Keypad6)) // all!
             foreach (Track track in TracksController.CurrentTrackSet)
@@ -174,7 +175,7 @@ public class DebugController : MonoBehaviour
         // update framerate debug
         if (Time.timeScale == 0f)
             return;
-        deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
+        deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
         float fps = 1.0f / deltaTime;
         framerateText.text = string.Format("Framerate: {0} FPS", Mathf.Ceil(fps).ToString());
     }

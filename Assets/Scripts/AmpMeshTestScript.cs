@@ -77,15 +77,17 @@ public class AmpMeshTestScript : MonoBehaviour
             // TODO: logging control here
             Debug.LogWarningFormat("MeshTest/CreateMesh(): Piece sizings are not divisible! (width: {0} | length: {1})", pieceX, pieceZ);
 
+        pieceZ = desiredZ / 32;
+
         // Get counts for the individual pieces
-        int xSize = 0;
-        int zSize = 0;
-        for (float x = 0f; x < desiredX; x += pieceX) xSize++;
-        for (float z = 0f; z < desiredZ; z += pieceZ) zSize++;
+        int xSize = Mathf.RoundToInt(desiredX / pieceX);
+        int zSize = Mathf.RoundToInt(desiredZ / pieceZ);
+        //for (float x = 0f; x < desiredX; x += pieceX) xSize++;
+        //for (float z = 0f; z < desiredZ; z += pieceZ) zSize++;
 
         // TODO: it adds 1 extra piece for some reason...
         //if (desiredZ % pieceZ != 0)
-        zSize--;
+        //zSize--;
 
         Mesh mesh = new Mesh() { name = "Procedurally generated mesh" };
 

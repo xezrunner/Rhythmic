@@ -48,9 +48,10 @@ public class Clock : MonoBehaviour
         // Smoothly interpolate clock ticks
         float step = 1 * SongController.songSpeed * Time.unscaledDeltaTime;
         seconds = Mathf.MoveTowards(seconds, SongController.songLength, step); // Main clock value is seconds
+        //seconds = Mathf.MoveTowards(SongController.songPosition, SongController.songLength, step);
 
         // Set tick, bar, beat and subbeat values based on seconds
-        tick = SongController.secInTick * seconds;
+        tick = SongController.secInTick * seconds; // 1
         bar = tick / SongController.measureTicks; // 1920
         beat = tick / SongController.beatTicks; // 480
         subbeat = tick / SongController.subbeatTicks; // 240

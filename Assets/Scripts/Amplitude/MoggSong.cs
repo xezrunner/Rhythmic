@@ -60,8 +60,19 @@ public class MoggSong : MonoBehaviour
             else if (line.Contains("tunnel_scale ")) // Song fudge factor
             {
                 float parse = float.Parse(line.Substring(14, 3), CultureInfo.InvariantCulture.NumberFormat);
-                if (parse > 0.5f) songFudgeFactor = 1f + parse;
+                /*
+                if (parse > 0.5f) songFudgeFactor = 1f * (1f + parse);
                 else songFudgeFactor = 1f / parse;
+                */
+
+                //if (parse < 1f & parse > 0.5f)
+                //    parse = 1f + parse;
+                //else if (parse < 0.5f)
+                //    parse = 2f + (1f - parse);
+
+                if (parse == 0) parse = float.MinValue;
+
+                songFudgeFactor = parse;
             }
             else if (line.Contains("bpm ")) // Song BPM | TODO: this is really hacky!
             {

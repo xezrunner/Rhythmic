@@ -4,9 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[RequireComponent(typeof(MeshRenderer), typeof(MeshFilter))]
 public class EdgeLights : MonoBehaviour
 {
-    MeshRenderer meshRenderer { get { return gameObject.GetComponent<MeshRenderer>(); } }
+    public MeshRenderer MeshRenderer;
+    public MeshFilter MeshFilter;
+
+    public Mesh Mesh { get { return MeshFilter.mesh; } set { MeshFilter.mesh = value; } }
 
     bool _isActive;
     public bool IsActive
@@ -31,15 +35,16 @@ public class EdgeLights : MonoBehaviour
             else
                 _convertedColor = value;
 
-            foreach (Material mat in meshRenderer.materials)
+            foreach (Material mat in MeshRenderer.materials)
             {
                 mat.color = _convertedColor;
-                mat.SetColor("_EmissionColor", _convertedColor * _glowIntensity);
+                //mat.SetColor("_Tint", _convertedColor);
+                mat.SetColor("_Emission", _convertedColor * _glowIntensity);
             }
         }
     }
 
-    float _glowIntensity = 2f;
+    float _glowIntensity = 2.5f;
     public float GlowIntenstiy
     {
         get { return _glowIntensity; }
@@ -47,7 +52,7 @@ public class EdgeLights : MonoBehaviour
         {
             _glowIntensity = value;
 
-            foreach (Material mat in meshRenderer.materials)
+            foreach (Material mat in MeshRenderer.materials)
                 mat.SetColor("_EmissionColor", _convertedColor * value);
         }
     }

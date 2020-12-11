@@ -61,6 +61,8 @@ public class Player : MonoBehaviour
     public bool IsPlaying; // Controlled by the SongController!
     public float PlayerSpeed = 4f;
 
+    public Camera SkyboxCamera;
+
     // Awake & Start
     void Awake()
     {
@@ -469,6 +471,8 @@ public class Player : MonoBehaviour
     int prevSubbeat = 0;
     public virtual void Update()
     {
+        SkyboxCamera.transform.eulerAngles = new Vector3(0, 0, SkyboxCamera.transform.eulerAngles.z + (3f * Time.unscaledDeltaTime));
+
         // Literal player movement | track switching & Freestyle
         if (IsMoving)
             MovePlayerUpdate();

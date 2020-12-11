@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -32,15 +33,25 @@ public partial class AmpTrack : MonoBehaviour
     public int SetID = 0; // TUNNEL DUPLICATION: which track set does this track belong to?
     public string TrackName = ""; // Instrument name of the track. Object name *should* be the same.
 
+    Color _color = Colors.Bass;
+    public Color Color
+    {
+        get { return _color; }
+        set
+        {
+            _color = value;
+            Measures.ForEach(m => m.Color = value);
+        }
+    }
+
+    // to be set when sequence!
+    //Color = Colors.ConvertColor(Colors.ColorFromInstrument(value));
+
     InstrumentType _instrument;
     public InstrumentType Instrument
     {
         get { return _instrument; }
-        set
-        {
-            _instrument = value;
-            /* Set edgelights color and other stuff! */
-        }
+        set { _instrument = value; Color = Colors.ColorFromInstrument(value); }
     }
 
     public float zRot; // The Z rotation (looks like X-axis rotation from front) of this particular track.
@@ -83,28 +94,31 @@ public partial class AmpTrack : MonoBehaviour
 
     /// Functionality
 
+    float smoothStep;
+    private void Update()
+    {
+        if (IsTrackCapturing)
+        {
+            if (RhythmicGame.DebugTrackCapturingEase) Debug.Log("CAPTURE: step: " + AmpTrackSectionDestruct.step);
+            AmpTrackSectionDestruct.step = Mathf.SmoothDamp(AmpTrackSectionDestruct.step, 5f, ref smoothStep, 20f * Time.deltaTime);
+        }
+    }
+
     // Measure capturing
-    /// <summary>
-    /// Captures measures from a given start point until an end point
-    /// </summary>
-    /// <param name="start">Measure ID to start capturing from</param>
-    /// <param name="end">Last Measure ID to capture</param>
-    public void CaptureMeasureRange(int start, int end)
+
+    public IEnumerator CaptureMeasure(int id) { Debug.LogFormat("AmpTrack: Capturing measure: requested: {0} measure: {1} - Clock(bar): {2}", id, Measures[id].ID, Clock.Instance.bar); yield return CaptureMeasure(Measures[id]); }
+    public IEnumerator CaptureMeasure(AmpTrackSection measure)
     {
+        AmpTrackSectionDestruct destruct = measure.gameObject.AddComponent<AmpTrackSectionDestruct>();
+        destruct.Init(measure);
 
+        while (measure.IsCapturing)
+            yield return null;
+
+        // TODO: Edge lights should be visible somehow after destruction!
+        // TODO: Remove destruct script after finished destructing?
+        //Destroy(destruct);
     }
-
-    /// <summary>
-    /// Captures measures from a given start point and onward
-    /// </summary>
-    /// <param name="start">Measure ID to start capturing from</param>
-    /// <param name="amount">Amount of measures to capture from starting point onward</param>
-    public void CaptureMeasureAmount(int start, int amount)
-    {
-
-    }
-
-    // 
 
     /// Common
     #region
@@ -154,6 +168,7 @@ public partial class AmpTrack : MonoBehaviour
         static float Opacity = 255f;
 
         public static Color Invalid = new Color(0, 0, 0);
+        public static Color Empty = new Color(118, 118, 118, Opacity);
 
         public static Color Drums = new Color(212, 93, 180, Opacity);
         public static Color Bass = new Color(87, 159, 221, Opacity);
@@ -179,7 +194,7 @@ public partial class AmpTrack : MonoBehaviour
 
         }
 
-        public static Color ColorFromTrackType(InstrumentType type)
+        public static Color ColorFromInstrument(InstrumentType type)
         {
             switch ((int)type)
             {
