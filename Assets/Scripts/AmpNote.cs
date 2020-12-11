@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// Note entity
 /// 
@@ -17,6 +18,8 @@ public class AmpNote : MonoBehaviour
     public GameObject DotLight;
     public MeshRenderer NoteMeshRenderer;
     public MeshRenderer DotLightMeshRenderer;
+    public ParticleSystem.MainModule PS_main;
+    public ParticleSystem PS;
 
     /// Colors
     Color _dotLightColor = Color.white;
@@ -44,30 +47,43 @@ public class AmpNote : MonoBehaviour
     public bool IsCaptured
     {
         get { return _isCaptured; }
-        set { _isCaptured = value; }
+        set
+        {
+            _isCaptured = value;
+
+            if (value)
+            {
+                PS.gameObject.SetActive(true);
+                PS.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                PS.Play();
+            }
+
+            DotLight.SetActive(value);
+            NoteMeshRenderer.enabled = !value;
+        }
     }
 
     void Start()
     {
-        DotLight.SetActive(false); DotLight.transform.localPosition = Vector3.zero;
-
         // Setup dotlight
         // TODO: cleanup!
-        DotLightColor = Colors.ConvertColor(AmpTrack.Colors.ColorFromTrackType(AmpTrackController.Instance.Tracks[TrackID].Instrument));
-        DotLightMeshRenderer.material.SetColor("_EmissionColor", Colors.ConvertColor(DotLightColor) * 0.6f);
+        //DotLight.SetActive(false);
+        DotLight.transform.localPosition = Vector3.zero;
+        DotLightColor = Colors.ConvertColor(AmpTrack.Colors.ColorFromInstrument(AmpTrackController.Instance.Tracks[TrackID].Instrument));
+        DotLightMeshRenderer.material.SetColor("_EmissionColor", Colors.ConvertColor(DotLightColor) * 1f);
 
         // Set particle system color to match dotlight!
-        var ps_main = transform.GetChild(0).GetChild(0).GetComponent<ParticleSystem>().main;
-        ps_main.startColor = Colors.ConvertColor(DotLightColor * 1.5f);
+        PS_main = PS.main;
+        PS_main.startColor = (DotLightColor * 1.5f);
     }
 
     public void CaptureNote(bool anim = true)
     {
         IsCaptured = true;
 
-        if (!anim) // Ignore animation if specified
-            DotLight.transform.GetChild(0).gameObject.SetActive(false);
+        //if (!anim) // Ignore animation if specified
     }
+
 }
 
 public enum NoteType

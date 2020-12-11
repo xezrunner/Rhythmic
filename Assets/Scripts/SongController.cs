@@ -74,14 +74,14 @@ public class SongController : MonoBehaviour
     // ms (Milliseconds)
     public float tickInMs { get { return (60000f / (songBpm * beatTicks)); } }
     public float msIntick { get { return (songBpm * beatTicks) / 60000f; } }
-    public float msInzPos { get { return (secPerBeat / 1000) * songFudgeFactor; } }
+    public float msInzPos { get { return (secPerBeat / 1000) / songFudgeFactor * (1f + 0.8f); } }
     // s (Seconds)
     public float tickInSec { get { return (60f / (songBpm * beatTicks)); } }
     public float secInTick { get { return (songBpm * beatTicks) / 60f; } }
-    public float secInzPos { get { return secPerBeat * songFudgeFactor; } }
+    public float secInzPos { get { return secPerBeat / songFudgeFactor * (1f + 0.8f); } }
     // zPos (Meters)
     // TODO: these zPos conversions do not work!!!
-    public float tickInzPos { get { return tickInSec / (tickInSec * beatTicks) * 4 * songFudgeFactor; } }
+    public float tickInzPos { get { return tickInSec / (tickInSec * beatTicks) * 4 / songFudgeFactor * (1f + 0.8f); } }
     public float zPosInTick { get { return (tickInzPos / 4f * (tickInSec * beatTicks)) * (songBpm * beatTicks); } }
     public float zPosInSec { get { return 60f / songBpm; } }
     public float zPosInMs { get { return 60000f / songBpm; } }
@@ -184,10 +184,9 @@ public class SongController : MonoBehaviour
 
     public void CreateTrackStreamer()
     {
-        if (!trackStreamer)
+        if (!trackStreamer & AmpTrackController)
         {
-            GameObject obj = new GameObject() { name = "TrackStreamer" };
-            trackStreamer = obj.AddComponent<TrackStreamer>();
+            trackStreamer = AmpTrackController.gameObject.AddComponent<TrackStreamer>();
             Debug.LogFormat("TRACKS: Created track streamer!");
 
         }
@@ -313,7 +312,7 @@ public class SongController : MonoBehaviour
     public void OffsetSong(float offset)
     {
         audioSrcList.ForEach(src => src.time += offset); // offset music by seconds!
-        Player.OffsetPlayer(offset * (Player.PlayerSpeed * secPerBeat * songFudgeFactor)); // offset player by zPos!
+        Player.OffsetPlayer(offset * (Player.PlayerSpeed * secPerBeat / songFudgeFactor * (1f + 0.8f))); // offset player by zPos!
     }
 
     // GAMEPLAY

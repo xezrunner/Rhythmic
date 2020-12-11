@@ -10,6 +10,14 @@ public class EdgeLightsEditor : Editor
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
+
+        if (script.MeshRenderer == null || script.MeshFilter == null)
+        {
+            EditorGUILayout.LabelField("No MeshRenderer or MeshFilter is assigned!");
+            return;
+        }
+        if (!Application.isPlaying) return;
+
         EditorGUILayout.LabelField("Edge lights properties", EditorStyles.boldLabel);
 
         EditorGUILayout.LabelField("Color");

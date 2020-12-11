@@ -2,6 +2,8 @@
 
 using UnityEngine;
 using PathCreation;
+using System.Collections.Generic;
+
 #if UNITY_EDITOR
 using UnityEditor.Experimental.SceneManagement;
 #endif
@@ -15,10 +17,17 @@ public class AmpTrackSection : MonoBehaviour
     SongController SongController { get { return SongController.Instance; } }
 
     /// References to the contents
-    public GameObject Model; // Main track section model
+    //public GameObject Model; // Main track section model
+    public MeshRenderer MeshRenderer;
     public MeshFilter MeshFilter; // Mesh of the model
+    public EdgeLights EdgeLights;
+    public Transform NoteContainer;
 
-    public GameObject LengthPlane; // This plane trims the model to the desired length.
+    public ClippingPlane ClipManager;
+    public GameObject LengthPlane; // This plane trims the model to the desired length
+    public GameObject ClipPlane;
+
+    public List<AmpNote> Notes = new List<AmpNote>();
 
     /// Path-related stuff
     /// TODO: Global Path variable? !!!
@@ -32,6 +41,19 @@ public class AmpTrackSection : MonoBehaviour
     public int ID;
     public float Length = 32f; // in zPos!
     public AmpTrack.InstrumentType Instrument;
+    public bool IsEmpty;
+
+    public bool IsCapturing;
+    public bool IsCaptured;
+
+    // MeshRenderer.material.SetColor("_Color", Colors.ConvertColor(value));
+
+    private Color _color;
+    public Color Color
+    {
+        get { return _color; }
+        set { _color = value; EdgeLights.Color = value; }
+    }
 
     // Deformation
     public bool StartAutoDeformToPath = true;
@@ -83,7 +105,6 @@ public class AmpTrackSection : MonoBehaviour
         _prevRotationOnPath = RotationOnPath;
 #endif
 
-        // test
         MeshFilter.mesh = AmpMeshTestScript.CreateMesh(RhythmicGame.TrackWidth, Length);
 
         if (MeshFilter)
@@ -91,6 +112,8 @@ public class AmpTrackSection : MonoBehaviour
 
         // Automatically deform to path
         if (StartAutoDeformToPath) DeformMeshToPath();
+
+        Clip(); // Clips to length
     }
 
     /// Model deformation and functionality
@@ -131,22 +154,29 @@ public class AmpTrackSection : MonoBehaviour
 
         // Mesh deformation
         MeshDeformer.DeformMesh(path, mesh, position, angle, originalMesh.vertices);
-
-        // Change perceived length of model
-        ChangeModelLength(length, position);
+        EdgeLights.Mesh = mesh;
+        // Set Edge lights mesh to the same mesh as top mesh!
+        MeshDeformer.DeformMesh(path, EdgeLights.Mesh, position + Vector3.up * 0.1f, angle, originalMesh.vertices);
     }
 
-    public void UpdateModelLength() => ChangeModelLength(Length, PositionOnPath);
-    public void ChangeModelLength(float length, Vector3 pos)
+    public void Clip(float fraction = -1f)
     {
-        Vector3 localUp = Vector3.Cross(Path.GetTangentAtDistance(pos.z + length), Path.GetNormalAtDistance(pos.z + length));
-        Vector3 localRight = Path.GetNormalAtDistance(pos.z + length);
+        if (fraction != -1f)
+            Mathf.Clamp01(fraction); // Clamp between 0 and 1
 
-        //Vector3 planePos = Path.GetPointAtDistance(pos.z + length) + Vector3.right * PositionOnPath.x;
-        Vector3 planePos = Path.GetPointAtDistance(pos.z + length);
-        planePos += (localRight * pos.x) + (localUp * pos.y);
+        // Calculate clip plane offset based on fraction
+        float offset;
+        if (fraction == -1f) offset = Length + 1f; // TODO: wtf?
+        else
+            offset = Length * fraction;
 
-        Quaternion planeRot = Path.GetRotationAtDistance(pos.z + length) * Quaternion.Euler(90, 0, 0);
+        Vector3 localUp = Vector3.Cross(Path.GetTangentAtDistance(PositionOnPath.z + offset), Path.GetNormalAtDistance(PositionOnPath.z + offset));
+        Vector3 localRight = Path.GetNormalAtDistance(PositionOnPath.z + offset);
+
+        Vector3 planePos = Path.GetPointAtDistance(PositionOnPath.z + offset);
+        planePos += (localRight * PositionOnPath.x) + (localUp * PositionOnPath.y);
+
+        Quaternion planeRot = Path.GetRotationAtDistance(PositionOnPath.z + offset) * Quaternion.Euler(90, 0, 0);
 
         LengthPlane.transform.position = planePos;
         LengthPlane.transform.rotation = planeRot;

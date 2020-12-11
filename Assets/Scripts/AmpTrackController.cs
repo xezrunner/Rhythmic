@@ -20,15 +20,20 @@ public class AmpTrackController : MonoBehaviour
 
     public Tunnel Tunnel;
 
-    GameObject trackPrefab;
-
     public List<AmpTrack> Tracks = new List<AmpTrack>();
     public List<string> songTracks = new List<string>();
+
+    public AmpTrack focusedTrack; // The track that the player is currently on
+
+    /// Prefabs
+    GameObject trackPrefab;
 
     /// Events
     public event EventHandler<int[]> OnTrackSwitched;
 
     PathCreator pathCreator;
+
+    /// ------------------------------ ///
 
     void Awake()
     {
@@ -46,16 +51,14 @@ public class AmpTrackController : MonoBehaviour
         // Used for tunnel and track creation
         songTracks.Clear();
 
-        for (int i = 0; i < RhythmicGame.TunnelTrackDuplicationNum; i++)
-        {
-            foreach (string s in SongController.songTracks)
-            {
-                var inst = AmpTrack.InstrumentFromString(s);
 
-                if (inst == AmpTrack.InstrumentType.FREESTYLE & !RhythmicGame.PlayableFreestyleTracks) continue;
-                if (inst == AmpTrack.InstrumentType.bg_click) continue;
-                songTracks.Add(s);
-            }
+        foreach (string s in SongController.songTracks)
+        {
+            var inst = AmpTrack.InstrumentFromString(s);
+
+            if (inst == AmpTrack.InstrumentType.FREESTYLE & !RhythmicGame.PlayableFreestyleTracks) continue;
+            if (inst == AmpTrack.InstrumentType.bg_click) continue;
+            songTracks.Add(s);
         }
 
         // Create Tunnel component
@@ -63,24 +66,29 @@ public class AmpTrackController : MonoBehaviour
         Tunnel.Init(songTracks.Count * RhythmicGame.TunnelTrackDuplicationNum);
 
         // Create tracks!
-        CreateTracks(SongController.songTracks);
+        CreateTracks();
     }
 
     /// Tracks
-    
+
+    // Track creation
     /// <summary>
     /// Creates the Tracks list. <br/>
     /// Note: this does not create the Tunnel mode duplicated tracks!
     /// </summary>
-    void CreateTracks(List<string> songTracks)
+    void CreateTracks()
     {
         int counter = 0;
-        foreach (string trackName in this.songTracks)
+        for (int i = 0; i < RhythmicGame.TunnelTrackDuplicationNum; i++)
         {
-            var inst = AmpTrack.InstrumentFromString(trackName);
+            for (int x = 0; x < songTracks.Count; x++)
+            {
+                string trackName = songTracks[x];
+                var inst = AmpTrack.InstrumentFromString(trackName);
 
-            CreateTrack(counter, trackName, inst);
-            counter++;
+                CreateTrack(x, trackName, inst, counter);
+                counter++;
+            }
         }
     }
     public AmpTrack CreateTrack(int ID, string name, AmpTrack.InstrumentType instrument, int? realID = null)
@@ -103,6 +111,48 @@ public class AmpTrackController : MonoBehaviour
         Tracks.Add(com);
         return com;
     }
+
+    public void SetTrackState(int id, bool state) => SetTrackState(Tracks[id], state);
+    public void SetTrackState(AmpTrack track, bool state) => track.IsEnabled = state;
+
+    // Measure capturing
+    /// <summary>
+    /// Captures measures from a given start point until an end point
+    /// </summary>
+    /// <param name="start">Measure ID to start capturing from</param>
+    /// <param name="end">Last Measure ID to capture</param>
+    public void CaptureMeasureRange(int start, int end, AmpTrack track) => StartCoroutine(_CaptureMeasureRange(start, end, track));
+
+    /// <summary>
+    /// Captures measures from a given start point and onward
+    /// </summary>
+    /// <param name="start">Measure ID to start capturing from</param>
+    /// <param name="amount">Amount of measures to capture from starting point onward</param>
+    public void CaptureMeasureAmount(int start, int amount, AmpTrack track) => StartCoroutine(_CaptureMeasureRange(start, start + amount, track));
+    public void CaptureMeasureAmount(int start, int amount, int trackID) => CaptureMeasureRange(start, start + amount, Tracks[trackID]);
+
+    IEnumerator _CaptureMeasureRange(int start, int end, AmpTrack track)
+    {
+        if (RhythmicGame.DebugTrackCapturingEvents) Debug.Log("CAPTURE: started");
+
+        track.IsTrackCapturing = true;
+
+        for (int i = start; i <= end; i++)
+            yield return track.CaptureMeasure(track.Measures[i]);
+
+        track.IsTrackCapturing = false;
+        AmpTrackSectionDestruct.step = 0.5f;
+
+        if (RhythmicGame.DebugTrackCapturingEvents) Debug.Log("CAPTURE: done");
+    }
+
+    /*
+    IEnumerator _CaptureMeasureAmount(int start, int amount, AmpTrack track)
+    {
+        for (int i = start; i <= start + amount; i++)
+            yield return track.CaptureMeasure(i);
+    }
+    */
 
     private void Player_OnTrackSwitched(object sender, Track e)
     {

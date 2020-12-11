@@ -62,7 +62,7 @@ public static class RhythmicGame
     // Gameplay props
     public static float SlopMs = 100f;
     public static float DebounceWindowMs = 85f;
-    public static int HorizonMeasures = 10; // How many measures should we be able to see ahead of us
+    public static int HorizonMeasures = 15; // How many measures should we be able to see ahead of us
 
     public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
     public static bool TunnelTrackDuplication = true; // Whether to duplicate tracks when using tunnel mode
@@ -94,6 +94,9 @@ public static class RhythmicGame
     public static bool DebugTrackMaterialEvents = false;
     public static bool DebugLaneCreationEvents = false;
     public static bool DebugNoteCreationEvents = false;
+    public static bool DebugTrackCapturingEvents = false;
+    public static bool DebugTrackCapturingEase = false;
+
 
     public static bool DebugPlayerMovementEvents = false;
     public static bool DebugPlayerCameraAnimEvents = false;

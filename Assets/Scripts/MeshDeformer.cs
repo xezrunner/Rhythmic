@@ -7,9 +7,9 @@ using UnityEngine;
 public static class MeshDeformer
 {
     // Deforms the parameter mesh's vertices
-    public static void DeformMesh(VertexPath path, Mesh mesh) => DeformMesh(path, mesh, Vector3.zero);
-    public static void DeformMesh(VertexPath path, Mesh mesh, Vector3 position) => DeformMesh(path, mesh, position);
-    public static void DeformMesh(VertexPath path, Mesh mesh, Vector3 position, float angle = 0f, Vector3[] ogVerts = null)
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh) => DeformMesh(path, mesh, Vector3.zero);
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position) => DeformMesh(path, mesh, position);
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, float angle = 0f, Vector3[] ogVerts = null)
     {
         Vector3[] vertices = ogVerts != null ? ogVerts : new Vector3[mesh.vertices.Length];
         if (ogVerts == null) Array.Copy(mesh.vertices, vertices, mesh.vertices.Length);
@@ -20,6 +20,8 @@ public static class MeshDeformer
 
         mesh.vertices = vertices;
         mesh.RecalculateBounds();
+
+        return mesh;
     }
 
     /// <summary>
@@ -33,6 +35,14 @@ public static class MeshDeformer
     {
         float dist = meshVertex.z + position.z; // Vertex Z distance along path + desired Z offset
         bool isNegative = dist < 0f; // TODO: negative path values should just over/under-flow the path! Right now, it wraps around the path.
+
+        //if (dist < path.localPoints[0].z)
+        //{
+        //    Vector3 pos = new Vector3(0,0, dist) + (Quaternion.Euler(0,0,180) * new Vector3(meshVertex.x, meshVertex.y, 0));
+        //    pos += Vector3.right * position.x;
+
+        //    return pos;
+        //}
 
         Vector3 localUp = Vector3.Cross(path.GetTangentAtDistance(dist), path.GetNormalAtDistance(dist));
         Vector3 localRight = path.GetNormalAtDistance(dist);

@@ -1,5 +1,6 @@
 ﻿using PathCreation;
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -55,32 +56,39 @@ public class PathFollower : MonoBehaviour
 
         TransformPlayerToPath(0f); // Position player to start of the path
 
-        return;
-        int trackCounter = 0;
-        foreach (GameObject trGo in TrackMeshCreator.Instance.TrackObjects)
-        {
-            for (int i = 0; i < Random.Range(150, 250); i++)
-            {
-                var go = Instantiate(NotePrefab);
-                float distance = Random.Range(0, pathCreator.path.length);
-                go.transform.rotation = pathCreator.path.GetRotationAtDistance(distance) * Quaternion.Euler(0, 0, 90);
-                go.transform.position = pathCreator.path.GetPointAtDistance(distance);
-                go.transform.GetChild(0).gameObject.SetActive(false);
-                go.transform.Translate(Vector3.right * (Track.GetLocalXPosFromLaneType((Track.LaneType)Random.Range(0, 3)) + (RhythmicGame.TrackWidth * trackCounter)));
-                go.transform.parent = trGo.transform;
-            }
-            trackCounter++;
-        }
+        //await Task.Delay(1);
+        //TransformPlayerToPath(AmpTrackController.Instance.Tracks[0].Measures[0].PositionOnPath.z); // Position player to start of the path
+        //distanceTravelled = AmpTrackController.Instance.Tracks[0].Measures[0].PositionOnPath.z;
+
+        // UNUSED CODE - TEMP TRACK TEST RANDOM NOTE PLACEMENT
+        //int trackCounter = 0;
+        //foreach (GameObject trGo in TrackMeshCreator.Instance.TrackObjects)
+        //{
+        //    for (int i = 0; i < Random.Range(150, 250); i++)
+        //    {
+        //        var go = Instantiate(NotePrefab);
+        //        float distance = Random.Range(0, pathCreator.path.length);
+        //        go.transform.rotation = pathCreator.path.GetRotationAtDistance(distance) * Quaternion.Euler(0, 0, 90);
+        //        go.transform.position = pathCreator.path.GetPointAtDistance(distance);
+        //        go.transform.GetChild(0).gameObject.SetActive(false);
+        //        go.transform.Translate(Vector3.right * (Track.GetLocalXPosFromLaneType((Track.LaneType)Random.Range(0, 3)) + (RhythmicGame.TrackWidth * trackCounter)));
+        //        go.transform.parent = trGo.transform;
+        //    }
+        //    trackCounter++;
+        //}
     }
 
     public float offset;
-
-    float step;
-
     public void TransformPlayerToPath(float dist)
     {
+        //if (dist < pathCreator.path.localPoints[0].z)
+        //{
+        //    transform.position = new Vector3(0,0,dist);
+        //    return;
+        //}
+
         Vector3 localRight = pathCreator.path.GetNormalAtDistance(dist, endOfPathInstruction);
-        Vector3 currentPos = transform.position;
+        //Vector3 currentPos = transform.position;
         Vector3 targetPos = pathCreator.path.GetPointAtDistance(dist, endOfPathInstruction) + localRight * Mathf.Abs(offset);
 
         transform.position = targetPos;
@@ -91,29 +99,48 @@ public class PathFollower : MonoBehaviour
         NonInterpolatable.rotation = targetRot;
     }
 
+    public float step;
+
+    float legitOffset = 0f;
+    float offsetSmoothCurrent = 0f;
     void Update()
     {
         if (pathCreator == null) return;
-        if (!Player.IsPlaying) return;
 
-        float step;
-
-        if (SongController.Enabled)
-        {
-            step = (Player.PlayerSpeed * SongController.secInzPos) * Time.unscaledDeltaTime * SongController.songSpeed /* * SongController.songFudgeFactor*/;
-            distanceTravelled = Mathf.MoveTowards(distanceTravelled, float.MaxValue, step);
-        }
-        else
-            distanceTravelled += speed * Time.deltaTime;
-
-        //TransformPlayerToPath(distanceTravelled + SongController.SecTozPos(RhythmicGame.AVCalibrationOffsetMs / 1000));
+        TransformPlayerToPath(distanceTravelled + SongController.SecTozPos(RhythmicGame.AVCalibrationOffsetMs / 1000));
         TransformPlayerToPath(distanceTravelled + SongController.msInzPos * RhythmicGame.AVCalibrationOffsetMs);
 
         if (Keyboard.current.gKey.wasPressedThisFrame)
         {
-            offset += RhythmicGame.TrackWidth;
-            if (offset > 5 * RhythmicGame.TrackWidth) offset = 0;
+            legitOffset += RhythmicGame.TrackWidth;
+
+            if (legitOffset > 6 * RhythmicGame.TrackWidth) legitOffset = 0;
+
+            foreach (AmpTrack track in AmpTrackController.Instance.Tracks)
+            {
+                if (track.ID == Mathf.RoundToInt(legitOffset / RhythmicGame.TrackWidth))
+                {
+                    foreach (AmpTrackSection s in track.Measures)
+                        if (s && s.IsEmpty)
+                            s.EdgeLights.gameObject.SetActive(true);
+                }
+                else
+                    foreach (AmpTrackSection s in track.Measures)
+                        if (s && s.IsEmpty)
+                            s.EdgeLights.gameObject.SetActive(false);
+            }
         }
+
+        offset = Mathf.SmoothDamp(offset, legitOffset, ref offsetSmoothCurrent, 1f, 100f, 10f * Time.deltaTime);
+
+        if (!Player.IsPlaying) return;
+
+        step = (Player.PlayerSpeed * SongController.secInzPos) * Time.unscaledDeltaTime * SongController.songSpeed;
+
+        if (SongController.Enabled)
+            distanceTravelled = Mathf.MoveTowards(distanceTravelled, float.MaxValue, step);
+        else
+            distanceTravelled += speed * Time.deltaTime;
 
         //Debug.Log("Target: " + targetRot);
     }

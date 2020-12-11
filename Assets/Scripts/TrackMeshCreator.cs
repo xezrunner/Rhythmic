@@ -372,8 +372,8 @@ public class TrackMeshCreator : PathSceneTool
         renderer.sharedMaterials[0].mainTextureScale = new Vector2(1, path.length); // TODO: texture scaling seems wrong (?)
 
         // Create and add Edge lights!
-        var edgelights = CreateEdgeLights(startDistance, length, xPosition, Track.Colors.ColorFromTrackType(inst));
-        edgelights.transform.parent = obj.transform;
+        //var edgelights = CreateEdgeLights(startDistance, length, xPosition, Track.Colors.ColorFromTrackType(inst));
+        //edgelights.transform.parent = obj.transform;
 
         // Add measure script!
         // TODO!!!
@@ -406,9 +406,9 @@ public class TrackMeshCreator : PathSceneTool
 
         // Create track mesh object!
         var go = CreateTestObject(); go.layer = 11;
-        var edgelight = CreateEdgeLights(debug_startPoint, debug_length, debug_xPosition * RhythmicGame.TrackWidth);
-        edgelight.GetComponent<EdgeLights>().GlowIntenstiy = 1.2f;
-        edgelight.transform.parent = go.transform;
+        //var edgelight = CreateEdgeLights(debug_startPoint, debug_length, debug_xPosition * RhythmicGame.TrackWidth);
+        //edgelight.GetComponent<EdgeLights>().GlowIntenstiy = 1.2f;
+        //edgelight.transform.parent = go.transform;
 
         // Automatically increase track index counter
         if (!keepCurrentXPosition)
