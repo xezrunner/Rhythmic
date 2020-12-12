@@ -5,8 +5,9 @@ public enum HealthOption { Normal = 0, Invincible = 1, Off = 2}
 
 public partial class AmpPlayer : MonoBehaviour
 {
-    public HealthOption HealthOption = HealthOption.Normal;
-    float Health = 8f;
+    [Header("Health")]
+    public HealthOption HealthMode = HealthOption.Normal;
+    public float Health = 8f;
 
     /// <summary>
     /// Damages the player, lowering health. <br/>
@@ -14,10 +15,10 @@ public partial class AmpPlayer : MonoBehaviour
     /// </summary>
     public void HurtPlayer(int damage = 1)
     {
-        if (HealthOption > 0) return;
+        if (HealthMode > 0) return;
     }
 
-    public partial void HealthUpdate()
+    partial void HealthUpdate()
     {
         // Draw health HUD etc...
         // Handle differnet HealthOption cases

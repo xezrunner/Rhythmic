@@ -104,7 +104,7 @@ public class DebugController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F))
         {
             RhythmicGame.IsTunnelMode = !RhythmicGame.IsTunnelMode;
-            Player.ScoreText.text = string.Format("Tunnel {0} - restart!", RhythmicGame.IsTunnelMode ? "ON" : "OFF");
+            //Player.ScoreText.text = string.Format("Tunnel {0} - restart!", RhythmicGame.IsTunnelMode ? "ON" : "OFF");
         }
 
         // Lag compensation

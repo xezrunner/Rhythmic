@@ -72,7 +72,24 @@ public partial class AmpTrack : MonoBehaviour
     public bool TUT_IsTrackEnabled { get; set; /* TBA */ }
 
     bool _isTrackFocused;
-    public bool IsTrackFocused { get; set; /* TBA */ }
+    public bool IsTrackFocused
+    {
+        get { return _isTrackFocused; }
+        set
+        {
+            _isTrackFocused = value;
+
+            // Set global edge lights in measures
+            //foreach (AmpTrackSection m in Measures)
+            for (int i = Mathf.FloorToInt(Clock.Instance.bar) - 1; i < Measures.Count - 1; i++) // TODO: check reliability of this optimization!
+            {
+                if (i < 0) i = 0; // correct the flooring of 0
+
+                AmpTrackSection m = Measures[i];
+                m.SetGlobalEdgeLights(value);
+            }
+        }
+    }
 
     bool _isTrackCaptured;
     public bool IsTrackCaptured { get; set; /* TBA */ }
@@ -100,7 +117,7 @@ public partial class AmpTrack : MonoBehaviour
         if (IsTrackCapturing)
         {
             if (RhythmicGame.DebugTrackCapturingEase) Debug.Log("CAPTURE: step: " + AmpTrackSectionDestruct.step);
-            AmpTrackSectionDestruct.step = Mathf.SmoothDamp(AmpTrackSectionDestruct.step, 5f, ref smoothStep, 20f * Time.deltaTime);
+            AmpTrackSectionDestruct.step = Mathf.SmoothDamp(AmpTrackSectionDestruct.step, 3f, ref smoothStep, 20f * Time.deltaTime);
         }
     }
 

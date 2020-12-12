@@ -43,7 +43,10 @@ public class Tunnel : MonoBehaviour
         Vector3[] transform = new Vector3[2];
 
         if (!RhythmicGame.IsTunnelMode)
+        {
             transform[0] = new Vector3(id * RhythmicGame.TrackWidth, 0, 0);
+            transform[1] = new Vector3(0, 0, id * RhythmicGame.TrackWidth / 12);
+        }
         else
         {
             float angle = id * -rotZ;

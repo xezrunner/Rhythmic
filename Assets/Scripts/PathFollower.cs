@@ -122,12 +122,12 @@ public class PathFollower : MonoBehaviour
                 {
                     foreach (AmpTrackSection s in track.Measures)
                         if (s && s.IsEmpty)
-                            s.EdgeLights.gameObject.SetActive(true);
+                            s.EdgeLights_Local.gameObject.SetActive(true);
                 }
                 else
                     foreach (AmpTrackSection s in track.Measures)
                         if (s && s.IsEmpty)
-                            s.EdgeLights.gameObject.SetActive(false);
+                            s.EdgeLights_Local.gameObject.SetActive(false);
             }
         }
 

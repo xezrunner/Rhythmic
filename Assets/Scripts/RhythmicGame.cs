@@ -91,15 +91,11 @@ public static class RhythmicGame
 
     // Event debug
     public static bool DebugTrackCreationEvents = true;
-    public static bool DebugTrackMaterialEvents = false;
-    public static bool DebugLaneCreationEvents = false;
-    public static bool DebugNoteCreationEvents = false;
     public static bool DebugTrackCapturingEvents = false;
     public static bool DebugTrackCapturingEase = false;
 
-
-    public static bool DebugPlayerMovementEvents = false;
     public static bool DebugPlayerCameraAnimEvents = false;
+    public static bool DebugPlayerTrackSwitchEvents = true;
     public static bool DebugTrackSeekEvents = true;
 
     public static bool DebugNextNoteCheckEvents = true;

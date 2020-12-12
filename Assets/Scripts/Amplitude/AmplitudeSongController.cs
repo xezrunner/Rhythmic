@@ -81,9 +81,11 @@ public class AmplitudeSongController : SongController
 
         // TODO: move elsewhere
         // Scale the catchers and CatcherController
+        /*
         CatcherController.Instance.BoxCollider.size = new Vector3(CatcherController.Instance.BoxCollider.size.x, CatcherController.Instance.BoxCollider.size.y, CatcherController.Instance.BoxCollider.size.z / TunnelSpeedAccountation * 1.3f);
         CatcherController.Instance.CatcherRadiusExtra = CatcherController.Instance.CatcherRadiusExtra / TunnelSpeedAccountation;
         CatcherController.Instance.gameObject.SetActive(false);
+        */
 
         Time.timeScale = 1f;
 

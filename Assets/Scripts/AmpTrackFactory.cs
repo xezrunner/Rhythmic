@@ -13,7 +13,7 @@ public partial class AmpTrack
     /// <summary>
     /// Creates a measure and adds it to the measure list.
     /// </summary>
-    public AmpTrackSection CreateMeasure(MetaMeasure meta)
+    public AmpTrackSection CreateMeasure(MetaMeasure meta, AmpTrack track)
     {
         /// Create object
         var obj = Instantiate(TrackSectionPrefab);
@@ -21,6 +21,7 @@ public partial class AmpTrack
 
         /// Get and configure script
         AmpTrackSection measure = obj.GetComponent<AmpTrackSection>();
+        measure.Track = track;
         measure.ID = meta.ID;
         measure.Instrument = Instrument;
         measure.Length = SongController.measureLengthInzPos;

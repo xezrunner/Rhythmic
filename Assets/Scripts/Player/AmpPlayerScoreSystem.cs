@@ -3,6 +3,7 @@ using UnityEngine;
 
 public partial class AmpPlayer : MonoBehaviour
 {
+    [Header("Score system")]
     public int Score;
     public int ScoreBuffer;
 

@@ -38,7 +38,7 @@ public class TrackStreamer : MonoBehaviour
         }
 
         // Stream in the horizon!
-        StreamMeasureRange(0, RhythmicGame.HorizonMeasures);
+        StreamMeasureRange(0, RhythmicGame.HorizonMeasures, -1);
     }
 
     /// ***** ----- DEBUG TEST ----- *****
@@ -81,7 +81,7 @@ public class TrackStreamer : MonoBehaviour
 
             var measureNotes = SongController.songNotes[trackID].Where(i => i.Key == id);
             if (measureNotes.Count() == 0)
-            { measure.IsEmpty = true; measure.MeshRenderer.gameObject.SetActive(false); measure.EdgeLights.gameObject.SetActive(false); }
+            { measure.IsEmpty = true; measure.MeshRenderer.gameObject.SetActive(false); measure.EdgeLights_Local.gameObject.SetActive(false); }
             else
             {
                 foreach (KeyValuePair<int, MetaNote> kv in measureNotes)
@@ -99,8 +99,8 @@ public class TrackStreamer : MonoBehaviour
     /// <param name="id">Measure ID to stream in</param>
     /// <param name="trackID">Track to stream in from - use -1 to stream in from all the tracks!</param>
     /// <returns></returns>
-    public void StreamMeasure(int id, int trackID = -1) => StartCoroutine(_StreamMeasure(id, trackID));
-    IEnumerator _StreamMeasure(int id, int trackID = -1)
+    public void StreamMeasure(int id, int trackID = -1, bool delay = false) => StartCoroutine(_StreamMeasure(id, trackID, delay));
+    IEnumerator _StreamMeasure(int id, int trackID = -1, bool immediate = false)
     {
         if (trackID != -1) // stream measure!
         {
@@ -108,7 +108,7 @@ public class TrackStreamer : MonoBehaviour
             AmpTrack track = TrackController.Tracks[trackID];
 
             // Create section!
-            AmpTrackSection measure = track.CreateMeasure(meta);
+            AmpTrackSection measure = track.CreateMeasure(meta, track);
 
             // Stream notes!
             // Get all meta notes from the current measure
@@ -119,7 +119,7 @@ public class TrackStreamer : MonoBehaviour
             for (int i = 0; i < TrackController.Tracks.Count; i++)
             {
                 StartCoroutine(_StreamMeasure(id, i));
-                yield return new WaitForSeconds(0.1f); // delay by a bit to account for performance drop
+                yield return new WaitForSeconds(!immediate ? 0.1f : 0f); // delay by a bit to account for performance drop
             }
             yield return null;
         }
@@ -132,12 +132,12 @@ public class TrackStreamer : MonoBehaviour
     /// <param name="endID"></param>
     /// <param name="trackID">Tracks to stream in from - use -1 to stream in all the tracks!</param>
     /// <returns></returns>
-    public void StreamMeasureRange(int startID, int endID, int trackID = -1) => StartCoroutine(_StreamMeasureRange(startID, endID, trackID));
-    IEnumerator _StreamMeasureRange(int startID, int endID, int trackID = -1)
+    public void StreamMeasureRange(int startID, int endID, int trackID = -1, bool immediate = false) => StartCoroutine(_StreamMeasureRange(startID, endID, trackID));
+    IEnumerator _StreamMeasureRange(int startID, int endID, int trackID = -1, bool immediate = false)
     {
         for (int i = startID; i < endID; i++)
         {
-            StreamMeasure(i, trackID);
+            StreamMeasure(i, trackID, immediate);
             //yield return new WaitForSeconds(0.1f);
         }
         yield return null;
