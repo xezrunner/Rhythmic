@@ -51,13 +51,6 @@ public class AmpNote : MonoBehaviour
         {
             _isCaptured = value;
 
-            if (value)
-            {
-                PS.gameObject.SetActive(true);
-                PS.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-                PS.Play();
-            }
-
             DotLight.SetActive(value);
             NoteMeshRenderer.enabled = !value;
         }
@@ -74,12 +67,17 @@ public class AmpNote : MonoBehaviour
 
         // Set particle system color to match dotlight!
         PS_main = PS.main;
-        PS_main.startColor = (DotLightColor * 1.5f);
+        PS_main.startColor = (DotLightColor * 2f);
     }
 
-    public void CaptureNote(bool anim = true)
+    public void CaptureNote(bool anim = true, bool stopPrevious = false)
     {
         IsCaptured = true;
+
+        PS.gameObject.SetActive(true);
+        if (stopPrevious)
+            PS.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        PS.Play();
 
         //if (!anim) // Ignore animation if specified
     }

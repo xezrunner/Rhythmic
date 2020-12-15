@@ -6,6 +6,7 @@ using UnityEngine;
 public partial class AmpTrack : MonoBehaviour
 {
     // TODO: performance accessing these might be a bit concerning?
+    Tunnel Tunnel { get { return Tunnel.Instance; } }
     SongController SongController { get { return SongController.Instance; } }
 
     /// References to the contents
@@ -32,6 +33,10 @@ public partial class AmpTrack : MonoBehaviour
     public int RealID = -1; // The individual ID of each track. (in case of TUNNEL DUPLICATION, it's its own particular ID!)
     public int SetID = 0; // TUNNEL DUPLICATION: which track set does this track belong to?
     public string TrackName = ""; // Instrument name of the track. Object name *should* be the same.
+
+    public Vector3[] TunnelTransform;
+    public Vector3 TunnelPos;
+    public Vector3 TunnelRot;
 
     Color _color = Colors.Bass;
     public Color Color
@@ -111,13 +116,20 @@ public partial class AmpTrack : MonoBehaviour
 
     /// Functionality
 
+    void Start()
+    {
+        TunnelTransform = Tunnel.GetTransformForTrackID(RealID);
+        TunnelPos = TunnelTransform[0];
+        TunnelRot = TunnelTransform[1];
+    }
+
     float smoothStep;
     private void Update()
     {
         if (IsTrackCapturing)
         {
             if (RhythmicGame.DebugTrackCapturingEase) Debug.Log("CAPTURE: step: " + AmpTrackSectionDestruct.step);
-            AmpTrackSectionDestruct.step = Mathf.SmoothDamp(AmpTrackSectionDestruct.step, 3f, ref smoothStep, 20f * Time.deltaTime);
+            AmpTrackSectionDestruct.step = Mathf.SmoothDamp(AmpTrackSectionDestruct.step, 3f, ref smoothStep, 1f, 10f, 1f * Time.deltaTime);
         }
     }
 

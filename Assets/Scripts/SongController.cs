@@ -37,7 +37,7 @@ public class SongController : MonoBehaviour
     public AudioSource mainAudioSource; // The BG_CLICK AudioSource
 
     bool _isPlaying;
-    public bool IsPlaying { get { return _isPlaying; } set { _isPlaying = value; Player.IsPlaying = value; } } // Sets both local and Player values
+    public bool IsPlaying { get { return _isPlaying; } set { _isPlaying = value; /*Player.IsPlaying = value;*/ } } // Sets both local and Player values
 
     public float songSpeed = 1f;
     public float songOffset;
@@ -299,6 +299,13 @@ public class SongController : MonoBehaviour
             if (!IsPlaying) src.Pause();
             else src.UnPause();
         });
+    }
+    public void PlayPause()
+    {
+        if (songPosition == 0f)
+            Play();
+        else
+            TogglePause();
     }
     // Changes the speed of the music
     public void SetSongSpeed(float speed)

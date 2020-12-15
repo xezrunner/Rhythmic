@@ -44,11 +44,13 @@ public static class MeshDeformer
         //    return pos;
         //}
 
-        Vector3 localUp = Vector3.Cross(path.GetTangentAtDistance(dist), path.GetNormalAtDistance(dist));
-        Vector3 localRight = path.GetNormalAtDistance(dist);
+        //Vector3 localUp = Vector3.Cross(path.GetTangentAtDistance(dist), path.GetNormalAtDistance(dist));
+        //Vector3 localRight = path.GetNormalAtDistance(dist);
 
-        Vector3 splinePoint = path.GetPointAtDistance(dist); // Point on path at the distance
-        splinePoint += (localRight * position.x) + (localUp * position.y); // Parallel position offsetting
+        //Vector3 splinePoint = path.GetPointAtDistance(dist); // Point on path at the distance
+        //splinePoint += (localRight * position.x) + (localUp * position.y); // Parallel position offsetting
+
+        Vector3 splinePoint = PathTools.GetPositionOnPath(path, dist, position - Tunnel.Instance.center);
 
         Quaternion pathRotation = path.GetRotationAtDistance(dist) * Quaternion.Euler(0, 0, 90); // Rot on path at the distance
         pathRotation = pathRotation * Quaternion.Euler(0, 0, angle); // Rotation addition

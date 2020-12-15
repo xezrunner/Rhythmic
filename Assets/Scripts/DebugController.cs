@@ -29,7 +29,7 @@ public class DebugController : MonoBehaviour
     public void AMP_ChangeSong(string value)
     {
         SongController.songName = value;
-        Player.ScoreText.text = string.Format("Song changed: {0} - restart!", value);
+        //Player.ScoreText.text = string.Format("Song changed: {0} - restart!", value);
     }
 
 #if UNITY_ANDROID

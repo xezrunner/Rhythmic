@@ -75,11 +75,11 @@ public class TrackStreamer : MonoBehaviour
     public void StreamNotes(int id, int trackID, AmpTrackSection measure) => StartCoroutine(_StreamNotes(id, trackID, measure));
     IEnumerator _StreamNotes(int id, int trackID, AmpTrackSection measure)
     {
-        for (int x = 1; x <= RhythmicGame.TunnelTrackDuplicationNum; x++)
-        {
-            AmpTrack track = TrackController.Tracks[trackID * x];
+        //for (int x = 1; x <= RhythmicGame.TunnelTrackDuplicationNum; x++)
+        //{
+            AmpTrack track = TrackController.Tracks[trackID];
 
-            var measureNotes = SongController.songNotes[trackID].Where(i => i.Key == id);
+            var measureNotes = SongController.songNotes[track.ID].Where(i => i.Key == id);
             if (measureNotes.Count() == 0)
             { measure.IsEmpty = true; measure.MeshRenderer.gameObject.SetActive(false); measure.EdgeLights_Local.gameObject.SetActive(false); }
             else
@@ -90,7 +90,7 @@ public class TrackStreamer : MonoBehaviour
                     yield return new WaitForSeconds(0.1f);
                 }
             }
-        }
+        //}
     }
 
     /// <summary>
@@ -99,7 +99,7 @@ public class TrackStreamer : MonoBehaviour
     /// <param name="id">Measure ID to stream in</param>
     /// <param name="trackID">Track to stream in from - use -1 to stream in from all the tracks!</param>
     /// <returns></returns>
-    public void StreamMeasure(int id, int trackID = -1, bool delay = false) => StartCoroutine(_StreamMeasure(id, trackID, delay));
+    public void StreamMeasure(int id, int trackID = -1, bool immediate = false) => StartCoroutine(_StreamMeasure(id, trackID, immediate));
     IEnumerator _StreamMeasure(int id, int trackID = -1, bool immediate = false)
     {
         if (trackID != -1) // stream measure!
@@ -108,11 +108,11 @@ public class TrackStreamer : MonoBehaviour
             AmpTrack track = TrackController.Tracks[trackID];
 
             // Create section!
-            AmpTrackSection measure = track.CreateMeasure(meta, track);
+            AmpTrackSection measure = track.CreateMeasure(meta);
 
             // Stream notes!
             // Get all meta notes from the current measure
-            StreamNotes(id, track.ID, measure);
+            StreamNotes(id, track.RealID, measure);
         }
         else // Stream in the measure from all of the tracks!
         {
@@ -132,7 +132,7 @@ public class TrackStreamer : MonoBehaviour
     /// <param name="endID"></param>
     /// <param name="trackID">Tracks to stream in from - use -1 to stream in all the tracks!</param>
     /// <returns></returns>
-    public void StreamMeasureRange(int startID, int endID, int trackID = -1, bool immediate = false) => StartCoroutine(_StreamMeasureRange(startID, endID, trackID));
+    public void StreamMeasureRange(int startID, int endID, int trackID = -1, bool immediate = false) => StartCoroutine(_StreamMeasureRange(startID, endID, trackID, immediate));
     IEnumerator _StreamMeasureRange(int startID, int endID, int trackID = -1, bool immediate = false)
     {
         for (int i = startID; i < endID; i++)

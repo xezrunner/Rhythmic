@@ -6,6 +6,7 @@ public class AmpPlayerInputHandler : MonoBehaviour
 {
     public AmpPlayer Player;
     public AmpPlayerTrackSwitching TrackSwitching;
+    SongController SongController { get { return SongController.Instance; } }
 
     void OnTrackSwitchLeft() => TrackSwitching.SwitchTowardsDirection(HDirection.Left);
     void OnTrackSwitchLeftForce() => TrackSwitching.SwitchTowardsDirection(HDirection.Left, true);
@@ -19,5 +20,5 @@ public class AmpPlayerInputHandler : MonoBehaviour
     void OnPowerup() { }
     void OnChangeCamera() { }
 
-    void OnPlayPause() { }
+    void OnPlayPause() => SongController.PlayPause();
 }

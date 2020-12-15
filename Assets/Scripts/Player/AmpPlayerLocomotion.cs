@@ -15,19 +15,23 @@ public class AmpPlayerLocomotion : MonoBehaviour
     [Header("Camera and objects")]
     public Camera MainCamera;
     public Transform Interpolatable;
-    public Transform Contents;
+    public Transform NonInterpolatable;
 
     [Header("Properties")]
-    public float EasingStrength = 1.0f;
+    public float SmoothDuration = 1.0f;
     public float DistanceTravelled;
 
     [Header("Track switching")]
-    public float PositionOffset;
-    public float RotationOffset;
+    public Vector3 PositionOffset;
+    public Vector3 RotationOffset;
+    public Vector3 TunnelRotation;
 
     void Start()
     {
         if (Path == null) GetPath();
+        transform.position = Tunnel.center / 2;
+        if (RhythmicGame.IsTunnelMode)
+            MainCamera.transform.localPosition -= Tunnel.center;
 
         Locomotion(); // Position player on path right away
     }
@@ -55,39 +59,38 @@ public class AmpPlayerLocomotion : MonoBehaviour
     // Locomotion
     Quaternion rotVelocity; // Temporary value holding current rotation velocity (ref)
 
+    public Vector3 offset;
+
     /// <summary>
     /// Moves the player along the path for a given distance. <br/>
     /// If no path exists, the player is moved to the distance without taking any world contour into account.
     /// </summary>
     public void Locomotion(float distance = 0f)
     {
-        if (!RhythmicGame.IsTunnelMode) // Regular mode
+        if (Path is null)
+            transform.position = new Vector3(0, 0, distance) + PositionOffset;
+        else
         {
-            if (Path is null)
-                transform.position = new Vector3(PositionOffset, 0, distance);
+            Vector3 targetPos;
+
+            if (!RhythmicGame.IsTunnelMode)
+                targetPos = PathTools.GetPositionOnPath(Path, distance, PositionOffset);
             else
-            {
-                Vector3 localRight = Path.GetNormalAtDistance(distance);
-                Vector3 targetPos = Path.GetPointAtDistance(distance) + (localRight * PositionOffset);
-                transform.position = targetPos;
+                targetPos = PathTools.GetPositionOnPath(Path, distance);
 
-                Quaternion currentRot = Interpolatable.rotation;
-                Quaternion targetRot = Path.GetRotationAtDistance(distance) * Quaternion.Euler(0, 0, 90);
-                Interpolatable.rotation = QuaternionUtil.SmoothDamp(currentRot, targetRot, ref rotVelocity, EasingStrength);
-                Contents.rotation = targetRot;
+            transform.position = targetPos;
 
-                transform.eulerAngles = new Vector3(0, 0, RotationOffset);
-            }
-        }
-        else // Tunnel mode
-        {
-            Debug.LogError("Locomotion: Tunnel mode not yet implemented!");
-            return;
+            //Quaternion targetRot = Path.GetRotationAtDistance(distance) * Quaternion.Euler(0, 0, 90) * Quaternion.Euler(tunnelRotation_smooth);
+            Quaternion targetRot = PathTools.GetRotationOnPath(Path, distance, TunnelRotation + offset);
+            Interpolatable.localRotation = QuaternionUtil.SmoothDamp(Interpolatable.localRotation, targetRot, ref rotVelocity, SmoothDuration);
+            NonInterpolatable.localRotation = targetRot;
         }
     }
 
     [Header("Testing properties")]
     public bool IsPlaying; // TEMP
+
+    public float LiveCaptDist;
 
     float step;
     void Update()
@@ -102,6 +105,19 @@ public class AmpPlayerLocomotion : MonoBehaviour
                 DistanceTravelled += 4f * Time.deltaTime;
 
             Locomotion(DistanceTravelled);
+
+            foreach (AmpTrack t in TracksController.Tracks)
+            {
+                foreach (AmpTrackSection s in t.Measures)
+                {
+                    if (s is null) continue;
+                    foreach (AmpNote n in s.Notes)
+                    {
+                        if ((int)n.Distance == (int)DistanceTravelled + LiveCaptDist & n.IsCaptured)
+                            n.CaptureNote(true, true);
+                    }
+                }
+            }
         }
     }
 }

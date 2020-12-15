@@ -20,7 +20,7 @@ public partial class AmpPlayer : MonoBehaviour
 
     void Start()
     {
-        
+
     }
 
     // Functionality

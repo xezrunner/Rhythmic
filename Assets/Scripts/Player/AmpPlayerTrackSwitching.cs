@@ -43,8 +43,18 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
         int id = TracksController.CurrentTrackID;
 
         if (force > 0) // Forceful
-            id = Mathf.Clamp(id += (direction == HDirection.Left) ? -1 : 1,
-                0, TracksController.Tracks.Count - 1);
+        {
+            // Handle edges, roll over in Tunnel mode or when wrapping!
+            if (!RhythmicGame.IsTunnelMode) // Regular mode
+                id = Mathf.Clamp(id += (direction == HDirection.Left) ? -1 : 1,
+                    0, TracksController.Tracks.Count - 1);
+            else // Tunnel mode
+            {
+                id += (direction == HDirection.Left) ? -1 : 1;
+                if (id == TracksController.Tracks.Count - 1) id = 0;
+                else if (id == -1) id = TracksController.Tracks.Count - 1;
+            }
+        }
         else if (RhythmicGame.TrackSeekingEnabled) // Track seeking
         {
             // to be added
@@ -95,8 +105,8 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
     Vector3 targetRot;
 
     // Velocity storage for SmoothDamp()
-    float pos_vel = 0f;
-    float rot_vel = 0f;
+    Vector3 pos_vel;
+    Vector3 rot_vel;
 
     /// <summary>
     /// Prepares the track switching animation values. <br/>
@@ -116,7 +126,8 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
 
         // When rotating beyond 180, we want a smooth transition to the inverse angles instead. 
         // We utilize the fact that negative angles are the same as 360 - (-angle) | (example:  -60 = 330) and vice-versa.
-        if (!RhythmicGame.IsTunnelMode)
+        /*
+        if (RhythmicGame.IsTunnelMode)
         {
             // LEFT
             // If the target is on the right part of the tunnel & the difference between target and camera is 180
@@ -126,13 +137,23 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
             // RIGHT
             // If the target is on the left part of the tunnel & the difference between camera and target is 180
             else if ((targetRot.z < transform.eulerAngles.z) & (transform.eulerAngles.z - targetRot.z > 180)) // RIGHT
-                transform.eulerAngles = new Vector3(0, 0, -(360 - transform.eulerAngles.z)); // change to 360 + target
+            {
+                //transform.eulerAngles = new Vector3(0, 0, -(360 - transform.eulerAngles.z)); // change to 360 + target
+                Quaternion targetRot = PathTools.GetRotationOnPath(Locomotion.Path, Locomotion.DistanceTravelled, Locomotion.TunnelRotation);
+                Locomotion.Interpolatable.localRotation = targetRot;
+                Locomotion.NonInterpolatable.localRotation = targetRot;
+            }
         }
+        */
+
+        Locomotion.TunnelRotation = targetRot;
     }
+
     private void Update() // TODO: LateUpdate?
     {
-        Locomotion.PositionOffset = Mathf.SmoothDamp(Locomotion.PositionOffset, targetPos.x, ref pos_vel, 1f, 100f, EasingStrength * Time.deltaTime);
-        Locomotion.RotationOffset = Mathf.SmoothDamp(Locomotion.RotationOffset, targetRot.z, ref rot_vel, 1f, 100f, EasingStrength * Time.deltaTime);
+        Locomotion.PositionOffset = Vector3.SmoothDamp(Locomotion.PositionOffset, targetPos, ref pos_vel, 1f, 100f, EasingStrength * Time.deltaTime);
+        //if (!RhythmicGame.IsTunnelMode)
+        //    Locomotion.RotationOffset = Vector3.SmoothDamp(Locomotion.RotationOffset, targetRot, ref rot_vel, 1f, 100f, EasingStrength * Time.deltaTime);
 
         if (!SongController.IsPlaying || !Locomotion.IsPlaying) // TEMP?: update while not playing for testing purposes
             Locomotion.Locomotion(Locomotion.DistanceTravelled);

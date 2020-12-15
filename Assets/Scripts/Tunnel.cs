@@ -15,10 +15,16 @@ public class Tunnel : MonoBehaviour
     public float rotZ; // one track's angle
 
     public float outline; // size of the tunnel's circle outline
-    public float radius; // half width of the circle (from center)
-    public float diameter; // full width of the circle (from 0, center)
+    /// <summary>
+    /// Half width of the circle (from center)
+    /// </summary>
+    public float radius;
+    /// <summary>
+    /// Full width of the circle (from 0, center)
+    /// </summary>
+    public float diameter;
 
-    public Vector2 center; // the center points of the circle
+    public Vector3 center; // the center points of the circle
 
     void Awake() { Instance = this; }
 
@@ -43,10 +49,7 @@ public class Tunnel : MonoBehaviour
         Vector3[] transform = new Vector3[2];
 
         if (!RhythmicGame.IsTunnelMode)
-        {
             transform[0] = new Vector3(id * RhythmicGame.TrackWidth, 0, 0);
-            transform[1] = new Vector3(0, 0, id * RhythmicGame.TrackWidth / 12);
-        }
         else
         {
             float angle = id * -rotZ;
