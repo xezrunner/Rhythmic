@@ -29,7 +29,7 @@ public class DebugController : MonoBehaviour
     public void AMP_ChangeSong(string value)
     {
         SongController.songName = value;
-        Player.ScoreText.text = string.Format("Song changed: {0} - restart!", value);
+        //Player.ScoreText.text = string.Format("Song changed: {0} - restart!", value);
     }
 
 #if UNITY_ANDROID
@@ -104,7 +104,7 @@ public class DebugController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F))
         {
             RhythmicGame.IsTunnelMode = !RhythmicGame.IsTunnelMode;
-            Player.ScoreText.text = string.Format("Tunnel {0} - restart!", RhythmicGame.IsTunnelMode ? "ON" : "OFF");
+            //Player.ScoreText.text = string.Format("Tunnel {0} - restart!", RhythmicGame.IsTunnelMode ? "ON" : "OFF");
         }
 
         // Lag compensation

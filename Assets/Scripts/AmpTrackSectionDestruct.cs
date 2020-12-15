@@ -1,5 +1,4 @@
 using PathCreation;
-using UnityEditorInternal;
 using UnityEngine;
 
 /// AmpTrackSectionDestruct

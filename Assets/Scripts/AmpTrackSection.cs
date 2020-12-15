@@ -15,25 +15,30 @@ using UnityEditor.Experimental.SceneManagement;
 public class AmpTrackSection : MonoBehaviour
 {
     SongController SongController { get { return SongController.Instance; } }
+    public PathCreator PathCreator { get { return GameObject.Find("Path").GetComponent<PathCreator>(); } } // TODO: change these to variables
+    public VertexPath Path { get { if (PathCreator) return PathCreator.path; else { Debug.LogError("AmpTrack: Path not available - PathCreator is null!"); return null; } } }
 
     /// References to the contents
+    [Header("Common")]
     //public GameObject Model; // Main track section model
     public MeshRenderer MeshRenderer;
     public MeshFilter MeshFilter; // Mesh of the model
-    public EdgeLights EdgeLights;
+    public EdgeLights EdgeLights_Local; // This is visually part of the track model itself - it gets clipped with capturing
+    public EdgeLights EdgeLights_Global; // This is the 'focus indicator' edge lights, which does not get clipped.
     public Transform NoteContainer;
 
     public ClippingPlane ClipManager;
     public GameObject LengthPlane; // This plane trims the model to the desired length
     public GameObject ClipPlane;
 
+    [Header("Variables")]
+    public AmpTrack Track; // The track this measure belongs to
     public List<AmpNote> Notes = new List<AmpNote>();
 
     /// Path-related stuff
     /// TODO: Global Path variable? !!!
-    public PathCreator PathCreator { get { return GameObject.Find("Path").GetComponent<PathCreator>(); } }
-    public VertexPath Path { get { if (PathCreator) return PathCreator.path; else { Debug.LogError("AmpTrack: Path not available - PathCreator is null!"); return null; } } }
 
+    [Header("Properties")]
     public Vector3 PositionOnPath;
     public float RotationOnPath; // Note: in Euler angles!
 
@@ -52,7 +57,7 @@ public class AmpTrackSection : MonoBehaviour
     public Color Color
     {
         get { return _color; }
-        set { _color = value; EdgeLights.Color = value; }
+        set { _color = value; EdgeLights_Local.Color = EdgeLights_Global.Color = value; }
     }
 
     // Deformation
@@ -104,6 +109,8 @@ public class AmpTrackSection : MonoBehaviour
         _prevPositionOnPath = PositionOnPath;
         _prevRotationOnPath = RotationOnPath;
 #endif
+        // Set up global edge light based on track focus state
+        SetGlobalEdgeLights(Track.IsTrackFocused);
 
         MeshFilter.mesh = AmpMeshTestScript.CreateMesh(RhythmicGame.TrackWidth, Length);
 
@@ -115,6 +122,9 @@ public class AmpTrackSection : MonoBehaviour
 
         Clip(); // Clips to length
     }
+
+    /// Edge lights
+    public void SetGlobalEdgeLights(bool value = true) => EdgeLights_Global.IsActive = value;
 
     /// Model deformation and functionality
 
@@ -154,9 +164,10 @@ public class AmpTrackSection : MonoBehaviour
 
         // Mesh deformation
         MeshDeformer.DeformMesh(path, mesh, position, angle, originalMesh.vertices);
-        EdgeLights.Mesh = mesh;
+        EdgeLights_Local.Mesh = EdgeLights_Global.Mesh = mesh;
         // Set Edge lights mesh to the same mesh as top mesh!
-        MeshDeformer.DeformMesh(path, EdgeLights.Mesh, position + Vector3.up * 0.1f, angle, originalMesh.vertices);
+        MeshDeformer.DeformMesh(path, EdgeLights_Local.Mesh, position + Vector3.up * 0.1f, angle, originalMesh.vertices);
+        MeshDeformer.DeformMesh(path, EdgeLights_Global.Mesh, position + Vector3.up * 0.1f, angle, originalMesh.vertices);
     }
 
     public void Clip(float fraction = -1f)

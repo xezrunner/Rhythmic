@@ -9,31 +9,32 @@ using PathCreation;
 
 public class AmpTrackController : MonoBehaviour
 {
-    #region Editor test variables
+    [Header("Editor test variables")]
     public Vector3 TestTrackSectionPos;
     public float TestTrackSectionRot;
-    #endregion
 
+    [Header("Common")]
     public static AmpTrackController Instance;
     public SongController SongController { get { return SongController.Instance; } }
+    public Tunnel Tunnel;
+    PathCreator pathCreator;
     Player Player { get { return Player.Instance; } }
 
-    public Tunnel Tunnel;
+    [Header("Prefabs")]
+    GameObject trackPrefab; // Change to public property?
 
+    [Header("Variables")]
     public List<AmpTrack> Tracks = new List<AmpTrack>();
     public List<string> songTracks = new List<string>();
 
-    public AmpTrack focusedTrack; // The track that the player is currently on
-
-    /// Prefabs
-    GameObject trackPrefab;
+    [Header("Properties")]
+    public int CurrentTrackID = -1; // -1 is none
+    public AmpTrack CurrentTrack; // The track that the player is currently on
 
     /// Events
     public event EventHandler<int[]> OnTrackSwitched;
 
-    PathCreator pathCreator;
-
-    /// ------------------------------ ///
+    /// Functionality
 
     void Awake()
     {
@@ -43,14 +44,11 @@ public class AmpTrackController : MonoBehaviour
         pathCreator = GameObject.Find("Path").GetComponent<PathCreator>();
         trackPrefab = (GameObject)Resources.Load("Prefabs/AmpTrack");
 
-        Player.OnTrackSwitched += Player_OnTrackSwitched; // wire up Player track switching event
-    }
-    void Start()
-    {
+        OnTrackSwitched += Tracks_OnTrackSwitched;
+
         // Create a list of playable song tracks in string form
         // Used for tunnel and track creation
         songTracks.Clear();
-
 
         foreach (string s in SongController.songTracks)
         {
@@ -61,7 +59,7 @@ public class AmpTrackController : MonoBehaviour
             songTracks.Add(s);
         }
 
-        // Create Tunnel component
+        // Create Tunnel component (must have songTracks ready before this!)
         Tunnel = gameObject.AddComponent<Tunnel>();
         Tunnel.Init(songTracks.Count * RhythmicGame.TunnelTrackDuplicationNum);
 
@@ -69,8 +67,12 @@ public class AmpTrackController : MonoBehaviour
         CreateTracks();
     }
 
-    /// Tracks
+    private void Tracks_OnTrackSwitched(object sender, int[] e)
+    {
+        Debug.LogFormat("TRACKS: Track switched from {0} to {1}", e[0], e[1]);
+    }
 
+    /// Tracks
     // Track creation
     /// <summary>
     /// Creates the Tracks list. <br/>
@@ -112,8 +114,35 @@ public class AmpTrackController : MonoBehaviour
         return com;
     }
 
+    // Track states
     public void SetTrackState(int id, bool state) => SetTrackState(Tracks[id], state);
     public void SetTrackState(AmpTrack track, bool state) => track.IsEnabled = state;
+
+    // Track switching
+    /// <summary>
+    /// Switches the track. <br/>
+    /// This handles setting the new track ID and preparing the tracks for their focus states.
+    /// </summary>
+    public void SwitchToTrack(AmpTrack track)
+    {
+        // Prepare event args
+        int[] eventArgs = new int[2] { CurrentTrackID, track.ID };
+
+        // Set track variables
+        CurrentTrackID = track.RealID;
+        CurrentTrack = track;
+
+        // Handle focus states
+        foreach (AmpTrack t in Tracks)
+            t.IsTrackFocused = (t.RealID == track.RealID); // Focused state is whether t's ID is the same as the requested track's ID
+
+        if (RhythmicGame.DebugPlayerTrackSwitchEvents)
+            Debug.LogFormat("TRACKS: Track switched to {0} [{1}]", track.ID, track.TrackName != "" ? track.TrackName : track.name);
+
+        // Invoke event!
+        OnTrackSwitched?.Invoke(this, eventArgs);
+    }
+    public void SwitchToTrack(int ID) => SwitchToTrack(Tracks[ID]);
 
     // Measure capturing
     /// <summary>
@@ -144,18 +173,5 @@ public class AmpTrackController : MonoBehaviour
         AmpTrackSectionDestruct.step = 0.5f;
 
         if (RhythmicGame.DebugTrackCapturingEvents) Debug.Log("CAPTURE: done");
-    }
-
-    /*
-    IEnumerator _CaptureMeasureAmount(int start, int amount, AmpTrack track)
-    {
-        for (int i = start; i <= start + amount; i++)
-            yield return track.CaptureMeasure(i);
-    }
-    */
-
-    private void Player_OnTrackSwitched(object sender, Track e)
-    {
-
     }
 }

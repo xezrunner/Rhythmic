@@ -15,10 +15,16 @@ public class Tunnel : MonoBehaviour
     public float rotZ; // one track's angle
 
     public float outline; // size of the tunnel's circle outline
-    public float radius; // half width of the circle (from center)
-    public float diameter; // full width of the circle (from 0, center)
+    /// <summary>
+    /// Half width of the circle (from center)
+    /// </summary>
+    public float radius;
+    /// <summary>
+    /// Full width of the circle (from 0, center)
+    /// </summary>
+    public float diameter;
 
-    public Vector2 center; // the center points of the circle
+    public Vector3 center; // the center points of the circle
 
     void Awake() { Instance = this; }
 

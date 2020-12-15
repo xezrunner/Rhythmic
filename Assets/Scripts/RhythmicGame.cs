@@ -17,7 +17,7 @@ public static class RhythmicGame
         QualitySettings.vSyncCount = vsync;
         Application.targetFrameRate = fps;
     }
-    public static void Restart() { SetTimescale(1f); Player.Instance.IsPlaying = false; SongController.Instance.IsPlaying = false; SceneManager.LoadScene("Loading", LoadSceneMode.Single); }
+    public static void Restart() { SetTimescale(1f); /*Player.Instance.IsPlaying = false; SongController.Instance.IsPlaying = false;*/ SceneManager.LoadScene("Loading", LoadSceneMode.Single); }
     public static void SetTimescale(float speed)
     {
         Time.timeScale = speed;
@@ -62,11 +62,11 @@ public static class RhythmicGame
     // Gameplay props
     public static float SlopMs = 100f;
     public static float DebounceWindowMs = 85f;
-    public static int HorizonMeasures = 15; // How many measures should we be able to see ahead of us
+    public static int HorizonMeasures = 7; // How many measures should we be able to see ahead of us
 
     public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
     public static bool TunnelTrackDuplication = true; // Whether to duplicate tracks when using tunnel mode
-    static int _tunnelTrackDuplicationNum = 3; // How many tracks should be there when we duplicate in tunnel mode
+    static int _tunnelTrackDuplicationNum = 3; // How many times should track sets exist in Tunnel mode
     public static int TunnelTrackDuplicationNum // Automatically returns 1 when tunnel mode or track duplication is off
     {
         get { return (IsTunnelMode & TunnelTrackDuplication) ? _tunnelTrackDuplicationNum : 1; }
@@ -91,15 +91,11 @@ public static class RhythmicGame
 
     // Event debug
     public static bool DebugTrackCreationEvents = true;
-    public static bool DebugTrackMaterialEvents = false;
-    public static bool DebugLaneCreationEvents = false;
-    public static bool DebugNoteCreationEvents = false;
     public static bool DebugTrackCapturingEvents = false;
     public static bool DebugTrackCapturingEase = false;
 
-
-    public static bool DebugPlayerMovementEvents = false;
     public static bool DebugPlayerCameraAnimEvents = false;
+    public static bool DebugPlayerTrackSwitchEvents = true;
     public static bool DebugTrackSeekEvents = true;
 
     public static bool DebugNextNoteCheckEvents = true;

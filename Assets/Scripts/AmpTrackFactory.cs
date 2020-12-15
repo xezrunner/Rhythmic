@@ -21,6 +21,7 @@ public partial class AmpTrack
 
         /// Get and configure script
         AmpTrackSection measure = obj.GetComponent<AmpTrackSection>();
+        measure.Track = this;
         measure.ID = meta.ID;
         measure.Instrument = Instrument;
         measure.Length = SongController.measureLengthInzPos;
@@ -28,12 +29,11 @@ public partial class AmpTrack
 
         // TODO: possibly simplify position &/ rotation properties?
         Vector3 measurePos = new Vector3(
-            RhythmicGame.TrackWidth * RealID, // X is the track's horizontal position
-            0, meta.StartDistance); // Z is the distance at which the measure needs to be placed
+            TunnelPos.x, // X is the track's horizontal position
+            TunnelPos.y, meta.StartDistance); // Z is the distance at which the measure needs to be placed
 
         measure.PositionOnPath = measurePos;
-        measure.PositionOnPath.z = measurePos.z;
-        measure.RotationOnPath = zRot;
+        measure.RotationOnPath = TunnelRot.z;
 
         /// Add measure to measure list
         Measures.Add(measure);
@@ -46,14 +46,20 @@ public partial class AmpTrack
         var obj = Instantiate(NotePrefab);
         if (measure) obj.transform.parent = measure.NoteContainer;
 
-        obj.transform.position = Path.GetPointAtDistance(meta.Distance);
-        obj.transform.rotation = Path.GetRotationAtDistance(meta.Distance) * Quaternion.Euler(0, 0, 90);
-        obj.transform.Translate(Vector3.right * (GetLocalXPosFromLaneType(meta.Lane) + (RhythmicGame.TrackWidth * RealID)));
+        Vector3 localRight = Path.GetNormalAtDistance(meta.Distance);
+
+        Vector3 offset = TunnelPos + Vector3.forward * meta.Distance;
+        obj.transform.position = offset;
+        obj.transform.eulerAngles = TunnelRot;
+        obj.transform.Translate(localRight * GetLocalXPosFromLaneType(meta.Lane));
+
+        obj.transform.position = PathTools.GetPositionOnPath(Path, meta.Distance, obj.transform.position - Tunnel.center);
+        obj.transform.rotation = PathTools.GetRotationOnPath(Path, meta.Distance, obj.transform.eulerAngles);
 
         // set up
         obj.name = meta.Name;
         AmpNote note = obj.GetComponent<AmpNote>();
-        note.TrackID = ID;
+        note.TrackID = RealID;
         note.MeasureID = meta.MeasureID;
         note.Lane = meta.Lane;
         note.Distance = meta.Distance;
