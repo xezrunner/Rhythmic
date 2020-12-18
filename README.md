@@ -35,4 +35,6 @@ Rhythmic also focuses on user generated content, letting players experience thei
 - [ ] Basic user interface
 
 #### Visuals
+- [x] Basic track visuals (custom mesh generation, edge lights, basic textures)
+- [ ] Proper track visuals
 - [ ] Basic world design
