@@ -1,14 +1,38 @@
 # Rhythmic
 
-### What is Rhythmic?
+**Warning!** This project is under construction. The game is incomplete in this state.
+
+## What is Rhythmic?
 
 Rhythmic is a fan re-creation of Amplitude by Harmonix. It is based on the same fundamental gameplay elements as the original, including the smaller details.
 
 Rhythmic also focuses on user generated content, letting players experience their own choice of songs within an Amplitude game.
 
-## Screenshots
+### Screenshots
 
 | Tracks | Captured tracks |
 |:-------------------------:|:-------------------------:|
 |<img width="1604" src="https://github.com/XesignSoftware/Rhythmic/blob/dev/Screenshots/Rhythmic_VsAqMjBX2z.jpg"> Regular mode | <img width="1604" src="https://github.com/XesignSoftware/Rhythmic/blob/dev/Screenshots/Rhythmic_SURQHKaETh.jpg"> Regular mode
 | <img width="1604" src="https://github.com/XesignSoftware/Rhythmic/blob/dev/Screenshots/Rhythmic_x8R3Crt7Ne.jpg"> Tunnel mode | <img width="1604" src="https://github.com/XesignSoftware/Rhythmic/blob/dev/Screenshots/Rhythmic_tPPlZAHIg4.jpg"> Tunnel mode
+
+## Planned features
+
+#### Amplitude PS3 / PS4 compatibility
+- [x] Ability to interpret song metadata (.mid & .moggsong)
+- [ ] Ability to play songs (.mogg)
+
+#### Gameplay mechanics
+- [x] Track streaming
+- [x] Track switching
+- [x] Track capturing (**animation only**)
+- [ ] Track capturing
+- [ ] Note blasting
+- [ ] Evaluating note misses & calculating next notes
+- [x] Tunnel mode core implementation
+- [ ] Tunnel mode optimizations
+
+#### User interface
+- [ ] Basic user interface
+
+#### Visuals
+- [ ] Basic world design
