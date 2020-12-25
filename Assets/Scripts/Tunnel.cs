@@ -38,7 +38,7 @@ public class Tunnel : MonoBehaviour
         rotZ = 360 / trackCount;
 
         outline = trackCount * RhythmicGame.TrackWidth;
-        radius = -outline / (2f * Mathf.PI) + 0.205f;
+        radius = -outline / (2f * Mathf.PI) + 0.0945f; // TODO: There's a gap between the tracks for some reason... what could this be?
         diameter = radius * 2f;
 
         center = new Vector2(0, -radius);
