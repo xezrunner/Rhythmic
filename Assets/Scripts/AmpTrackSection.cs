@@ -111,8 +111,10 @@ public class AmpTrackSection : MonoBehaviour
         _prevPositionOnPath = PositionOnPath;
         _prevRotationOnPath = RotationOnPath;
 #endif
+#if UNITY_EDITOR
         if (PrefabStageUtility.GetCurrentPrefabStage() != null) // Warning: do not change mesh in prefab isolation!
             return;
+#endif
 
         // Set up global edge light based on track focus state
         SetGlobalEdgeLights(Track.IsTrackFocused);
