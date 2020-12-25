@@ -75,8 +75,8 @@ public class AmpPlayerLocomotion : MonoBehaviour
     public void Locomotion(float distance = 0f)
     {
         // Set the horizon length (used by sections to clip the materials)
-        HorizonLength = DistanceTravelled +
-            (RhythmicGame.HorizonMeasures * SongController.measureLengthInzPos);
+        HorizonLength = DistanceTravelled - RhythmicGame.HorizonMeasuresOffset + // TODO: the individual track streaming is visible, so we temporarily offset it
+            (RhythmicGame.HorizonMeasures * SongController.measureLengthInzPos); 
 
         if (Path is null)
             transform.position = new Vector3(0, 0, distance) + PositionOffset;
