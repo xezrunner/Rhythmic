@@ -26,8 +26,8 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         ID = _measure.ID;
         Path = _measure.Path;
         ClipPlane = _measure.ClipPlane; // Get capture clipping plane from AmpTrackSection
-        PositionOnPath = _measure.PositionOnPath;
-        RotationOnPath = _measure.RotationOnPath;
+        PositionOnPath = _measure.Position;
+        RotationOnPath = _measure.Rotation;
         Length = _measure.Length;
 
         ClipManager = _measure.ClipManager;

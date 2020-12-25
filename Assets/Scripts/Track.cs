@@ -259,8 +259,8 @@ public class Track : MonoBehaviour
 
             GameObject obj = Instantiate(trackSectionPrefab);
             AmpTrackSection s = obj.GetComponent<AmpTrackSection>();
-            s.PositionOnPath = measurePosition;
-            s.RotationOnPath = gameObject.transform.eulerAngles.z;
+            s.Position = measurePosition;
+            s.Rotation = gameObject.transform.eulerAngles.z;
             s.Length = SongController.measureLengthInzPos;
 
             //GameObject obj = (GameObject)GameObject.Instantiate(measurePrefab);
