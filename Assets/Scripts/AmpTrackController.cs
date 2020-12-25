@@ -166,8 +166,9 @@ public class AmpTrackController : MonoBehaviour
 
         track.IsTrackCapturing = true;
 
-        for (int i = start; i <= end; i++)
-            yield return track.CaptureMeasure(track.Measures[i]);
+        for (int i = start; i < end; i++)
+            if (track.Measures[i])
+                yield return track.CaptureMeasure(track.Measures[i]);
 
         track.IsTrackCapturing = false;
         AmpTrackSectionDestruct.step = 0.5f;
