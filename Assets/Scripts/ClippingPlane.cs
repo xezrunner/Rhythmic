@@ -6,7 +6,8 @@ using UnityEngine;
 
 public class ClippingPlane : MonoBehaviour
 {
-    public List<MeshRenderer> MeshRenderer;
+    public List<MeshRenderer> MeshRenderers;
+    public List<Material> Materials;
     public GameObject plane;
     public GameObject inverse_plane;
 
@@ -27,8 +28,8 @@ public class ClippingPlane : MonoBehaviour
 
     void GetMaterials()
     {
-        if (MeshRenderer.Count > 0)
-            foreach (MeshRenderer r in MeshRenderer)
+        if (MeshRenderers.Count > 0)
+            foreach (MeshRenderer r in MeshRenderers)
                 foreach (Material m in r.materials)
                     mat.Add(m);
         else
@@ -37,6 +38,9 @@ public class ClippingPlane : MonoBehaviour
             foreach (Material m in r.materials)
                 mat.Add(r.material);
         }
+
+        foreach (Material m in Materials)
+            mat.Add(m);
     }
 
     public void Clip()
@@ -73,7 +77,7 @@ public class ClippingPlane : MonoBehaviour
             Plane _plane = new Plane(normal, inverse_plane.transform.position);
 
             //transfer values from plane to vector4
-            planeRepresentation = new Vector4(_plane.normal.x, _plane.normal.y, _plane.normal.z, _plane.distance);
+            inverse_planeRepresentation = new Vector4(_plane.normal.x, _plane.normal.y, _plane.normal.z, _plane.distance);
         }
 
         //pass vector to shader
