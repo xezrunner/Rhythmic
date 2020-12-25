@@ -15,7 +15,6 @@
 		_InversePlaneEnabled ("InversePlaneEnabled", Int) = 0
 
 		[HDR]_Emission ("Emission", color) = (0,0,0)
-
 		[HDR]_CutoffColor("Cutoff Color", Color) = (1,0,0,0)
 	}
 

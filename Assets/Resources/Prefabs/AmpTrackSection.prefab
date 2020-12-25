@@ -388,10 +388,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfbadc5a2f73f2c4fabfbc59e982edde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MeshRenderer:
+  MeshRenderers:
   - {fileID: 4073595771148080985}
   - {fileID: 7810684804628516725}
   - {fileID: 8093411818322262770}
+  Materials:
+  - {fileID: 2100000, guid: e7464939f63cc094181783d5b5fc63c5, type: 2}
   plane: {fileID: 1394400365724401751}
   inverse_plane: {fileID: 0}
 --- !u!1 &6543889804386215059
