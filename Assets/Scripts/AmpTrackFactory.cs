@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using NUnit.Framework.Constraints;
+using UnityEditor;
+using UnityEngine;
 
 /// <summary>
 /// Factory class for generating measures and notes in an AmpTrack
@@ -46,11 +48,14 @@ public partial class AmpTrack
         var obj = Instantiate(NotePrefab);
         if (measure) obj.transform.parent = measure.NoteContainer;
 
-        Vector3 laneOffset = Vector3.right * GetLocalXPosFromLaneType(meta.Lane); // Not sure why, but Vector3.right is better than the path's localRight in this case
-        Vector3 offset = (TunnelPos + laneOffset) - Tunnel.center;
-
+        Vector3 offset = TunnelPos - Tunnel.center;
         obj.transform.position = PathTools.GetPositionOnPath(Path, meta.Distance, offset);
-        obj.transform.rotation = PathTools.GetRotationOnPath(Path, meta.Distance, obj.transform.eulerAngles);
+        obj.transform.rotation = PathTools.GetRotationOnPath(Path, meta.Distance, TunnelRot);
+
+        Vector3 localRight = obj.transform.right; // After rotating the object on the path, we have the normal direction to the right
+        Vector3 laneOffset = localRight * GetLocalXPosFromLaneType(meta.Lane);
+
+        obj.transform.Translate(laneOffset, Space.World); // Translate to lane
 
         // set up
         obj.name = meta.Name;
