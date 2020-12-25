@@ -56,7 +56,7 @@ public class TrackStreamer : MonoBehaviour
     private void Clock_OnBar(object sender, int e)
     {
         // Stream measures on every bar tick
-        StreamMeasure(RhythmicGame.HorizonMeasures + e);
+        StreamMeasure(RhythmicGame.HorizonMeasures + e, -1, RhythmicGame.FastStreaming);
 
         // Delete measures behind us
         // TODO: revise!
