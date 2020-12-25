@@ -7,8 +7,10 @@ public class AmpTrackSectionClipping : MonoBehaviour
     public void LateUpdate()
     {
         if (Measure.Position.z > AmpPlayerLocomotion.Instance.HorizonLength - SongController.Instance.measureLengthInzPos - RhythmicGame.HorizonMeasuresOffset)
-
-            Measure.LengthClip();
+        {
+            if (!Measure.IsCapturing & !Measure.IsCaptured)
+                Measure.LengthClip();
+        }
         else
         {
             Measure.ClipManager.plane = null;
