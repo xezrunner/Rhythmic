@@ -92,7 +92,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         Vector3 planePos = Path.GetPointAtDistance(PositionOnPath.z + offset);
         planePos += (localRight * PositionOnPath.x) + (localUp * PositionOnPath.y); // offset
 
-        Quaternion planeRot = Path.GetRotationAtDistance(PositionOnPath.z + offset) * Quaternion.Euler(-90, 0, 0);
+        Quaternion planeRot = Path.GetRotationAtDistance(PositionOnPath.z + offset) * Quaternion.Euler(90, 0, 0);
 
         ClipPlane.transform.position = planePos;
         ClipPlane.transform.rotation = planeRot;
