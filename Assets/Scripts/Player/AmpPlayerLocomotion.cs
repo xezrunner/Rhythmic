@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class AmpPlayerLocomotion : MonoBehaviour
 {
+    public static AmpPlayerLocomotion Instance;
+
     [Header("Common")]
     public AmpPlayer Player;
     public PathCreator PathSystem;
@@ -25,6 +27,8 @@ public class AmpPlayerLocomotion : MonoBehaviour
     public Vector3 PositionOffset;
     public Vector3 RotationOffset;
     public Vector3 TunnelRotation;
+
+    private void Awake() => Instance = this;
 
     void Start()
     {

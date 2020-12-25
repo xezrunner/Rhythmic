@@ -95,10 +95,10 @@ public class DebugController : MonoBehaviour
         }
 
         // FPS Lock
-        if (Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(60); Player.ScoreText.text = "60 FPS"; }
-        else if (Input.GetKeyDown(KeyCode.F2)) { RhythmicGame.SetFramerate(144); Player.ScoreText.text = "144 FPS"; }
-        else if (Input.GetKeyDown(KeyCode.F3)) { RhythmicGame.SetFramerate(200); Player.ScoreText.text = "200 FPS"; }
-        else if (Input.GetKeyDown(KeyCode.F4)) { RhythmicGame.SetFramerate(0); Player.ScoreText.text = "∞ FPS"; }
+        if (Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(60); }
+        else if (Input.GetKeyDown(KeyCode.F2)) { RhythmicGame.SetFramerate(144); }
+        else if (Input.GetKeyDown(KeyCode.F3)) { RhythmicGame.SetFramerate(200); }
+        else if (Input.GetKeyDown(KeyCode.F4)) { RhythmicGame.SetFramerate(0); }
 
         // Toggle tunnel mode
         if (Input.GetKeyDown(KeyCode.F))

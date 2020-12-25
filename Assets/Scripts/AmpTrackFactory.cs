@@ -46,14 +46,10 @@ public partial class AmpTrack
         var obj = Instantiate(NotePrefab);
         if (measure) obj.transform.parent = measure.NoteContainer;
 
-        Vector3 localRight = Path.GetNormalAtDistance(meta.Distance);
+        Vector3 laneOffset = Vector3.right * GetLocalXPosFromLaneType(meta.Lane); // Not sure why, but Vector3.right is better than the path's localRight in this case
+        Vector3 offset = (TunnelPos + laneOffset) - Tunnel.center;
 
-        Vector3 offset = TunnelPos + Vector3.forward * meta.Distance;
-        obj.transform.position = offset;
-        obj.transform.eulerAngles = TunnelRot;
-        obj.transform.Translate(localRight * GetLocalXPosFromLaneType(meta.Lane));
-
-        obj.transform.position = PathTools.GetPositionOnPath(Path, meta.Distance, obj.transform.position - Tunnel.center);
+        obj.transform.position = PathTools.GetPositionOnPath(Path, meta.Distance, offset);
         obj.transform.rotation = PathTools.GetRotationOnPath(Path, meta.Distance, obj.transform.eulerAngles);
 
         // set up
