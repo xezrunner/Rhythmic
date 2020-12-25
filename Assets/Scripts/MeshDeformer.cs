@@ -7,16 +7,16 @@ using UnityEngine;
 public static class MeshDeformer
 {
     // Deforms the parameter mesh's vertices
-    public static Mesh DeformMesh(VertexPath path, Mesh mesh) => DeformMesh(path, mesh, Vector3.zero);
-    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position) => DeformMesh(path, mesh, position);
-    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, float angle = 0f, Vector3[] ogVerts = null)
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3? offset = null) => DeformMesh(path, mesh, Vector3.zero, 0f, null, offset);
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, Vector3? offset = null) => DeformMesh(path, mesh, position, 0f, null, offset);
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, float angle = 0f, Vector3[] ogVerts = null, Vector3? offset = null)
     {
         Vector3[] vertices = ogVerts != null ? ogVerts : new Vector3[mesh.vertices.Length];
         if (ogVerts == null) Array.Copy(mesh.vertices, vertices, mesh.vertices.Length);
 
         // Transform mesh vertices
         for (int i = 0; i < vertices.Length; i++)
-            vertices[i] = TransformVertex(path, vertices[i], position, angle);
+            vertices[i] = TransformVertex(path, vertices[i], position, angle, offset);
 
         mesh.vertices = vertices;
         mesh.RecalculateBounds();
@@ -31,7 +31,7 @@ public static class MeshDeformer
     /// * the current vertex point's X and Y coords <br />
     /// In laymen's terms: the point and rotation along the path + the X and Y being offset with the path's rotation in mind
     /// </summary>
-    public static Vector3 TransformVertex(VertexPath path, Vector3 meshVertex, Vector3 position, float angle)
+    public static Vector3 TransformVertex(VertexPath path, Vector3 meshVertex, Vector3 position, float angle, Vector3? offset)
     {
         float dist = meshVertex.z + position.z; // Vertex Z distance along path + desired Z offset
         bool isNegative = dist < 0f; // TODO: negative path values should just over/under-flow the path! Right now, it wraps around the path.
@@ -44,12 +44,6 @@ public static class MeshDeformer
         //    return pos;
         //}
 
-        //Vector3 localUp = Vector3.Cross(path.GetTangentAtDistance(dist), path.GetNormalAtDistance(dist));
-        //Vector3 localRight = path.GetNormalAtDistance(dist);
-
-        //Vector3 splinePoint = path.GetPointAtDistance(dist); // Point on path at the distance
-        //splinePoint += (localRight * position.x) + (localUp * position.y); // Parallel position offsetting
-
         Vector3 splinePoint = PathTools.GetPositionOnPath(path, dist, position - Tunnel.Instance.center);
 
         Quaternion pathRotation = path.GetRotationAtDistance(dist) * Quaternion.Euler(0, 0, 90); // Rot on path at the distance
@@ -57,6 +51,9 @@ public static class MeshDeformer
 
         Vector3 vertexXY = new Vector3(meshVertex.x, meshVertex.y, 0f); // Vertex X and Y points (horizontal)
 
-        return splinePoint + (pathRotation * vertexXY);
+        Vector3 final = splinePoint + (pathRotation * vertexXY);
+        if (offset.HasValue) final += pathRotation * offset.Value;
+
+        return final;
     }
 }

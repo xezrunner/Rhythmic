@@ -171,8 +171,9 @@ public class AmpTrackSection : MonoBehaviour
         MeshDeformer.DeformMesh(path, mesh, position, angle, originalMesh.vertices);
         EdgeLights_Local.Mesh = EdgeLights_Global.Mesh = mesh;
         // Set Edge lights mesh to the same mesh as top mesh!
-        MeshDeformer.DeformMesh(path, EdgeLights_Local.Mesh, position + Vector3.up * 0.1f, angle, originalMesh.vertices);
-        MeshDeformer.DeformMesh(path, EdgeLights_Global.Mesh, position + Vector3.up * 0.1f, angle, originalMesh.vertices);
+        Vector3 edgelights_offset = new Vector3(0, 0.01f, 0); // Offset to the top of the track
+        MeshDeformer.DeformMesh(path, EdgeLights_Local.Mesh, position, angle, originalMesh.vertices, edgelights_offset);
+        MeshDeformer.DeformMesh(path, EdgeLights_Global.Mesh, position, angle, originalMesh.vertices, edgelights_offset);
     }
 
     public void LengthClip()
