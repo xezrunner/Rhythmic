@@ -22,6 +22,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
     [Header("Properties")]
     public float SmoothDuration = 1.0f;
     public float DistanceTravelled;
+    public float HorizonLength;
 
     [Header("Track switching")]
     public Vector3 PositionOffset;
@@ -65,12 +66,18 @@ public class AmpPlayerLocomotion : MonoBehaviour
 
     public Vector3 offset;
 
+    public GameObject LengthPlane;
+
     /// <summary>
     /// Moves the player along the path for a given distance. <br/>
     /// If no path exists, the player is moved to the distance without taking any world contour into account.
     /// </summary>
     public void Locomotion(float distance = 0f)
     {
+        // Set the horizon length (used by sections to clip the materials)
+        HorizonLength = DistanceTravelled +
+            (RhythmicGame.HorizonMeasures * SongController.measureLengthInzPos);
+
         if (Path is null)
             transform.position = new Vector3(0, 0, distance) + PositionOffset;
         else
@@ -95,7 +102,6 @@ public class AmpPlayerLocomotion : MonoBehaviour
     public bool IsPlaying; // TEMP
 
     public float LiveCaptDist;
-
     float step;
     void Update()
     {

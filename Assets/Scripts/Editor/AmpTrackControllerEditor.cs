@@ -30,8 +30,8 @@ public class AmpTrackControllerEditor : Editor
             {
                 GameObject go = Instantiate(trackSectionPrefab);
                 AmpTrackSection s = go.GetComponent<AmpTrackSection>();
-                s.PositionOnPath = script.TestTrackSectionPos;
-                s.RotationOnPath = script.TestTrackSectionRot;
+                s.Position = script.TestTrackSectionPos;
+                s.Rotation = script.TestTrackSectionRot;
 
                 lastSection = s;
             }

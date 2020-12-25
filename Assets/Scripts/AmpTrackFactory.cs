@@ -32,8 +32,8 @@ public partial class AmpTrack
             TunnelPos.x, // X is the track's horizontal position
             TunnelPos.y, meta.StartDistance); // Z is the distance at which the measure needs to be placed
 
-        measure.PositionOnPath = measurePos;
-        measure.RotationOnPath = TunnelRot.z;
+        measure.Position = measurePos;
+        measure.Rotation = TunnelRot.z;
 
         /// Add measure to measure list
         Measures.Add(measure);

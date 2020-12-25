@@ -13,11 +13,13 @@ public class ClippingPlane : MonoBehaviour
     // Materials to pass values to
     List<Material> mat = new List<Material>();
 
-    void Awake()
+    public static bool ClipOnStart = false;
+
+    void Awake() => GetMaterials();
+    void Start()
     {
-        GetMaterials();
+        if (ClipOnStart) Clip();
     }
-    void Start() => Clip();
 
 #if LIVE_UPDATE // Live test clipping for dev testing purposes only!
     void Update() => Clip();

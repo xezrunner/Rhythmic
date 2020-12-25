@@ -15,6 +15,7 @@ using UnityEditor.Experimental.SceneManagement;
 public class AmpTrackSection : MonoBehaviour
 {
     SongController SongController { get { return SongController.Instance; } }
+    AmpPlayerLocomotion Locomotion;
     public PathCreator PathCreator { get { return GameObject.Find("Path").GetComponent<PathCreator>(); } } // TODO: change these to variables
     public VertexPath Path { get { if (PathCreator) return PathCreator.path; else { Debug.LogError("AmpTrack: Path not available - PathCreator is null!"); return null; } } }
 
@@ -39,8 +40,8 @@ public class AmpTrackSection : MonoBehaviour
     /// TODO: Global Path variable? !!!
 
     [Header("Properties")]
-    public Vector3 PositionOnPath;
-    public float RotationOnPath; // Note: in Euler angles!
+    public Vector3 Position;
+    public float Rotation; // Note: in Euler angles!
 
     /// Global variables, properties and events
     public int ID;
@@ -99,8 +100,9 @@ public class AmpTrackSection : MonoBehaviour
             return;
 #endif
 
+        Locomotion = AmpPlayerLocomotion.Instance;
     }
-    [ExecuteInEditMode]
+    //[ExecuteInEditMode]
     void Start()
     {
 #if PATH_LIVE_UPDATE
@@ -109,6 +111,9 @@ public class AmpTrackSection : MonoBehaviour
         _prevPositionOnPath = PositionOnPath;
         _prevRotationOnPath = RotationOnPath;
 #endif
+        if (PrefabStageUtility.GetCurrentPrefabStage() != null) // Warning: do not change mesh in prefab isolation!
+            return;
+
         // Set up global edge light based on track focus state
         SetGlobalEdgeLights(Track.IsTrackFocused);
 
@@ -119,8 +124,6 @@ public class AmpTrackSection : MonoBehaviour
 
         // Automatically deform to path
         if (StartAutoDeformToPath) DeformMeshToPath();
-
-        Clip(); // Clips to length
     }
 
     /// Edge lights
@@ -147,7 +150,7 @@ public class AmpTrackSection : MonoBehaviour
 
     // Deforms the mesh to the path
     // TODO: Deformation live updating!
-    public void DeformMeshToPath() => DeformMeshToPath(Path, Length, PositionOnPath, RotationOnPath);
+    public void DeformMeshToPath() => DeformMeshToPath(Path, Length, Position, Rotation);
     public void DeformMeshToPath(VertexPath path, float length, Vector3 position, float angle) // Deforms the mesh at the given position and length
     {
         if (!Application.isPlaying & BlockDeformsInEditMode) // Do not deform mesh when edit deformation is blocked!
@@ -170,26 +173,21 @@ public class AmpTrackSection : MonoBehaviour
         MeshDeformer.DeformMesh(path, EdgeLights_Global.Mesh, position + Vector3.up * 0.1f, angle, originalMesh.vertices);
     }
 
-    public void Clip(float fraction = -1f)
+    public void LengthClip()
     {
-        if (fraction != -1f)
-            Mathf.Clamp01(fraction); // Clamp between 0 and 1
+        // Calculate clip plane offset based on measure draw distance
+        float offset = Locomotion.HorizonLength;
 
-        // Calculate clip plane offset based on fraction
-        float offset;
-        if (fraction == -1f) offset = Length + 1f; // TODO: wtf?
-        else
-            offset = Length * fraction;
+        Vector3 localUp = Vector3.Cross(Path.GetTangentAtDistance(offset), Path.GetNormalAtDistance(offset));
+        Vector3 localRight = Path.GetNormalAtDistance(offset);
 
-        Vector3 localUp = Vector3.Cross(Path.GetTangentAtDistance(PositionOnPath.z + offset), Path.GetNormalAtDistance(PositionOnPath.z + offset));
-        Vector3 localRight = Path.GetNormalAtDistance(PositionOnPath.z + offset);
+        Vector3 planePos = Path.GetPointAtDistance(offset);
 
-        Vector3 planePos = Path.GetPointAtDistance(PositionOnPath.z + offset);
-        planePos += (localRight * PositionOnPath.x) + (localUp * PositionOnPath.y);
-
-        Quaternion planeRot = Path.GetRotationAtDistance(PositionOnPath.z + offset) * Quaternion.Euler(90, 0, 0);
+        Quaternion planeRot = Path.GetRotationAtDistance(offset) * Quaternion.Euler(90, 0, 0);
 
         LengthPlane.transform.position = planePos;
         LengthPlane.transform.rotation = planeRot;
+
+        ClipManager.Clip();
     }
 }
