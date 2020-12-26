@@ -18,7 +18,6 @@ public class AmpTrackController : MonoBehaviour
     public SongController SongController { get { return SongController.Instance; } }
     public Tunnel Tunnel;
     PathCreator pathCreator;
-    Player Player { get { return Player.Instance; } }
 
     [Header("Prefabs")]
     GameObject trackPrefab; // Change to public property?

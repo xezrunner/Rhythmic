@@ -26,10 +26,11 @@ public class MeshDeformTestEditor : Editor
 
         if (GUILayout.Button("Reset"))
         {
-            script.targetObject = null;
-            script.mesh = script.ogMesh = null;
             if (script.ogPos.HasValue)
                 script.targetObject.transform.position = script.ogPos.Value;
+
+            script.targetObject = null;
+            script.mesh = script.ogMesh = null;
             script.ogPos = null;
             script.ClearAllCubes();
         }

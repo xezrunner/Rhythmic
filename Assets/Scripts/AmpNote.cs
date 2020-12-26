@@ -33,7 +33,7 @@ public class AmpNote : MonoBehaviour
     public int TrackID;
     public int MeasureID;
     public NoteType NoteType;
-    public AmpTrack.LaneSide Lane = AmpTrack.LaneSide.Center;
+    public LaneSide Lane = LaneSide.Center;
     public float Distance;
 
     private bool _isEnabled;

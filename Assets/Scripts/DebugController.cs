@@ -10,9 +10,7 @@ using UnityEngine.UI;
 
 public class DebugController : MonoBehaviour
 {
-    Player Player { get { return Player.Instance; } }
     SongController SongController { get { return SongController.Instance; } }
-    TracksController TracksController { get { return TracksController.Instance; } }
 
     public GameObject section_debug;
     public GameObject section_controllerinput;
@@ -21,7 +19,7 @@ public class DebugController : MonoBehaviour
 
     private void Start()
     {
-        inputlagText.text = string.Format("Player offset (zPos): {0}", Player.ZOffset);
+
     }
 
     public bool isDebugOn = true;
@@ -83,7 +81,7 @@ public class DebugController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
             RhythmicGame.Restart();
         if (Input.GetKeyDown(KeyCode.Escape))
-            Player.TogglePause();
+            SongController.TogglePause();
 
         // TEMP / DEBUG
 
@@ -128,12 +126,11 @@ public class DebugController : MonoBehaviour
                 AmpTrackController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), 7, track);
 
         else if (Input.GetKeyDown(KeyCode.Keypad6)) // all!
-            foreach (Track track in TracksController.CurrentTrackSet)
-                track.CaptureMeasures(Player.GetCurrentMeasure().measureNum, track.trackMeasures.Count - 1);
+        { }
 
         // Track restoration (buggy!)
         if (Input.GetKeyDown(KeyCode.Keypad7))
-            Debug_RestoreTracks();
+        { }
 
         // Timescale
         if (Input.GetKeyDown(KeyCode.Keypad8) & Input.GetKey(KeyCode.LeftControl)) // up
@@ -150,9 +147,6 @@ public class DebugController : MonoBehaviour
             RhythmicGame.SetTimescale(1f);
         if (Input.GetKeyDown(KeyCode.Keypad0)) // progressive slowmo test (tut)
             DoFailTest();
-
-        if (Input.GetKeyDown(KeyCode.Keypad9) & Input.GetKey(KeyCode.LeftAlt))
-            Player.MovePlayer(new Vector2(0, -Tunnel.Instance.radius), force: true);
 
         // Debug UI
 
@@ -189,30 +183,6 @@ public class DebugController : MonoBehaviour
             await Task.Delay(msCounter);
             RhythmicGame.SetTimescale(i);
             msCounter -= 5;
-        }
-    }
-    async void Debug_RestoreTracks()
-    {
-        foreach (Track track in TracksController.Tracks)
-        {
-            foreach (Measure measure in track.trackMeasures)
-            {
-                if (!measure.IsMeasureCaptured)
-                    continue;
-
-                measure.IsMeasureCaptured = false;
-                measure.IsMeasureEmpty = false;
-                measure.IsMeasureActive = true;
-                measure.IsMeasureCapturing = true;
-                measure.CaptureLength = 0f;
-                await Task.Delay(1);
-                measure.IsMeasureCapturing = false;
-            }
-            foreach (Note note in track.trackNotes)
-            {
-                note.IsNoteCaptured = false;
-                note.IsNoteEnabled = true;
-            }
         }
     }
 

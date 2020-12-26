@@ -156,12 +156,12 @@ public class AmplitudeSongController : SongController
             foreach (NoteOnEvent note in AMP_NoteOnEvents)
             {
                 // get lane type for note lane
-                AmpTrack.LaneSide laneType = AmplitudeGame.GetLaneTypeFromNoteNumber(note.NoteNumber);
-                if (laneType == AmpTrack.LaneSide.UNKNOWN)
+                LaneSide laneType = AmplitudeGame.GetLaneTypeFromNoteNumber(note.NoteNumber);
+                if (laneType == LaneSide.UNKNOWN)
                     continue;
 
                 string noteName = string.Format("CATCH_{0}_{1}_{2}", laneType, i, counter);
-                Note.NoteType noteType = Note.NoteType.Generic; // TODO: AMP note types for powerups?!
+                NoteType noteType = NoteType.Generic; // TODO: AMP note types for powerups?!
 
                 float zPos = GetTickTimeInzPos(note.AbsoluteTime);
                 int measureID = (int)note.AbsoluteTime / measureTicks;

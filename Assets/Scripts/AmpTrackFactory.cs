@@ -85,8 +85,8 @@ public class MetaMeasure
 public class MetaNote
 {
     public string Name;
-    public Note.NoteType Type;
-    public AmpTrack.LaneSide Lane;
+    public NoteType Type;
+    public LaneSide Lane;
     public int MeasureID;
     public float Distance;
     public bool IsCaptured;

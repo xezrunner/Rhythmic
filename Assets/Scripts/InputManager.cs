@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 
+#if false
 public class InputManager
 {
     class AxisState
@@ -142,3 +143,4 @@ public class InputManager
         public static Track.LaneType InputToTrackLane(string input) { return (Track.LaneType)(Mathf.Clamp(Array.IndexOf(Inputs, input), 0, 2)); }
     }
 }
+#endif

@@ -100,7 +100,7 @@ Material:
     - _CutoffColor: {r: 1, g: 0, b: 0, a: 0}
     - _Emission: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    - _InversePlane: {r: 0.94795537, g: 0.31112522, b: -0.06768924, a: -515.27637}
-    - _Plane: {r: 0.77989835, g: 0.14500916, b: 0.6088768, a: -745.18396}
+    - _InversePlane: {r: 0.6649494, g: -0.33258292, b: 0.6687533, a: -496.4124}
+    - _Plane: {r: 0.45937204, g: -0.32471249, b: 0.8267642, a: -248.51752}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
