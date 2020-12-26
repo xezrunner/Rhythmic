@@ -26,6 +26,11 @@ public class AmpTrackController : MonoBehaviour
     [Header("Variables")]
     public List<AmpTrack> Tracks = new List<AmpTrack>();
     public List<string> songTracks = new List<string>();
+    public List<Dictionary<int, MetaMeasure>> metaMeasures
+    {
+        get { return SongController.metaMeasures; }
+        set { SongController.metaMeasures = value; }
+    }
 
     [Header("Properties")]
     public int CurrentTrackID = -1; // -1 is none

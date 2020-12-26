@@ -70,14 +70,15 @@ public class AmplitudeSongController : SongController
             songLengthInzPos = TickTimeTozPos(measureTicks * songLengthInMeasures);
         }
 
-        // Create measure list!
-        // TODO: eliminate!!!!!
-        songMeasures = CreateMeasureList();
-        songNotes = CreateNoteList();
-
         // Create Tracks controller!
         //CreateTracksController_OLD();
         CreateAmpTrackController();
+
+        // Create measure list!
+        // TODO: eliminate!!!!!
+        songMeasures = CreateMeasureList();
+        metaMeasures = CreateMetaMeasureList();
+        songNotes = CreateNoteList();
 
         // TODO: move elsewhere
         // Scale the catchers and CatcherController

@@ -14,29 +14,15 @@ public class TrackStreamer : MonoBehaviour
     AmpTrackController TrackController { get { return AmpTrackController.Instance; } }
     Clock Clock { get { return Clock.Instance; } }
 
-    public List<Dictionary<int, MetaMeasure>> metaMeasures = new List<Dictionary<int, MetaMeasure>>();
+    public List<Dictionary<int, MetaMeasure>> metaMeasures
+    {
+        get { return SongController.metaMeasures; }
+        set { SongController.metaMeasures = value; }
+    }
 
     void Awake() { Clock.OnBar += Clock_OnBar; }
     void Start()
     {
-        // Build metalist
-        // TODO: move to SongController (make it like songNotes)
-        for (int x = 0; x < RhythmicGame.TunnelTrackDuplicationNum; x++)
-        {
-            foreach (string track in TrackController.songTracks)
-            {
-                var inst = AmpTrack.InstrumentFromString(track);
-                // create dictionary and metameasures
-                Dictionary<int, MetaMeasure> dict = new Dictionary<int, MetaMeasure>();
-                for (int i = 0; i < SongController.songLengthInMeasures + 1; i++)
-                {
-                    MetaMeasure metameasure = new MetaMeasure() { ID = i, Instrument = inst };
-                    dict.Add(i, metameasure);
-                }
-                metaMeasures.Add(dict);
-            }
-        }
-
         // Stream in the horizon!
         StreamMeasureRange(0, RhythmicGame.HorizonMeasures, -1);
     }
