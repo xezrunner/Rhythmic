@@ -76,10 +76,17 @@ public class AmpPlayerLocomotion : MonoBehaviour
     {
         // Set the horizon length (used by sections to clip the materials)
         HorizonLength = DistanceTravelled - RhythmicGame.HorizonMeasuresOffset + // TODO: the individual track streaming is visible, so we temporarily offset it
-            (RhythmicGame.HorizonMeasures * SongController.measureLengthInzPos); 
+            (RhythmicGame.HorizonMeasures * SongController.measureLengthInzPos);
 
-        if (Path is null)
-            transform.position = new Vector3(0, 0, distance) + PositionOffset;
+        if (Path is null || distance < 0f)
+        {
+            transform.position = PathTools.GetPositionOnPath(Path, 0, PositionOffset) + new Vector3(0, 0, distance);
+
+            //Quaternion targetRot = Path.GetRotationAtDistance(distance) * Quaternion.Euler(0, 0, 90) * Quaternion.Euler(tunnelRotation_smooth);
+            Quaternion targetRot = Quaternion.identity;
+            Interpolatable.localRotation = QuaternionUtil.SmoothDamp(Interpolatable.localRotation, targetRot, ref rotVelocity, SmoothDuration);
+            NonInterpolatable.localRotation = targetRot;
+        }
         else
         {
             Vector3 targetPos;
