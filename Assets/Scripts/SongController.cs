@@ -8,9 +8,7 @@ using System.Linq;
 public class SongController : MonoBehaviour
 {
     public static SongController Instance;
-    public Player Player { get { return Player.Instance; } }
     public Clock Clock;
-    public TracksController TrackController;
     public AmpTrackController AmpTrackController;
 
     // Controller properties
@@ -226,15 +224,6 @@ public class SongController : MonoBehaviour
     }
     public virtual List<List<KeyValuePair<int, MetaNote>>> CreateNoteList() { return new List<List<KeyValuePair<int, MetaNote>>>(); }
 
-    public virtual void CreateTracksController_OLD()
-    {
-        GameObject ctrlGameObject = new GameObject() { name = "TRACKS" };
-        TrackController = ctrlGameObject.AddComponent<TracksController>();
-
-        TrackController.OnTrackSwitched += TracksController_OnTrackSwitched;
-
-        Debug.LogFormat("TRACKS: Created track controller!");
-    }
     public virtual void CreateAmpTrackController()
     {
         GameObject ctrlGameObject = new GameObject() { name = "AMP_TRACKS" };
@@ -277,6 +266,7 @@ public class SongController : MonoBehaviour
     // When the track changes, change music track volume | e[0]: old ID; e[1]: new ID
     void TracksController_OnTrackSwitched(object sender, int[] e)
     {
+#if false
         int trackID = TrackController.Tracks[e[1]].ID;
         if (audioSrcList[trackID].clip == null)
         { Debug.LogWarningFormat("SONGCTRL: Track ID {0} does not have an audio clip! - ignoring track switch volume change", e); return; }
@@ -293,6 +283,7 @@ public class SongController : MonoBehaviour
             else // Other tracks that are NOT captured should be silent
                 src.volume = 0f;
         }
+#endif
     }
 
     // Adjust the volume of a speciifc track
@@ -324,6 +315,8 @@ public class SongController : MonoBehaviour
     {
         IsPlaying = !IsPlaying;
 
+        RhythmicGame.SetTimescale(Time.timeScale != 0 ? 0f : 1f);
+
         // Pause / unpause the AudioSources
         audioSrcList.ForEach(src =>
         {
@@ -350,7 +343,7 @@ public class SongController : MonoBehaviour
     public void OffsetSong(float offset)
     {
         audioSrcList.ForEach(src => src.time += offset); // offset music by seconds!
-        Player.OffsetPlayer(offset * (Player.PlayerSpeed * secPerBeat / songFudgeFactor * (1f + 0.8f))); // offset player by zPos!
+        //Player.OffsetPlayer(offset * (Player.PlayerSpeed * secPerBeat / songFudgeFactor * (1f + 0.8f))); // offset player by zPos!
     }
 
     // GAMEPLAY

@@ -152,7 +152,6 @@ public partial class AmpTrack : MonoBehaviour
     /// Common
     #region
     // Lanes
-    public enum LaneSide { Left = 0, Center = 1, Right = 2, UNKNOWN = 3 }
 
     /// <summary>
     /// Returns the X position for the specified lane inside the local GameObject
@@ -251,3 +250,5 @@ public partial class AmpTrack : MonoBehaviour
     }
     #endregion
 }
+
+public enum LaneSide { Left = 0, Center = 1, Right = 2, UNKNOWN = 3 }

@@ -359,7 +359,7 @@ public class TrackMeshCreator : PathSceneTool
         return mesh;
     }
 
-    public GameObject CreateTrackObject(string name = "", Track.InstrumentType inst = Track.InstrumentType.Bass, float startDistance = 0f, float length = 8f, float xPosition = 0f, float yElevation = 0f)
+    public GameObject CreateTrackObject(string name = "", AmpTrack.InstrumentType inst = AmpTrack.InstrumentType.Bass, float startDistance = 0f, float length = 8f, float xPosition = 0f, float yElevation = 0f)
     {
         GameObject obj = new GameObject() { name = name };
 
@@ -368,7 +368,7 @@ public class TrackMeshCreator : PathSceneTool
 
         obj.AddComponent<MeshFilter>().mesh = mesh;
         var renderer = obj.AddComponent<MeshRenderer>();
-        renderer.sharedMaterial = Track.Colors.GetMaterialForInstrument(inst);
+        renderer.sharedMaterial = AmpTrack.Colors.GetMaterialForInstrument(inst);
         renderer.sharedMaterials[0].mainTextureScale = new Vector2(1, path.length); // TODO: texture scaling seems wrong (?)
 
         // Create and add Edge lights!

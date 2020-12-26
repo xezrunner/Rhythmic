@@ -346,7 +346,7 @@ MonoBehaviour:
   MeshFilter: {fileID: 1893114483968448368}
   EdgeLights_Local: {fileID: 8780221033990194998}
   EdgeLights_Global: {fileID: 4102071959169881778}
-  NoteContainer: {fileID: 1052880242004629714}
+  NotesContainer: {fileID: 1052880242004629714}
   ClipManager: {fileID: 1558412536955595571}
   LengthPlane: {fileID: 1394400365724401751}
   ClipPlane: {fileID: 29731176791887653}
