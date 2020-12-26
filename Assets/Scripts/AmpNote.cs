@@ -74,12 +74,12 @@ public class AmpNote : MonoBehaviour
     {
         IsCaptured = true;
 
+        if (!anim) return;
+
         PS.gameObject.SetActive(true);
         if (stopPrevious)
             PS.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         PS.Play();
-
-        //if (!anim) // Ignore animation if specified
     }
 
 }
