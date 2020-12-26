@@ -63,19 +63,21 @@ public class TrackStreamer : MonoBehaviour
     {
         //for (int x = 1; x <= RhythmicGame.TunnelTrackDuplicationNum; x++)
         //{
-            AmpTrack track = TrackController.Tracks[trackID];
+        AmpTrack track = TrackController.Tracks[trackID];
 
-            var measureNotes = SongController.songNotes[track.ID].Where(i => i.Key == id);
-            if (measureNotes.Count() == 0)
-            { measure.IsEmpty = true; measure.MeshRenderer.gameObject.SetActive(false); measure.EdgeLights_Local.gameObject.SetActive(false); }
-            else
+        var measureNotes = SongController.songNotes[track.ID].Where(i => i.Key == id);
+        if (measureNotes.Count() == 0)
+            measure.IsEmpty = true;
+        else
+        {
+            foreach (KeyValuePair<int, MetaNote> kv in measureNotes)
             {
-                foreach (KeyValuePair<int, MetaNote> kv in measureNotes)
-                {
-                    track.CreateNote(kv.Value, measure);
-                    yield return new WaitForSeconds(0.1f);
-                }
+                kv.Value.IsCaptured = measure.IsCaptured; // foreshadowing
+
+                track.CreateNote(kv.Value, measure);
+                yield return new WaitForSeconds(0.1f);
             }
+        }
         //}
     }
 

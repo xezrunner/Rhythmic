@@ -26,7 +26,7 @@ public class AmpTrackSection : MonoBehaviour
     public MeshFilter MeshFilter; // Mesh of the model
     public EdgeLights EdgeLights_Local; // This is visually part of the track model itself - it gets clipped with capturing
     public EdgeLights EdgeLights_Global; // This is the 'focus indicator' edge lights, which does not get clipped.
-    public Transform NoteContainer;
+    public Transform NotesContainer;
 
     public ClippingPlane ClipManager;
     public GameObject LengthPlane; // This plane trims the model to the desired length
@@ -119,6 +119,13 @@ public class AmpTrackSection : MonoBehaviour
         // Set up global edge light based on track focus state
         SetGlobalEdgeLights(Track.IsTrackFocused);
 
+        if (IsEmpty || IsCaptured)
+        {
+            // Disable measure visuals when empty or captured
+            MeshRenderer.gameObject.SetActive(false); 
+            EdgeLights_Local.gameObject.SetActive(false);
+        }
+
         MeshFilter.mesh = AmpMeshTestScript.CreateMesh(RhythmicGame.TrackWidth, Length);
 
         if (MeshFilter)
@@ -171,10 +178,15 @@ public class AmpTrackSection : MonoBehaviour
 
         // Mesh deformation
         MeshDeformer.DeformMesh(path, mesh, position, angle, originalMesh.vertices);
-        EdgeLights_Local.Mesh = EdgeLights_Global.Mesh = mesh;
+
         // Set Edge lights mesh to the same mesh as top mesh!
+        EdgeLights_Local.Mesh = EdgeLights_Global.Mesh = mesh;
+
+        // Deform edge lights
         Vector3 edgelights_offset = new Vector3(0, 0.01f, 0); // Offset to the top of the track
-        MeshDeformer.DeformMesh(path, EdgeLights_Local.Mesh, position, angle, originalMesh.vertices, edgelights_offset);
+
+        if (!IsEmpty || !IsCaptured)
+            MeshDeformer.DeformMesh(path, EdgeLights_Local.Mesh, position, angle, originalMesh.vertices, edgelights_offset);
         MeshDeformer.DeformMesh(path, EdgeLights_Global.Mesh, position, angle, originalMesh.vertices, edgelights_offset);
     }
 

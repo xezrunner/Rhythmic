@@ -28,6 +28,7 @@ public partial class AmpTrack
         measure.Instrument = Instrument;
         measure.Length = SongController.measureLengthInzPos;
         measure.Color = Color;
+        measure.IsCaptured = meta.IsCaptured;
 
         // TODO: possibly simplify position &/ rotation properties?
         Vector3 measurePos = new Vector3(
@@ -46,7 +47,7 @@ public partial class AmpTrack
     {
         /// Create object
         var obj = Instantiate(NotePrefab);
-        if (measure) obj.transform.parent = measure.NoteContainer;
+        if (measure) obj.transform.parent = measure.NotesContainer;
 
         Vector3 offset = TunnelPos - Tunnel.center;
         obj.transform.position = PathTools.GetPositionOnPath(Path, meta.Distance, offset);
@@ -64,6 +65,7 @@ public partial class AmpTrack
         note.MeasureID = meta.MeasureID;
         note.Lane = meta.Lane;
         note.Distance = meta.Distance;
+        note.IsCaptured = meta.IsCaptured;
 
         measure.Notes.Add(note);
         return note;
@@ -87,4 +89,5 @@ public class MetaNote
     public AmpTrack.LaneSide Lane;
     public int MeasureID;
     public float Distance;
+    public bool IsCaptured;
 }

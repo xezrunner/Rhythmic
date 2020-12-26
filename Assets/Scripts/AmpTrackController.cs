@@ -167,13 +167,17 @@ public class AmpTrackController : MonoBehaviour
 
     IEnumerator _CaptureMeasureRange(int start, int end, AmpTrack track)
     {
-        if (RhythmicGame.DebugTrackCapturingEvents) Debug.Log("CAPTURE: started");
+        if (RhythmicGame.DebugTrackCapturingEvents) Debug.Log($"CAPTURE: started | start: {start}, end: {end}, track: {track.TrackName} | {track.RealID} ");
 
         track.IsTrackCapturing = true;
 
         for (int i = start; i < end; i++)
-            if (track.Measures[i])
+        {
+            if (i < track.Measures.Count)
                 yield return track.CaptureMeasure(track.Measures[i]);
+            else // This measure doesn't yet exist - change meta measure to captured state!
+                metaMeasures[track.RealID][i].IsCaptured = true;
+        }
 
         track.IsTrackCapturing = false;
         AmpTrackSectionDestruct.step = 0.5f;
