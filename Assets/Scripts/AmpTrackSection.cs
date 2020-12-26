@@ -126,6 +126,8 @@ public class AmpTrackSection : MonoBehaviour
 
         // Automatically deform to path
         if (StartAutoDeformToPath) DeformMeshToPath();
+
+        LengthClip();
     }
 
     /// Edge lights
