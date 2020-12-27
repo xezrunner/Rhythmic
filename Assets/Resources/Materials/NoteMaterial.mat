@@ -101,6 +101,6 @@ Material:
     - _Emission: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _InversePlane: {r: 0.64648503, g: -0.3156766, b: 0.69455415, a: -283.79453}
-    - _Plane: {r: 0.45937204, g: -0.32471249, b: 0.8267642, a: -248.51752}
+    - _Plane: {r: 0.7659891, g: -0.3022068, b: 0.56739026, a: -506.1246}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
