@@ -43,23 +43,24 @@ public class Tunnel : MonoBehaviour
 
         center = new Vector2(0, -radius);
     }
-
     public Vector3[] GetTransformForTrackID(int id)
     {
         Vector3[] transform = new Vector3[2];
 
-        if (!RhythmicGame.IsTunnelMode)
-            transform[0] = new Vector3(id * RhythmicGame.TrackWidth, 0, 0);
-        else
-        {
-            float angle = id * -rotZ;
-            float posX = radius * Mathf.Sin(angle * Mathf.Deg2Rad) + center.x;
-            float posY = radius * Mathf.Cos(angle * Mathf.Deg2Rad) + center.y;
+        float angle = RhythmicGame.IsTunnelMode ? id * -rotZ : 0f;
+        float posX = radius * Mathf.Sin(angle * Mathf.Deg2Rad) + center.x;
+        float posY = radius * Mathf.Cos(angle * Mathf.Deg2Rad) + center.y;
 
-            transform[0] = new Vector3(posX, posY);
-            transform[1].z = -angle;
-        }
+        transform[0] = new Vector3(posX + (!RhythmicGame.IsTunnelMode ? id * RhythmicGame.TrackWidth : 0f), posY);
+        transform[1].z = -angle;
 
         return transform;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!RhythmicGame.DebugDrawTunnelGizmos) return;
+        Gizmos.DrawSphere(AmpPlayer.Instance.gameObject.transform.position, radius);
+        Gizmos.DrawWireCube(AmpPlayer.Instance.gameObject.transform.position, new Vector3(0.5f, 0.5f, 0.5f));
     }
 }
