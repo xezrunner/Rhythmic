@@ -132,6 +132,9 @@ public class DebugController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Keypad7))
         { }
 
+        if (Input.GetKeyDown(KeyCode.Keypad9))
+            AmpPlayerLocomotion.Instance.DistanceTravelled += 100f;
+
         // Timescale
         if (Input.GetKeyDown(KeyCode.Keypad8) & Input.GetKey(KeyCode.LeftControl)) // up
         {

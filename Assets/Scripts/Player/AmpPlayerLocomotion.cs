@@ -14,10 +14,13 @@ public class AmpPlayerLocomotion : MonoBehaviour
     public SongController SongController { get { return SongController.Instance; } }
     public AmpTrackController TracksController { get { return AmpTrackController.Instance; } }
 
-    [Header("Camera and objects")]
+    [Header("Camera and containers")]
     public Camera MainCamera;
     public Transform Interpolatable;
     public Transform NonInterpolatable;
+
+    [Header("Contents")]
+    public Transform CatcherVisuals;
 
     [Header("Properties")]
     public float SmoothDuration = 1.0f;
@@ -34,9 +37,12 @@ public class AmpPlayerLocomotion : MonoBehaviour
     void Start()
     {
         if (Path == null) GetPath();
+
+        // Position player to tunnel
         transform.position = Tunnel.center / 2;
-        if (RhythmicGame.IsTunnelMode)
-            MainCamera.transform.localPosition -= Tunnel.center;
+        MainCamera.transform.localPosition -= Tunnel.center;
+        // Set catcher visuals to bottom of tunnel, offset by 0.01f (up)
+        CatcherVisuals.position = new Vector3(0, Tunnel.radius / 2 + 0.01f, 0);
 
         Locomotion(); // Position player on path right away
     }

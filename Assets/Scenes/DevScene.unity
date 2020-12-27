@@ -136,7 +136,7 @@ GameObject:
   - component: {fileID: 22153599}
   - component: {fileID: 22153598}
   m_Layer: 0
-  m_Name: Controller
+  m_Name: Song controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1001,7 +1001,7 @@ Camera:
   m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
-  m_OcclusionCulling: 1
+  m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
 --- !u!1 &175165046
@@ -1070,7 +1070,7 @@ Transform:
   - {fileID: 1307486110}
   - {fileID: 175165047}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &175981237
 MonoBehaviour:
@@ -1089,6 +1089,7 @@ MonoBehaviour:
   MainCamera: {fileID: 552145096}
   Interpolatable: {fileID: 1307486110}
   NonInterpolatable: {fileID: 175165047}
+  CatcherVisuals: {fileID: 746470605}
   SmoothDuration: 0.2
   DistanceTravelled: 0
   HorizonLength: 0
@@ -1114,6 +1115,7 @@ MonoBehaviour:
   AudioSrc: {fileID: 0}
   AVPlayerOffset: 0
   CameraPullbackOffset: 0
+  Catchers: []
   HealthMode: 0
   Health: 8
   Score: 0
@@ -1999,7 +2001,7 @@ Camera:
   m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
-  m_OcclusionCulling: 1
+  m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
 --- !u!1 &556535232
@@ -2326,8 +2328,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 746470604}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.13018402, y: 2.6101518, z: -13.067522}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1955720393}
@@ -3201,7 +3203,7 @@ GameObject:
   - component: {fileID: 1010288848}
   - component: {fileID: 1010288849}
   m_Layer: 13
-  m_Name: WORLD_TUT
+  m_Name: World_TUT02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3222,12 +3224,12 @@ Transform:
   - {fileID: 114151003}
   - {fileID: 1297806587}
   - {fileID: 793695456}
+  - {fileID: 1132584336}
   - {fileID: 1316437149}
   - {fileID: 1051047168}
   - {fileID: 1138344755}
   - {fileID: 954908305}
   - {fileID: 235072212}
-  - {fileID: 1132584336}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3285,7 +3287,7 @@ Transform:
   - {fileID: 952147856}
   - {fileID: 1707718259}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1052889309
 MonoBehaviour:
@@ -8857,7 +8859,7 @@ Transform:
   m_LocalScale: {x: 1500, y: 1, z: 1006.1}
   m_Children: []
   m_Father: {fileID: 1010288848}
-  m_RootOrder: 9
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: -18, y: 0, z: 0}
 --- !u!4 &1138344755 stripped
 Transform:
@@ -9118,7 +9120,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1156541827}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -3.19, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 3.18, y: 0.79, z: 1}
   m_Children: []
   m_Father: {fileID: 746470605}
@@ -11102,8 +11104,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1709622133}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.13018402, y: -9.28, z: 13.067522}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 746470605}

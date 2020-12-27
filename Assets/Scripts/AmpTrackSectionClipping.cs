@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// This class provides the horizon clipping for the measures and notes.
+/// </summary>
+
 public class AmpTrackSectionClipping : MonoBehaviour
 {
     public AmpTrackSection Measure;
