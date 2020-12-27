@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum CatcherSide { Left = 0, Center = 1, Right = 2 }
+
 public class Catcher : MonoBehaviour
 {
     SongController SongController { get { return SongController.Instance; } }
