@@ -12,7 +12,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
     public VertexPath Path;
     public Tunnel Tunnel { get { return Tunnel.Instance; } }
     public SongController SongController { get { return SongController.Instance; } }
-    public AmpTrackController TracksController { get { return AmpTrackController.Instance; } }
+    public TracksController TracksController { get { return TracksController.Instance; } }
 
     [Header("Camera and containers")]
     public Camera MainCamera;
@@ -24,6 +24,8 @@ public class AmpPlayerLocomotion : MonoBehaviour
 
     [Header("Properties")]
     public float SmoothDuration = 1.0f;
+    public float Speed = 4f;
+    public float Step;
     public float DistanceTravelled;
     public float HorizonLength;
 
@@ -115,15 +117,14 @@ public class AmpPlayerLocomotion : MonoBehaviour
     public bool IsPlaying; // TEMP
 
     public float LiveCaptDist;
-    float step;
     void Update()
     {
         if (SongController.IsPlaying || IsPlaying)
         {
-            step = (4f * SongController.secInzPos) * Time.unscaledDeltaTime * SongController.songSpeed;
+            Step = (Speed * SongController.secInzPos) * Time.unscaledDeltaTime * SongController.songSpeed;
 
             if (SongController.Enabled)
-                DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, step);
+                DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
             else
                 DistanceTravelled += 4f * Time.deltaTime;
 

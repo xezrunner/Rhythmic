@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public enum GameLogic { AMPLITUDE, RHYTHMIC }
 public enum GameMode { Metagame, Gameplay, Practice, Editor, Charting, Debugging }
+public enum GameMatchType { Singleplayer = 0, LocalMultiplayer = 1, OnlineMultiplayer = 2 }
 
 public static class RhythmicGame
 {
@@ -51,6 +52,7 @@ public static class RhythmicGame
     }
 
     public static GameMode GameMode = GameMode.Gameplay;
+    public static GameMatchType GameMatchTpye = GameMatchType.Singleplayer;
 
     public static bool IsLoading = true;
     public static Vector2 PreferredResolution = new Vector2(1920, 1080);
@@ -84,6 +86,8 @@ public static class RhythmicGame
     public static bool CapturedNoteInteractiveLightup = true; // Whether inactive notes should light up as we pass by them
     public static bool CapturedNoteBPMPulsation = true; // Whether inactive notes should pulse with the BPM
 
+    public static int SequenceAmount = 2; // How many measures is a sequence? (How many measures do we have to play in a track)
+
     public static float TrackWidth = 3.6f; // 2.36f // 3.6755f
     public static float TrackHeight = 0.62f; // 0.4f
 
@@ -93,15 +97,14 @@ public static class RhythmicGame
     public static float[] DifficultyFudgeFactors = new float[] { 1f, 1f, 0.93f, 0.8f, 0.8f };
 
     // Event debug
-    public static bool DebugTrackCreationEvents = true;
     public static bool DebugTrackCapturingEvents = false;
     public static bool DebugTrackCapturingEase = false;
 
     public static bool DebugPlayerCameraAnimEvents = false;
     public static bool DebugPlayerTrackSwitchEvents = true;
-    public static bool DebugTrackSeekEvents = true;
+    public static bool DebugPlayerTrackSeekEvents = true;
 
-    public static bool DebugNextNoteCheckEvents = true;
+    public static bool DebugCatchResultEvents = true;
 
     // Draw debug
     public static bool DebugDrawTunnelGizmos = true;

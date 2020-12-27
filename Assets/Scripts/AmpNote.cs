@@ -62,7 +62,7 @@ public class AmpNote : MonoBehaviour
         // TODO: cleanup!
         //DotLight.SetActive(false);
         DotLight.transform.localPosition = Vector3.zero;
-        DotLightColor = Colors.ConvertColor(AmpTrack.Colors.ColorFromInstrument(AmpTrackController.Instance.Tracks[TrackID].Instrument));
+        DotLightColor = Colors.ConvertColor(AmpTrack.Colors.ColorFromInstrument(TracksController.Instance.Tracks[TrackID].Instrument));
         DotLightMeshRenderer.material.SetColor("_EmissionColor", Colors.ConvertColor(DotLightColor) * 1f);
 
         // Set particle system color to match dotlight!

@@ -6,6 +6,7 @@ using UnityEngine;
 public partial class AmpTrack : MonoBehaviour
 {
     // TODO: performance accessing these might be a bit concerning?
+    Clock Clock { get { return Clock.Instance; } }
     Tunnel Tunnel { get { return Tunnel.Instance; } }
     SongController SongController { get { return SongController.Instance; } }
 
@@ -45,7 +46,7 @@ public partial class AmpTrack : MonoBehaviour
         set
         {
             _color = value;
-            Measures.ForEach(m => m.Color = value);
+            Measures.ForEach(m => m.EdgeLightsColor = value);
         }
     }
 
@@ -62,7 +63,9 @@ public partial class AmpTrack : MonoBehaviour
     public float zRot; // The Z rotation (looks like X-axis rotation from front) of this particular track.
 
     public List<AmpTrackSection> Measures = new List<AmpTrackSection>();
-    // Notes
+    public AmpTrackSection CurrentMeasure { get { return Measures[Clock.Fbar]; } }
+
+    public List<AmpTrackSection> Sequences = new List<AmpTrackSection>();
 
     bool _isEnabled;
     public bool IsEnabled // Disable notes within track, grey out everything
@@ -131,6 +134,15 @@ public partial class AmpTrack : MonoBehaviour
             if (RhythmicGame.DebugTrackCapturingEase) Debug.Log("CAPTURE: step: " + AmpTrackSectionDestruct.step);
             AmpTrackSectionDestruct.step = Mathf.SmoothDamp(AmpTrackSectionDestruct.step, 3f, ref smoothStep, 1f, 10f, 1f * Time.deltaTime);
         }
+    }
+
+    // Sequences
+
+    public void UpdateSequenceColors()
+    {
+        // Set the color for sequence measures
+        foreach (AmpTrackSection m in Sequences)
+            m.MeasureColor = Colors.ColorFromInstrument(Instrument);
     }
 
     // Measure capturing

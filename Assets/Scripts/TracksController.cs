@@ -7,16 +7,19 @@ using PathCreation;
 /// New track controller
 // Manages the new tracks, section creations, captures etc...
 
-public class AmpTrackController : MonoBehaviour
+public class TracksController : MonoBehaviour
 {
     [Header("Editor test variables")]
     public Vector3 TestTrackSectionPos;
     public float TestTrackSectionRot;
 
-    [Header("Common")]
-    public static AmpTrackController Instance;
+    public static TracksController Instance;
     public SongController SongController { get { return SongController.Instance; } }
+
+    [Header("Common")]
     public Tunnel Tunnel;
+    public AmpPlayerCatching Catching;
+
     PathCreator pathCreator;
 
     [Header("Prefabs")]
@@ -32,7 +35,8 @@ public class AmpTrackController : MonoBehaviour
     }
 
     [Header("Properties")]
-    public int CurrentTrackID = -1; // -1 is none
+    public int CurrentRealTrackID = -1; // This is the RealID of the track that the player is currently on | -1 is none
+    public int CurrentTrackID = -1; // This is the ID of the track that the player is currently on | -1 is none
     public AmpTrack CurrentTrack; // The track that the player is currently on
 
     /// Events
@@ -69,6 +73,8 @@ public class AmpTrackController : MonoBehaviour
 
         // Create tracks!
         CreateTracks();
+
+        StartCoroutine(RefreshSequences_Init());
     }
 
     private void Tracks_OnTrackSwitched(object sender, int[] e)
@@ -122,6 +128,44 @@ public class AmpTrackController : MonoBehaviour
     public void SetTrackState(int id, bool state) => SetTrackState(Tracks[id], state);
     public void SetTrackState(AmpTrack track, bool state) => track.IsEnabled = state;
 
+    // Sequences
+    IEnumerator RefreshSequences_Init()
+    {
+        while (Tracks[Tracks.Count - 1].Measures.Count < 2)
+            yield return null;
+
+        RefreshSequences();
+        Catching.RefreshTargetNotes();
+    }
+
+    /// <summary>
+    /// Finds the next sequences in all tracks. <br/>
+    /// Populates the Sequences list in AmpTracks with measures.
+    /// </summary>
+    public void RefreshSequences()
+    {
+        //if (Tracks[Tracks.Count - 1].Measures.Count < 2)
+        //    await Task.Delay(TimeSpan.FromSeconds(2));
+
+        int sequenceNum = RhythmicGame.SequenceAmount;
+        if (sequenceNum < 1) { Debug.LogError("Tracks: There cannot be less than 1 measures set as sequences!"); return; }
+
+        foreach (AmpTrack t in Tracks)
+        {
+            foreach (AmpTrackSection m in t.Measures)
+            {
+                if (m.ID < SongController.songCountIn) continue; // If the measures are part of countin, don't consider them sequences.
+                if (m.IsEmpty || m.IsCaptured) continue;
+
+                t.Sequences.Add(m);
+
+                if (t.Sequences.Count == sequenceNum) break;
+            }
+
+            t.UpdateSequenceColors();
+        }
+    }
+
     // Track switching
     /// <summary>
     /// Switches the track. <br/>
@@ -133,8 +177,9 @@ public class AmpTrackController : MonoBehaviour
         int[] eventArgs = new int[2] { CurrentTrackID, track.ID };
 
         // Set track variables
-        CurrentTrackID = track.RealID;
         CurrentTrack = track;
+        CurrentTrackID = track.ID;
+        CurrentRealTrackID = track.RealID;
 
         // Handle focus states
         foreach (AmpTrack t in Tracks)
@@ -142,6 +187,8 @@ public class AmpTrackController : MonoBehaviour
 
         if (RhythmicGame.DebugPlayerTrackSwitchEvents)
             Debug.LogFormat("TRACKS: Track switched to {0} [{1}]", track.ID, track.TrackName != "" ? track.TrackName : track.name);
+
+        track.UpdateSequenceColors();
 
         // Invoke event!
         OnTrackSwitched?.Invoke(this, eventArgs);

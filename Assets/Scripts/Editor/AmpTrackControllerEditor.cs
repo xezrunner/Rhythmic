@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(AmpTrackController))]
+[CustomEditor(typeof(TracksController))]
 public class AmpTrackControllerEditor : Editor
 {
-    AmpTrackController script;
-    void Awake() => script = (AmpTrackController)target;
+    TracksController script;
+    void Awake() => script = (TracksController)target;
 
     GameObject trackSectionPrefab;
     AmpTrackSection lastSection;

@@ -2,9 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Factory class for generating measures and notes in an AmpTrack
-/// </summary>
+// Factory class for generating measures and notes in an AmpTrack
 
 public partial class AmpTrack
 {
@@ -27,7 +25,7 @@ public partial class AmpTrack
         measure.ID = meta.ID;
         measure.Instrument = Instrument;
         measure.Length = SongController.measureLengthInzPos;
-        measure.Color = Color;
+        measure.EdgeLightsColor = Color;
         measure.IsCaptured = meta.IsCaptured;
 
         // TODO: possibly simplify position &/ rotation properties?

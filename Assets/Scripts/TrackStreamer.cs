@@ -11,7 +11,7 @@ using UnityEngine.InputSystem;
 public class TrackStreamer : MonoBehaviour
 {
     SongController SongController { get { return SongController.Instance; } }
-    AmpTrackController TrackController { get { return AmpTrackController.Instance; } }
+    TracksController TrackController { get { return TracksController.Instance; } }
     Clock Clock { get { return Clock.Instance; } }
 
     public List<Dictionary<int, MetaMeasure>> metaMeasures

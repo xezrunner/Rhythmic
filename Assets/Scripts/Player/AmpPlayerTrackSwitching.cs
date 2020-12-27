@@ -11,7 +11,7 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
     public AmpPlayer Player;
     public Tunnel Tunnel { get { return Tunnel.Instance; } }
     public SongController SongController { get { return SongController.Instance; } }
-    public AmpTrackController TracksController { get { return AmpTrackController.Instance; } }
+    public TracksController TracksController { get { return TracksController.Instance; } }
     public AmpPlayerLocomotion Locomotion;
 
     [Header("Properties")]

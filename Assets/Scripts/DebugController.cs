@@ -77,6 +77,12 @@ public class DebugController : MonoBehaviour
             world.SetActive(!world.activeInHierarchy); worldCamera.SetActive(!world.activeInHierarchy);
         }
 
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            TracksController.Instance.RefreshSequences();
+            AmpPlayerCatching.Instance.RefreshTargetNotes();
+        }
+
         // RESTART
         if (Input.GetKeyDown(KeyCode.R))
             RhythmicGame.Restart();
@@ -119,11 +125,11 @@ public class DebugController : MonoBehaviour
 
         // Track capturing debug
         if (Input.GetKeyDown(KeyCode.H)) // current track, 5
-            AmpTrackController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), 7, 0);
+            TracksController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), 7, 0);
 
         else if (Input.GetKeyDown(KeyCode.Keypad5)) // 5
-            foreach (AmpTrack track in AmpTrackController.Instance.Tracks)
-                AmpTrackController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), 7, track);
+            foreach (AmpTrack track in TracksController.Instance.Tracks)
+                TracksController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), 7, track);
 
         else if (Input.GetKeyDown(KeyCode.Keypad6)) // all!
         { }

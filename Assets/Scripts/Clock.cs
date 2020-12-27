@@ -26,6 +26,10 @@ public class Clock : MonoBehaviour
     public float subbeat;
     public float zPos;
 
+    // F stands for Floor (TODO: ambigious between float?)
+    public int Fbar { get { return Mathf.FloorToInt(bar); } }
+    public int Fbeat { get { return Mathf.FloorToInt(beat); } }
+
     int lastTick = -1;
     int lastBar = -1;
     int lastBeat = -1;

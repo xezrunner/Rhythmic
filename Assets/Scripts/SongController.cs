@@ -9,7 +9,7 @@ public class SongController : MonoBehaviour
 {
     public static SongController Instance;
     public Clock Clock;
-    public AmpTrackController AmpTrackController;
+    public TracksController AmpTrackController;
 
     // Controller properties
     public string defaultSong;
@@ -227,7 +227,7 @@ public class SongController : MonoBehaviour
     public virtual void CreateAmpTrackController()
     {
         GameObject ctrlGameObject = new GameObject() { name = "AMP_TRACKS" };
-        AmpTrackController = ctrlGameObject.AddComponent<AmpTrackController>();
+        AmpTrackController = ctrlGameObject.AddComponent<TracksController>();
 
         //AmpTrackController.OnTrackSwitched += TracksController_OnTrackSwitched;
         Debug.LogFormat("TRACKS: Created track controller!");
@@ -315,7 +315,7 @@ public class SongController : MonoBehaviour
     {
         IsPlaying = !IsPlaying;
 
-        RhythmicGame.SetTimescale(Time.timeScale != 0 ? 0f : 1f);
+        //RhythmicGame.SetTimescale(Time.timeScale != 0 ? 0f : 1f);
 
         // Pause / unpause the AudioSources
         audioSrcList.ForEach(src =>

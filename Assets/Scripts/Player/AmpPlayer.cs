@@ -5,17 +5,17 @@ public partial class AmpPlayer : MonoBehaviour
 {
     public static AmpPlayer Instance;
     public SongController SongController { get { return SongController.Instance; } }
-    public AmpTrackController TracksController { get { return AmpTrackController.Instance; } }
+    public TracksController TracksController { get { return TracksController.Instance; } }
 
     [Header("Common")]
     public AudioSource AudioSrc;
 
-    [Header("Camera properties (as reference)")]
+    [Header("Properties")]
+    public string Name;
+
+    [Header("Camera properties")]
     public float AVPlayerOffset; // AV calibration offset
     public float CameraPullbackOffset; // Camera pullback
-
-    [Header("Catchers")]
-    public List<Catcher> Catchers = new List<Catcher>();
 
     void Awake() => Instance = this;
 

@@ -54,12 +54,20 @@ public class AmpTrackSection : MonoBehaviour
 
     // MeshRenderer.material.SetColor("_Color", Colors.ConvertColor(value));
 
-    private Color _color;
-    public Color Color
+    private Color _edgeLightsColor;
+    public Color EdgeLightsColor
     {
-        get { return _color; }
-        set { _color = value; EdgeLights_Local.Color = EdgeLights_Global.Color = value; }
+        get { return _edgeLightsColor; }
+        set { _edgeLightsColor = value; EdgeLights_Local.Color = EdgeLights_Global.Color = value; }
     }
+
+    private Color _measureColor;
+    public Color MeasureColor
+    {
+        get { return _measureColor; }
+        set { _measureColor = value; if (Track.IsTrackFocused) MeshRenderer.material.color = Colors.ConvertColor(value); }
+    }
+
 
     // Deformation
     public bool StartAutoDeformToPath = true;
@@ -122,7 +130,7 @@ public class AmpTrackSection : MonoBehaviour
         if (IsEmpty || IsCaptured)
         {
             // Disable measure visuals when empty or captured
-            MeshRenderer.gameObject.SetActive(false); 
+            MeshRenderer.gameObject.SetActive(false);
             EdgeLights_Local.gameObject.SetActive(false);
         }
 
