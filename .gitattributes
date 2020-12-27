@@ -1,5 +1,6 @@
-*.asset linguist-generated
-*.mat linguist-generated
-*.meta linguist-generated
-*.prefab linguist-generated
-*.unity linguist-generated
+*.asset    linguist-generated=true
+*.mat     linguist-generated=true 
+*.meta     linguist-generated=true 
+*.prefab     linguist-generated=true 
+*.unity     linguist-generated=true 
+*.scene     linguist-generated=true 
