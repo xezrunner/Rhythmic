@@ -23,11 +23,10 @@ Rhythmic also focuses on user generated content, letting players experience thei
 
 #### Gameplay mechanics
 - [x] Track streaming
-- [x] Track switching
-- [x] Track capturing (**animation only**)
-- [ ] Track capturing
-- [ ] Note blasting
-- [ ] Evaluating note misses & calculating next notes
+- [ ] Track switching *Incomplete at this time*
+- [x] Track capturing *Animation & visuals incomplete*
+- [x] Note blasting
+- [x] Evaluating note misses & calculating next notes *unstable/incomplete at this time*
 - [x] Tunnel mode core implementation
 - [ ] Tunnel mode optimizations
 
