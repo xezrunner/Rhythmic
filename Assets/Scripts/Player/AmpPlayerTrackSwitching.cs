@@ -55,10 +55,16 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
                 else if (id == -1) id = TracksController.Tracks.Count - 1;
             }
         }
-        else if (RhythmicGame.TrackSeekingEnabled) // Track seeking
+        else
         {
-            // to be added
+            // While seeking is unimplemented, redirect to forceful switching
+            SwitchTowardsDirection(direction, true);
+            return;
         }
+        //else if (RhythmicGame.TrackSeekingEnabled) // Track seeking
+        //{
+        //    // to be added
+        //}
 
         // Switch to the destination track!
         SwitchToTrack(id);

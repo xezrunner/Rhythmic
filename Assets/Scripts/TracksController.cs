@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PathCreation;
 using NUnit.Framework;
+using System.Linq;
 
 /// New track controller
 // Manages the new tracks, section creations, captures etc...
@@ -40,6 +41,7 @@ public class TracksController : MonoBehaviour
     public int CurrentRealTrackID = -1; // This is the RealID of the track that the player is currently on | -1 is none
     public int CurrentTrackID = -1; // This is the ID of the track that the player is currently on | -1 is none
     public AmpTrack CurrentTrack; // The track that the player is currently on
+    public AmpTrackSection CurrentMeasure { get { return CurrentTrack.CurrentMeasure; } }
 
     /// Events
     public event EventHandler<int[]> OnTrackSwitched;
@@ -130,6 +132,16 @@ public class TracksController : MonoBehaviour
     public void SetTrackState(int id, bool state) => SetTrackState(Tracks[id], state);
     public void SetTrackState(AmpTrack track, bool state) => track.IsEnabled = state;
 
+    public void DisableCurrentMeasures(bool current = false)
+    {
+        foreach (AmpTrack t in Tracks)
+        {
+            if (t == CurrentTrack & !current) continue;
+            t.Measures[Clock.Fbar].IsEnabled = false;
+            t.IsTrackBeingPlayed = false;
+        }
+    }
+
     // Sequences
 
     // This is an array of upcoming notes that the player is supposed to catch
@@ -173,14 +185,12 @@ public class TracksController : MonoBehaviour
             if (track && t == track) continue; // Ignore specified track
             if (track && lastRefreshUpcomingState) break; // If we already refreshed, skip
             if (t.IsTrackCaptured) continue; // Ignore tracks that have been captured
-
-            //Debug.Break();
-            Debug.DebugBreak();
+            if (t.Sequences.Count == 0) { Debug.LogWarning($"Tracks/RefreshTargetNotes(): Track {t.TrackName} [{t.RealID}] has no sequences! No target notes for this track."); continue; }
 
             AmpNote firstNote = t.Sequences[0].Notes[0];
-            if (!firstNote) { Debug.LogError($"Tracks/RefreshTargetNotes({track == null}): couldn't find the first note for track {t.ID}"); Debug.Break(); System.Diagnostics.Debugger.Break(); }
+            if (!firstNote) { Debug.LogError($"Tracks/RefreshTargetNotes({track == null}): couldn't find the first note for track {t.ID} sequence [0]"); Debug.Break(); System.Diagnostics.Debugger.Break(); }
 
-            firstNote.NoteMeshRenderer.material.color = Color.green * 0.6f;
+            firstNote.NoteMeshRenderer.material.color = Color.green;
             targetNotes[t.ID] = firstNote;
         }
 
@@ -202,16 +212,21 @@ public class TracksController : MonoBehaviour
         foreach (AmpTrack t in Tracks)
         {
             if (track & t == track) continue;
-            if (t.IsTrackCaptured) continue; // Ignore captured tracks
 
             t.Sequences.Clear();
 
-            int currentMeasure = Clock.Fbar + (track ? 1 + sequenceNum : 1); // Jump ahead if track specified
-            Debug.Log($"RefreshSequences(): currentMeasure: {currentMeasure}");
+            //int currentMeasure = Clock.Fbar + (track ? 1 + sequenceNum : 1); // Jump ahead if track specified
+            int currentMeasure = 0;
+            if (track) currentMeasure = track.Sequences.Last().ID + 1;
+            else if (t.IsTrackCaptured) currentMeasure = Clock.Fbar + RhythmicGame.TrackCaptureLength;
+            else currentMeasure = Clock.Fbar;
+
             for (int i = currentMeasure; i < SongController.songLengthInMeasures; i++)
             {
+                if (i >= t.Measures.Count) break;
                 if (t.Sequences.Count == sequenceNum) break;
 
+                if (t.Measures[i] == null) continue;
                 var m = t.Measures[i];
 
                 if (m.IsEmpty || m.IsCaptured || !m.IsEnabled) // Not eligible measures

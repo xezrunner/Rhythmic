@@ -67,17 +67,64 @@ public class AmpPlayerCatching : MonoBehaviour
         TracksController.targetNotes = new AmpNote[TracksController.Tracks.Count];
     }
 
+    int lastIgnoreBar = -1;
+
+    private void LateUpdate()
+    {
+        if (!SongController.IsPlaying) return;
+
+        foreach (AmpTrack t in TracksController.Tracks)
+        {
+            if (t.IsTrackCaptured)
+            {
+                SongController.audioSrcList[t.ID].volume = t.IsTrackFocused ? 1f : 0.4f;
+                continue;
+            }
+            else if (t.IsTrackBeingPlayed) SongController.audioSrcList[t.ID].volume = 1f;
+            else SongController.audioSrcList[t.ID].volume = 0f;
+        }
+
+        if (lastIgnoreBar == Clock.Fbar) return; // avoid spamming
+
+        float dist = Locomotion.DistanceTravelled;
+
+        var currentMeasure = TracksController.CurrentMeasure;
+        if (!currentMeasure.IsEmpty & !currentMeasure.IsCaptured)
+        {
+            AmpNote note = TracksController.targetNotes[TracksController.CurrentTrackID];
+            HandleSlop(dist, note);
+        }
+        else
+            foreach (AmpNote note in TracksController.targetNotes)
+                HandleSlop(dist, note);
+    }
+
+    public void HandleSlop(float dist, AmpNote note)
+    {
+        if (!note) { Debug.LogWarning($"Catching/HandleSlop(): No note was passed!"); HandleResult(new CatchResult()); return; }
+
+        // If the distance is bigger than the note distance + slop distance, we have 'ignored' the note.
+        if (dist > note.Distance + SongController.SlopPos)
+        {
+            HandleResult(new CatchResult(Catchers[(int)note.Lane], CatchResultType.Ignore, note));
+            lastIgnoreBar = Clock.Fbar; // avoid slop check spam
+        }
+    }
+
     public void HandleResult(CatchResult result)
     {
+        if (RhythmicGame.DebugCatchResultEvents) DebugPrintResult(result);
+
         switch (result.resultType)
         {
-            default: { Debug.Log($"Catching/TriggerCatcher() [handling]: Catch result type was {result.resultType} for catcher {result.catcher.Name}"); break; }
+            default: break;
 
             case CatchResultType.Success:
                 {
                     AmpNote note = result.note;
 
                     note.CaptureNote();
+                    note.Track.IsTrackBeingPlayed = true;
 
                     if (note.IsLastNote & note.MeasureID == note.Track.Sequences.Last().ID)
                     {
@@ -87,12 +134,7 @@ public class AmpPlayerCatching : MonoBehaviour
                     else
                     {
                         // Disable other measures
-                        foreach (AmpTrack t in TracksController.Tracks)
-                        {
-                            if (t == TracksController.CurrentTrack) continue;
-
-                            t.Measures[Clock.Fbar].IsEnabled = false;
-                        }
+                        TracksController.DisableCurrentMeasures();
 
                         TracksController.RefreshTargetNotes(TracksController.CurrentTrack);
                     }
@@ -103,7 +145,10 @@ public class AmpPlayerCatching : MonoBehaviour
             case CatchResultType.Ignore:
             case CatchResultType.Miss:
                 {
-                    TracksController.CurrentTrack.Measures[Clock.Fbar].IsEnabled = false;
+                    TracksController.CurrentMeasure.IsEnabled = false; // TODO: unify with below?
+                    TracksController.DisableCurrentMeasures(true);
+
+                    if (result.note) result.note.NoteMeshRenderer.material.color = Color.red;
 
                     TracksController.RefreshSequences();
                     TracksController.RefreshTargetNotes();
@@ -128,11 +173,11 @@ public class AmpPlayerCatching : MonoBehaviour
 
     public static void DebugPrintResult(CatchResult result)
     {
-        if (result.catcher == null) { Debug.LogError("AmpPlayerCatching/DebugPrintResult(): Catcher was null!"); return; }
-
         string noteName = (result.note) ? result.note.name : "null";
+        string catcherString = result.catcher ?
+            $"Catcher: {result.catcher.Name} [{result.catcher.ID}] | " :
+            "Catcher: null | ";
 
-        Debug.Log($"Catcher: {result.catcher.Name} [{result.catcher.ID}] | " +
-            $"Result: {result.resultType}, Note: {noteName}");
+        Debug.Log(catcherString + $"Result: {result.resultType}, Note: {noteName}");
     }
 }

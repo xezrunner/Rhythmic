@@ -62,11 +62,10 @@ public class AmpTrackSection : MonoBehaviour
 
             foreach (AmpNote n in Notes)
                 n.IsEnabled = false;
+
+            MeasureColor = Color.black;
         }
     }
-
-
-    // MeshRenderer.material.SetColor("_Color", Colors.ConvertColor(value));
 
     private Color _edgeLightsColor;
     public Color EdgeLightsColor
@@ -138,13 +137,14 @@ public class AmpTrackSection : MonoBehaviour
             return;
 #endif
 
-        {
-            var a = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            a.transform.parent = transform;
-            a.transform.localScale = new Vector3(transform.localScale.x, 0.1f, 0.1f);
-            a.transform.position = PathTools.GetPositionOnPath(Path, Position.z + Length, -Tunnel.Instance.center);
-            a.transform.rotation = PathTools.GetRotationOnPath(Path, Position.z + Length);
-        }
+        // TEMP: visualize measures (add separator to the end)
+        //{
+        //    var a = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        //    a.transform.parent = transform;
+        //    a.transform.localScale = new Vector3(transform.localScale.x, 0.1f, 0.1f);
+        //    a.transform.position = PathTools.GetPositionOnPath(Path, Position.z + Length, -Tunnel.Instance.center);
+        //    a.transform.rotation = PathTools.GetRotationOnPath(Path, Position.z + Length);
+        //}
 
         // Set up global edge light based on track focus state
         SetGlobalEdgeLights(Track.IsTrackFocused);

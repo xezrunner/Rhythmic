@@ -1,4 +1,7 @@
+#undef VISUALIZE_SLOP
+
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
 
 public enum CatcherSide { Left = 0, Center = 1, Right = 2 }
@@ -44,7 +47,8 @@ public class Catcher : MonoBehaviour
         if (measure.IsEmpty || measure.IsCaptured)
             return new CatchResult(this, CatchResultType.Empty, null);
 
-        float slopMs = RhythmicGame.SlopMs;
+        float slopMs = SongController.SlopMs;
+        float slopzPos = SongController.SecTozPos(slopMs / 1000f);
 
         float mStart = measure.Position.z;
         float mLength = measure.Length;
@@ -53,7 +57,7 @@ public class Catcher : MonoBehaviour
         int noteNum = (int)mFrac * measure.Notes.Count;
         AmpNote note = measure.Notes[noteNum];
 
-        if (note.Distance > dist + slopMs || note.Distance < dist - slopMs)
+        if (note.Distance > dist + slopzPos || note.Distance < dist - slopzPos)
             return new CatchResult(this, CatchResultType.Miss, null); // Missed with no particular note
         else
             return new CatchResult(this, CatchResultType.Miss, note); // Missed with a note
@@ -61,6 +65,11 @@ public class Catcher : MonoBehaviour
 
     public CatchResult Catch()
     {
+        // Handle empty catch
+        AmpTrackSection currentMeasure = TracksController.CurrentTrack.CurrentMeasure;
+        if (currentMeasure.IsEmpty || currentMeasure.IsCaptured)
+            return new CatchResult(this, CatchResultType.Empty, null);
+
         float dist = Locomotion.DistanceTravelled; // Distance travelled
         float speed = Locomotion.Speed; // How many units do we traverse in a second?
 
@@ -71,17 +80,18 @@ public class Catcher : MonoBehaviour
         {
             float targetDist = target.Distance;
 
-            float slopMs = RhythmicGame.SlopMs / SongController.songFudgeFactor * (1f + 0.8f);
+            float slopMs = SongController.SlopMs;
 
             // Evaluate where we hit
             float diff = Mathf.Abs(dist - targetDist); // meters
-            float diffSec = diff / speed; // seconds
+            float diffSec = SongController.zPosToSec(diff); // seconds
             float diffMs = diffSec * 1000; // milliseconds
 
-            Debug.Log($"diff: {diff} | diffSec: {diffSec} | diffMs: {diffMs} :: speed: {speed}");
+            Debug.Log($"diff: {diff} | diffSec: {diffSec} | diffMs: {diffMs} | slopMs: {slopMs} :: speed: {speed}");
 
-            {
-                float slopInzPos = (slopMs / 1000) * speed;
+#if VISUALIZE_SLOP
+            // DEBUG DRAW SLOP
+            float slopInzPos = SongController.SecTozPos(slopMs / 1000f) * 2;
 
                 GameObject debugBox = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 debugBox.transform.parent = target.transform;
@@ -92,6 +102,7 @@ public class Catcher : MonoBehaviour
 
                 //Debug.Break();
             }
+#endif
 
             // If the difference between target note and current distance is less than slopMs, we're good!
             if (diffMs < slopMs)

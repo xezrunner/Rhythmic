@@ -79,6 +79,8 @@ public partial class AmpTrack : MonoBehaviour
     bool _TUT_IsTrackEnabled;
     public bool TUT_IsTrackEnabled { get; set; /* TBA */ }
 
+    public bool IsTrackBeingPlayed { get; set; }
+
     bool _isTrackFocused;
     public bool IsTrackFocused
     {

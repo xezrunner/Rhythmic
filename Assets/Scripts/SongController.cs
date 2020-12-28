@@ -30,6 +30,9 @@ public class SongController : MonoBehaviour
     public int songLengthInMeasures;
     public float songFudgeFactor; // Default is 1
 
+    public float SlopMs;
+    public float SlopPos;
+
     // Playback properties
     public List<AudioSource> audioSrcList = new List<AudioSource>();
     public AudioSource mainAudioSource; // The BG_CLICK AudioSource
@@ -175,6 +178,9 @@ public class SongController : MonoBehaviour
         // TODO: Loading the song should not be based on what property is set!
         // LoadSong() should be called by the UI or loading mechanism!
         LoadSong(songName == null ? defaultSong : songName); // load default song in case the prop is empty, for testing purposes only!
+
+        SlopMs = zPosToSec(SecTozPos(RhythmicGame.SlopMs / 1000)) * 1000f / songFudgeFactor * (1 + 0.8f);
+        SlopPos = SecTozPos(SlopMs / 1000f);
     }
 
     // Track streamer
