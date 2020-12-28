@@ -36,7 +36,7 @@ public class AmpNote : MonoBehaviour
     public LaneSide Lane = LaneSide.Center;
     public float Distance;
 
-    private bool _isEnabled;
+    private bool _isEnabled = true;
     public bool IsEnabled
     {
         get { return _isEnabled; }

@@ -15,6 +15,7 @@ public class TracksController : MonoBehaviour
 
     public static TracksController Instance;
     public SongController SongController { get { return SongController.Instance; } }
+    Clock Clock { get { return Clock.Instance; } }
 
     [Header("Common")]
     public Tunnel Tunnel;
@@ -152,14 +153,21 @@ public class TracksController : MonoBehaviour
 
         foreach (AmpTrack t in Tracks)
         {
-            foreach (AmpTrackSection m in t.Measures)
+            t.Sequences.Clear();
+
+            for (int i = Clock.Fbar; i < SongController.songLengthInMeasures; i++)
             {
+                if (i > t.Measures.Count - 1) Debug.LogError($"Tracks/RefreshSequences(): Measure {i} was null!");
+                AmpTrackSection m = t.Measures[i];
+                if (m == null) { Debug.LogError($"Tracks/RefreshSequences(): Measure {i} was null!"); i--; continue; }
+
                 if (m.ID < SongController.songCountIn) continue; // If the measures are part of countin, don't consider them sequences.
-                if (m.IsEmpty || m.IsCaptured) continue;
+                if (m.IsEmpty || m.IsCaptured || !m.IsEnabled) continue;
 
                 t.Sequences.Add(m);
 
-                if (t.Sequences.Count == sequenceNum) break;
+                if (t.Sequences.Count == sequenceNum)
+                    break;
             }
 
             t.UpdateSequenceColors();

@@ -16,7 +16,7 @@ public struct CatchResult
 
     public CatchResultType resultType;
     public Catcher catcher;
-    public AmpNote? note;
+    public AmpNote note;
 }
 
 public class AmpPlayerCatching : MonoBehaviour
@@ -111,7 +111,7 @@ public class AmpPlayerCatching : MonoBehaviour
                 if (track) i += RhythmicGame.SequenceAmount; // If a track was specified, we want to skip ahead a sequence.
 
                 AmpTrackSection m = t.Measures[i];
-                if (m.IsEmpty || m.IsCaptured) continue;
+                if (m.IsEmpty || m.IsCaptured || !m.IsEnabled) continue;
 
                 // Grab first note of measure
                 AmpNote note = m.Notes[0];
@@ -141,10 +141,30 @@ public class AmpPlayerCatching : MonoBehaviour
         {
             default: { Debug.Log($"Catching/TriggerCatcher() [handling]: Catch result type was {result.resultType} for catcher {result.catcher.Name}"); break; }
 
-            case CatchResultType.Success: { result.note.CaptureNote(); RefreshTargetNotes(TracksController.CurrentTrack); break; }
+            case CatchResultType.Success:
+                {
+                    result.note.CaptureNote();
+                    RefreshTargetNotes(TracksController.CurrentTrack);
+
+                    foreach (AmpTrack t in TracksController.Tracks)
+                    {
+                        if (t == TracksController.CurrentTrack) continue;
+
+                        t.Measures[Clock.Fbar].IsEnabled = false;
+                    }
+
+                    break;
+                }
             case CatchResultType.Empty:
             case CatchResultType.Ignore:
-            case CatchResultType.Miss: { RefreshTargetNotes(); break; }
+            case CatchResultType.Miss:
+                {
+                    TracksController.CurrentTrack.Measures[Clock.Fbar].IsEnabled = false;
+
+                    TracksController.RefreshSequences();
+                    RefreshTargetNotes();
+                    break;
+                }
         }
 
         if (RhythmicGame.DebugCatchResultEvents)

@@ -85,7 +85,10 @@ public class Catcher : MonoBehaviour
                 return GenerateFail(dist);
         }
         else
+        {
             Debug.LogError($"Catcher: there was no target note! | track: {TracksController.CurrentTrackID}, dist: {Locomotion.DistanceTravelled}");
+            Catching.RefreshTargetNotes();
+        }
 
         // ----
 

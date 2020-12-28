@@ -37,7 +37,7 @@ public class AmpTrackSection : MonoBehaviour
     public List<AmpNote> Notes = new List<AmpNote>();
 
     /// Path-related stuff
-    /// TODO: Global Path variable? !!!
+    // TODO: Global Path variable? !!!
 
     [Header("Properties")]
     public Vector3 Position;
@@ -51,6 +51,20 @@ public class AmpTrackSection : MonoBehaviour
 
     public bool IsCapturing;
     public bool IsCaptured;
+
+    private bool _isEnabled = true;
+    public bool IsEnabled
+    {
+        get { return _isEnabled; }
+        set 
+        {
+            _isEnabled = value;
+
+            foreach (AmpNote n in Notes)
+                n.IsEnabled = false;
+        }
+    }
+
 
     // MeshRenderer.material.SetColor("_Color", Colors.ConvertColor(value));
 

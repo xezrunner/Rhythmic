@@ -15,7 +15,6 @@ public partial class AmpTrack : MonoBehaviour
     public Transform MeasureContainer;
 
     /// Declarations, global variables, properties, events ...
-    #region 
     /// Path-related stuff
     [Header("Path stuff")]
     public PathCreation.PathCreator PathCreator; // TODO: Global property? !!!
@@ -115,7 +114,6 @@ public partial class AmpTrack : MonoBehaviour
     // Measure capturing
     public event EventHandler<int[]> MeasureCaptureStarted; // start - end
     public event EventHandler<int[]> MeasureCaptureFinished; // start - end
-    #endregion
 
     /// Functionality
 
