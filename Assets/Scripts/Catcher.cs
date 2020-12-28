@@ -64,19 +64,34 @@ public class Catcher : MonoBehaviour
         float dist = Locomotion.DistanceTravelled; // Distance travelled
         float speed = Locomotion.Speed; // How many units do we traverse in a second?
 
-        AmpNote target = Catching.targetNotes[TracksController.CurrentTrackID];
+        AmpNote target = TracksController.targetNotes[TracksController.CurrentTrackID];
 
         // There is a target note to catch!
         if (target)
         {
             float targetDist = target.Distance;
 
-            float slopMs = RhythmicGame.SlopMs;
+            float slopMs = RhythmicGame.SlopMs / SongController.songFudgeFactor * (1f + 0.8f);
 
             // Evaluate where we hit
             float diff = Mathf.Abs(dist - targetDist); // meters
             float diffSec = diff / speed; // seconds
             float diffMs = diffSec * 1000; // milliseconds
+
+            Debug.Log($"diff: {diff} | diffSec: {diffSec} | diffMs: {diffMs} :: speed: {speed}");
+
+            {
+                float slopInzPos = (slopMs / 1000) * speed;
+
+                GameObject debugBox = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                debugBox.transform.parent = target.transform;
+                debugBox.transform.position = target.transform.position;
+                debugBox.transform.localScale = new Vector3(0.5f, 0.1f, slopInzPos * 2);
+                debugBox.transform.rotation = target.transform.rotation;
+                debugBox.GetComponent<MeshRenderer>().material.color = Color.red;
+
+                //Debug.Break();
+            }
 
             // If the difference between target note and current distance is less than slopMs, we're good!
             if (diffMs < slopMs)
@@ -87,7 +102,7 @@ public class Catcher : MonoBehaviour
         else
         {
             Debug.LogError($"Catcher: there was no target note! | track: {TracksController.CurrentTrackID}, dist: {Locomotion.DistanceTravelled}");
-            Catching.RefreshTargetNotes();
+            TracksController.RefreshTargetNotes();
         }
 
         // ----

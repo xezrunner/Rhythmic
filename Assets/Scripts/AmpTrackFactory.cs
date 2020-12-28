@@ -41,7 +41,7 @@ public partial class AmpTrack
         return measure;
     }
 
-    public AmpNote CreateNote(MetaNote meta, AmpTrackSection measure = null)
+    public AmpNote CreateNote(MetaNote meta, AmpTrackSection measure = null, bool lastNote = false)
     {
         /// Create object
         var obj = Instantiate(NotePrefab);
@@ -59,11 +59,13 @@ public partial class AmpTrack
         // set up
         obj.name = meta.Name;
         AmpNote note = obj.GetComponent<AmpNote>();
+        note.Track = this;
         note.TrackID = RealID;
         note.MeasureID = meta.MeasureID;
         note.Lane = meta.Lane;
         note.Distance = meta.Distance;
         note.IsCaptured = meta.IsCaptured;
+        note.IsLastNote = lastNote;
 
         measure.Notes.Add(note);
         return note;

@@ -9,6 +9,7 @@ public partial class AmpTrack : MonoBehaviour
     Clock Clock { get { return Clock.Instance; } }
     Tunnel Tunnel { get { return Tunnel.Instance; } }
     SongController SongController { get { return SongController.Instance; } }
+    TracksController TracksController { get { return TracksController.Instance; } }
 
     /// References to the contents
     [Header("Containers")]
@@ -98,8 +99,21 @@ public partial class AmpTrack : MonoBehaviour
         }
     }
 
+    int _capturedOnBar;
     bool _isTrackCaptured;
-    public bool IsTrackCaptured { get; set; /* TBA */ }
+    public bool IsTrackCaptured
+    {
+        get
+        {
+            if (_isTrackCaptured) return Clock.Fbar < _capturedOnBar + RhythmicGame.TrackCaptureLength; // Is current bar less than the track capture bar + capture length?
+            else return false;
+        }
+        set
+        {
+            _isTrackCaptured = value;
+            _capturedOnBar = Clock.Fbar;
+        }
+    }
 
     bool _isTrackCapturing;
     public bool IsTrackCapturing { get; set; /* TBA */ }
@@ -135,12 +149,14 @@ public partial class AmpTrack : MonoBehaviour
     }
 
     // Sequences
-
     public void UpdateSequenceColors()
     {
         // Set the color for sequence measures
+        foreach (AmpTrackSection m in Measures)
+            if (m) m.MeasureColor = Color.black;
+
         foreach (AmpTrackSection m in Sequences)
-            m.MeasureColor = Colors.ColorFromInstrument(Instrument);
+            if (m) m.MeasureColor = Colors.ColorFromInstrument(Instrument);
     }
 
     // Measure capturing
@@ -158,6 +174,9 @@ public partial class AmpTrack : MonoBehaviour
         // TODO: Remove destruct script after finished destructing?
         //Destroy(destruct);
     }
+
+    public void CaptureMeasureRange(int start, int end) => TracksController.CaptureMeasureRange(start, end, this);
+    public void CaptureMeasureAmount(int start, int amount) => TracksController.CaptureMeasureAmount(start, amount, this);
 
     /// Common
     #region

@@ -77,6 +77,8 @@ public class TrackStreamer : MonoBehaviour
                 track.CreateNote(kv.Value, measure);
                 yield return new WaitForSeconds(0.1f);
             }
+
+            measure.Notes.Last().IsLastNote = true; // TODO: optimization?
         }
         //}
     }

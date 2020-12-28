@@ -30,17 +30,23 @@ public class AmpNote : MonoBehaviour
     }
 
     /// Global variables and properties
+    public AmpTrack Track;
     public int TrackID;
     public int MeasureID;
     public NoteType NoteType;
     public LaneSide Lane = LaneSide.Center;
     public float Distance;
+    public bool IsLastNote;
 
     private bool _isEnabled = true;
     public bool IsEnabled
     {
         get { return _isEnabled; }
-        set { _isEnabled = value; /* TBA: gray out or restore note color!*/ }
+        set
+        {
+            _isEnabled = value;
+            NoteMeshRenderer.material.color = Color.gray;
+        }
     }
 
     private bool _isCaptured;

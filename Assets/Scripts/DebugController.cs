@@ -77,10 +77,18 @@ public class DebugController : MonoBehaviour
             world.SetActive(!world.activeInHierarchy); worldCamera.SetActive(!world.activeInHierarchy);
         }
 
+        // Sequence & notes refreshing
         if (Input.GetKeyDown(KeyCode.T))
         {
             TracksController.Instance.RefreshSequences();
-            AmpPlayerCatching.Instance.RefreshTargetNotes();
+            TracksController.Instance.RefreshTargetNotes();
+            Debug.LogWarning("Debug: Refreshing with no track specified!");
+        }
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            TracksController.Instance.RefreshSequences(TracksController.Instance.CurrentTrack);
+            TracksController.Instance.RefreshTargetNotes(TracksController.Instance.CurrentTrack);
+            Debug.LogWarning("Debug: Refreshing with current track specified!");
         }
 
         // RESTART

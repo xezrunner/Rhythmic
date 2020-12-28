@@ -79,7 +79,7 @@ public class AmpTrackSection : MonoBehaviour
     public Color MeasureColor
     {
         get { return _measureColor; }
-        set { _measureColor = value; if (Track.IsTrackFocused) MeshRenderer.material.color = Colors.ConvertColor(value); }
+        set { _measureColor = value; /*if (Track.IsTrackFocused)*/ MeshRenderer.material.color = Colors.ConvertColor(value); }
     }
 
 
@@ -137,6 +137,14 @@ public class AmpTrackSection : MonoBehaviour
         if (PrefabStageUtility.GetCurrentPrefabStage() != null) // Warning: do not change mesh in prefab isolation!
             return;
 #endif
+
+        {
+            var a = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            a.transform.parent = transform;
+            a.transform.localScale = new Vector3(transform.localScale.x, 0.1f, 0.1f);
+            a.transform.position = PathTools.GetPositionOnPath(Path, Position.z + Length, -Tunnel.Instance.center);
+            a.transform.rotation = PathTools.GetRotationOnPath(Path, Position.z + Length);
+        }
 
         // Set up global edge light based on track focus state
         SetGlobalEdgeLights(Track.IsTrackFocused);

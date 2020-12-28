@@ -134,10 +134,21 @@
                 {
                     "name": "",
                     "id": "8f660ac6-9939-40db-8c30-1201ae95a0ce",
-                    "path": "<Gamepad>/leftTrigger",
+                    "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": "Default",
+                    "action": "Catch Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bbf23d89-62a4-41b1-ae78-8748b3f8bffc",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
                     "action": "Catch Left",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -211,10 +222,21 @@
                 {
                     "name": "",
                     "id": "c430a559-2e83-418b-b048-1564e19d52d4",
-                    "path": "<Gamepad>/rightTrigger",
+                    "path": "<Gamepad>/rightShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": "Default",
+                    "action": "Catch Center",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "73c3320f-02a4-4155-90ee-f7e1d371b3d6",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
                     "action": "Catch Center",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -233,10 +255,21 @@
                 {
                     "name": "",
                     "id": "3b5b5e84-05b2-4f9e-9a17-b5f4776639ca",
-                    "path": "<Gamepad>/rightShoulder",
+                    "path": "<Gamepad>/rightTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "Default",
+                    "action": "Catch Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b7f0f9d0-96b2-4a0d-b40b-36aefd368544",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
                     "action": "Catch Right",
                     "isComposite": false,
                     "isPartOfComposite": false

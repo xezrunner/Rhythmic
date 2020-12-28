@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public enum CatchResultType { UNKNOWN = 0, Success = 1, Empty = 2, Ignore = 3, Miss = 4, Error = 5 }
@@ -31,9 +32,6 @@ public class AmpPlayerCatching : MonoBehaviour
 
     public Transform CatcherContainer; // This will automatically populate the Catchers list!
     public List<Catcher> Catchers = new List<Catcher>();
-
-    // This is an array of upcoming notes that the player is supposed to catch
-    public AmpNote[] targetNotes;
 
     void Awake()
     {
@@ -66,91 +64,37 @@ public class AmpPlayerCatching : MonoBehaviour
         TracksController.Catching = this;
 
         // Set up notesToCatch array
-        targetNotes = new AmpNote[TracksController.Tracks.Count];
+        TracksController.targetNotes = new AmpNote[TracksController.Tracks.Count];
     }
 
-    bool lastRefreshUpcomingState; // This is set to true when we've already found the upcoming notes for the other tracks.
-
-    /// <summary>
-    /// Finds the next notes that the player is supposed to catch. <br/>
-    /// In case we're already playing a track, this will only update the current track's upcoming notes.
-    /// </summary>
-    /// <param name="track">Giving a track will skip forward a sequence amount of measures for the other tracks.</param>
-    public void RefreshTargetNotes(AmpTrack track = null)
+    public void HandleResult(CatchResult result)
     {
-        //Debug.Break();
-        Debug.DebugBreak();
-
-        // Find the current track's next note
-        if (track)
-        {
-            AmpNote note = null;
-            foreach (AmpTrackSection m in track.Sequences)
-            {
-                if (note) break;
-                foreach (AmpNote n in m.Notes)
-                    if (!n.IsCaptured) { note = n; break; }
-            }
-
-            if (!note)
-                Debug.LogError($"Catching/RefreshTargetNotes({track.ID}): couldn't find any upcoming notes!");
-
-            targetNotes[track.ID] = note;
-            note.NoteMeshRenderer.material.color = Color.green;
-
-            if (lastRefreshUpcomingState) return;
-        }
-
-        // Find the next notes in the other tracks (or in all tracks if a track is unspecified)
-        foreach (AmpTrack t in TracksController.Tracks)
-        {
-            if (track && t.ID == track.ID) continue; // If a track was specified, ignore it.
-
-            for (int i = Clock.Fbar; i < SongController.songLengthInMeasures; i++)
-            {
-                if (track) i += RhythmicGame.SequenceAmount; // If a track was specified, we want to skip ahead a sequence.
-
-                AmpTrackSection m = t.Measures[i];
-                if (m.IsEmpty || m.IsCaptured || !m.IsEnabled) continue;
-
-                // Grab first note of measure
-                AmpNote note = m.Notes[0];
-                note.NoteMeshRenderer.material.color = Color.green;
-
-                // Set target note
-                // TODO: obstacle/error notes?
-                targetNotes[t.ID] = note;
-                break;
-            }
-        }
-
-        // Do not refresh again after we've found these notes once.
-        if (track) lastRefreshUpcomingState = true;
-        else lastRefreshUpcomingState = false;
-    }
-
-    public void TriggerCatcher(int id) => TriggerCatcher((CatcherSide)id);
-    public void TriggerCatcher(CatcherSide side)
-    {
-        if (RhythmicGame.DebugCatchResultEvents)
-            Debug.Log($"Catching: Calling catcher: {side} ({(int)side})...");
-
-        CatchResult result = Catchers[(int)side].Catch();
-
         switch (result.resultType)
         {
             default: { Debug.Log($"Catching/TriggerCatcher() [handling]: Catch result type was {result.resultType} for catcher {result.catcher.Name}"); break; }
 
             case CatchResultType.Success:
                 {
-                    result.note.CaptureNote();
-                    RefreshTargetNotes(TracksController.CurrentTrack);
+                    AmpNote note = result.note;
 
-                    foreach (AmpTrack t in TracksController.Tracks)
+                    note.CaptureNote();
+
+                    if (note.IsLastNote & note.MeasureID == note.Track.Sequences.Last().ID)
                     {
-                        if (t == TracksController.CurrentTrack) continue;
+                        note.Track.CaptureMeasureAmount(Clock.Fbar, RhythmicGame.TrackCaptureLength);
+                        TracksController.lastRefreshUpcomingState = false; // TODO: do this in a better place?
+                    }
+                    else
+                    {
+                        // Disable other measures
+                        foreach (AmpTrack t in TracksController.Tracks)
+                        {
+                            if (t == TracksController.CurrentTrack) continue;
 
-                        t.Measures[Clock.Fbar].IsEnabled = false;
+                            t.Measures[Clock.Fbar].IsEnabled = false;
+                        }
+
+                        TracksController.RefreshTargetNotes(TracksController.CurrentTrack);
                     }
 
                     break;
@@ -162,10 +106,21 @@ public class AmpPlayerCatching : MonoBehaviour
                     TracksController.CurrentTrack.Measures[Clock.Fbar].IsEnabled = false;
 
                     TracksController.RefreshSequences();
-                    RefreshTargetNotes();
+                    TracksController.RefreshTargetNotes();
+
                     break;
                 }
         }
+    }
+
+    public void TriggerCatcher(int id) => TriggerCatcher((CatcherSide)id);
+    public void TriggerCatcher(CatcherSide side)
+    {
+        if (RhythmicGame.DebugCatchResultEvents)
+            Debug.Log($"Catching: Calling catcher: {side} ({(int)side})...");
+
+        CatchResult result = Catchers[(int)side].Catch();
+        HandleResult(result);
 
         if (RhythmicGame.DebugCatchResultEvents)
             DebugPrintResult(result);
