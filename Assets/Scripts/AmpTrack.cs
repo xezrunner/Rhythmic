@@ -138,13 +138,21 @@ public partial class AmpTrack : MonoBehaviour
         TunnelRot = TunnelTransform[1];
     }
 
+    // TODO: for debugging only
+    public bool iscaptured;
+
     float smoothStep;
+
+    [NonSerialized]
+    public float captureAnimStep = 0.85f;
     private void Update()
     {
+        iscaptured = IsTrackCaptured;
+
         if (IsTrackCapturing)
         {
-            if (RhythmicGame.DebugTrackCapturingEase) Debug.Log("CAPTURE: step: " + AmpTrackSectionDestruct.step);
-            AmpTrackSectionDestruct.step = Mathf.SmoothDamp(AmpTrackSectionDestruct.step, 3f, ref smoothStep, 1f, 10f, 1f * Time.deltaTime);
+            if (RhythmicGame.DebugTrackCapturingEase) Debug.Log("CAPTURE: step: " + captureAnimStep);
+            captureAnimStep = Mathf.SmoothDamp(captureAnimStep, 3f, ref smoothStep, 1f, 10f, 1f * Time.deltaTime);
         }
     }
 

@@ -15,6 +15,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     float RotationOnPath; // Note: in Euler angles!
 
     AmpTrackSection measure;
+    AmpTrack track;
     ClippingPlane ClipManager;
 
     public bool IsCapturing;
@@ -22,6 +23,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     public void Init(AmpTrackSection _measure)
     {
         this.measure = _measure;
+        track = measure.Track;
 
         ID = _measure.ID;
         Path = _measure.Path;
@@ -51,13 +53,12 @@ public class AmpTrackSectionDestruct : MonoBehaviour
 
     [Range(0, 1)]
     public float fraction;
-    public static float step = 1.0f;
 
     private void Update()
     {
         if (fraction != 1f)
         {
-            fraction = Mathf.MoveTowards(fraction, 1.0f, step * Time.deltaTime);
+            fraction = Mathf.MoveTowards(fraction, 1.0f, track.captureAnimStep * Time.deltaTime);
 
             // Capture notes
             for (int i = 0; i < fraction * measure.Notes.Count; i++)

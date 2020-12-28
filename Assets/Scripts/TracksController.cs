@@ -295,7 +295,7 @@ public class TracksController : MonoBehaviour
         }
 
         track.IsTrackCapturing = false;
-        AmpTrackSectionDestruct.step = 0.5f;
+        track.captureAnimStep = 0.85f;
 
         if (RhythmicGame.DebugTrackCapturingEvents) Debug.Log("CAPTURE: done");
     }
