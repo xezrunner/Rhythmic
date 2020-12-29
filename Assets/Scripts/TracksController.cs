@@ -243,12 +243,13 @@ public class TracksController : MonoBehaviour
 
             if (RhythmicGame.DebugSequenceRefreshEvents)
             {
+                if (t.Sequences.Count == 0) { Debug.LogWarning($"RefreshSequences(): Sequences for {t.TrackName}: null"); return; }
+
                 string seq_string = "";
 
-                foreach (var m in t.Sequences)
-                    seq_string += m.ID + ", ";
+                foreach (var m in t.Sequences) seq_string += m.ID + ", ";
+                seq_string = seq_string.Substring(0, seq_string.Length - 2); // Remove final trailing ', '
 
-                seq_string = seq_string.Substring(0, seq_string.Length - 2); // Remove trailing ', '
                 string endMarker = (t.ID == 0 || t.ID == Tracks.Count - 1) ? "  ******" : ""; // Mark final line
                 Debug.Log($"RefreshSequences(): Sequences for {t.TrackName}: {seq_string}" + endMarker);
             }

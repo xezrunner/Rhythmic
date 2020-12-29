@@ -21,7 +21,7 @@ Material:
     m_TexEnvs:
     - _BumpMap:
         m_Texture: {fileID: 2800000, guid: e45c573e843e828458dea161b211ee19, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 1, y: 0.28}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
         m_Texture: {fileID: 0}
@@ -62,7 +62,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _BumpScale: 0.53
-    - _BumpStrength: 0.67
+    - _BumpStrength: 0.5
     - _Cutoff: 0
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
