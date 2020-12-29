@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using UnityEditor.Experimental.SceneManagement;
 #endif
 
+public enum MeasureCaptureState { None = 0, Capturing = 1, Captured = 2 }
+
 /// AmpTrackSection (previously Measure)
 // This is a single measure of a track.
 
@@ -50,13 +52,18 @@ public class AmpTrackSection : MonoBehaviour
     public bool IsEmpty;
 
     public bool IsCapturing;
-    public bool IsCaptured;
+    public MeasureCaptureState CaptureState;
+    public bool IsCaptured
+    {
+        get { return CaptureState > 0; }
+        set { CaptureState = !value ? MeasureCaptureState.None : MeasureCaptureState.Captured; }
+    }
 
     private bool _isEnabled = true;
     public bool IsEnabled
     {
         get { return _isEnabled; }
-        set 
+        set
         {
             _isEnabled = value;
 

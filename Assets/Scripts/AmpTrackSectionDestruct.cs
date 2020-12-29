@@ -35,7 +35,6 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         ClipManager = _measure.ClipManager;
         ClipManager.inverse_plane = ClipPlane; // Assign inverse clip plane
 
-        // TODO: only measure.IsCaptured is enough?
         measure.IsCapturing = true;
 
         // Set fraction to current measure progress
@@ -49,7 +48,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         if (!measure)
             Init(GetComponent<AmpTrackSection>());
     }
-    void Start() { if (!measure.IsCaptured) Clip(); } // Clip to start (0f)
+    void Start() { if (!measure.IsCaptured & !measure.IsCapturing) Clip(); } // Clip to start (0f)
 
     [Range(0, 1)]
     public float fraction;
@@ -62,9 +61,9 @@ public class AmpTrackSectionDestruct : MonoBehaviour
 
             // Capture notes
             for (int i = 0; i < fraction * measure.Notes.Count; i++)
-                    measure.Notes[i].CaptureNote();
+                measure.Notes[i].CaptureNote();
         }
-        else
+        else // 1f, done
         {
             measure.IsCapturing = false;
             measure.IsCaptured = true;
@@ -73,7 +72,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
 
         // Don't update clipping if the measure was already captured!
         // Do continue the rest of the capturing though, as we don't want to skip measures during capturing.
-        if (!measure.IsCaptured)
+        if (measure.CaptureState != MeasureCaptureState.Captured)
             Clip(fraction);
     }
 

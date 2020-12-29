@@ -128,7 +128,7 @@ public class TracksController : MonoBehaviour
         return com;
     }
 
-    // Track states
+    /// Track states
     public void SetTrackState(int id, bool state) => SetTrackState(Tracks[id], state);
     public void SetTrackState(AmpTrack track, bool state) => track.IsEnabled = state;
 
@@ -142,12 +142,12 @@ public class TracksController : MonoBehaviour
         }
     }
 
-    // Sequences
+    /// Sequences
 
     // This is an array of upcoming notes that the player is supposed to catch
     public AmpNote[] targetNotes;
 
-    [HideInInspector]
+    [NonSerialized]
     public bool lastRefreshUpcomingState; // This is set to true when we've already found the upcoming notes for the other tracks.
     /// <summary>
     /// Finds the next notes that the player is supposed to catch. <br/>
@@ -249,7 +249,7 @@ public class TracksController : MonoBehaviour
         RefreshTargetNotes();
     }
 
-    // Track switching
+    /// Track switching
     /// <summary>
     /// Switches the track. <br/>
     /// This handles setting the new track ID and preparing the tracks for their focus states.
@@ -278,7 +278,7 @@ public class TracksController : MonoBehaviour
     }
     public void SwitchToTrack(int ID) => SwitchToTrack(Tracks[ID]);
 
-    // Measure capturing
+    /// Measure capturing
     /// <summary>
     /// Captures measures from a given start point until an end point
     /// </summary>
@@ -301,6 +301,12 @@ public class TracksController : MonoBehaviour
         track.IsTrackCapturing = true;
         track.IsTrackCaptured = true;
 
+        // Immediately consider all measures as captured (isCaptured returns true even when capturing)
+        for (int i = start; i < end; i++)
+            if (track.Measures[i].CaptureState != MeasureCaptureState.Captured)
+                track.Measures[i].CaptureState = MeasureCaptureState.Capturing;
+
+        // Init capture process - wait for captures to finish before proceeding to next one
         for (int i = start; i < end; i++)
         {
             if (i < track.Measures.Count)
@@ -310,7 +316,7 @@ public class TracksController : MonoBehaviour
         }
 
         track.IsTrackCapturing = false;
-        track.captureAnimStep = 0.85f;
+        track.captureAnimStep = 0.85f; // Reset easing anim step value for specific track
 
         if (RhythmicGame.DebugTrackCapturingEvents) Debug.Log("CAPTURE: done");
     }
