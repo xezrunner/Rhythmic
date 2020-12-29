@@ -184,14 +184,20 @@ public class TracksController : MonoBehaviour
         {
             if (track && t == track) continue; // Ignore specified track
             if (track && lastRefreshUpcomingState) break; // If we already refreshed, skip
-            if (t.IsTrackCaptured) continue; // Ignore tracks that have been captured
+            //if (t.IsTrackCaptured) continue; // Ignore tracks that have been captured
             if (t.Sequences.Count == 0) { Debug.LogWarning($"Tracks/RefreshTargetNotes(): Track {t.TrackName} [{t.RealID}] has no sequences! No target notes for this track."); continue; }
 
-            AmpNote firstNote = t.Sequences[0].Notes[0];
-            if (!firstNote) { Debug.LogError($"Tracks/RefreshTargetNotes({track == null}): couldn't find the first note for track {t.ID} sequence [0]"); Debug.Break(); System.Diagnostics.Debugger.Break(); }
+            AmpNote note = t.Sequences[0].Notes[0];
+            if (!note) { Debug.LogError($"Tracks/RefreshTargetNotes({track == null}): couldn't find the first note for track {t.ID} sequence [0]"); Debug.Break(); System.Diagnostics.Debugger.Break(); }
 
-            firstNote.NoteMeshRenderer.material.color = Color.green;
-            targetNotes[t.ID] = firstNote;
+            note.NoteMeshRenderer.material.color = Color.green;
+            targetNotes[t.ID] = note;
+
+            if (RhythmicGame.DebugTargetNoteRefreshEvents)
+            {
+                string endMarker = (t.ID == 0 || t.ID == Tracks.Count - 1) ? "  ******" : "";
+                Debug.Log($"RefreshTargetNotes(): Target note for {t.TrackName}: {note.name}" + endMarker);
+            }
         }
 
         if (track && !lastRefreshUpcomingState) lastRefreshUpcomingState = true;
@@ -204,8 +210,6 @@ public class TracksController : MonoBehaviour
     /// </summary>
     public void RefreshSequences(AmpTrack track = null)
     {
-        if (lastRefreshUpcomingState) return;
-
         int sequenceNum = RhythmicGame.SequenceAmount;
         if (sequenceNum < 1) { Debug.LogError("Tracks: There cannot be less than 1 measures set as sequences!"); return; }
 
@@ -215,8 +219,7 @@ public class TracksController : MonoBehaviour
 
             t.Sequences.Clear();
 
-            //int currentMeasure = Clock.Fbar + (track ? 1 + sequenceNum : 1); // Jump ahead if track specified
-            int currentMeasure = 0;
+            int currentMeasure;
             if (track) currentMeasure = track.Sequences.Last().ID + 1;
             else if (t.IsTrackCaptured) currentMeasure = Clock.Fbar + RhythmicGame.TrackCaptureLength;
             else currentMeasure = Clock.Fbar;
@@ -237,6 +240,18 @@ public class TracksController : MonoBehaviour
             }
 
             t.UpdateSequenceColors();
+
+            if (RhythmicGame.DebugSequenceRefreshEvents)
+            {
+                string seq_string = "";
+
+                foreach (var m in t.Sequences)
+                    seq_string += m.ID + ", ";
+
+                seq_string = seq_string.Substring(0, seq_string.Length - 2); // Remove trailing ', '
+                string endMarker = (t.ID == 0 || t.ID == Tracks.Count - 1) ? "  ******" : ""; // Mark final line
+                Debug.Log($"RefreshSequences(): Sequences for {t.TrackName}: {seq_string}" + endMarker);
+            }
         }
     }
 

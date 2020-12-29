@@ -135,7 +135,6 @@ public class AmpPlayerCatching : MonoBehaviour
                     {
                         // Disable other measures
                         TracksController.DisableCurrentMeasures();
-
                         TracksController.RefreshTargetNotes(TracksController.CurrentTrack);
                     }
 
