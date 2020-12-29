@@ -136,8 +136,7 @@ public class DebugController : MonoBehaviour
             TracksController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), 7, 0);
 
         else if (Input.GetKeyDown(KeyCode.Keypad5)) // 5
-            foreach (AmpTrack track in TracksController.Instance.Tracks)
-                TracksController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), 7, track);
+            TracksController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), 7, TracksController.Instance.Tracks);
 
         else if (Input.GetKeyDown(KeyCode.Keypad6)) // all!
         { }

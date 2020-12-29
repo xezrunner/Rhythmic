@@ -300,6 +300,14 @@ public class TracksController : MonoBehaviour
     /// <param name="start">Measure ID to start capturing from</param>
     /// <param name="end">Last Measure ID to capture</param>
     public void CaptureMeasureRange(int start, int end, AmpTrack track) => StartCoroutine(_CaptureMeasureRange(start, end, track));
+    public void CaptureMeasureRange(int start, int end, int trackID) => StartCoroutine(_CaptureMeasureRange(start, end, Tracks[trackID]));
+    public void CaptureMeasureRange(int start, int end, List<AmpTrack> tracks)
+    {
+        tracks.ForEach(t => CaptureMeasureRange(start, end, t));
+
+        RefreshSequences();
+        RefreshTargetNotes();
+    }
 
     /// <summary>
     /// Captures measures from a given start point and onward
@@ -308,11 +316,13 @@ public class TracksController : MonoBehaviour
     /// <param name="amount">Amount of measures to capture from starting point onward</param>
     public void CaptureMeasureAmount(int start, int amount, AmpTrack track) => StartCoroutine(_CaptureMeasureRange(start, start + amount, track));
     public void CaptureMeasureAmount(int start, int amount, int trackID) => CaptureMeasureRange(start, start + amount, Tracks[trackID]);
+    public void CaptureMeasureAmount(int start, int amount, List<AmpTrack> tracks) => CaptureMeasureRange(start, start + amount, tracks);
 
     IEnumerator _CaptureMeasureRange(int start, int end, AmpTrack track)
     {
         if (RhythmicGame.DebugTrackCapturingEvents) Debug.Log($"CAPTURE: started | start: {start}, end: {end}, track: {track.TrackName} | {track.RealID} ");
 
+        // TODO: state enum like in AmpTrackSection?
         track.IsTrackCapturing = true;
         track.IsTrackCaptured = true;
 
