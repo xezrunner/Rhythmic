@@ -160,11 +160,11 @@ public class AmplitudeSongController : SongController
                 if (laneType == LaneSide.UNKNOWN)
                     continue;
 
-                string noteName = string.Format("CATCH_{0}_{1}_{2}", laneType, i, counter);
-                NoteType noteType = NoteType.Generic; // TODO: AMP note types for powerups?!
-
                 float zPos = GetTickTimeInzPos(note.AbsoluteTime);
                 int measureID = (int)note.AbsoluteTime / measureTicks;
+                string noteName = string.Format("CATCH_{0}::{1}_{2} ({3})", songTracks[i], measureID, laneType.ToString(), counter);
+
+                NoteType noteType = NoteType.Generic; // TODO: AMP note types for powerups?!
 
                 MetaNote metaNote = new MetaNote()
                 {
