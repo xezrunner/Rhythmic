@@ -182,7 +182,7 @@ public class SongController : MonoBehaviour
 
         // Position (meters)
         posInSec = (4 / secPerBeat) / songFudgeFactor * 1.8f;
-        posInMs = posInSec * 1000;
+        posInMs = posInSec / 1000;
         posInTick = posInSec * secInTick;
 
         // Ticks

@@ -92,7 +92,7 @@ public class Catcher : MonoBehaviour
 #if VISUALIZE_SLOP
             // DEBUG DRAW SLOP
             {
-                float slopInzPos = SongController.MsToPos(slopMs) * 2;
+                float slopInzPos = SongController.SlopPos * 2;
 
                 GameObject debugBox = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 debugBox.transform.parent = target.transform;

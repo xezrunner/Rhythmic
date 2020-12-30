@@ -86,6 +86,7 @@ public class AmpPlayerCatching : MonoBehaviour
 
         if (lastIgnoreBar == Clock.Fbar) return; // avoid spamming
 
+        // *** SLOP ***
         float dist = Locomotion.DistanceTravelled;
 
         var currentMeasure = TracksController.CurrentMeasure;
