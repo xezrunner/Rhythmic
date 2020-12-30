@@ -58,15 +58,6 @@ public class SongController : MonoBehaviour
     zPos (Meters)
     */
 
-    // Z position calculations (zPos - Rhythmic unit)
-    /*
-    public float GetTickTimeInzPos(float absoluteTime) // Convert MIDI ticks into zPos unit
-    {
-        //     |    tick time in seconds   | |offset by 1 beat in sec| |unit| |         fudge factor        |
-        return (((secInTick * absoluteTime)) / (secInTick * beatTicks) * 4) / songFudgeFactor * (1f + 0.8f);
-    }
-    */
-
     // Common 'meta' units
     public float beatPerSec { get { return songBpm / 60f; } }
     public float secPerBeat { get { return 60f / songBpm; } }
@@ -119,37 +110,6 @@ public class SongController : MonoBehaviour
     public float PosToTick(float pos) { return tickInPos * pos; }
     public float PosToSec(float pos) { return secInPos * pos; }
     public float PosToMs(float pos) { return msInPos * pos; }
-
-    /// *OLD* Previous implemenetation
-#if false
-    // ms (Milliseconds)
-    public float MsInTick{ get { return (60000f / (songBpm * beatTicks)); } }
-    public float tickInMs { get { return tickInSec / 1000; } }
-    public float msInzPos { get { return (beatPerSec / 1000) / songFudgeFactor * (1f + 0.8f); } }
-    // s (Seconds)
-    public float tickInSec { get { return ((songBpm * beatTicks) / 60); } }
-    public float secInTick { get { return secPerBeat / beatPerSec; } }
-    //public float secInzPos { get { return secPerBeat / songFudgeFactor * (1f + 0.8f); } } // zPos (Meters)
-
-    // TODO: these zPos conversions do not work!!!
-    public float tickInzPos { get { return tickInSec / (tickInSec * beatTicks) * 4 / songFudgeFactor * (1f + 0.8f); } }
-    public float zPosInTick { get { return tickInSec * zPosInSec; } }
-    public float zPosInSec { get { return (secPerBeat / 4) / (1f + 0.8f) * songFudgeFactor; } }
-    public float zPosInMs { get { return zPosInSec * 1000; } }
-    // Converters
-    public float TickTimeToMs(float tick = 1f) { return tickInMs * tick; }
-    public float MsToTickTIme(float ms = 1f) { return tickInMs * ms; }
-    public float MsTozPos(float ms = 1f) { return SecTozPos(ms / 1000) * 1000; }
-
-    public float TickTimeToSec(float tick = 1f) { return secInTick * tick; }
-    public float SecToTickTime(float sec = 1f) { return tickInSec * sec; }
-    public float SecTozPos(float sec = 1f) { return GetTickTimeInzPos(SecToTickTime(sec)); }
-
-    public float TickTimeTozPos(float tick = 1f) { return tickInzPos * tick; }
-    public float zPosToTickTime(float zPos = 1f) { return zPosInTick * zPos; }
-    public float zPosToSec(float zPos = 1f) { return zPos * zPosInSec; }
-    public float zPosToMs(float zPos = 1f) { return zPosToSec(zPos) * 1000; }
-#endif
 
     // zPos to measure/subbeat num conversion
     // TODO: revise
