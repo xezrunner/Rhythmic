@@ -1,4 +1,4 @@
-#undef VISUALIZE_SLOP
+#define VISUALIZE_SLOP
 
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -48,7 +48,7 @@ public class Catcher : MonoBehaviour
             return new CatchResult(this, CatchResultType.Empty, null);
 
         float slopMs = SongController.SlopMs;
-        float slopzPos = SongController.SecTozPos(slopMs / 1000f);
+        float slopzPos = SongController.SecToPos(slopMs / 1000f);
 
         float mStart = measure.Position.z;
         float mLength = measure.Length;
@@ -84,14 +84,15 @@ public class Catcher : MonoBehaviour
 
             // Evaluate where we hit
             float diff = Mathf.Abs(dist - targetDist); // meters
-            float diffSec = SongController.zPosToSec(diff); // seconds
+            float diffSec = SongController.PosToSec(diff); // seconds
             float diffMs = diffSec * 1000; // milliseconds
 
             Debug.Log($"diff: {diff} | diffSec: {diffSec} | diffMs: {diffMs} | slopMs: {slopMs} :: speed: {speed}");
 
 #if VISUALIZE_SLOP
             // DEBUG DRAW SLOP
-            float slopInzPos = SongController.SecTozPos(slopMs / 1000f) * 2;
+            {
+                float slopInzPos = SongController.MsToPos(slopMs) * 2;
 
                 GameObject debugBox = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 debugBox.transform.parent = target.transform;

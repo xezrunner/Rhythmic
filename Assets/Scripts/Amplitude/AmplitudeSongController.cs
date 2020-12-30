@@ -24,13 +24,7 @@ public class AmplitudeSongController : SongController
     public float DeltaTicksPerQuarterNote { get { return Enabled ? reader.midi.DeltaTicksPerQuarterNote : 480; } } // 1 subbeat's length in MIDI ticks
     public float TunnelSpeedAccountation { get { return (songFudgeFactor == 0 ? 1f : songFudgeFactor); } } // tunnel scaling multiplication value
 
-    // Z position calculations (zPos - Rhythmic unit)
-    public float GetTickTimeInzPos(float absoluteTime) // Convert MIDI ticks into zPos unit
-    {
-        //     |       tick time in seconds      |   |     offset by 1 beat length in seconds    ||unit||     fudge factor     |
-        return (((tickInMs * absoluteTime) / 1000f) / (tickInMs * DeltaTicksPerQuarterNote / 1000f) * 4) / TunnelSpeedAccountation * (1f + 0.8f);
-    }
-    public float GetzPosForNote(float absoluteTime) { return GetTickTimeInzPos(absoluteTime); } // Get note's zPos from its tick time | TODO: redundant?
+    public float GetzPosForNote(float absoluteTime) { return TickToPos(absoluteTime); } // Get note's zPos from its tick time | TODO: redundant?
 
     public override void LoadSong(string song)
     {
@@ -66,9 +60,13 @@ public class AmplitudeSongController : SongController
             songFudgeFactor = moggSong.songFudgeFactor;
             songCountIn = moggSong.songCountInTime;
             songLengthInMeasures = moggSong.songLengthInMeasures;
-            songLength = TickTimeToSec(measureTicks * songLengthInMeasures);
-            songLengthInzPos = TickTimeTozPos(measureTicks * songLengthInMeasures);
+            songLength = TickToSec(measureTicks * songLengthInMeasures);
+            songLengthInzPos = TickToPos(measureTicks * songLengthInMeasures);
         }
+
+        // *** PROPS LOADED *** //
+
+        CalculateTimeUnits();
 
         // Create Tracks controller!
         //CreateTracksController_OLD();
@@ -160,7 +158,7 @@ public class AmplitudeSongController : SongController
                 if (laneType == LaneSide.UNKNOWN)
                     continue;
 
-                float zPos = GetTickTimeInzPos(note.AbsoluteTime);
+                float zPos = TickToPos(note.AbsoluteTime);
                 int measureID = (int)note.AbsoluteTime / measureTicks;
                 string noteName = string.Format("CATCH_{0}::{1}_{2} ({3})", songTracks[i], measureID, laneType.ToString(), counter);
 

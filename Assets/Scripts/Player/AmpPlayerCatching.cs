@@ -113,8 +113,6 @@ public class AmpPlayerCatching : MonoBehaviour
 
     public void HandleResult(CatchResult result)
     {
-        if (RhythmicGame.DebugCatchResultEvents) DebugPrintResult(result);
-
         switch (result.resultType)
         {
             default: break;

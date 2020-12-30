@@ -59,7 +59,7 @@ public class Clock : MonoBehaviour
         bar = tick / SongController.measureTicks; // 1920
         beat = tick / SongController.beatTicks; // 480
         subbeat = tick / SongController.subbeatTicks; // 240
-        zPos = SongController.secInzPos * seconds;
+        zPos = SongController.posInTick * tick;
 
         // Invoke events if last integer values aren't the same as current (changed!)
         if ((int)tick != lastTick) OnTick?.Invoke(this, (int)tick);

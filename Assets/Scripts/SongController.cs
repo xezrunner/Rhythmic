@@ -47,7 +47,7 @@ public class SongController : MonoBehaviour
 
     public Vector3 beatHaptics;
 
-    // Time & unit calculations
+    /// Time & unit calculations
     #region Time & unit calculations
     /*---- SONG UNITS ------
     Beat (Quarter note): One beat's length in ticks | 1 beat = 480 ticks
@@ -58,46 +58,98 @@ public class SongController : MonoBehaviour
     zPos (Meters)
     */
 
-    // Common units
-    public float secPerBeat { get { return songBpm / 60f; } }
-    public float beatPerSec { get { return 60f / songBpm; } }
+    // Z position calculations (zPos - Rhythmic unit)
+    /*
+    public float GetTickTimeInzPos(float absoluteTime) // Convert MIDI ticks into zPos unit
+    {
+        //     |    tick time in seconds   | |offset by 1 beat in sec| |unit| |         fudge factor        |
+        return (((secInTick * absoluteTime)) / (secInTick * beatTicks) * 4) / songFudgeFactor * (1f + 0.8f);
+    }
+    */
+
+    // Common 'meta' units
+    public float beatPerSec { get { return songBpm / 60f; } }
+    public float secPerBeat { get { return 60f / songBpm; } }
 
     public int beatTicks = 480;
     public int measureTicks { get { return beatTicks * 4; } }
     public int subbeatTicks { get { return beatTicks / 2; } }
 
-    public float measureLengthInzPos { get { return TickTimeTozPos(measureTicks); } }
-    public float subbeatLengthInzPos { get { return TickTimeTozPos(subbeatTicks); } }
+    public float measureLengthInzPos { get { return TickToPos(measureTicks); } }
+    public float subbeatLengthInzPos { get { return TickToPos(subbeatTicks); } }
 
-    // TDOO: Re-do to local values!!!
-    // TODO: REVISE!!!
+    /// Individual time & position units
+    // Ticks - how many ticks in a <unit>
+    public float tickInSec;
+    public float tickInMs;
+    public float tickInPos;
 
+    // Seconds - how many seconds in a <unit>
+    public float secInTick;
+    public float secInMs;
+    public float secInPos;
+
+    // Milliseconds (ms) - how many ms in a <unit>
+    public float msInTick;
+    public float msInSec;
+    public float msInPos;
+
+    // Meters (pos) - how many pos in a <unit>
+    public float posInTick;
+    public float posInSec;
+    public float posInMs;
+
+    /// Convertors
+    // Ticks -> 
+    public float TickToSec(float ticks) { return secInTick * ticks; }
+    public float TickToMs(float ticks) { return msInTick * ticks; }
+    public float TickToPos(float ticks) { return posInTick * ticks; }
+
+    // Seconds ->
+    public float SecToTick(float sec) { return tickInSec * sec; }
+    public float SecToMs(float sec) { return msInSec * sec; }
+    public float SecToPos(float sec) { return posInSec * sec; }
+
+    // Milliseconds
+    public float MsToTick(float ms) { return tickInMs * ms; }
+    public float MsToSec(float ms) { return secInMs * ms; }
+    public float MsToPos(float ms) { return posInMs * ms; }
+
+    // Position (meters)
+    public float PosToTick(float pos) { return tickInPos * pos; }
+    public float PosToSec(float pos) { return secInPos * pos; }
+    public float PosToMs(float pos) { return msInPos * pos; }
+
+    /// *OLD* Previous implemenetation
+#if false
     // ms (Milliseconds)
-    public float tickInMs { get { return (60000f / (songBpm * beatTicks)); } }
-    public float msIntick { get { return (songBpm * beatTicks) / 60000f; } }
-    public float msInzPos { get { return (secPerBeat / 1000) / songFudgeFactor * (1f + 0.8f); } }
+    public float MsInTick{ get { return (60000f / (songBpm * beatTicks)); } }
+    public float tickInMs { get { return tickInSec / 1000; } }
+    public float msInzPos { get { return (beatPerSec / 1000) / songFudgeFactor * (1f + 0.8f); } }
     // s (Seconds)
-    public float tickInSec { get { return (60f / (songBpm * beatTicks)); } }
-    public float secInTick { get { return (songBpm * beatTicks) / 60f; } }
-    public float secInzPos { get { return secPerBeat / songFudgeFactor * (1f + 0.8f); } }
-    // zPos (Meters)
+    public float tickInSec { get { return ((songBpm * beatTicks) / 60); } }
+    public float secInTick { get { return secPerBeat / beatPerSec; } }
+    //public float secInzPos { get { return secPerBeat / songFudgeFactor * (1f + 0.8f); } } // zPos (Meters)
+
     // TODO: these zPos conversions do not work!!!
     public float tickInzPos { get { return tickInSec / (tickInSec * beatTicks) * 4 / songFudgeFactor * (1f + 0.8f); } }
-    public float zPosInTick { get { return (tickInzPos / 4f * (tickInSec * beatTicks)) * (songBpm * beatTicks); } }
-    public float zPosInSec { get { return 60f / songBpm; } }
-    public float zPosInMs { get { return 60000f / songBpm; } }
+    public float zPosInTick { get { return tickInSec * zPosInSec; } }
+    public float zPosInSec { get { return (secPerBeat / 4) / (1f + 0.8f) * songFudgeFactor; } }
+    public float zPosInMs { get { return zPosInSec * 1000; } }
     // Converters
     public float TickTimeToMs(float tick = 1f) { return tickInMs * tick; }
-    public float MsToTickTIme(float ms = 1f) { return msIntick * ms; }
+    public float MsToTickTIme(float ms = 1f) { return tickInMs * ms; }
+    public float MsTozPos(float ms = 1f) { return SecTozPos(ms / 1000) * 1000; }
 
-    public float TickTimeToSec(float tick = 1f) { return tickInSec * tick; }
-    public float SecToTickTime(float sec = 1f) { return secInTick * sec; }
-    public float SecTozPos(float sec = 1f) { return sec * secInzPos; }
+    public float TickTimeToSec(float tick = 1f) { return secInTick * tick; }
+    public float SecToTickTime(float sec = 1f) { return tickInSec * sec; }
+    public float SecTozPos(float sec = 1f) { return GetTickTimeInzPos(SecToTickTime(sec)); }
 
     public float TickTimeTozPos(float tick = 1f) { return tickInzPos * tick; }
     public float zPosToTickTime(float zPos = 1f) { return zPosInTick * zPos; }
-    public float zPosToSec(float zPos = 1f) { return zPosInSec * zPos; }
-    public float zPosToMs(float zPos = 1f) { return zPosInMs * zPos; }
+    public float zPosToSec(float zPos = 1f) { return zPos * zPosInSec; }
+    public float zPosToMs(float zPos = 1f) { return zPosToSec(zPos) * 1000; }
+#endif
 
     // zPos to measure/subbeat num conversion
     // TODO: revise
@@ -121,7 +173,6 @@ public class SongController : MonoBehaviour
 
         return -1;
     }
-
     public int GetSubbeatNumForZPos(int measureNum, float zPos)
     {
         /*
@@ -157,6 +208,29 @@ public class SongController : MonoBehaviour
     }
     #endregion
 
+    public void CalculateTimeUnits()
+    {
+        // Seconds
+        secInTick = 60f / (songBpm * beatTicks);
+        secInMs = 0.001f; // 1s = 1000ms
+        secInPos = (secPerBeat / 4) * songFudgeFactor / 1.8f;
+
+        // Milliseconds
+        msInTick = secInTick * 1000;
+        msInSec = 1000; // 1ms = 0.001s
+        msInPos = secInPos * 1000;
+
+        // Position (meters)
+        posInSec = (4 / secPerBeat) / songFudgeFactor * 1.8f;
+        posInMs = posInSec * 1000;
+        posInTick = posInSec * secInTick;
+
+        // Ticks
+        tickInSec = (songBpm * beatTicks) / 60; // how many ticks in a second // 880
+        tickInMs = tickInSec / 1000; // How many ticks in a milliseconds // ???
+        tickInPos = secInPos * tickInSec;
+    }
+
     // INIT & LOADING
 
     public virtual void Awake() => Instance = this;
@@ -179,8 +253,11 @@ public class SongController : MonoBehaviour
         // LoadSong() should be called by the UI or loading mechanism!
         LoadSong(songName == null ? defaultSong : songName); // load default song in case the prop is empty, for testing purposes only!
 
-        SlopMs = zPosToSec(SecTozPos(RhythmicGame.SlopMs / 1000)) * 1000f / songFudgeFactor * (1 + 0.8f);
-        SlopPos = SecTozPos(SlopMs / 1000f);
+        // Set / calculate slop ms and pos props
+        SlopMs = RhythmicGame.SlopMs / songFudgeFactor * (1f + 0.8f); // TODO: incorrect?
+        SlopPos = MsToPos(SlopMs);
+
+        Debug.Log($"SlopMs: {SlopMs} | SlopPos: {SlopPos}");
     }
 
     // Track streamer
@@ -349,7 +426,7 @@ public class SongController : MonoBehaviour
     public void OffsetSong(float offset)
     {
         audioSrcList.ForEach(src => src.time += offset); // offset music by seconds!
-        //Player.OffsetPlayer(offset * (Player.PlayerSpeed * secPerBeat / songFudgeFactor * (1f + 0.8f))); // offset player by zPos!
+                                                         //Player.OffsetPlayer(offset * (Player.PlayerSpeed * secPerBeat / songFudgeFactor * (1f + 0.8f))); // offset player by zPos!
     }
 
     // GAMEPLAY
