@@ -102,7 +102,7 @@ public class AmpPlayerCatching : MonoBehaviour
 
     public void HandleSlop(float dist, AmpNote note)
     {
-        if (!note) { Debug.LogWarning($"Catching/HandleSlop(): No note was passed!"); HandleResult(new CatchResult()); return; }
+        if (!note) { Debug.LogWarning($"Catching/HandleSlop(): No note was passed!"); HandleResult(new CatchResult()); lastIgnoreBar = Clock.Fbar; return; }
 
         // If the distance is bigger than the note distance + slop distance, we have 'ignored' the note.
         if (dist > note.Distance + SongController.SlopPos)
@@ -114,6 +114,8 @@ public class AmpPlayerCatching : MonoBehaviour
 
     public void HandleResult(CatchResult result)
     {
+        if (!result.catcher) return;
+
         switch (result.resultType)
         {
             default: break;

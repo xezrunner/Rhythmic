@@ -229,7 +229,6 @@ public class SongController : MonoBehaviour
         {
             trackStreamer = AmpTrackController.gameObject.AddComponent<TrackStreamer>();
             Debug.LogFormat("TRACKS: Created track streamer!");
-
         }
         else
             Debug.LogWarning("AMP_CTRL: TrackStreamer already exists!");

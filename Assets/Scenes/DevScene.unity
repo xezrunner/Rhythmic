@@ -175,6 +175,18 @@ MonoBehaviour:
   songDspTime: 0
   beatHaptics: {x: 0.25, y: 0.8, z: 85}
   beatTicks: 480
+  tickInSec: 0
+  tickInMs: 0
+  tickInPos: 0
+  secInTick: 0
+  secInMs: 0
+  secInPos: 0
+  msInTick: 0
+  msInSec: 0
+  msInPos: 0
+  posInTick: 0
+  posInSec: 0
+  posInMs: 0
   trackStreamer: {fileID: 0}
 --- !u!4 &22153599
 Transform:
@@ -10623,7 +10635,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50ac449a56ce15145b388af6c2eed80c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Input: 0
+  Input: 13.2
 --- !u!4 &1485641845
 Transform:
   m_ObjectHideFlags: 0

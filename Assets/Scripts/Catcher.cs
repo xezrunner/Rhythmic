@@ -1,4 +1,4 @@
-#define VISUALIZE_SLOP
+#undef VISUALIZE_SLOP
 
 using System.Collections.Generic;
 using System.Security.Cryptography;

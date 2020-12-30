@@ -184,8 +184,12 @@ public class TracksController : MonoBehaviour
         {
             if (track && t == track) continue; // Ignore specified track
             if (track && lastRefreshUpcomingState) break; // If we already refreshed, skip
-            //if (t.IsTrackCaptured) continue; // Ignore tracks that have been captured
-            if (t.Sequences.Count == 0) { Debug.LogWarning($"Tracks/RefreshTargetNotes(): Track {t.TrackName} [{t.RealID}] has no sequences! No target notes for this track."); continue; }
+            if (t.Sequences.Count == 0) // No sequences were found in this track!
+            {
+                Debug.LogWarning($"Tracks/RefreshTargetNotes(): Track {t.TrackName} [{t.RealID}] has no sequences! No target notes for this track.");
+                targetNotes[t.ID] = null; // Set this track's targetNote to null for the time being
+                continue;
+            }
 
             AmpNote note = t.Sequences[0].Notes[0];
             if (!note) { Debug.LogError($"Tracks/RefreshTargetNotes({track == null}): couldn't find the first note for track {t.ID} sequence [0]"); Debug.Break(); System.Diagnostics.Debugger.Break(); }
