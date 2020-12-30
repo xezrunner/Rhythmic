@@ -55,7 +55,7 @@ public class Clock : MonoBehaviour
         //seconds = Mathf.MoveTowards(SongController.songPosition, SongController.songLength, step);
 
         // Set tick, bar, beat and subbeat values based on seconds
-        tick = SongController.secInTick * seconds; // 1
+        tick = SongController.tickInSec * seconds; // 1
         bar = tick / SongController.measureTicks; // 1920
         beat = tick / SongController.beatTicks; // 480
         subbeat = tick / SongController.subbeatTicks; // 240
