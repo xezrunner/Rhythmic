@@ -12,6 +12,8 @@ public class TimeUnitTesterEditor : Editor
     public float input { get { return script.Input; } }
     public float value = 0f;
 
+    bool scale;
+
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -52,9 +54,12 @@ public class TimeUnitTesterEditor : Editor
 
         if (GUILayout.Button("PosToTick"))
             value = SongController.PosToTick(input);
+
+        scale = EditorGUILayout.Toggle("Scale", scale);
+
         if (GUILayout.Button("PosToSec"))
-            value = SongController.PosToSec(input);
+            value = SongController.PosToSec(input, scale);
         if (GUILayout.Button("PosToMs"))
-            value = SongController.PosToMs(input);
+            value = SongController.PosToMs(input, scale);
     }
 }

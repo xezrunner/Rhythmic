@@ -108,8 +108,22 @@ public class SongController : MonoBehaviour
 
     // Position (meters)
     public float PosToTick(float pos) { return tickInPos * pos; }
-    public float PosToSec(float pos) { return secInPos * pos; }
-    public float PosToMs(float pos) { return msInPos * pos; }
+    public float PosToSec(float pos, bool scale = false) 
+    {
+        float value = secInPos * pos;
+        if (scale) value *= 1.8f / songFudgeFactor;
+        else value /= songFudgeFactor * 1.8f;
+
+        return value;
+    }
+    public float PosToMs(float pos , bool scale = false) 
+    {
+        float value = msInPos * pos;
+        if (scale) value *= 1.8f / songFudgeFactor;
+        else value /= songFudgeFactor * 1.8f;
+
+        return value;
+    }
 
     // zPos to measure/subbeat num conversion
     // TODO: revise
@@ -173,7 +187,7 @@ public class SongController : MonoBehaviour
         // Seconds
         secInTick = 60f / (songBpm * beatTicks);
         secInMs = 0.001f; // 1s = 1000ms
-        secInPos = (secPerBeat / 4) * songFudgeFactor / 1.8f;
+        secInPos = (secPerBeat / 4); // * songFudgeFactor / 1.8f
 
         // Milliseconds
         msInTick = secInTick * 1000;
@@ -182,7 +196,7 @@ public class SongController : MonoBehaviour
 
         // Position (meters)
         posInSec = (4 / secPerBeat) / songFudgeFactor * 1.8f;
-        posInMs = posInSec / 1000;
+        posInMs = (4 / secPerBeat / 1000) / songFudgeFactor * 1.8f;
         posInTick = posInSec * secInTick;
 
         // Ticks
@@ -214,7 +228,9 @@ public class SongController : MonoBehaviour
         LoadSong(songName == null ? defaultSong : songName); // load default song in case the prop is empty, for testing purposes only!
 
         // Set / calculate slop ms and pos props
-        SlopMs = RhythmicGame.SlopMs / songFudgeFactor * (1f + 0.8f); // TODO: incorrect?
+        //SlopMs = RhythmicGame.SlopMs / songFudgeFactor * (1f + 0.8f); // TODO: incorrect?
+        SlopMs = PosToMs(MsToPos(RhythmicGame.SlopMs), true);
+        //SlopMs = PosToSec(SecToPos(RhythmicGame.SlopMs / 1000f)) * 1000f;
         SlopPos = MsToPos(SlopMs);
 
         Debug.Log($"SlopMs: {SlopMs} | SlopPos: {SlopPos}");

@@ -62,7 +62,7 @@ public static class RhythmicGame
     public static float AVCalibrationStepMs = 16.67f;
 
     // Gameplay props
-    public static float SlopMs = 200f; // 100f
+    public static float SlopMs = 100f; // 100f
     public static float DebounceWindowMs = 85f;
 
     public static int HorizonMeasures = 14; // How many measures should we be able to see ahead of us

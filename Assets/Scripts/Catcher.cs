@@ -85,19 +85,17 @@ public class Catcher : MonoBehaviour
             // Evaluate where we hit
             float diff = Mathf.Abs(dist - targetDist); // meters
             float diffSec = SongController.PosToSec(diff); // seconds
-            float diffMs = diffSec * 1000; // milliseconds
+            float diffMs = SongController.PosToMs(diff); // milliseconds
 
             Debug.Log($"diff: {diff} | diffSec: {diffSec} | diffMs: {diffMs} | slopMs: {slopMs} :: speed: {speed}");
 
 #if VISUALIZE_SLOP
             // DEBUG DRAW SLOP
             {
-                float slopInzPos = SongController.SlopPos * 2;
-
                 GameObject debugBox = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 debugBox.transform.parent = target.transform;
                 debugBox.transform.position = target.transform.position;
-                debugBox.transform.localScale = new Vector3(0.5f, 0.1f, slopInzPos * 2);
+                debugBox.transform.localScale = new Vector3(0.5f, 0.1f, SongController.SlopPos * 2);
                 debugBox.transform.rotation = target.transform.rotation;
                 debugBox.GetComponent<MeshRenderer>().material.color = Color.red;
 
