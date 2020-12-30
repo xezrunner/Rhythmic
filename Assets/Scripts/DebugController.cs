@@ -133,10 +133,10 @@ public class DebugController : MonoBehaviour
 
         // Track capturing debug
         if (Input.GetKeyDown(KeyCode.H)) // current track, 5
-            TracksController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), 7, 0);
+            TracksController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), RhythmicGame.TrackCaptureLength, 0);
 
         else if (Input.GetKeyDown(KeyCode.Keypad5)) // 5
-            TracksController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), 7, TracksController.Instance.Tracks);
+            TracksController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), RhythmicGame.TrackCaptureLength, TracksController.Instance.Tracks);
 
         else if (Input.GetKeyDown(KeyCode.Keypad6)) // all!
         { }

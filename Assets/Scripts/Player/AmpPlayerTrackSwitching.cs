@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿//#define ALWAYS_UPDATE
+#undef ALWAYS_UPDATE
+
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -157,11 +160,16 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
 
     private void Update() // TODO: LateUpdate?
     {
+        // TEMP (?)
+#if ALWAYS_UPDATE
+        if (!SongController.IsPlaying || !Locomotion.IsPlaying) // TEMP?: update while not playing for testing purposes
+            Locomotion.Locomotion(Locomotion.DistanceTravelled);
+#endif
+
+        if (!SongController.IsPlaying) return;
+
         Locomotion.PositionOffset = Vector3.SmoothDamp(Locomotion.PositionOffset, targetPos, ref pos_vel, 1f, 100f, EasingStrength * Time.deltaTime);
         //if (!RhythmicGame.IsTunnelMode)
         //    Locomotion.RotationOffset = Vector3.SmoothDamp(Locomotion.RotationOffset, targetRot, ref rot_vel, 1f, 100f, EasingStrength * Time.deltaTime);
-
-        if (!SongController.IsPlaying || !Locomotion.IsPlaying) // TEMP?: update while not playing for testing purposes
-            Locomotion.Locomotion(Locomotion.DistanceTravelled);
     }
 }

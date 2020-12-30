@@ -11,7 +11,7 @@ Material:
   m_Shader: {fileID: 4800000, guid: f41b52aec44669c48ba68f4914421758, type: 3}
   m_ShaderKeywords: _GLOSSYREFLECTIONS_OFF _NORMALMAP _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -100,7 +100,7 @@ Material:
     - _CutoffColor: {r: 1, g: 0, b: 0, a: 0}
     - _Emission: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    - _InversePlane: {r: 0.95355225, g: 0.2967767, b: 0.051591754, a: -576.28406}
-    - _Plane: {r: 0.30080757, g: -0.007187367, b: 0.9536578, a: -746.67395}
+    - _InversePlane: {r: 0.43336987, g: -0.3253857, b: 0.8404253, a: -244.08858}
+    - _Plane: {r: 0.6042316, g: -0.3445115, b: 0.7184818, a: -414.1502}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

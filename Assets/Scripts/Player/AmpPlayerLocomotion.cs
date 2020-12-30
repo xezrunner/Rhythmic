@@ -46,7 +46,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
         // Set catcher visuals to bottom of tunnel, offset by 0.01f (up)
         CatcherVisuals.position = new Vector3(0, Tunnel.radius / 2 + 0.01f, 0);
 
-        Locomotion(); // Position player on path right away
+        Locomotion(DistanceTravelled, true); // Position & rotate player on path right away
     }
     void GetPath()
     {
@@ -80,7 +80,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
     /// Moves the player along the path for a given distance. <br/>
     /// If no path exists, the player is moved to the distance without taking any world contour into account.
     /// </summary>
-    public void Locomotion(float distance = 0f)
+    public void Locomotion(float distance = 0f, bool instant = false)
     {
         // Set the horizon length (used by sections to clip the materials)
         HorizonLength = DistanceTravelled - RhythmicGame.HorizonMeasuresOffset + // TODO: the individual track streaming is visible, so we temporarily offset it
@@ -90,8 +90,11 @@ public class AmpPlayerLocomotion : MonoBehaviour
         {
             transform.position = PathTools.GetPositionOnPath(Path, 0, PositionOffset) + new Vector3(0, 0, distance);
 
-            //Quaternion targetRot = Path.GetRotationAtDistance(distance) * Quaternion.Euler(0, 0, 90) * Quaternion.Euler(tunnelRotation_smooth);
             Quaternion targetRot = Quaternion.identity;
+
+            if (instant)
+            { Interpolatable.localRotation = NonInterpolatable.localRotation = targetRot; return; }
+
             Interpolatable.localRotation = QuaternionUtil.SmoothDamp(Interpolatable.localRotation, targetRot, ref rotVelocity, SmoothDuration);
             NonInterpolatable.localRotation = targetRot;
         }
@@ -106,10 +109,14 @@ public class AmpPlayerLocomotion : MonoBehaviour
 
             transform.position = targetPos;
 
-            //Quaternion targetRot = Path.GetRotationAtDistance(distance) * Quaternion.Euler(0, 0, 90) * Quaternion.Euler(tunnelRotation_smooth);
             Quaternion targetRot = PathTools.GetRotationOnPath(Path, distance, TunnelRotation + offset);
+
+            if (instant)
+            { Interpolatable.localRotation = NonInterpolatable.localRotation = targetRot; return; }
+
             Interpolatable.localRotation = QuaternionUtil.SmoothDamp(Interpolatable.localRotation, targetRot, ref rotVelocity, SmoothDuration);
             NonInterpolatable.localRotation = targetRot;
+
         }
     }
 

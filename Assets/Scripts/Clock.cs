@@ -1,6 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿/* Not allowing tick events due to concerns with performance. */
+//#define TICK_EVENTS 
+#undef TICK_EVENTS
+
+using System;
 using UnityEngine;
 
 public class Clock : MonoBehaviour
@@ -12,10 +14,6 @@ public class Clock : MonoBehaviour
     {
         Instance = this;
         SongController = SongController.Instance;
-
-        // reset clocks!
-        //seconds = 0; tick = 0; bar = 0; beat = 0; subbeat = 0; zPos = 0;
-        //lastTick = 0; lastBar = 0; lastBeat = 0; lastSubbeat = 0;
     }
 
     // Clocks
@@ -30,14 +28,16 @@ public class Clock : MonoBehaviour
     public int Fbar { get { return Mathf.FloorToInt(bar); } }
     public int Fbeat { get { return Mathf.FloorToInt(beat); } }
 
+#if TICK_EVENTS
     int lastTick = -1;
+#endif
     int lastBar = -1;
     int lastBeat = -1;
     int lastSubbeat = -1;
 
-    double slopMsCounter = 0;
-
+#if TICK_EVENTS
     public event EventHandler<int> OnTick;
+#endif
     public event EventHandler<int> OnBar;
     public event EventHandler<int> OnBeat;
     public event EventHandler<int> OnSubbeat;
@@ -51,8 +51,10 @@ public class Clock : MonoBehaviour
 
         // Smoothly interpolate clock ticks
         float step = 1 * SongController.songSpeed * Time.unscaledDeltaTime;
-        seconds = Mathf.MoveTowards(seconds, SongController.songLength, step); // Main clock value is seconds
+
+        // TODO: we somehow want this to mvoe in sync with the songposition, while still being smooth.
         //seconds = Mathf.MoveTowards(SongController.songPosition, SongController.songLength, step);
+        seconds = Mathf.MoveTowards(seconds, SongController.songLength, step); // Main clock value is seconds
 
         // Set tick, bar, beat and subbeat values based on seconds
         tick = SongController.tickInSec * seconds; // 1
@@ -62,27 +64,19 @@ public class Clock : MonoBehaviour
         zPos = SongController.posInTick * tick;
 
         // Invoke events if last integer values aren't the same as current (changed!)
+#if TICK_EVENTS
         if ((int)tick != lastTick) OnTick?.Invoke(this, (int)tick);
+#endif
         if ((int)bar != lastBar) OnBar?.Invoke(this, (int)bar);
         if ((int)beat != lastBeat) OnBeat?.Invoke(this, (int)beat);
         if ((int)subbeat != lastSubbeat) OnSubbeat?.Invoke(this, (int)subbeat);
 
         // Update last ticks
+#if TICK_EVENTS
         lastTick = (int)tick;
+#endif
         lastBar = (int)bar;
         lastBeat = (int)beat;
         lastSubbeat = (int)subbeat;
-
-        // Slop timer logic
-        slopMsCounter += Time.deltaTime * 1000;
-        if ((int)slopMsCounter >= RhythmicGame.SlopMs)
-            PlayerSlop();
-    }
-
-    // Slop timer
-    void PlayerSlop()
-    {
-        OnPlayerSlop?.Invoke(this, null);
-        slopMsCounter = 0;
     }
 }
