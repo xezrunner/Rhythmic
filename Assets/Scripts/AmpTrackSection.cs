@@ -88,7 +88,6 @@ public class AmpTrackSection : MonoBehaviour
         set { _measureColor = value; /*if (Track.IsTrackFocused)*/ MeshRenderer.material.color = Colors.ConvertColor(value); }
     }
 
-
     // Deformation
     public bool StartAutoDeformToPath = true;
     public bool BlockDeformsInEditMode = true;

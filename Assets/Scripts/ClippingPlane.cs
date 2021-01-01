@@ -3,16 +3,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class ClippingPlane : MonoBehaviour
 {
     public List<MeshRenderer> MeshRenderers;
-    public List<Material> Materials;
     public GameObject plane;
     public GameObject inverse_plane;
 
     // Materials to pass values to
-    List<Material> mat = new List<Material>();
+    public List<Material> materials = new List<Material>();
 
     public static bool ClipOnStart = false;
 
@@ -26,26 +26,26 @@ public class ClippingPlane : MonoBehaviour
     void Update() => Clip();
 #endif
 
+    public void AddMeshRenderer(MeshRenderer mr) { foreach (Material m in mr.materials) materials.Add(m); }
+    public void AddMaterial(Material m) => materials.Add(m);
+
     void GetMaterials()
     {
         if (MeshRenderers.Count > 0)
             foreach (MeshRenderer r in MeshRenderers)
                 foreach (Material m in r.materials)
-                    mat.Add(m);
+                    materials.Add(m);
         else
         {
             MeshRenderer r = gameObject.GetComponent<MeshRenderer>();
             foreach (Material m in r.materials)
-                mat.Add(r.material);
+                materials.Add(r.material);
         }
-
-        foreach (Material m in Materials)
-            mat.Add(m);
     }
 
     public void Clip()
     {
-        if (mat == null) GetMaterials();
+        if (materials == null) GetMaterials();
 
         Vector4 planeRepresentation = Vector4.zero;
         Vector4 inverse_planeRepresentation = Vector4.zero;
@@ -82,7 +82,7 @@ public class ClippingPlane : MonoBehaviour
 
         //pass vector to shader
 
-        foreach (Material _mat in mat)
+        foreach (Material _mat in materials)
         {
             if (plane)
             {

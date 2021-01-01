@@ -74,7 +74,9 @@ public class TrackStreamer : MonoBehaviour
             {
                 kv.Value.IsCaptured = measure.IsCaptured; // foreshadowing
 
-                track.CreateNote(kv.Value, measure);
+                var note = track.CreateNote(kv.Value, measure);
+                measure.ClipManager.AddMeshRenderer(note.NoteMeshRenderer); // TODO: CLIPPING - this is hacky
+
                 yield return new WaitForSeconds(0.1f);
             }
 
