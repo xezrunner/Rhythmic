@@ -104,7 +104,7 @@ public class Catcher : MonoBehaviour
 #endif
 
             // If the difference between target note and current distance is less than slopMs, we're good!
-            if (diffMs < slopMs)
+            if (diffMs < slopMs && (int)target.Lane == (int)Side)
                 return new CatchResult(this, CatchResultType.Success, target);
             else // Otherwise, find what note is closest
                 return GenerateFail(dist);
