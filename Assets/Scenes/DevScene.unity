@@ -15,13 +15,13 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
-  m_Fog: 0
-  m_FogColor: {r: 0.38679248, g: 0.38679248, b: 0.38679248, a: 1}
+  m_Fog: 1
+  m_FogColor: {r: 0.1792453, g: 0.1792453, b: 0.1792453, a: 1}
   m_FogMode: 1
-  m_FogDensity: 1
-  m_LinearFogStart: 1000
-  m_LinearFogEnd: 3130
-  m_AmbientSkyColor: {r: 0.7924528, g: 0.7924528, b: 0.7924528, a: 1}
+  m_FogDensity: 0.05
+  m_LinearFogStart: 1659.2
+  m_LinearFogEnd: 3000
+  m_AmbientSkyColor: {r: 1, g: 1, b: 1, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
@@ -156,7 +156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Clock: {fileID: 0}
   AmpTrackController: {fileID: 0}
-  defaultSong: perfectbrain
+  defaultSong: dalatecht
   songTracks: []
   IsFake: 0
   Enabled: 1
@@ -187,6 +187,8 @@ MonoBehaviour:
   posInTick: 0
   posInSec: 0
   posInMs: 0
+  StartPositionAdjustmentEnabled: 1
+  StartPosition: 0
   trackStreamer: {fileID: 0}
 --- !u!4 &22153599
 Transform:
@@ -999,7 +1001,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 16000
+  far clip plane: 15800
   field of view: 100
   orthographic: 0
   orthographic size: 5
@@ -1658,48 +1660,40 @@ MonoBehaviour:
   editorData:
     _bezierPath:
       points:
-      - {x: -782.3829, y: 113.69894, z: -708.2}
-      - {x: -777.17804, y: 97.45034, z: -690.2652}
-      - {x: -744.78125, y: 85.40779, z: -666.43115}
-      - {x: -735.5227, y: 60.80365, z: -594.22485}
-      - {x: -718.13464, y: 14.595638, z: -458.6172}
-      - {x: -660.7024, y: 11.676563, z: -466.78293}
-      - {x: -572.7814, y: -44.36255, z: -347.33447}
-      - {x: -374.1919, y: -170.93951, z: -77.5332}
-      - {x: -201.71904, y: 2.0592036, z: -579.6323}
+      - {x: -572.7814, y: 236.69351, z: -979.28}
+      - {x: -323.3733, y: 202.70834, z: -803.68677}
+      - {x: -201.67078, y: 12.538887, z: -580.9908}
       - {x: -30.951355, y: 0.09265137, z: -283.53052}
-      - {x: 214.66107, y: -2.7358093, z: 142.34796}
-      - {x: -480.29388, y: -5.909958, z: -32.45819}
+      - {x: 139.76807, y: -12.353584, z: 13.929749}
+      - {x: -433.70068, y: 10.638329, z: 124.881836}
       - {x: -341.4016, y: 43.41961, z: 436.56287}
-      - {x: -249.10266, y: 76.2009, z: 748.2444}
-      - {x: -230.96375, y: 46.447254, z: 704.4923}
+      - {x: -249.10254, y: 76.20089, z: 748.2439}
+      - {x: -79.92212, y: 69.24361, z: 713.3364}
       - {x: 91.54608, y: 95.12262, z: 723.3766}
-      - {x: 263.01404, y: 121.001724, z: 733.41675}
-      - {x: 169.70593, y: 92.96161, z: 622.3197}
+      - {x: 263.01428, y: 121.00163, z: 733.41675}
+      - {x: 169.70593, y: 92.96156, z: 622.3198}
       - {x: 335.46057, y: 139.18765, z: 598.64734}
-      - {x: 501.2152, y: 185.4137, z: 574.975}
-      - {x: 423.63025, y: 105.88399, z: 494.51}
+      - {x: 501.2152, y: 185.41374, z: 574.97485}
+      - {x: 462.99988, y: 144.63107, z: 547.35974}
       - {x: 531.8624, y: 212.40436, z: 639.8002}
-      - {x: 640.0946, y: 318.92474, z: 785.09033}
-      - {x: 682.20935, y: 344.62616, z: 847.6659}
+      - {x: 600.725, y: 280.17764, z: 732.2406}
+      - {x: 682.20935, y: 344.62613, z: 847.6658}
       - {x: 493.03406, y: 362.9197, z: 937.37683}
-      - {x: -161.22021, y: 426.18713, z: 1247.6375}
-      - {x: -43.266663, y: 75.097275, z: 1004.94165}
+      - {x: 303.85876, y: 381.2133, z: 1027.0879}
+      - {x: -43.266357, y: 75.097206, z: 1004.94214}
       - {x: -462.70044, y: -52.223877, z: 425.13318}
-      - {x: -882.1343, y: -179.54504, z: -154.67535}
-      - {x: -632.29736, y: -71.36878, z: -18.533447}
+      - {x: -882.1345, y: -179.54495, z: -154.67578}
+      - {x: -632.2975, y: -71.368805, z: -18.533325}
       - {x: -584.92786, y: -24.652527, z: -162.27368}
       isClosed: 0
       space: 0
-      controlMode: 0
+      controlMode: 1
       autoControlLength: 0.626
       boundsUpToDate: 0
       bounds:
         m_Center: {x: 0, y: 0, z: 0}
         m_Extent: {x: 0, y: 0, z: 0}
       perAnchorNormalsAngle:
-      - 0
-      - 20
       - 0
       - 330
       - 17.051256
@@ -1719,9 +1713,9 @@ MonoBehaviour:
     showPerSegmentBounds: 0
     displayAnchorPoints: 1
     displayControlPoints: 1
-    bezierHandleScale: 0.05
+    bezierHandleScale: 15
     globalDisplaySettingsFoldout: 0
-    keepConstantHandleSize: 1
+    keepConstantHandleSize: 0
     showNormalsInVertexMode: 0
     showBezierPathInVertexMode: 0
     showDisplayOptions: 1
@@ -1844,7 +1838,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &476351810
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2100,7 +2094,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 10000
+  far clip plane: 3000
   field of view: 84
   orthographic: 0
   orthographic size: 5

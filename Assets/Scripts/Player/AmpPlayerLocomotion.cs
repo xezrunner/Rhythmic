@@ -46,6 +46,8 @@ public class AmpPlayerLocomotion : MonoBehaviour
         // Set catcher visuals to bottom of tunnel, offset by 0.01f (up)
         CatcherVisuals.position = new Vector3(0, Tunnel.radius / 2 + 0.01f, 0);
 
+        DistanceTravelled = SongController.StartPosition;
+
         Locomotion(DistanceTravelled, true); // Position & rotate player on path right away
     }
     void GetPath()
@@ -86,11 +88,10 @@ public class AmpPlayerLocomotion : MonoBehaviour
         HorizonLength = DistanceTravelled - RhythmicGame.HorizonMeasuresOffset + // TODO: the individual track streaming is visible, so we temporarily offset it
             (RhythmicGame.HorizonMeasures * SongController.measureLengthInzPos);
 
-        if (Path is null || distance < 0f)
+        if (Path is null || distance < 0f) // NEGATIVE POSITION
         {
-            transform.position = PathTools.GetPositionOnPath(Path, 0, PositionOffset) + new Vector3(0, 0, distance);
-
-            Quaternion targetRot = Quaternion.identity;
+            Quaternion targetRot = PathTools.GetRotationOnPath(Path, 0);
+            transform.position = PathTools.GetPositionOnPath(Path, 0, PositionOffset) + (targetRot * new Vector3(0, 0, distance));
 
             if (instant)
             { Interpolatable.localRotation = NonInterpolatable.localRotation = targetRot; return; }

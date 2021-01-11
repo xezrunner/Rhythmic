@@ -67,6 +67,12 @@ public class MeshDeformTest : MonoBehaviour
         meshFilter.mesh = ogMesh;
         mesh = meshFilter.mesh;
 
+        MeshDeformer.DeformMesh(path, meshFilter.mesh, targetObject.transform.position, targetObject.transform.position.x);
+
+        targetObject.transform.position = Vector3.zero;
+
+        return;
+
         // Grab OG mesh vertices
         vertices = new Vector3[ogMesh.vertices.Length];
         Array.Copy(ogMesh.vertices, vertices, ogMesh.vertices.Length);

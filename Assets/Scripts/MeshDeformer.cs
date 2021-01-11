@@ -44,9 +44,11 @@ public static class MeshDeformer
         //    return pos;
         //}
 
+        Vector3 tunnelCenter = (Tunnel.Instance) ? Tunnel.Instance.center : Vector3.zero;
+
         if (!isNegative)
         {
-            Vector3 splinePoint = PathTools.GetPositionOnPath(path, dist, position - Tunnel.Instance.center);
+            Vector3 splinePoint = PathTools.GetPositionOnPath(path, dist, position - tunnelCenter);
 
             Quaternion pathRotation = path.GetRotationAtDistance(dist) * Quaternion.Euler(0, 0, 90); // Rot on path at the distance
             pathRotation = pathRotation * Quaternion.Euler(0, 0, angle); // Rotation addition
@@ -58,12 +60,12 @@ public static class MeshDeformer
 
             return final;
         }
-        else
+        else // NEGATIVE POSITION
         {
-            Vector3 splinePoint = PathTools.GetPositionOnPath(path, 0, position - Tunnel.Instance.center) + new Vector3(0, 0, dist);
-
             Quaternion pathRotation = path.GetRotationAtDistance(0) * Quaternion.Euler(0, 0, 90);
             pathRotation = pathRotation * Quaternion.Euler(0, 0, angle); // Rotation addition
+
+            Vector3 splinePoint = PathTools.GetPositionOnPath(path, 0, position - tunnelCenter) + (pathRotation * new Vector3(0, 0, dist));
 
             Vector3 vertexXY = new Vector3(meshVertex.x, meshVertex.y, 0f); // Vertex X and Y points (horizontal)
 

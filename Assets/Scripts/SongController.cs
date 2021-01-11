@@ -125,6 +125,9 @@ public class SongController : MonoBehaviour
         return value;
     }
 
+    /// Miscellaneous converters
+    public float MeasureToPos(int measureID) { return StartPosition + (measureID * measureLengthInzPos); }
+
     // zPos to measure/subbeat num conversion
     // TODO: revise
     // Gets the measure number for a z position (Rhythmic Game unit)
@@ -182,6 +185,10 @@ public class SongController : MonoBehaviour
     }
     #endregion
 
+    // Starting position adjustment to always reach end of the path
+    public bool StartPositionAdjustmentEnabled = true;
+    public float StartPosition; // pos
+
     public void CalculateTimeUnits()
     {
         // Seconds
@@ -203,6 +210,12 @@ public class SongController : MonoBehaviour
         tickInSec = (songBpm * beatTicks) / 60; // how many ticks in a second // 880
         tickInMs = tickInSec / 1000; // How many ticks in a milliseconds // ???
         tickInPos = secInPos * tickInSec;
+
+        // Find starting position point
+        // This adjusts the positioning of stuff in a way that we always reach the very end of the path
+        if (StartPositionAdjustmentEnabled)
+            StartPosition = GameObject.Find("Path").GetComponent<PathCreation.PathCreator>().path.length // TODO: Global path!!!
+                - (songLengthInMeasures * measureLengthInzPos);
     }
 
     // INIT & LOADING
@@ -271,7 +284,7 @@ public class SongController : MonoBehaviour
                 Dictionary<int, MetaMeasure> dict = new Dictionary<int, MetaMeasure>();
                 for (int i = 0; i < songLengthInMeasures + 1; i++)
                 {
-                    MetaMeasure metameasure = new MetaMeasure() { ID = i, Instrument = inst };
+                    MetaMeasure metameasure = new MetaMeasure() { ID = i, Instrument = inst, StartDistance = MeasureToPos(i) }; // MEASUREPOS
                     dict.Add(i, metameasure);
                 }
                 list.Add(dict);
@@ -310,6 +323,7 @@ public class SongController : MonoBehaviour
     {
         // Set basic song metadata
         songName = song;
+
         /* Handle rest of the loading in the game-specific song controller */
     }
 

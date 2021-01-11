@@ -26,7 +26,7 @@ public class MeshDeformTestEditor : Editor
 
         if (GUILayout.Button("Reset"))
         {
-            if (script.ogPos.HasValue)
+            if (script.targetObject && script.ogPos.HasValue)
                 script.targetObject.transform.position = script.ogPos.Value;
 
             script.targetObject = null;

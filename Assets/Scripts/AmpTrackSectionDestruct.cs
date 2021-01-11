@@ -81,18 +81,21 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         Mathf.Clamp01(fraction); // Clamp between 0 and 1
 
         // Calculate clip plane offset based on fraction
-        float offset = Length * fraction;
+        float dist = PositionOnPath.z + (Length * fraction);
 
         if (fraction == 1f)
-            offset += 1f; // wtf?
+            dist += 1f; // wtf?
 
-        Vector3 localUp = Vector3.Cross(Path.GetTangentAtDistance(PositionOnPath.z + offset), Path.GetNormalAtDistance(PositionOnPath.z + offset));
-        Vector3 localRight = Path.GetNormalAtDistance(PositionOnPath.z + offset);
+        //Vector3 localUp = Vector3.Cross(Path.GetTangentAtDistance(PositionOnPath.z + dist), Path.GetNormalAtDistance(PositionOnPath.z + dist));
+        //Vector3 localRight = Path.GetNormalAtDistance(PositionOnPath.z + dist);
 
-        Vector3 planePos = Path.GetPointAtDistance(PositionOnPath.z + offset);
-        planePos += (localRight * PositionOnPath.x) + (localUp * PositionOnPath.y); // offset
+        //Vector3 planePos = Path.GetPointAtDistance(PositionOnPath.z + dist);
+        //planePos += (localRight * PositionOnPath.x) + (localUp * PositionOnPath.y); // dist
 
-        Quaternion planeRot = Path.GetRotationAtDistance(PositionOnPath.z + offset) * Quaternion.Euler(90, 0, 0);
+        //Quaternion planeRot = Path.GetRotationAtDistance(PositionOnPath.z + dist) * Quaternion.Euler(90, 0, 0);
+
+        Vector3 planePos = PathTools.GetPositionOnPath(Path, dist);
+        Quaternion planeRot = PathTools.GetRotationOnPath(Path, dist, new Vector3(90, 0, 0));
 
         ClipPlane.transform.position = planePos;
         ClipPlane.transform.rotation = planeRot;

@@ -158,7 +158,7 @@ public class AmplitudeSongController : SongController
                 if (laneType == LaneSide.UNKNOWN)
                     continue;
 
-                float zPos = TickToPos(note.AbsoluteTime);
+                float zPos = StartPosition + TickToPos(note.AbsoluteTime);
                 int measureID = (int)note.AbsoluteTime / measureTicks;
                 string noteName = string.Format("CATCH_{0}::{1}_{2} ({3})", songTracks[i], measureID, laneType.ToString(), counter);
 

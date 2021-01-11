@@ -229,14 +229,13 @@ public class AmpTrackSection : MonoBehaviour
     public void LengthClip()
     {
         // Calculate clip plane offset based on measure draw distance
-        float offset = Locomotion.HorizonLength;
+        float dist = Locomotion.HorizonLength;
 
-        Vector3 localUp = Vector3.Cross(Path.GetTangentAtDistance(offset), Path.GetNormalAtDistance(offset));
-        Vector3 localRight = Path.GetNormalAtDistance(offset);
+        //Vector3 planePos = Path.GetPointAtDistance(dist);
+        //Quaternion planeRot = Path.GetRotationAtDistance(dist) * Quaternion.Euler(90, 0, 0);
 
-        Vector3 planePos = Path.GetPointAtDistance(offset);
-
-        Quaternion planeRot = Path.GetRotationAtDistance(offset) * Quaternion.Euler(90, 0, 0);
+        Vector3 planePos = PathTools.GetPositionOnPath(Path, dist);
+        Quaternion planeRot = PathTools.GetRotationOnPath(Path, dist, new Vector3(90, 0, 0));
 
         LengthPlane.transform.position = planePos;
         LengthPlane.transform.rotation = planeRot;
