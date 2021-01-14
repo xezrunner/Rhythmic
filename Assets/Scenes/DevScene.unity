@@ -3310,6 +3310,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1010288848}
+  - component: {fileID: 1010288850}
   - component: {fileID: 1010288849}
   m_Layer: 13
   m_Name: World_Tutorial
@@ -3358,6 +3359,30 @@ Animation:
   m_PlayAutomatically: 1
   m_AnimatePhysics: 0
   m_CullingType: 0
+--- !u!114 &1010288850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1010288847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08fb75fbbc1b58d49bcf58945be8b2c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: world_
+  FriendlyName: The World
+  PathCreator: {fileID: 0}
+  WorldVisualQuality: 0
+  GeometryEnabled: 1
+  LightingEnabled: 1
+  EffectsEnabled: 1
+  FogEnabled: 1
+  FogDensity: -1
+  FogColor: {r: 0, g: 0, b: 0, a: 0}
+  AuxilliaryFogEnabled: 1
+  AtmosphericFogEnabled: 1
 --- !u!4 &1051047168 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 40a10909f3eef0c4b9adc2b17ef20c69,

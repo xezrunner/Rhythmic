@@ -43,8 +43,6 @@ public static class PathTools
         return finalVec;
     }
 
-    static bool done;
-
     public static Quaternion GetRotationOnPath(VertexPath path, float distance) => GetRotationOnPath(path, distance, Vector3.zero);
     public static Quaternion GetRotationOnPath(VertexPath path, float distance, Vector3 offset)
     {
