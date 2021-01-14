@@ -1,5 +1,4 @@
 ﻿using PathCreation;
-using System;
 using UnityEngine;
 
 public class AmpPlayerLocomotion : MonoBehaviour
@@ -88,36 +87,17 @@ public class AmpPlayerLocomotion : MonoBehaviour
         HorizonLength = DistanceTravelled - RhythmicGame.HorizonMeasuresOffset + // TODO: the individual track streaming is visible, so we temporarily offset it
             (RhythmicGame.HorizonMeasures * SongController.measureLengthInzPos);
 
-        if (Path is null || distance < 0f) // NEGATIVE POSITION
-        {
-            Quaternion targetRot = PathTools.GetRotationOnPath(Path, 0);
-            transform.position = PathTools.GetPositionOnPath(Path, 0, PositionOffset) + (targetRot * new Vector3(0, 0, distance));
+        Vector3 targetPos = PathTools.GetPositionOnPath(Path, distance, (!RhythmicGame.IsTunnelMode) ? PositionOffset : Vector3.zero); // no X movement in tunnel mode
+        transform.position = targetPos;
 
-            if (instant)
-            { Interpolatable.localRotation = NonInterpolatable.localRotation = targetRot; return; }
+        Quaternion targetRot = PathTools.GetRotationOnPath(Path, distance, TunnelRotation + offset);
 
-            Interpolatable.localRotation = QuaternionUtil.SmoothDamp(Interpolatable.localRotation, targetRot, ref rotVelocity, SmoothDuration);
-            NonInterpolatable.localRotation = targetRot;
-        }
+        if (instant) // Don't do fancy smoothing
+            Interpolatable.localRotation = NonInterpolatable.localRotation = targetRot;
         else
         {
-            Vector3 targetPos;
-
-            if (!RhythmicGame.IsTunnelMode)
-                targetPos = PathTools.GetPositionOnPath(Path, distance, PositionOffset);
-            else
-                targetPos = PathTools.GetPositionOnPath(Path, distance);
-
-            transform.position = targetPos;
-
-            Quaternion targetRot = PathTools.GetRotationOnPath(Path, distance, TunnelRotation + offset);
-
-            if (instant)
-            { Interpolatable.localRotation = NonInterpolatable.localRotation = targetRot; return; }
-
-            Interpolatable.localRotation = QuaternionUtil.SmoothDamp(Interpolatable.localRotation, targetRot, ref rotVelocity, SmoothDuration);
             NonInterpolatable.localRotation = targetRot;
-
+            Interpolatable.localRotation = QuaternionUtil.SmoothDamp(Interpolatable.localRotation, targetRot, ref rotVelocity, SmoothDuration);
         }
     }
 
@@ -138,6 +118,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
 
             Locomotion(DistanceTravelled);
 
+            // Live note capture glow thing
             foreach (AmpTrack t in TracksController.Tracks)
             {
                 foreach (AmpTrackSection s in t.Measures)

@@ -1,7 +1,5 @@
 using PathCreation;
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public static class MeshDeformer
@@ -33,46 +31,18 @@ public static class MeshDeformer
     /// </summary>
     public static Vector3 TransformVertex(VertexPath path, Vector3 meshVertex, Vector3 position, float angle, Vector3? offset)
     {
-        float dist = meshVertex.z + position.z; // Vertex Z distance along path + desired Z offset
-        bool isNegative = dist < 0f; // TODO: negative path values should just over/under-flow the path! Right now, it wraps around the path.
-
-        //if (dist < path.localPoints[0].z)
-        //{
-        //    Vector3 pos = new Vector3(0, 0, dist) + (Quaternion.Euler(0, 0, 180) * new Vector3(meshVertex.x, meshVertex.y, 0));
-        //    pos += Vector3.right * position.x;
-
-        //    return pos;
-        //}
-
         Vector3 tunnelCenter = (Tunnel.Instance) ? Tunnel.Instance.center : Vector3.zero;
 
-        if (!isNegative)
-        {
-            Vector3 splinePoint = PathTools.GetPositionOnPath(path, dist, position - tunnelCenter);
+        float distance = meshVertex.z + position.z; // Vertex Z distance along path + desired Z offset
+        Vector3 vertexXY = new Vector3(meshVertex.x, meshVertex.y, 0); // Vertex X and Y points (horizontal)
+        Vector3 pointOnPath = PathTools.GetPositionOnPath(path, distance, position - tunnelCenter);
+        Quaternion pathRotation = PathTools.GetRotationOnPath(path, distance); // Rot on path at the distance
 
-            Quaternion pathRotation = path.GetRotationAtDistance(dist) * Quaternion.Euler(0, 0, 90); // Rot on path at the distance
-            pathRotation = pathRotation * Quaternion.Euler(0, 0, angle); // Rotation addition
+        pathRotation = pathRotation * Quaternion.Euler(0, 0, angle); // Offset rotation
 
-            Vector3 vertexXY = new Vector3(meshVertex.x, meshVertex.y, 0f); // Vertex X and Y points (horizontal)
+        Vector3 final = pointOnPath + (pathRotation * vertexXY);
+        if (offset.HasValue) final += pathRotation * offset.Value; // TODO: might not be neccessary
 
-            Vector3 final = splinePoint + (pathRotation * vertexXY);
-            if (offset.HasValue) final += pathRotation * offset.Value;
-
-            return final;
-        }
-        else // NEGATIVE POSITION
-        {
-            Quaternion pathRotation = path.GetRotationAtDistance(0) * Quaternion.Euler(0, 0, 90);
-            pathRotation = pathRotation * Quaternion.Euler(0, 0, angle); // Rotation addition
-
-            Vector3 splinePoint = PathTools.GetPositionOnPath(path, 0, position - tunnelCenter) + (pathRotation * new Vector3(0, 0, dist));
-
-            Vector3 vertexXY = new Vector3(meshVertex.x, meshVertex.y, 0f); // Vertex X and Y points (horizontal)
-
-            Vector3 final = splinePoint + (pathRotation * vertexXY);
-            if (offset.HasValue) final += pathRotation * offset.Value;
-
-            return final;
-        }
+        return final;
     }
 }

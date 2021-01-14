@@ -79,15 +79,6 @@ public class MetaMeasure
     public bool IsCaptured;
     public bool IsBossMeasure; // shouldn't capture this measure when capturing a track from another measure
     public float StartDistance;
-    //public float StartDistance
-    //{
-    //    get
-    //    {
-    //        return GameObject.Find("Path").GetComponent<PathCreation.PathCreator>().path.length - 
-    //            (SongController.Instance.songLengthInMeasures * SongController.Instance.measureLengthInzPos) + (SongController.Instance.measureLengthInzPos * ID);
-    //    }
-    //}
-    //public float StartDistance { get { return SongController.Instance.measureLengthInzPos * ID; } }
 }
 
 public class MetaNote
