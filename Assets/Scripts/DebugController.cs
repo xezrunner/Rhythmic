@@ -17,6 +17,8 @@ public class DebugController : MonoBehaviour
     public TextMeshProUGUI inputlagText;
     public TextMeshProUGUI framerateText;
 
+    void Awake() => GameState.CreateGameState();
+
     private void Start()
     {
 

@@ -29,6 +29,8 @@ public class GameStarter : MonoBehaviour
         RhythmicGame.SetFramerate(200);
 #endif
 
+        GameState.CreateGameState();
+
         ppfx = GameObject.Find("ppfx");
 
         ppv = ppfx.GetComponent<PostProcessVolume>();

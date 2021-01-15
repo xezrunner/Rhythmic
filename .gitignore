@@ -66,3 +66,4 @@ Assets/amp_songs/
 *.wav
 *.zip
 *.lnk
+Packages/packages-lock.json

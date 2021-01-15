@@ -1,5 +1,10 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
+using System.IO;
+using System.IO.Pipes;
+using System.Linq;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 /// <summary>
@@ -13,6 +18,8 @@ public enum GameMatchType { Singleplayer = 0, LocalMultiplayer = 1, OnlineMultip
 
 public static class RhythmicGame
 {
+    public static GameState GameState;
+
     public static void SetFramerate(int fps, int vsync = 0)
     {
         QualitySettings.vSyncCount = vsync;
