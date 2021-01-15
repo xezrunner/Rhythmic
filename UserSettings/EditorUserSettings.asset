@@ -6,12 +6,15 @@ EditorUserSettings:
   serializedVersion: 4
   m_ConfigSettings:
     RecentlyUsedScenePath-0:
-      value: 22424703114646680e0b0227036c731f171311242b66333e243d04
-      flags: 0
-    RecentlyUsedScenePath-1:
       value: 224247031146466d0c1e03305d2e5e1918583d322d25363c283a5203ebec3839f0d333faf3742a323016f6
       flags: 0
+    RecentlyUsedScenePath-1:
+      value: 22424703114646680e0b0227036c781c191519261f2b233e2867083debf42d
+      flags: 0
     RecentlyUsedScenePath-2:
+      value: 22424703114646680e0b0227036c731f171311242b66333e243d04
+      flags: 0
+    RecentlyUsedScenePath-3:
       value: 22424703114646680e0b0227036c7b1500241b2f222d68252320092a
       flags: 0
     UnityRemoteJoystickSource:
