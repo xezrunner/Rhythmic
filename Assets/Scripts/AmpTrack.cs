@@ -1,3 +1,4 @@
+using PathCreation;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -90,7 +91,6 @@ public partial class AmpTrack : MonoBehaviour
             _isTrackFocused = value;
 
             // Set global edge lights in measures
-            //foreach (AmpTrackSection m in Measures)
             for (int i = Mathf.FloorToInt(Clock.Instance.bar) - 1; i < Measures.Count - 1; i++) // TODO: check reliability of this optimization!
             {
                 if (i < 0) i = 0; // correct the flooring of 0
@@ -141,7 +141,7 @@ public partial class AmpTrack : MonoBehaviour
     }
 
     // TODO: for debugging only
-    public bool iscaptured;
+    [SerializeField] bool iscaptured;
 
     float smoothStep;
 
