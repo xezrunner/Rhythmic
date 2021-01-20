@@ -30,10 +30,10 @@ public class AmpNoteFX : MonoBehaviour
         NoteCaptureFX fx = Effect.Value;
 
         if (fx.HasFlag(NoteCaptureFX._CatcherEffect))
-        {
+        { // tba
         }
         if (fx.HasFlag(NoteCaptureFX._DestructEffect))
-        {
+        { // tba
         }
         if (fx.HasFlag(NoteCaptureFX.DotLightEffect))
         {

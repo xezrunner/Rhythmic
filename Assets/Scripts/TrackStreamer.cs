@@ -25,7 +25,7 @@ public class TrackStreamer : MonoBehaviour
     {
         // Stream in the horizon!
         //StreamMeasureRange(0, RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreaming);
-        StreamMeasureRange(0, SongController.Instance.songLengthInMeasures, -1, RhythmicGame.FastStreaming);
+        StreamMeasureRange(0, (RhythmicGame.StreamAllMeasuresOnStart) ? SongController.songLengthInMeasures : RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreaming);
     }
 
     /// ***** ----- DEBUG TEST ----- *****
@@ -42,11 +42,12 @@ public class TrackStreamer : MonoBehaviour
     int destroyCounter = 0; // Keep track of the last destroyed ID
     private void Clock_OnBar(object sender, int e)
     {
-        foreach (AmpTrack t in TracksController.Instance.Tracks)
-            t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].gameObject.SetActive(true);
-
-        // Stream measures on every bar tick
-        //StreamMeasure(RhythmicGame.HorizonMeasures + e, -1, RhythmicGame.FastStreaming);
+        if (RhythmicGame.StreamAllMeasuresOnStart)
+            foreach (AmpTrack t in TracksController.Instance.Tracks)
+                t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].gameObject.SetActive(true);
+        else
+            // Stream measures on every bar tick
+            StreamMeasure(RhythmicGame.HorizonMeasures + e, -1, RhythmicGame.FastStreaming);
 
         // Delete measures behind us
         // TODO: revise!
