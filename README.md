@@ -13,7 +13,7 @@ Rhythmic also focuses on user generated content, letting players experience thei
 | Tracks | Captured tracks |
 |:-------------------------:|:-------------------------:|
 |<img width="1604" src="https://github.com/XesignSoftware/Rhythmic/blob/dev/Screenshots/regular_tracks.jpg"> Regular mode | <img width="1604" src="https://github.com/XesignSoftware/Rhythmic/blob/dev/Screenshots/regular_captured.png"> Regular mode
-| <img width="1604" src="https://github.com/XesignSoftware/Rhythmic/blob/dev/Screenshots/tunnel_tracks.jpg"> Tunnel mode | <img width="1604" src="https://github.com/XesignSoftware/Rhythmic/blob/dev/Screenshots/tunnel_captured.png"> Tunnel mode
+| <img width="1604" src="https://github.com/XesignSoftware/Rhythmic/blob/dev/Screenshots/tunnel_tracks.jpg"> Tunnel mode | <img width="1604" src="https://github.com/XesignSoftware/Rhythmic/blob/dev/Screenshots/tunnel_captured.jpg"> Tunnel mode
 
 ## Planned features
 
