@@ -54,7 +54,7 @@ public class MeshDeformTest : MonoBehaviour
     List<int> triangles = new List<int>();
     Vector3[] vertices;
 
-    public async void DeformMesh()
+    public void DeformMesh()
     {
         ClearAllCubes();
         //gizmosList.Clear();
@@ -111,7 +111,7 @@ public class MeshDeformTest : MonoBehaviour
         targetObject.transform.position = Vector3.zero;
 
         if (DesiredLength != -1F)
-            await StreamTriangles();
+            StreamTriangles();
 
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
@@ -136,7 +136,7 @@ public class MeshDeformTest : MonoBehaviour
     public GameObject container;
     List<GameObject> averageSphereList = new List<GameObject>();
 
-    async Task StreamTriangles()
+    void StreamTriangles()
     {
         List<int> tris = new List<int>();
         foreach (GameObject o in averageSphereList)

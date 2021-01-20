@@ -109,25 +109,27 @@ public class AmpPlayerLocomotion : MonoBehaviour
     {
         if (SongController.IsPlaying || IsPlaying)
         {
-            Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songSpeed);
-
-            if (SongController.Enabled)
+            if (!SongController.IsPlaying && IsPlaying) { }
+                //DistanceTravelled += 4f * Time.deltaTime;
+            else if (SongController.Enabled)
+            {
+                Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songSpeed);
                 DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
-            else
-                DistanceTravelled += 4f * Time.deltaTime;
+            }
 
             Locomotion(DistanceTravelled);
 
             // Live note capture glow thing
             foreach (AmpTrack t in TracksController.Tracks)
             {
+                if (t == TracksController.CurrentTrack && (!t.CurrentMeasure.IsEmpty & !t.CurrentMeasure.IsCaptured)) continue;
                 foreach (AmpTrackSection s in t.Measures)
                 {
                     if (s is null) continue;
                     foreach (AmpNote n in s.Notes)
                     {
                         if ((int)n.Distance == (int)DistanceTravelled + LiveCaptDist & n.IsCaptured)
-                            n.CaptureNote(true, true);
+                            n.CaptureNote(NoteCaptureFX.DotLightEffect);
                     }
                 }
             }
