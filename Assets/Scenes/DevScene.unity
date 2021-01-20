@@ -156,6 +156,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Clock: {fileID: 0}
   AmpTrackController: {fileID: 0}
+  intensity: 15
+  step: 1
   defaultSong: dalatecht
   songTracks: []
   IsFake: 0
