@@ -1,4 +1,5 @@
 using PathCreation;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// AmpTrackSectionDestruct
@@ -53,6 +54,8 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     [Range(0, 1)]
     public float fraction;
 
+    List<int> lastCapturedNotes = new List<int>();
+
     private void Update()
     {
         if (fraction != 1f)
@@ -61,7 +64,12 @@ public class AmpTrackSectionDestruct : MonoBehaviour
 
             // Capture notes
             for (int i = 0; i < fraction * measure.Notes.Count; i++)
-                measure.Notes[i].CaptureNote();
+                if (!lastCapturedNotes.Contains(i))
+                {
+                    measure.Notes[i].CaptureNote();
+                    lastCapturedNotes.Add(i);
+                }
+
         }
         else // 1f, done
         {
