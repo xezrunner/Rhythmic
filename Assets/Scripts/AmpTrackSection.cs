@@ -16,10 +16,8 @@ public enum MeasureCaptureState { None = 0, Capturing = 1, Captured = 2 }
 [ExecuteInEditMode]
 public class AmpTrackSection : MonoBehaviour
 {
-    SongController SongController { get { return SongController.Instance; } }
     AmpPlayerLocomotion Locomotion;
-    public PathCreator PathCreator { get { return GameObject.Find("Path").GetComponent<PathCreator>(); } } // TODO: change these to variables
-    public VertexPath Path { get { if (PathCreator) return PathCreator.path; else { Debug.LogError("AmpTrack: Path not available - PathCreator is null!"); return null; } } }
+    public VertexPath Path;
 
     /// References to the contents
     [Header("Common")]
@@ -127,6 +125,7 @@ public class AmpTrackSection : MonoBehaviour
             return;
 #endif
 
+        Path = PathTools.Path;
         Locomotion = AmpPlayerLocomotion.Instance;
     }
     //[ExecuteInEditMode]

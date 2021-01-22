@@ -214,8 +214,7 @@ public class SongController : MonoBehaviour
         // Find starting position point
         // This adjusts the positioning of stuff in a way that we always reach the very end of the path
         if (StartPositionAdjustmentEnabled)
-            StartPosition = GameObject.Find("Path").GetComponent<PathCreation.PathCreator>().path.length // TODO: Global path!!!
-                - (songLengthInMeasures * measureLengthInzPos);
+            StartPosition = PathTools.Path.length - (songLengthInMeasures * measureLengthInzPos);
     }
 
     // INIT & LOADING

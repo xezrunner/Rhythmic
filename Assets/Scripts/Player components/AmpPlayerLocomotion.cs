@@ -7,7 +7,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
 
     [Header("Common")]
     public AmpPlayer Player;
-    public PathCreator PathSystem;
+    public PathCreator PathCreator;
     public VertexPath Path;
     public Tunnel Tunnel { get { return Tunnel.Instance; } }
     public SongController SongController { get { return SongController.Instance; } }
@@ -51,23 +51,8 @@ public class AmpPlayerLocomotion : MonoBehaviour
     }
     void GetPath()
     {
-        if (PathSystem != null & Path is null)
-            Path = PathSystem.path;
-        else
-            Debug.Log("Locomotion: Path system was not attached!");
-
-        if (Path != null) return;
-
-        // If the path is still not found:
-        Debug.LogWarningFormat("Locomotion: Path is null! - Finding \"Path\" GameObject...");
-        var path = GameObject.Find("Path").GetComponent<PathCreator>().path;
-
-        if (path == null)
-            Debug.LogError("Locomotion: Path not found! Locomotion fallback to straight path!");
-        else
-            Debug.Log("Locomotion: Path found!");
-
-        Path = path;
+        if (PathCreator) Path = PathCreator.path; // Inspector override
+        else Path = PathTools.Path;
     }
 
     // Locomotion

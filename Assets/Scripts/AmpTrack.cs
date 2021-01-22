@@ -17,17 +17,8 @@ public partial class AmpTrack : MonoBehaviour
     public Transform MeasureContainer;
 
     /// Declarations, global variables, properties, events ...
-    /// Path-related stuff
-    [Header("Path stuff")]
-    public PathCreation.PathCreator PathCreator; // TODO: Global property? !!!
-    public PathCreation.VertexPath Path
-    {
-        get
-        {
-            if (PathCreator) return PathCreator.path;
-            else { Debug.LogError("AmpTrack: Path not available - PathCreator is null!"); return null; }
-        }
-    }
+    
+    public VertexPath Path;
 
     /// Global variables and properties
     [Header("Properties & variables")]

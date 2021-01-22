@@ -23,8 +23,6 @@ public class TracksController : MonoBehaviour
     public Tunnel Tunnel;
     public AmpPlayerCatching Catching;
 
-    PathCreator pathCreator;
-
     [Header("Prefabs")]
     GameObject trackPrefab; // Change to public property?
 
@@ -53,7 +51,6 @@ public class TracksController : MonoBehaviour
         Instance = this; // static instance
         gameObject.layer = 11; // Assign to Tracks layer
 
-        pathCreator = GameObject.Find("Path").GetComponent<PathCreator>();
         trackPrefab = (GameObject)Resources.Load("Prefabs/AmpTrack");
 
         OnTrackSwitched += Tracks_OnTrackSwitched;
@@ -118,11 +115,11 @@ public class TracksController : MonoBehaviour
 
         // TODO: temp - assign PathCreator here until it isn't global
 
-        com.PathCreator = pathCreator;
         com.ID = ID;
         com.RealID = realID.HasValue ? realID.Value : ID; // Assign the same ID if realID was not desired
         com.TrackName = name;
         com.Instrument = instrument;
+        com.Path = PathTools.Path;
 
         Tracks.Add(com);
         return com;
