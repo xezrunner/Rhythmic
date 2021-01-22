@@ -11,10 +11,6 @@ public class SongController : MonoBehaviour
     public Clock Clock;
     public TracksController AmpTrackController;
 
-    // TODO: move to RhythmicGame
-    public float intensity;
-    public float step;
-
     // Controller properties
     public string defaultSong;
     public static string songName;

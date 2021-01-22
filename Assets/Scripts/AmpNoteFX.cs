@@ -13,11 +13,11 @@ public enum NoteCaptureFX
 
 public class AmpNoteFX : MonoBehaviour
 {
+    FXProperties FXProps { get { return FXProperties.Instance; } }
     public AmpNote Note;
 
     public NoteCaptureFX? Effect = null;
     public bool DestroyOnCompletion = true;
-    public float Step { get { return SongController.Instance.step; } }
 
     float fraction;
     public void ResetFX() => fraction = 0;
@@ -37,11 +37,11 @@ public class AmpNoteFX : MonoBehaviour
         }
         if (fx.HasFlag(NoteCaptureFX.DotLightEffect))
         {
-            float intensity = SongController.Instance.intensity * (1 - fraction);
-            Note.DotLightGlowIntensity = Mathf.Clamp(intensity, 1, 100);
+            float glowIntensity = FXProps.Note_DotLightGlowIntensity * (1 - fraction);
+            Note.DotLightGlowIntensity = Mathf.Clamp(glowIntensity, 1, 100);
         }
 
-        fraction += Step * Time.deltaTime;
+        fraction += FXProps.Note_DotLightAnimStep * Time.deltaTime;
 
         if (DestroyOnCompletion && fraction >= 1f)
             Destroy(this);
