@@ -1,10 +1,4 @@
-﻿using System;
-using System.IO;
-using System.IO.Pipes;
-using System.Linq;
-using System.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.InputSystem;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
