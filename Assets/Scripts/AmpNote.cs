@@ -100,7 +100,6 @@ public class AmpNote : MonoBehaviour
         FXCom.Note = this;
         FXCom.Effect = fx; // Set capture effect
     }
-
 }
 
 public enum NoteType
@@ -112,5 +111,5 @@ public enum NoteType
     Freestyle = 4, // Flow
     Autopilot = 5, // Temporarily let the game play itself
     STORY_Corrupt = 6, // Avoid corrupted nanotech!
-    STORY_Memory = 7 // Temporarily shows memories as per the lore
+    STORY_Memory = 7 // Temporarily shows memories
 }

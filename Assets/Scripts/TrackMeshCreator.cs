@@ -1,258 +1,162 @@
-﻿using PathCreation;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using PathCreation;
 
-public class TrackMeshCreator : PathSceneTool
+public class TrackMeshCreator : MonoBehaviour
 {
-    public static TrackMeshCreator Instance;
+    /// Editor functionality
+    #region Editor functionality
+    public GameObject lastGo;
 
-    #region Properties
-    [Header("Road settings")]
-    public float roadWidth = 2.36f;
-    [Range(0, .5f)]
-    public float roadThickness = .4f;
-    public bool flattenSurface;
+    [Header("Individual unit sizes")]
+    public float width = 0.45f;
+    public float length = 0.45f;
 
-    [Header("Material settings")]
-    public Material roadMaterial;
-    public Material undersideMaterial;
-    public float textureTiling = 1;
+    [Header("Desired width & length")]
+    public float DesiredWidth = 3.6f;
+    public float DesiredLength = 32f;
 
-    [Header("Rhythmic track creation")]
-    public float debug_startPoint;
-    public float debug_length;
-    [Range(-10, 10)]
-    public int debug_xPosition;
+    [Header("Other properties")]
+    public float xPosition = 0f;
+    public float yElevation = 0f;
 
-    public float edgeLightsThickness = 0.1f;
-
-    public bool reactToPathChanges;
-    #endregion
-
-    #region Prefabs & Materials
-    public GameObject EdgeLightsPrefab;
-    public GameObject TrackPrefab;
-    public GameObject SectionPrefab;
-
-    public Material EdgeLightsMaterial;
-    #endregion
-
-    private void Awake()
+    public GameObject CreateGameObject()
     {
-        Instance = this;
-        if (!pathCreator) pathCreator = GameObject.Find("Path").GetComponent<PathCreator>(); // temp!
+        Mesh mesh = CreateMesh_Editor();
 
-        EdgeLightsPrefab = (GameObject)Resources.Load("Prefabs/EdgeLights");
-        EdgeLightsMaterial = (Material)Resources.Load("Materials/EdgeLightsMaterial");
+        var go = new GameObject();
+        var meshFilter = go.AddComponent<MeshFilter>();
+        var meshRenderer = go.AddComponent<MeshRenderer>();
+
+        // Assign mesh
+        meshFilter.sharedMesh = mesh;
+
+        lastGo = go;
+        return go;
     }
-    protected override void PathUpdated()
+    public void UpdateGameObject()
     {
-        if (TrackObjects != null && reactToPathChanges)
-        {
-            int counter = 0;
-            foreach (GameObject trackObj in TrackObjects)
-            {
-                if (trackObj) trackObj.GetComponent<MeshFilter>().sharedMesh = CreateMesh(debug_startPoint, debug_length, RhythmicGame.TrackWidth * int.Parse(trackObj.name));
-                counter++;
-            }
-        }
+        if (!lastGo) { Debug.LogError("MeshTest: lastGo is null!"); return; }
+        lastGo.GetComponent<MeshFilter>().mesh = CreateMesh_Editor();
     }
 
-    [HideInInspector]
-    public List<GameObject> TrackObjects = new List<GameObject>();
+    public bool TestDivisibility_Editor = true;
+    public Mesh CreateMesh_Editor() { return CreateMesh(DesiredWidth, DesiredLength, width, length); }
+    #endregion
 
-    // Functions
-    public Mesh CreateMeshFloat(float startDistance = 0f, float length = 8f, float xPosition = 0f, float width = 0f, float thickness = 0f, float yElevation = 0f)
+    /// Standalone functionality
+    public static bool TestDivisibility = true;
+
+    /// <summary>
+    /// Checks whether the piece sizings are divisible.
+    /// </summary>
+    /// <returns>
+    /// true if the piece sizings are divisible <br/>
+    /// false if the piece sizings are NOT divisible
+    /// </returns>
+    public static bool TestPieceSizingDivisibility(float desiredX, float desiredZ, float pieceX, float pieceZ) { return (desiredX % pieceX == 0 & desiredZ % pieceZ == 0); }
+    public bool TestPieceSizingDivisibility() { return TestPieceSizingDivisibility(DesiredWidth, DesiredLength, width, length); }
+
+    static Mesh cachedMesh;
+    static float lastDesiredValues;
+
+    // TODO: Optimize this code!
+    public static Mesh CreateMesh(float desiredX, float desiredZ, float pieceX = 0.45f, float pieceZ = 0.5f)
     {
-        if (width == 0f) width = roadWidth;
-        if (thickness == 0f) thickness = roadThickness;
+        // Returned cached mesh if request is the same
+        if (desiredX + desiredZ == lastDesiredValues) return cachedMesh;
 
-        bool usePathNormals = !(path.space == PathSpace.xyz && flattenSurface);
-
-        /* Vertices for the top of the road are laid out like this:
-           0  1
-           8  9
-        and so on... So the triangle map 0,8,1 for example, defines a triangle from top left to bottom left to bottom right. */
-        int[] triangleMap = { 0, 8, 1, 1, 8, 9 };
-
-        // Doubled the side triangles so that we have both outside and inside materials
-        int[] sidesTriangleMap = {
-           4, 6, 14,
-           12, 4, 14,
-           5, 15, 7,
-           13, 15, 5,
-
-           4, 12, 14,
-           6, 4, 14,
-           5, 15, 13,
-           7, 15, 5 };
-
-        // Get start and end vertex index data
-        if (length == -1) // -1 means full path length
-            length = path.length;
-        var startVertex = path.GetIndexAtDistance(startDistance, EndOfPathInstruction.Stop);
-        var endVertex = path.GetIndexAtDistance(startDistance + length, EndOfPathInstruction.Stop);
-
-        Debug.LogFormat("startVertex: {0} | endVertex: {1}", startVertex.previousIndex, endVertex.nextIndex);
-
-        Vector3[] verts = new Vector3[(startVertex.previousIndex + endVertex.nextIndex) * 2 * 8];
-        Vector2[] uvs = new Vector2[verts.Length];
-        Vector3[] normals = new Vector3[verts.Length];
-
-        int numTris = 2 * (path.NumPoints - 1) + ((path.isClosedLoop) ? 2 : 0);
-        int[] roadTriangles = new int[numTris * 3];
-        int[] underRoadTriangles = new int[numTris * 3];
-        int[] sideOfRoadTriangles = new int[numTris * 4 * 3];
-
-        int vertIndex = 0;
-        int triIndex = 0;
-
-        int indexCounter = 0;
-        for (float i = startDistance; i <= startDistance + length; i += 1f) // Go through indexes between start and end
+        // Temp!
+        if (Application.isPlaying)
         {
-            Vector3 localUp = (usePathNormals) ? Vector3.Cross(path.GetTangentAtDistance(i), path.GetNormalAtDistance(i)) : path.up;
-            Vector3 localRight = (usePathNormals) ? path.GetNormalAtDistance(i) : Vector3.Cross(localUp, path.GetTangentAtDistance(i));
-
-            // Find position to left and right of current path vertex
-            Vector3 vertSideA = path.GetPointAtDistance(i) - localRight * Mathf.Abs(roadWidth / 2f);
-            Vector3 vertSideB = path.GetPointAtDistance(i) + localRight * Mathf.Abs(roadWidth / 2f);
-
-            // ***** OFFSET VERTEX POINTS FOR PARALLEL CURVES *****
-            // The calculations below create the mesh based on the vertex positions.
-            // By offseting the vertex positions, the calculations will take place according to their positions and the curve will thus be bigger or smaller, depending on the vertex positions.
-            vertSideB += (localRight * xPosition) + (localUp * yElevation);
-            vertSideA += (localRight * xPosition) + (localUp * yElevation);
-
-            #region Add vertices, UVs and normals
-            // Add top of road vertices
-            verts[vertIndex + 0] = vertSideA;
-            verts[vertIndex + 1] = vertSideB;
-            // Add bottom of road vertices
-            verts[vertIndex + 2] = vertSideA - localUp * (thickness / 2f);
-            verts[vertIndex + 3] = vertSideB - localUp * (thickness / 2f);
-
-            // Duplicate vertices to get flat shading for sides of road
-            verts[vertIndex + 4] = verts[vertIndex + 0];
-            verts[vertIndex + 5] = verts[vertIndex + 1];
-            verts[vertIndex + 6] = verts[vertIndex + 2];
-            verts[vertIndex + 7] = verts[vertIndex + 3];
-
-            // Set uv on y axis to path time (0 at start of path, up to 1 at end of path)
-            uvs[vertIndex + 0] = new Vector2(0, path.GetPointAtDistance(i).z);
-            uvs[vertIndex + 1] = new Vector2(1, path.GetPointAtDistance(i).z);
-
-            // Top of road normals
-            normals[vertIndex + 0] = localUp;
-            normals[vertIndex + 1] = localUp;
-            // Bottom of road normals
-            normals[vertIndex + 2] = -localUp;
-            normals[vertIndex + 3] = -localUp;
-            // Sides of road normals
-            normals[vertIndex + 4] = -localRight;
-            normals[vertIndex + 5] = localRight;
-            normals[vertIndex + 6] = -localRight;
-            normals[vertIndex + 7] = localRight;
-            #endregion
-
-            int prevIndexCounter = indexCounter;
-            indexCounter = path.GetIndexAtDistance(i).nextIndex;
-
-            if (prevIndexCounter == indexCounter) continue;
-            // add to vert and tri index counters
-            vertIndex += 8;
-            triIndex += 6;
+            //pieceX = RhythmicGame.TrackWidth / 8;
+            pieceX = RhythmicGame.TrackWidth;
+            pieceZ = desiredZ / 32;
         }
 
-        vertIndex = 0;
-        triIndex = 0;
+        // Test whether individual piece sizings are divisible0
+        if (TestDivisibility & !TestPieceSizingDivisibility(desiredX, desiredZ, pieceX, pieceZ))
+            // TODO: logging control here
+            Debug.LogWarningFormat("MeshTest/CreateMesh(): Piece sizings are not divisible! (width: {0} | length: {1})", pieceX, pieceZ);
 
-        List<int> roadTris = new List<int>();
-        List<int> underRoadTris = new List<int>();
-        List<int> sideRoadTris = new List<int>();
+        // Get counts for the individual pieces
+        int xSize = Mathf.RoundToInt(desiredX / pieceX);
+        int zSize = Mathf.RoundToInt(desiredZ / pieceZ);
+        //for (float x = 0f; x < desiredX; x += pieceX) xSize++;
+        //for (float z = 0f; z < desiredZ; z += pieceZ) zSize++;
 
-        //for (int i = startVertex.previousIndex; i < endVertex.nextIndex; i++)
-        for (int i = 0; i < 1; i++)
+        // TODO: it adds 1 extra piece for some reason...
+        //if (desiredZ % pieceZ != 0)
+        //zSize--;
+
+        Mesh mesh = new Mesh() { name = "Procgen mesh (cust)" };
+
+        Vector3[] vertices = new Vector3[(xSize + 1) * (zSize + 1)];
+        int[] triangles = new int[xSize * zSize * 6];
+        Vector2[] uv = new Vector2[vertices.Length];
+        Vector4[] tangents = new Vector4[vertices.Length];
+
+        // Vertices:
+        for (int i = 0, z = 0; z <= zSize; z++)
         {
-            // Set triangle indices
-            //if (i < endVertex.nextIndex || path.isClosedLoop)
+            for (int x = 0; x <= xSize; x++, i++)
             {
-                try
-                {
-                    for (int j = 0; j < triangleMap.Length; j++)
-                    {
-                        //roadTriangles[triIndex + j] = (vertIndex + triangleMap[j]) % verts.Length;
-                        roadTris.Add((vertIndex + triangleMap[j]) % verts.Length);
-
-                        // reverse triangle map for under road so that triangles wind the other way and are visible from underneath
-                        //underRoadTriangles[triIndex + j] = (vertIndex + triangleMap[triangleMap.Length - 1 - j] + 2) % verts.Length;
-                        underRoadTris.Add((vertIndex + triangleMap[triangleMap.Length - 1 - j] + 2) % verts.Length);
-                    }
-                    for (int j = 0; j < sidesTriangleMap.Length; j++)
-                        //sideOfRoadTriangles[triIndex * 4 + j] = (vertIndex + sidesTriangleMap[j]) % verts.Length;
-                        sideRoadTris.Add((vertIndex + sidesTriangleMap[j]) % verts.Length);
-                }
-                catch
-                {
-                    Debug.DebugBreak();
-                }
+                float xValue = x * pieceX - desiredX / 2; // Center X
+                float zValue = z * pieceZ;
+                vertices[i] = new Vector3(xValue, 0, zValue);
+                uv[i] = new Vector2((float)x / xSize, (float)z / xSize);
+                tangents[i] = new Vector4(1f, 0f, 0f, -1f);
             }
-
-            // add to vert and tri index counters
-            vertIndex += 8;
-            triIndex += 6;
         }
 
-        roadTriangles = roadTris.ToArray();
-        underRoadTriangles = underRoadTris.ToArray();
-        sideOfRoadTriangles = sideRoadTris.ToArray();
+        // Triangles:
+        for (int ti = 0, vi = 0, y = 0; y < zSize; y++, vi++)
+        {
+            for (int x = 0; x < xSize; x++, ti += 6, vi++)
+            {
+                triangles[ti] = vi;
+                triangles[ti + 3] = triangles[ti + 2] = vi + 1;
+                triangles[ti + 4] = triangles[ti + 1] = vi + xSize + 1;
+                triangles[ti + 5] = vi + xSize + 2;
+            }
+        }
 
-        // Create and setup mesh
-        Mesh mesh = new Mesh();
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.uv = uv;
+        mesh.tangents = tangents;
+        mesh.RecalculateNormals();
 
-        mesh.vertices = verts;
-        mesh.uv = uvs;
-        mesh.normals = normals;
-        mesh.subMeshCount = 3;
-
-        mesh.SetTriangles(roadTriangles, 0);
-        mesh.SetTriangles(sideOfRoadTriangles, 1);
-        mesh.SetTriangles(underRoadTriangles, 2);
-
-        //mesh.RecalculateNormals();
-        //mesh.RecalculateTangents();
-        mesh.RecalculateBounds();
+        // Store currently requested values for caching
+        lastDesiredValues = desiredX + desiredZ;
+        cachedMesh = mesh;
 
         return mesh;
     }
-    public Mesh CreateMesh(float startDistance = 0f, float length = 8f, float xPosition = 0f, float width = 0f, float thickness = 0f, float yElevation = 0f)
+    public static Mesh CreateMeshFromPathIndexes(float width, float height, Vector3 position, float angle, VertexPath path = null)
     {
-        if (width == 0f) width = roadWidth;
-        if (thickness == 0f) thickness = roadThickness;
+        if (width == 0) width = RhythmicGame.TrackWidth;
+        if (path == null) path = PathTools.Path;
 
-        Vector3[] verts = new Vector3[path.NumPoints * 8];
-        Vector2[] uvs = new Vector2[verts.Length];
-        Vector3[] normals = new Vector3[verts.Length];
+        Vector3 tunnelCenter = (Tunnel.Instance) ? Tunnel.Instance.center : Vector3.zero;
 
-        int numTris = 2 * (path.NumPoints - 1) + ((path.isClosedLoop) ? 2 : 0);
+        bool isStartPointAdjustment = (SongController.Instance.StartPosition < 0);
+        int startPointAdjustionNum = isStartPointAdjustment ? 1 : 0;
+        float startPointAdjustment = SongController.Instance.StartPosition;
+
+        Vector3[] vertices = new Vector3[(startPointAdjustionNum + path.NumPoints) * 8];
+        Vector2[] uvs = new Vector2[vertices.Length];
+        Vector3[] normals = new Vector3[vertices.Length];
+
+        int numTris = 2 * ((startPointAdjustionNum + path.NumPoints) - 1) + (path.isClosedLoop ? 2 : 0);
         int[] roadTriangles = new int[numTris * 3];
         int[] underRoadTriangles = new int[numTris * 3];
         int[] sideOfRoadTriangles = new int[numTris * 4 * 3];
 
-        bool usePathNormals = !(path.space == PathSpace.xyz && flattenSurface);
-
         /* Vertices for the top of the road are laid out like this:
            0  1
            8  9
-        and so on... So the triangle map 0,8,1 for example, defines a triangle from top left to bottom left to bottom right. */
+        So the triangle map 0,8,1 for example, defines a triangle from top left to bottom left to bottom right. */
         int[] triangleMap = { 0, 8, 1, 1, 8, 9 };
-        /*int[] sidesTriangleMap = { 
-           4, 6, 14,
-           12, 4, 14,
-           5, 15, 7,
-           13, 15, 5 };*/
 
         // Doubled the sides so that we have both outside and inside materials
         int[] sidesTriangleMap = {
@@ -266,45 +170,105 @@ public class TrackMeshCreator : PathSceneTool
            5, 15, 13,
            7, 15, 5 };
 
-        // Get start and end vertex index data
-        if (length == -1) // -1 means full path length
-            length = path.length;
-        var startVertex = path.GetIndexAtDistance(startDistance, EndOfPathInstruction.Stop);
-        var endVertex = path.GetIndexAtDistance(startDistance + length, EndOfPathInstruction.Stop);
-
-        //Debug.LogFormat("startVertex: {0} | endVertex: {1}", startVertex.previousIndex, endVertex.nextIndex);
-
-        int vertIndex = 0;
-        int triIndex = 0;
-
-        for (int i = startVertex.previousIndex; i <= endVertex.nextIndex; i++) // Go through indexes between start and end (end is not included) // TODO: investigate into non-inclusion of end index?
+        // First vertices & tris are the starting point adjustion!
+        if (isStartPointAdjustment)
         {
-            Vector3 localUp = (usePathNormals) ? Vector3.Cross(path.GetTangent(i), path.GetNormal(i)) : path.up;
-            Vector3 localRight = (usePathNormals) ? path.GetNormal(i) : Vector3.Cross(localUp, path.GetTangent(i));
+            Vector3 localUp = Vector3.Cross(path.GetTangent(0), path.GetNormal(0));
+            Vector3 localRight = path.GetNormal(0);
 
             // Find position to left and right of current path vertex
-            Vector3 vertSideA = path.GetPoint(i) - localRight * Mathf.Abs(roadWidth / 2f);
-            Vector3 vertSideB = path.GetPoint(i) + localRight * Mathf.Abs(roadWidth / 2f);
+            Vector3 vertSideA = PathTools.GetPositionOnPath(path, startPointAdjustment) - localRight * Mathf.Abs(width / 2f);
+            Vector3 vertSideB = PathTools.GetPositionOnPath(path, startPointAdjustment) + localRight * Mathf.Abs(width / 2f);
 
             // ***** OFFSET VERTEX POINTS FOR PARALLEL CURVES *****
             // The calculations below create the mesh based on the vertex positions.
             // By offseting the vertex positions, the calculations will take place according to their positions and the curve will thus be bigger or smaller, depending on the vertex positions.
-            vertSideB += (localRight * xPosition) + (localUp * yElevation);
-            vertSideA += (localRight * xPosition) + (localUp * yElevation);
+            vertSideB += (localRight * position.x) + (localUp * position.y);
+            vertSideA += (localRight * position.x) + (localUp * position.y);
+
+            vertSideA -= tunnelCenter;
+            vertSideB -= tunnelCenter;
 
             #region Add vertices, UVs and normals
             // Add top of road vertices
-            verts[vertIndex + 0] = vertSideA;
-            verts[vertIndex + 1] = vertSideB;
+            vertices[0] = vertSideA;
+            vertices[1] = vertSideB;
             // Add bottom of road vertices
-            verts[vertIndex + 2] = vertSideA - localUp * (thickness / 2f);
-            verts[vertIndex + 3] = vertSideB - localUp * (thickness / 2f);
+            vertices[2] = vertSideA - localUp * (height / 2f);
+            vertices[3] = vertSideB - localUp * (height / 2f);
 
             // Duplicate vertices to get flat shading for sides of road
-            verts[vertIndex + 4] = verts[vertIndex + 0];
-            verts[vertIndex + 5] = verts[vertIndex + 1];
-            verts[vertIndex + 6] = verts[vertIndex + 2];
-            verts[vertIndex + 7] = verts[vertIndex + 3];
+            vertices[4] = vertices[0];
+            vertices[5] = vertices[1];
+            vertices[6] = vertices[2];
+            vertices[7] = vertices[3];
+
+            // Set uv on y axis to path time (0 at start of path, up to 1 at end of path)
+            uvs[0] = new Vector2(0, path.times[0]);
+            uvs[1] = new Vector2(1, path.times[0]);
+
+            // Top of road normals
+            normals[0] = localUp;
+            normals[1] = localUp;
+            // Bottom of road normals
+            normals[2] = -localUp;
+            normals[3] = -localUp;
+            // Sides of road normals
+            normals[4] = -localRight;
+            normals[5] = localRight;
+            normals[6] = -localRight;
+            normals[7] = localRight;
+            #endregion
+
+            // Set triangle indices
+            for (int j = 0; j < triangleMap.Length; j++)
+            {
+                roadTriangles[0 + j] = (0 + triangleMap[j]) % vertices.Length;
+
+                // reverse triangle map for under road so that triangles wind the other way and are visible from underneath
+                underRoadTriangles[0 + j] = (0 + triangleMap[triangleMap.Length - 1 - j] + 2) % vertices.Length;
+            }
+
+            for (int j = 0; j < sidesTriangleMap.Length; j++)
+                sideOfRoadTriangles[0 * 4 + j] = (0 + sidesTriangleMap[j]) % vertices.Length;
+        }
+
+        // Get start and end vertex index data
+        var startVertex = path.GetIndexAtDistance(0, EndOfPathInstruction.Stop);
+        var endVertex = path.GetIndexAtDistance(path.length, EndOfPathInstruction.Stop);
+
+        int vertIndex = isStartPointAdjustment ? 8 : 0;
+        int triIndex = isStartPointAdjustment ? 6 : 0;
+
+        // ----- WORK ----- //
+        for (int i = startVertex.previousIndex; i <= endVertex.nextIndex; i++) // Go through indexes between start and end (end is not included) // TODO: investigate into non-inclusion of end index?
+        {
+            Vector3 localUp = Vector3.Cross(path.GetTangent(i), path.GetNormal(i));
+            Vector3 localRight = path.GetNormal(i);
+
+            // Find position to left and right of current path vertex
+            Vector3 vertSideA = path.GetPoint(i) - localRight * Mathf.Abs(width / 2f);
+            Vector3 vertSideB = path.GetPoint(i) + localRight * Mathf.Abs(width / 2f);
+
+            // ***** OFFSET VERTEX POINTS FOR PARALLEL CURVES *****
+            // The calculations below create the mesh based on the vertex positions.
+            // By offseting the vertex positions, the calculations will take place according to their positions and the curve will thus be bigger or smaller, depending on the vertex positions.
+            vertSideB += (localRight * position.x) + (localUp * position.y);
+            vertSideA += (localRight * position.x) + (localUp * position.y);
+
+            #region Add vertices, UVs and normals
+            // Add top of road vertices
+            vertices[vertIndex + 0] = vertSideA;
+            vertices[vertIndex + 1] = vertSideB;
+            // Add bottom of road vertices
+            vertices[vertIndex + 2] = vertSideA - localUp * (height / 2f);
+            vertices[vertIndex + 3] = vertSideB - localUp * (height / 2f);
+
+            // Duplicate vertices to get flat shading for sides of road
+            vertices[vertIndex + 4] = vertices[vertIndex + 0];
+            vertices[vertIndex + 5] = vertices[vertIndex + 1];
+            vertices[vertIndex + 6] = vertices[vertIndex + 2];
+            vertices[vertIndex + 7] = vertices[vertIndex + 3];
 
             // Set uv on y axis to path time (0 at start of path, up to 1 at end of path)
             uvs[vertIndex + 0] = new Vector2(0, path.times[i]);
@@ -328,13 +292,13 @@ public class TrackMeshCreator : PathSceneTool
             {
                 for (int j = 0; j < triangleMap.Length; j++)
                 {
-                    roadTriangles[triIndex + j] = (vertIndex + triangleMap[j]) % verts.Length;
+                    roadTriangles[triIndex + j] = (vertIndex + triangleMap[j]) % vertices.Length;
 
                     // reverse triangle map for under road so that triangles wind the other way and are visible from underneath
-                    underRoadTriangles[triIndex + j] = (vertIndex + triangleMap[triangleMap.Length - 1 - j] + 2) % verts.Length;
+                    underRoadTriangles[triIndex + j] = (vertIndex + triangleMap[triangleMap.Length - 1 - j] + 2) % vertices.Length;
                 }
                 for (int j = 0; j < sidesTriangleMap.Length; j++)
-                    sideOfRoadTriangles[triIndex * 4 + j] = (vertIndex + sidesTriangleMap[j]) % verts.Length;
+                    sideOfRoadTriangles[triIndex * 4 + j] = (vertIndex + sidesTriangleMap[j]) % vertices.Length;
             }
 
             // add to vert and tri index counters
@@ -342,10 +306,11 @@ public class TrackMeshCreator : PathSceneTool
             triIndex += 6;
         }
 
-        // Create and setup mesh
-        Mesh mesh = new Mesh();
+        // ----- FINAL ----- //
 
-        mesh.vertices = verts;
+        Mesh mesh = new Mesh() { name = "Procgen mesh (full-length)" };
+
+        mesh.vertices = vertices;
         mesh.uv = uvs;
         mesh.normals = normals;
         mesh.subMeshCount = 3;
@@ -359,95 +324,125 @@ public class TrackMeshCreator : PathSceneTool
         return mesh;
     }
 
-    public GameObject CreateTrackObject(string name = "", AmpTrack.InstrumentType inst = AmpTrack.InstrumentType.Bass, float startDistance = 0f, float length = 8f, float xPosition = 0f, float yElevation = 0f)
+    public static Mesh CreateFullLengthMeshForPath(float width, float height, Vector3 position, float angle, VertexPath path = null)
     {
-        GameObject obj = new GameObject() { name = name };
+        if (width == 0) width = RhythmicGame.TrackWidth;
+        if (path == null) path = PathTools.Path;
 
-        // Create and add mesh
-        var mesh = CreateMesh(startDistance, length, xPosition, RhythmicGame.TrackWidth, RhythmicGame.TrackHeight, yElevation);
+        Mesh mesh = new Mesh() { name = "Procgen mesh (full-length)" };
 
-        obj.AddComponent<MeshFilter>().mesh = mesh;
-        var renderer = obj.AddComponent<MeshRenderer>();
-        renderer.sharedMaterial = AmpTrack.Colors.GetMaterialForInstrument(inst);
-        renderer.sharedMaterials[0].mainTextureScale = new Vector2(1, path.length); // TODO: texture scaling seems wrong (?)
+        Vector3[] vertices = new Vector3[path.NumPoints * 8];
+        Vector2[] uvs = new Vector2[vertices.Length];
+        Vector3[] normals = new Vector3[vertices.Length];
 
-        // Create and add Edge lights!
-        //var edgelights = CreateEdgeLights(startDistance, length, xPosition, Track.Colors.ColorFromTrackType(inst));
-        //edgelights.transform.parent = obj.transform;
+        int numTris = 2 * (path.NumPoints - 1) + (path.isClosedLoop ? 2 : 0);
+        int[] roadTriangles = new int[numTris * 3];
+        int[] underRoadTriangles = new int[numTris * 3];
+        int[] sideOfRoadTriangles = new int[numTris * 4 * 3];
 
-        // Add measure script!
-        // TODO!!!
+        /* Vertices for the top of the road are laid out like this:
+           0  1
+           8  9
+        So the triangle map 0,8,1 for example, defines a triangle from top left to bottom left to bottom right. */
+        int[] triangleMap = { 0, 8, 1, 1, 8, 9 };
 
-        return obj;
-    }
+        // Doubled the sides so that we have both outside and inside materials
+        int[] sidesTriangleMap = {
+           4, 6, 14,
+           12, 4, 14,
+           5, 15, 7,
+           13, 15, 5,
 
-    public GameObject CreateEdgeLights(float startPoint, float length = 16f, float xPosition = 0f, Color? color = null, string name = "Edge lights")
-    {
-        // Create object and mesh
-        var gObj = Instantiate(EdgeLightsPrefab); gObj.name = name; gObj.layer = 11;
+           4, 12, 14,
+           6, 4, 14,
+           5, 15, 13,
+           7, 15, 5 };
 
-        var meshFilter = gObj.GetComponent<MeshFilter>();
-        var meshRenderer = gObj.GetComponent<MeshRenderer>();
+        // Get start and end vertex index data
+        var startVertex = path.GetIndexAtDistance(0, EndOfPathInstruction.Stop);
+        var endVertex = path.GetIndexAtDistance(path.length, EndOfPathInstruction.Stop);
 
-        meshFilter.mesh = CreateMesh(startPoint, length, xPosition, RhythmicGame.TrackWidth, edgeLightsThickness, edgeLightsThickness / 2);
-        meshRenderer.sharedMaterials = new Material[2] { EdgeLightsMaterial, EdgeLightsMaterial };
+        int vertIndex = 0;
+        int triIndex = 0;
 
-        var edgeLightCom = gObj.GetComponent<EdgeLights>();
-        if (color.HasValue) edgeLightCom.Color = color.Value;
+        // ------------------------------ //
 
-        return gObj;
-    }
-
-    // Debug functions
-    public GameObject Debug_CreateTestMesh(bool keepCurrentXPosition = false, bool keepIncreasingStartPoint = false)
-    {
-        if (!pathCreator)
-            throw new System.Exception("TrackMeshCreator: No PathCreator was found!");
-
-        // Create track mesh object!
-        var go = CreateTestObject(); go.layer = 11;
-        //var edgelight = CreateEdgeLights(debug_startPoint, debug_length, debug_xPosition * RhythmicGame.TrackWidth);
-        //edgelight.GetComponent<EdgeLights>().GlowIntenstiy = 1.2f;
-        //edgelight.transform.parent = go.transform;
-
-        // Automatically increase track index counter
-        if (!keepCurrentXPosition)
-            debug_xPosition++;
-        if (keepIncreasingStartPoint)
-            debug_startPoint += debug_length;
-
-        TrackObjects.Add(go);
-
-        return go;
-    }
-    // Add MeshRenderer and MeshFilter components to this gameobject if not already attached
-    GameObject CreateTestObject(string objectName = "TestTrackMesh")
-    {
-        var meshHolder = new GameObject();
-        meshHolder.name = debug_xPosition.ToString();
-
-        meshHolder.transform.rotation = Quaternion.identity;
-        meshHolder.transform.position = Vector3.zero;
-        meshHolder.transform.localScale = Vector3.one;
-
-        // Ensure mesh renderer and filter components are assigned
-        if (!meshHolder.gameObject.GetComponent<MeshFilter>())
-            meshHolder.gameObject.AddComponent<MeshFilter>();
-        if (!meshHolder.GetComponent<MeshRenderer>())
-            meshHolder.gameObject.AddComponent<MeshRenderer>();
-
-        var meshRenderer = meshHolder.GetComponent<MeshRenderer>();
-        var meshFilter = meshHolder.GetComponent<MeshFilter>();
-        meshFilter.sharedMesh = CreateMesh(debug_startPoint, debug_length, debug_xPosition * RhythmicGame.TrackWidth);
-
-        if (roadMaterial != null && undersideMaterial != null)
+        for (int i = startVertex.previousIndex; i <= endVertex.nextIndex; i++) // Go through indexes between start and end (end is not included) // TODO: investigate into non-inclusion of end index?
         {
-            meshRenderer.sharedMaterials = new Material[] { roadMaterial, undersideMaterial, undersideMaterial };
-            meshRenderer.sharedMaterials[0].mainTextureScale = new Vector3(1, path.length);
+            Vector3 localUp = Vector3.Cross(path.GetTangent(i), path.GetNormal(i));
+            Vector3 localRight = path.GetNormal(i);
+
+            // Find position to left and right of current path vertex
+            Vector3 vertSideA = path.GetPoint(i) - localRight * Mathf.Abs(width / 2f);
+            Vector3 vertSideB = path.GetPoint(i) + localRight * Mathf.Abs(width / 2f);
+
+            // ***** OFFSET VERTEX POINTS FOR PARALLEL CURVES *****
+            // The calculations below create the mesh based on the vertex positions.
+            // By offseting the vertex positions, the calculations will take place according to their positions and the curve will thus be bigger or smaller, depending on the vertex positions.
+            vertSideB += (localRight * position.x) + (localUp * position.y);
+            vertSideA += (localRight * position.x) + (localUp * position.y);
+
+            #region Add vertices, UVs and normals
+            // Add top of road vertices
+            vertices[vertIndex + 0] = vertSideA;
+            vertices[vertIndex + 1] = vertSideB;
+            // Add bottom of road vertices
+            vertices[vertIndex + 2] = vertSideA - localUp * (height / 2f);
+            vertices[vertIndex + 3] = vertSideB - localUp * (height / 2f);
+
+            // Duplicate vertices to get flat shading for sides of road
+            vertices[vertIndex + 4] = vertices[vertIndex + 0];
+            vertices[vertIndex + 5] = vertices[vertIndex + 1];
+            vertices[vertIndex + 6] = vertices[vertIndex + 2];
+            vertices[vertIndex + 7] = vertices[vertIndex + 3];
+
+            // Set uv on y axis to path time (0 at start of path, up to 1 at end of path)
+            uvs[vertIndex + 0] = new Vector2(0, path.times[i]);
+            uvs[vertIndex + 1] = new Vector2(1, path.times[i]);
+
+            // Top of road normals
+            normals[vertIndex + 0] = localUp;
+            normals[vertIndex + 1] = localUp;
+            // Bottom of road normals
+            normals[vertIndex + 2] = -localUp;
+            normals[vertIndex + 3] = -localUp;
+            // Sides of road normals
+            normals[vertIndex + 4] = -localRight;
+            normals[vertIndex + 5] = localRight;
+            normals[vertIndex + 6] = -localRight;
+            normals[vertIndex + 7] = localRight;
+            #endregion
+
+            // Set triangle indices
+            if (i <= endVertex.previousIndex || path.isClosedLoop)
+            {
+                for (int j = 0; j < triangleMap.Length; j++)
+                {
+                    roadTriangles[triIndex + j] = (vertIndex + triangleMap[j]) % vertices.Length;
+
+                    // reverse triangle map for under road so that triangles wind the other way and are visible from underneath
+                    underRoadTriangles[triIndex + j] = (vertIndex + triangleMap[triangleMap.Length - 1 - j] + 2) % vertices.Length;
+                }
+                for (int j = 0; j < sidesTriangleMap.Length; j++)
+                    sideOfRoadTriangles[triIndex * 4 + j] = (vertIndex + sidesTriangleMap[j]) % vertices.Length;
+            }
+
+            // add to vert and tri index counters
+            vertIndex += 8;
+            triIndex += 6;
         }
 
-        return meshHolder;
+        mesh.vertices = vertices;
+        mesh.uv = uvs;
+        mesh.normals = normals;
+        mesh.subMeshCount = 3;
+
+        mesh.SetTriangles(roadTriangles, 0);
+        mesh.SetTriangles(sideOfRoadTriangles, 1);
+        mesh.SetTriangles(underRoadTriangles, 2);
+
+        mesh.RecalculateBounds();
+
+        return mesh;
     }
-
-
 }

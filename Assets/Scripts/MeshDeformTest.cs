@@ -11,7 +11,7 @@ using UnityEngine.ProBuilder;
 public class MeshDeformTest : MonoBehaviour
 {
     public GameObject targetObject;
-    public TrackMeshCreator pathcreator;
+    public TrackMeshCreator_old pathcreator;
 
     [HideInInspector]
     public MeshFilter meshFilter { get { return targetObject.GetComponent<MeshFilter>(); } }

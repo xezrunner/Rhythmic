@@ -10,9 +10,25 @@ public partial class AmpTrack
     public GameObject TrackSectionPrefab;
     public GameObject NotePrefab;
 
-    /// <summary>
-    /// Creates a measure and adds it to the measure list.
-    /// </summary>
+    public static AmpTrack CreateTrack(int ID, string name, InstrumentType instrument, int? realID = null, TracksController TracksController = null)
+    {
+        if (!TracksController) TracksController = TracksController.Instance;
+
+        var obj = Instantiate(TracksController.Instance.TrackPrefab, TracksController.gameObject.transform);
+        obj.name = name;
+
+        // Add Track component:
+        AmpTrack com = obj.GetComponent<AmpTrack>();
+
+        com.ID = ID;
+        com.RealID = realID.HasValue ? realID.Value : ID; // Assign the same ID if realID was not desired
+        com.TrackName = name;
+        com.Instrument = instrument;
+        com.Path = PathTools.Path;
+
+        TracksController.Tracks.Add(com);
+        return com;
+    }
     public AmpTrackSection CreateMeasure(MetaMeasure meta)
     {
         /// Create object
@@ -40,7 +56,6 @@ public partial class AmpTrack
         Measures.Add(measure);
         return measure;
     }
-
     public AmpNote CreateNote(MetaNote meta, AmpTrackSection measure = null, bool lastNote = false)
     {
         /// Create object

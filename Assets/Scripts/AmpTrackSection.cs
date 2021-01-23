@@ -161,7 +161,7 @@ public class AmpTrackSection : MonoBehaviour
             EdgeLights_Local.gameObject.SetActive(false);
         }
 
-        MeshFilter.mesh = AmpMeshTestScript.CreateMesh(RhythmicGame.TrackWidth, Length);
+        MeshFilter.mesh = TrackMeshCreator.CreateMesh(RhythmicGame.TrackWidth, Length);
 
         if (MeshFilter)
             originalMesh = MeshFilter.sharedMesh;

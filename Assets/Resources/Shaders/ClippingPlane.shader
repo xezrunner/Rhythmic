@@ -20,12 +20,13 @@
 
 	SubShader{
 		//the material is completely non-transparent and is rendered at the same time as the other opaque geometry
-		Tags{ "RenderType"="Opaque"}
+		Tags{ "RenderType"="Transparent"}
 
 		// render faces regardless if they point towards the camera or away from it
-		BlendOp Add
-        Blend One Zero
-        ZWrite On
+		//BlendOp Add
+        //Blend One Zero
+        //ZWrite On
+		Lighting Off
         Cull Off
 
 		CGPROGRAM
