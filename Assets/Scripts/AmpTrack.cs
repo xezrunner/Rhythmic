@@ -16,8 +16,11 @@ public partial class AmpTrack : MonoBehaviour
     [Header("Containers")]
     public Transform MeasureContainer;
 
+    [Header("Global Edge Light")]
+    public EdgeLights GlobalEdgeLights;
+
     /// Declarations, global variables, properties, events ...
-    
+
     public VertexPath Path;
 
     /// Global variables and properties
@@ -130,16 +133,9 @@ public partial class AmpTrack : MonoBehaviour
         TunnelPos = TunnelTransform[0];
         TunnelRot = TunnelTransform[1];
 
-        // Create global edge lights
-        var a = new GameObject() { name = "Global edgelights 2" };
-        a.transform.parent = transform;
-
-        var rend = a.AddComponent<MeshRenderer>();
-        var meshf = a.AddComponent<MeshFilter>();
-
-        meshf.mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
-        rend.material = (Material)Resources.Load("Materials/EdgeLightsMaterial");
-        rend.material.renderQueue -= 1;
+        // Global edge lights
+        GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
+        GlobalEdgeLights.Color = Color;
     }
 
     // TODO: for debugging only
