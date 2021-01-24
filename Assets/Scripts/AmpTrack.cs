@@ -127,6 +127,8 @@ public partial class AmpTrack : MonoBehaviour
 
     /// Functionality
 
+    public static bool GlobalEdgeLightsEnabled = false;
+
     void Start()
     {
         TunnelTransform = Tunnel.GetTransformForTrackID(RealID);
@@ -134,8 +136,11 @@ public partial class AmpTrack : MonoBehaviour
         TunnelRot = TunnelTransform[1];
 
         // Global edge lights
+        if (!GlobalEdgeLights) return;
+
         GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
         GlobalEdgeLights.Color = Color;
+        GlobalEdgeLights.enabled = true;
     }
 
     // TODO: for debugging only
