@@ -1,10 +1,4 @@
-﻿using System;
-using System.IO;
-using System.IO.Pipes;
-using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 /// <summary>
@@ -72,9 +66,10 @@ public static class RhythmicGame
     public static float SlopMs = 100f; // 100f
     public static float DebounceWindowMs = 85f;
 
-    public static int HorizonMeasures = 9; // How many measures should we be able to see ahead of us
+    public static int HorizonMeasures = 7; // How many measures should we be able to see ahead of us
     public static float HorizonMeasuresOffset = 15f; // How many units to offset from the horizon when clipping
-    public static bool FastStreaming = false;
+    public static bool FastStreaming = true;
+    public static bool StreamAllMeasuresOnStart = false;
 
     public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
     public static bool TunnelTrackDuplication = true; // Whether to duplicate tracks when using tunnel mode
@@ -102,6 +97,9 @@ public static class RhythmicGame
 
     public static float[] DifficultyFudgeFactors = new float[] { 1f, 1f, 0.93f, 0.8f, 0.8f };
 
+    // Tech props
+    public static bool AutoFindPathFallback = true; // Whether to attempt finding an object named 'Path' in case a world/song path was never specified.
+
     // Event debug
     public static bool DebugTrackCapturingEvents = false;
     public static bool DebugTrackCapturingEase = false;
@@ -110,10 +108,11 @@ public static class RhythmicGame
     public static bool DebugPlayerTrackSwitchEvents = true;
     public static bool DebugPlayerTrackSeekEvents = true;
 
-    public static bool DebugCatchResultEvents = true;
+    public static bool DebugCatchResultEvents = false;
+    public static bool DebugCatcherSlopEvents = false;
     public static bool DebugTargetNoteRefreshEvents = false;
     public static bool DebugSequenceRefreshEvents = false;
 
     // Draw debug
-    public static bool DebugDrawTunnelGizmos = true;
+    public static bool DebugDrawTunnelGizmos = false;
 }

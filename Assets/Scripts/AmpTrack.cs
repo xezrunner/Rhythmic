@@ -1,3 +1,4 @@
+using PathCreation;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,18 +16,12 @@ public partial class AmpTrack : MonoBehaviour
     [Header("Containers")]
     public Transform MeasureContainer;
 
+    [Header("Global Edge Light")]
+    public EdgeLights GlobalEdgeLights;
+
     /// Declarations, global variables, properties, events ...
-    /// Path-related stuff
-    [Header("Path stuff")]
-    public PathCreation.PathCreator PathCreator; // TODO: Global property? !!!
-    public PathCreation.VertexPath Path
-    {
-        get
-        {
-            if (PathCreator) return PathCreator.path;
-            else { Debug.LogError("AmpTrack: Path not available - PathCreator is null!"); return null; }
-        }
-    }
+
+    public VertexPath Path;
 
     /// Global variables and properties
     [Header("Properties & variables")]
@@ -90,7 +85,6 @@ public partial class AmpTrack : MonoBehaviour
             _isTrackFocused = value;
 
             // Set global edge lights in measures
-            //foreach (AmpTrackSection m in Measures)
             for (int i = Mathf.FloorToInt(Clock.Instance.bar) - 1; i < Measures.Count - 1; i++) // TODO: check reliability of this optimization!
             {
                 if (i < 0) i = 0; // correct the flooring of 0
@@ -138,10 +132,14 @@ public partial class AmpTrack : MonoBehaviour
         TunnelTransform = Tunnel.GetTransformForTrackID(RealID);
         TunnelPos = TunnelTransform[0];
         TunnelRot = TunnelTransform[1];
+
+        // Global edge lights
+        GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
+        GlobalEdgeLights.Color = Color;
     }
 
     // TODO: for debugging only
-    public bool iscaptured;
+    [SerializeField] bool iscaptured;
 
     float smoothStep;
 

@@ -3,6 +3,8 @@ using PathCreation;
 
 public static class PathTools
 {
+    public static VertexPath Path; // Global Path
+
     public static Vector3 GetPositionOnPath(VertexPath path, float distance) => GetPositionOnPath(path, distance, Vector3.zero);
     public static Vector3 GetPositionOnPath(VertexPath path, float distance, Vector3 offset)
     {

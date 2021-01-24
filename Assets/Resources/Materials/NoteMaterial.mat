@@ -83,7 +83,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.08
-    - _PlaneEnabled: 0
+    - _PlaneEnabled: 1
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 1
     - _SoftParticlesEnabled: 0
@@ -100,7 +100,7 @@ Material:
     - _CutoffColor: {r: 1, g: 0, b: 0, a: 0}
     - _Emission: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    - _InversePlane: {r: -0.74379057, g: 0.01117605, b: 0.66831934, a: 84.25084}
-    - _Plane: {r: -0.87640256, g: 0.037903544, b: 0.48008522, a: 172.30423}
+    - _InversePlane: {r: 0.8535962, g: 0.07147992, b: 0.51600784, a: -1179.546}
+    - _Plane: {r: 0.8126483, g: -0.11073409, b: 0.57213694, a: 663.1952}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

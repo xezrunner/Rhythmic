@@ -36,7 +36,7 @@ public class DebugController : MonoBehaviour
     int android_songcounter = 0;
 #endif
 
-    private void LateUpdate()
+    private async void LateUpdate()
     {
         if (Keyboard.current.jKey.wasPressedThisFrame)
             ConsoleServer.WriteLine("Hi!!!");
@@ -138,7 +138,7 @@ public class DebugController : MonoBehaviour
 
         // Track capturing debug
         if (Input.GetKeyDown(KeyCode.H)) // current track, 5
-            TracksController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), RhythmicGame.TrackCaptureLength, 0);
+            TracksController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), RhythmicGame.TrackCaptureLength, TracksController.Instance.CurrentTrackID);
 
         else if (Input.GetKeyDown(KeyCode.Keypad5)) // 5
             TracksController.Instance.CaptureMeasureAmount(Mathf.FloorToInt(Clock.Instance.bar), RhythmicGame.TrackCaptureLength, TracksController.Instance.Tracks);
@@ -151,7 +151,12 @@ public class DebugController : MonoBehaviour
         { }
 
         if (Input.GetKeyDown(KeyCode.Keypad9))
-            AmpPlayerLocomotion.Instance.DistanceTravelled += 100f;
+        {
+            AmpPlayerLocomotion.Instance.IsPlaying = true;
+            AmpPlayerLocomotion.Instance.DistanceTravelled += 140;
+            await Task.Delay(100);
+            AmpPlayerLocomotion.Instance.IsPlaying = false;
+        }
 
         // Timescale
         if (Input.GetKeyDown(KeyCode.Keypad8) & Input.GetKey(KeyCode.LeftControl)) // up

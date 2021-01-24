@@ -5,13 +5,13 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.InputSystem;
 
-[CustomEditor(typeof(TrackMeshCreator))]
+[CustomEditor(typeof(TrackMeshCreator_old))]
 public class TrackMeshCreatorEditor : PathSceneToolEditor
 {
     int numberOfSections;
-    TrackMeshCreator script;
+    TrackMeshCreator_old script;
 
-    void Awake() => script = (TrackMeshCreator)target;
+    void Awake() => script = (TrackMeshCreator_old)target;
 
     public override void OnInspectorGUI()
     {

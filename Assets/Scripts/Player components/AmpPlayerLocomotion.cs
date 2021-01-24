@@ -7,7 +7,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
 
     [Header("Common")]
     public AmpPlayer Player;
-    public PathCreator PathSystem;
+    public PathCreator PathCreator;
     public VertexPath Path;
     public Tunnel Tunnel { get { return Tunnel.Instance; } }
     public SongController SongController { get { return SongController.Instance; } }
@@ -51,23 +51,8 @@ public class AmpPlayerLocomotion : MonoBehaviour
     }
     void GetPath()
     {
-        if (PathSystem != null & Path is null)
-            Path = PathSystem.path;
-        else
-            Debug.Log("Locomotion: Path system was not attached!");
-
-        if (Path != null) return;
-
-        // If the path is still not found:
-        Debug.LogWarningFormat("Locomotion: Path is null! - Finding \"Path\" GameObject...");
-        var path = GameObject.Find("Path").GetComponent<PathCreator>().path;
-
-        if (path == null)
-            Debug.LogError("Locomotion: Path not found! Locomotion fallback to straight path!");
-        else
-            Debug.Log("Locomotion: Path found!");
-
-        Path = path;
+        if (PathCreator) Path = PathCreator.path; // Inspector override
+        else Path = PathTools.Path;
     }
 
     // Locomotion
@@ -109,25 +94,27 @@ public class AmpPlayerLocomotion : MonoBehaviour
     {
         if (SongController.IsPlaying || IsPlaying)
         {
-            Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songSpeed);
-
-            if (SongController.Enabled)
+            if (!SongController.IsPlaying && IsPlaying) { }
+                //DistanceTravelled += 4f * Time.deltaTime;
+            else if (SongController.Enabled)
+            {
+                Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songSpeed);
                 DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
-            else
-                DistanceTravelled += 4f * Time.deltaTime;
+            }
 
             Locomotion(DistanceTravelled);
 
             // Live note capture glow thing
             foreach (AmpTrack t in TracksController.Tracks)
             {
+                if (t == TracksController.CurrentTrack && (!t.CurrentMeasure.IsEmpty & !t.CurrentMeasure.IsCaptured)) continue;
                 foreach (AmpTrackSection s in t.Measures)
                 {
                     if (s is null) continue;
                     foreach (AmpNote n in s.Notes)
                     {
                         if ((int)n.Distance == (int)DistanceTravelled + LiveCaptDist & n.IsCaptured)
-                            n.CaptureNote(true, true);
+                            n.CaptureNote(NoteCaptureFX.DotLightEffect);
                     }
                 }
             }

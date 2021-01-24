@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 /// Note entity
 /// 
@@ -27,6 +26,17 @@ public class AmpNote : MonoBehaviour
     {
         get { return _dotLightColor; }
         set { _dotLightColor = value; DotLightMeshRenderer.material.color = value; }
+    }
+
+    float _dotLightGlowIntensity = 1f;
+    public float DotLightGlowIntensity
+    {
+        get { return _dotLightGlowIntensity; } 
+        set
+        {
+            _dotLightGlowIntensity = value;
+            DotLightMeshRenderer.material.SetColor("_EmissionColor", DotLightColor * value);
+        }
     }
 
     /// Global variables and properties
@@ -69,25 +79,27 @@ public class AmpNote : MonoBehaviour
         //DotLight.SetActive(false);
         DotLight.transform.localPosition = Vector3.zero;
         DotLightColor = Colors.ConvertColor(AmpTrack.Colors.ColorFromInstrument(TracksController.Instance.Tracks[TrackID].Instrument));
-        DotLightMeshRenderer.material.SetColor("_EmissionColor", Colors.ConvertColor(DotLightColor) * 1f);
+        DotLightGlowIntensity = 1f;
 
         // Set particle system color to match dotlight!
         PS_main = PS.main;
         PS_main.startColor = (DotLightColor * 2f);
     }
 
-    public void CaptureNote(bool anim = true, bool stopPrevious = false)
+    [SerializeField] AmpNoteFX FXCom;
+
+    public void CaptureNote(NoteCaptureFX fx = NoteCaptureFX.DestructCapture, bool anim = true)
     {
         IsCaptured = true;
 
         if (!anim) return;
 
-        PS.gameObject.SetActive(true);
-        if (stopPrevious)
-            PS.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        PS.Play();
+        if (!FXCom) // Add capture effect provider component
+            FXCom = gameObject.AddComponent<AmpNoteFX>();
+        else FXCom.ResetFX(); // If it already exists, reset the effect
+        FXCom.Note = this;
+        FXCom.Effect = fx; // Set capture effect
     }
-
 }
 
 public enum NoteType
@@ -99,5 +111,5 @@ public enum NoteType
     Freestyle = 4, // Flow
     Autopilot = 5, // Temporarily let the game play itself
     STORY_Corrupt = 6, // Avoid corrupted nanotech!
-    STORY_Memory = 7 // Temporarily shows memories as per the lore
+    STORY_Memory = 7 // Temporarily shows memories
 }

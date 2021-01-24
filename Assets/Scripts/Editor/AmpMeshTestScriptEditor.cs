@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(AmpMeshTestScript))]
+[CustomEditor(typeof(TrackMeshCreator))]
 class AmpMeshTestScriptEditor : Editor
 {
-    AmpMeshTestScript script;
+    TrackMeshCreator script;
     void Awake()
     {
-        script = (AmpMeshTestScript)target;
+        script = (TrackMeshCreator)target;
         ErrorTextStyle.normal.textColor = Color.red;
     }
 

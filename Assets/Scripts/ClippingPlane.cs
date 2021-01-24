@@ -7,7 +7,7 @@ using System.Linq;
 
 public class ClippingPlane : MonoBehaviour
 {
-    public List<MeshRenderer> MeshRenderers;
+    public List<MeshRenderer> MeshRenderers = new List<MeshRenderer>();
     public GameObject plane;
     public GameObject inverse_plane;
 
@@ -38,6 +38,8 @@ public class ClippingPlane : MonoBehaviour
         else
         {
             MeshRenderer r = gameObject.GetComponent<MeshRenderer>();
+            if (!r) return;
+
             foreach (Material m in r.materials)
                 materials.Add(r.material);
         }

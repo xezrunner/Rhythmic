@@ -43,7 +43,7 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
         if (RhythmicGame.DebugPlayerTrackSwitchEvents)
             Debug.LogFormat("Track switching: Switching towards direction: {0} | Force mode: {1}", direction.ToString(), force.ToString());
 
-        int id = TracksController.CurrentTrackID;
+        int id = TracksController.CurrentRealTrackID;
 
         if (force > 0) // Forceful
         {
@@ -54,7 +54,7 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
             else // Tunnel mode
             {
                 id += (direction == HDirection.Left) ? -1 : 1;
-                if (id == TracksController.Tracks.Count - 1) id = 0;
+                if (id == TracksController.Tracks.Count) id = 0;
                 else if (id == -1) id = TracksController.Tracks.Count - 1;
             }
         }
@@ -77,7 +77,7 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
     public void SwitchToTrack(int ID, bool force = false)
     {
         if (ID < -1) return;
-        if (ID == TracksController.CurrentTrackID) return;
+        if (ID == TracksController.CurrentRealTrackID) return;
 
         // Get the track for the ID
         AmpTrack track = TracksController.Tracks[ID];

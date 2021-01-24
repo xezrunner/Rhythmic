@@ -95,7 +95,7 @@ public class AmpPlayerCatching : MonoBehaviour
         }
         else
             foreach (AmpNote note in TracksController.targetNotes)
-                HandleSlop(dist, note);
+                if (note) HandleSlop(dist, note);
     }
 
     public void HandleSlop(float dist, AmpNote note)
@@ -107,6 +107,9 @@ public class AmpPlayerCatching : MonoBehaviour
         {
             HandleResult(new CatchResult(Catchers[(int)note.Lane], CatchResultType.Ignore, note));
             lastIgnoreBar = Clock.Fbar; // avoid slop check spam
+
+            if (RhythmicGame.DebugCatcherSlopEvents)
+                Debug.LogWarning($">>>>>>> SLOP! <<<<<<< | Track ID: {TracksController.CurrentTrackID} IsTrackCaptured: {TracksController.CurrentTrack.IsTrackCaptured}");
         }
     }
 
@@ -122,13 +125,19 @@ public class AmpPlayerCatching : MonoBehaviour
                 {
                     AmpNote note = result.note;
 
-                    note.CaptureNote();
+                    note.CaptureNote(NoteCaptureFX.CatcherCapture);
                     note.Track.IsTrackBeingPlayed = true;
 
                     if (note.IsLastNote & note.MeasureID == note.Track.Sequences.Last().ID)
                     {
                         note.Track.CaptureMeasureAmount(Clock.Fbar, RhythmicGame.TrackCaptureLength);
+
+                        //TracksController.targetNotes[note.TrackID] = null; // No target notes on this track anymore.
                         TracksController.lastRefreshUpcomingState = false; // TODO: do this in a better place?
+
+                        // TODO: refreshing refactor, individual track option?
+                        TracksController.RefreshSequences();
+                        TracksController.RefreshTargetNotes();
                     }
                     else
                     {
