@@ -39,7 +39,7 @@ public class DebugController : MonoBehaviour
     private async void LateUpdate()
     {
         if (Keyboard.current.jKey.wasPressedThisFrame)
-            ConsoleServer.WriteLine("Hi!!!");
+            ConsoleServer.Write("Hi!!!");
 
         // AMP songs debug
         if (Input.GetKeyDown(KeyCode.Alpha0))
