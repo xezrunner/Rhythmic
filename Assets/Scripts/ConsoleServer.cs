@@ -70,8 +70,6 @@ public static class ConsoleServer
 
         byte[] message = new byte[1024];
 
-        // Padding: the first byte is seemingly consumed / doesn't arrive
-        //message[0] = 0;
         // CMessageType : 1
         message[0] = (byte)CMessageType.Text;
         // CLogType : 1
