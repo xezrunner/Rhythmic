@@ -21,13 +21,13 @@ RenderSettings:
   m_FogDensity: 0.05
   m_LinearFogStart: 1659.2
   m_LinearFogEnd: 3000
-  m_AmbientSkyColor: {r: 0.4528302, g: 0.4528302, b: 0.4528302, a: 1}
+  m_AmbientSkyColor: {r: 0.5566038, g: 0.5566038, b: 0.5566038, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 69561553b86bde34da494d1ffed3ba45, type: 2}
+  m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.63
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -39,7 +39,7 @@ RenderSettings:
   m_ReflectionIntensity: 0.031
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 0.031}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -300,6 +300,7 @@ GameObject:
   - component: {fileID: 22153599}
   - component: {fileID: 22153598}
   - component: {fileID: 22153597}
+  - component: {fileID: 22153600}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -385,6 +386,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &22153600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 22153596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a6e18caee2803642bbe1cf1185519df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  section_debug: {fileID: 464471073}
+  section_controllerinput: {fileID: 654554962}
+  inputlagText: {fileID: 1371996219}
+  framerateText: {fileID: 1627078465}
+  isDebugOn: 1
 --- !u!1 &30252475
 GameObject:
   m_ObjectHideFlags: 0
@@ -1814,7 +1832,7 @@ Light:
   m_Type: 1
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1
+  m_Intensity: 0.3
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1851,7 +1869,7 @@ Light:
   m_RenderMode: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294965247
+    m_Bits: 4294967295
   m_RenderingLayerMask: 1
   m_Lightmapping: 1
   m_LightShadowCasterMode: 0
@@ -1871,13 +1889,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705507993}
-  m_LocalRotation: {x: 0.9600586, y: -0.029353507, z: 0.25545192, w: 0.110318564}
-  m_LocalPosition: {x: 1.3707567, y: 4.8216305, z: -10.825499}
+  m_LocalRotation: {x: 0.8836355, y: 0.040244102, z: -0.4599915, w: 0.07730821}
+  m_LocalPosition: {x: 0, y: 0, z: 32.34}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1010288848}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 166.89, y: -29.8, z: 0}
+  m_LocalEulerAnglesHint: {x: 170, y: 55, z: 0}
 --- !u!1 &793695455
 GameObject:
   m_ObjectHideFlags: 0
@@ -2823,7 +2841,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1052889308}
-  - component: {fileID: 1052889309}
   m_Layer: 0
   m_Name: User Interface
   m_TagString: Untagged
@@ -2848,23 +2865,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1052889309
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1052889307}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a6e18caee2803642bbe1cf1185519df, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  section_debug: {fileID: 464471073}
-  section_controllerinput: {fileID: 654554962}
-  inputlagText: {fileID: 1371996219}
-  framerateText: {fileID: 1627078465}
-  isDebugOn: 1
 --- !u!1 &1054169924
 GameObject:
   m_ObjectHideFlags: 0
@@ -11178,6 +11178,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_ClearFlags
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588845251898407, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0.16981131
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588845251898407, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0.15339087
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588845251898407, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0.13697045
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588845251898412, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_TagString
+      value: MainCamera
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 092cc62a45da22949af241be520f22ee, type: 3}

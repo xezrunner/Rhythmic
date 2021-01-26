@@ -35,10 +35,9 @@ public class EdgeLights : MonoBehaviour
             else
                 _convertedColor = value;
 
-            foreach (Material mat in MeshRenderer.materials)
+            foreach (Material mat in MeshRenderer.sharedMaterials)
             {
-                mat.color = _convertedColor;
-                //mat.SetColor("_Tint", _convertedColor);
+                mat.SetColor("_Color", _convertedColor);
                 mat.SetColor("_Emission", _convertedColor * _glowIntensity);
             }
         }
@@ -52,7 +51,7 @@ public class EdgeLights : MonoBehaviour
         {
             _glowIntensity = value;
 
-            foreach (Material mat in MeshRenderer.materials)
+            foreach (Material mat in MeshRenderer.sharedMaterials)
                 mat.SetColor("_EmissionColor", _convertedColor * value);
         }
     }

@@ -12,12 +12,39 @@ public partial class AmpTrack : MonoBehaviour
     SongController SongController { get { return SongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
 
+    [NonSerialized] public bool sTrue;
+
+    void Start()
+    {
+        TunnelTransform = Tunnel.GetTransformForTrackID(RealID);
+        TunnelPos = TunnelTransform[0];
+        TunnelRot = TunnelTransform[1];
+
+        // Global edge lights
+        //GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
+        //GlobalEdgeLights.Color = Color;
+
+        // Materials setup:
+        // Instance the measure materials so they are shared for this particular track only
+        TrackMaterial = Instantiate(TrackMaterial);
+        EdgeLightsMaterial = Instantiate(EdgeLightsMaterial);
+
+        // Set up track material color:
+        TrackMaterial.SetColor("_Color", Colors.ConvertColor(Colors.ColorFromInstrument(Instrument)));
+
+        sTrue = true;
+    }
+
     /// References to the contents
     [Header("Containers")]
     public Transform MeasureContainer;
 
     [Header("Global Edge Light")]
     public EdgeLights GlobalEdgeLights;
+
+    [Header("Measure materials")]
+    public Material TrackMaterial;
+    public Material EdgeLightsMaterial;
 
     /// Declarations, global variables, properties, events ...
 
@@ -126,18 +153,7 @@ public partial class AmpTrack : MonoBehaviour
     public event EventHandler<int[]> MeasureCaptureFinished; // start - end
 
     /// Functionality
-
-    void Start()
-    {
-        TunnelTransform = Tunnel.GetTransformForTrackID(RealID);
-        TunnelPos = TunnelTransform[0];
-        TunnelRot = TunnelTransform[1];
-
-        // Global edge lights
-        GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
-        GlobalEdgeLights.Color = Color;
-    }
-
+    /// 
     // TODO: for debugging only
     [SerializeField] bool iscaptured;
 

@@ -35,21 +35,24 @@ public partial class AmpTrack
         var obj = Instantiate(TrackSectionPrefab);
         obj.transform.parent = MeasureContainer;
 
-        /// Get and configure script
+        /// Configure component
         AmpTrackSection measure = obj.GetComponent<AmpTrackSection>();
         measure.Track = this;
         measure.ID = meta.ID;
         measure.Instrument = Instrument;
         measure.Length = SongController.measureLengthInzPos;
-        measure.EdgeLightsColor = Color;
         measure.IsCaptured = meta.IsCaptured;
 
+        // Assign materials
+        measure.MeshRenderer.material = TrackMaterial;
+        measure.EdgeLights_Local.MeshRenderer.material = EdgeLightsMaterial;
+
+        measure.EdgeLightsColor = Color;
+
         // TODO: possibly simplify position &/ rotation properties?
-        Vector3 measurePos = new Vector3(
+        measure.Position = new Vector3(
             TunnelPos.x, // X is the track's horizontal position
             TunnelPos.y, meta.StartDistance); // Z is the distance at which the measure needs to be placed
-
-        measure.Position = measurePos;
         measure.Rotation = TunnelRot.z;
 
         /// Add measure to measure list

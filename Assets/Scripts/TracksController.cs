@@ -5,6 +5,7 @@ using UnityEngine;
 using PathCreation;
 using NUnit.Framework;
 using System.Linq;
+using System.Threading.Tasks;
 
 /// New track controller
 // Manages the new tracks, section creations, captures etc...
@@ -76,6 +77,50 @@ public class TracksController : MonoBehaviour
         CreateTracks();
 
         StartCoroutine(RefreshSequences_Init());
+
+        // -----
+
+        clipper = gameObject.AddComponent<ClippingPlane>();
+        LengthPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        LengthPlane.GetComponent<MeshRenderer>().enabled = false;
+        clipper.plane = LengthPlane;
+
+        StartCoroutine(AddTrackMaterialsToClipper());
+    }
+
+    GameObject LengthPlane;
+    ClippingPlane clipper;
+
+    void Update()
+    {
+        if (SongController.IsPlaying) LengthClip();
+    }
+
+    IEnumerator AddTrackMaterialsToClipper()
+    {
+        while (Tracks.Last().Measures.Count < RhythmicGame.HorizonMeasures) yield return null;
+
+        foreach (var t in Tracks)
+        {
+            clipper.AddMaterial(t.TrackMaterial);
+            clipper.AddMaterial(t.EdgeLightsMaterial);
+        }
+
+        clipper.AddMaterial((Material)Resources.Load("Materials/NoteMaterial"));
+    }
+
+    public void LengthClip()
+    {
+        // Calculate clip plane offset based on measure draw distance
+        float dist = AmpPlayerLocomotion.Instance.HorizonLength;
+
+        Vector3 planePos = PathTools.GetPositionOnPath(PathTools.Path, dist);
+        Quaternion planeRot = PathTools.GetRotationOnPath(PathTools.Path, dist, new Vector3(90, 0, 0));
+
+        LengthPlane.transform.position = planePos;
+        LengthPlane.transform.rotation = planeRot;
+
+        clipper.Clip();
     }
 
     private void Tracks_OnTrackSwitched(object sender, int[] e)

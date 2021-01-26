@@ -7,6 +7,9 @@ public class EdgeLightsEditor : Editor
     public void Awake() => script = (EdgeLights)target;
     EdgeLights script;
 
+    Color color;
+    float glowIntensity;
+
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -21,9 +24,15 @@ public class EdgeLightsEditor : Editor
         EditorGUILayout.LabelField("Edge lights properties", EditorStyles.boldLabel);
 
         EditorGUILayout.LabelField("Color");
-        script.Color = EditorGUILayout.ColorField(script.Color);
+        color = EditorGUILayout.ColorField(color);
 
         EditorGUILayout.LabelField("Glow intensity");
-        script.GlowIntenstiy = EditorGUILayout.Slider(script.GlowIntenstiy, 1f, 10f);
+        glowIntensity = EditorGUILayout.Slider(glowIntensity, 1f, 10f);
+
+        if (GUILayout.Button("Update color & glow!"))
+        {
+            script.Color = color;
+            script.GlowIntenstiy = glowIntensity;
+        }
     }
 }
