@@ -21,7 +21,7 @@ public class DebugController : MonoBehaviour
 
     private void Start()
     {
-
+        ConsoleServer.StartConsoleServer();
     }
 
     public bool isDebugOn = true;
@@ -38,6 +38,9 @@ public class DebugController : MonoBehaviour
 
     private async void LateUpdate()
     {
+        if (Keyboard.current.jKey.wasPressedThisFrame)
+            ConsoleServer.Write("Hi!!!");
+
         // AMP songs debug
         if (Input.GetKeyDown(KeyCode.Alpha0))
             AMP_ChangeSong("tut0");

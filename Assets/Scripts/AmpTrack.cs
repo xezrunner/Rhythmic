@@ -168,7 +168,7 @@ public partial class AmpTrack : MonoBehaviour
     public event EventHandler<int[]> MeasureCaptureFinished; // start - end
 
     /// Functionality
-    /// 
+
     // TODO: for debugging only
     [SerializeField] bool iscaptured;
 
