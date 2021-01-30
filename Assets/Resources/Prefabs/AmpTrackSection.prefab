@@ -445,8 +445,8 @@ MonoBehaviour:
   IsCapturing: 0
   CaptureState: 0
   StartAutoDeformToPath: 1
-  BlockDeformsInEditMode: 0
-  _deformLiveUpdate: 0
+  BlockDeformsInEditMode: 1
+  _deformLiveUpdate: 1
 --- !u!1 &6543889804386215059
 GameObject:
   m_ObjectHideFlags: 0

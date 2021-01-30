@@ -1,19 +1,12 @@
-#undef PATH_LIVE_UPDATE
-
 using UnityEngine;
 using PathCreation;
 using System.Collections.Generic;
-
-#if UNITY_EDITOR
-using UnityEditor.Experimental.SceneManagement;
-#endif
 
 public enum MeasureCaptureState { None = 0, Capturing = 1, Captured = 2 }
 
 /// AmpTrackSection (previously Measure)
 // This is a single measure of a track.
 
-[ExecuteInEditMode]
 public class AmpTrackSection : MonoBehaviour
 {
     AmpPlayerLocomotion Locomotion;
@@ -106,60 +99,21 @@ public class AmpTrackSection : MonoBehaviour
 
     // Deformation
     public bool StartAutoDeformToPath = true;
-    public bool BlockDeformsInEditMode = true;
-
-    public bool _deformLiveUpdate = false;
-    public bool DeformLiveUpdate  // Whether we should support moving the section along the path in real-time (performance impact!)
-    {
-        get
-        {
-#if PATH_LIVE_UPDATE
-            return _deformLiveUpdate;
-#else
-            return false;
-#endif
-        }
-        set { _deformLiveUpdate = value; }
-    }
 
     /// Temporary variables
     // Deformation
     Mesh originalMesh; // Live update - original mesh copy
-    #region Live path update
-#if PATH_LIVE_UPDATE
-    Vector3 _prevPositionOnPath;
-    float _prevRotationOnPath;
-    float _prevLength;
-#endif
-    #endregion
 
     /// Functionality
 
-    [ExecuteInEditMode]
     void Awake()
     {
-#if UNITY_EDITOR
-        if (PrefabStageUtility.GetCurrentPrefabStage() != null) // Warning: do not change mesh in prefab isolation!
-            return;
-#endif
-
         Path = PathTools.Path;
         Locomotion = AmpPlayerLocomotion.Instance;
     }
-    //[ExecuteInEditMode]
+
     void Start()
     {
-#if PATH_LIVE_UPDATE
-        // Set up live mesh update
-        _prevLength = Length;
-        _prevPositionOnPath = PositionOnPath;
-        _prevRotationOnPath = RotationOnPath;
-#endif
-#if UNITY_EDITOR
-        if (PrefabStageUtility.GetCurrentPrefabStage() != null) // Warning: do not change mesh in prefab isolation!
-            return;
-#endif
-
         // TEMP: visualize measures (add separator to the end)
         //{
         //    var a = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -187,8 +141,6 @@ public class AmpTrackSection : MonoBehaviour
 
         // Automatically deform to path
         if (StartAutoDeformToPath) DeformMeshToPath();
-
-        //LengthClip();
     }
 
     /// Edge lights
@@ -196,35 +148,11 @@ public class AmpTrackSection : MonoBehaviour
 
     /// Model deformation and functionality
 
-    #region Live path update
-#if PATH_LIVE_UPDATE
-    void FixedUpdate()
-    {
-        if (DeformLiveUpdate)
-        {
-            if (_prevLength != Length)
-            { _prevLength = Length; UpdateModelLength(); }
-            if (_prevPositionOnPath != PositionOnPath)
-            { _prevPositionOnPath = PositionOnPath; DeformMeshToPath(); } // Deform mesh when position changes
-            if (_prevRotationOnPath != RotationOnPath)
-            { _prevRotationOnPath = RotationOnPath; DeformMeshToPath(); }
-        }
-}
-#endif
-    #endregion
-
     // Deforms the mesh to the path
     // TODO: Deformation live updating!
     public void DeformMeshToPath() => DeformMeshToPath(Path, Length, Position, Rotation);
     public void DeformMeshToPath(VertexPath path, float length, Vector3 position, float angle) // Deforms the mesh at the given position and length
     {
-        if (!Application.isPlaying & BlockDeformsInEditMode) // Do not deform mesh when edit deformation is blocked!
-            return;
-#if UNITY_EDITOR
-        if (PrefabStageUtility.GetCurrentPrefabStage() != null) // Warning: do not change mesh in prefab isolation!
-            return;
-#endif
-
         if (!MeshFilter)
         { Debug.LogError("TrackMeasure/DeformMeshToPath(): MeshFilter component not found!"); return; }
 
@@ -243,20 +171,7 @@ public class AmpTrackSection : MonoBehaviour
 
         if (!IsEmpty || !IsCaptured)
             MeshDeformer.DeformMesh(path, EdgeLights_Local.Mesh, position, angle, originalMesh.vertices, edgelights_offset);
+
         //MeshDeformer.DeformMesh(path, EdgeLights_Global.Mesh, position, angle, originalMesh.vertices, edgelights_offset);
-    }
-
-    public void LengthClip()
-    {
-        // Calculate clip plane offset based on measure draw distance
-        float dist = Locomotion.HorizonLength;
-
-        Vector3 planePos = PathTools.GetPositionOnPath(Path, dist);
-        Quaternion planeRot = PathTools.GetRotationOnPath(Path, dist, new Vector3(90, 0, 0));
-
-        LengthPlane.transform.position = planePos;
-        LengthPlane.transform.rotation = planeRot;
-
-        ClipManager.Clip();
     }
 }
