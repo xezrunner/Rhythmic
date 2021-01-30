@@ -20,7 +20,7 @@
 
 	SubShader{
 		//the material is completely non-transparent and is rendered at the same time as the other opaque geometry
-		Tags{ "RenderType"="Transparent"}
+		Tags{ "Queue"="Transparent" "RenderType"="Transparent"}
 
 		// render faces regardless if they point towards the camera or away from it
 		//BlendOp Add
@@ -37,7 +37,7 @@
 		//vertex:vert makes the shader use vert as a vertex shader function
 
 		#pragma target 3.0
-		#pragma surface surf Standard
+		#pragma surface surf Standard alpha
 
 		sampler2D _MainTex;
 		sampler2D _BumpMap;
@@ -86,8 +86,7 @@
 			float facing = i.facing * 0.5 + 0.5;
 			
 			//normal color stuff
-			fixed4 col = tex2D(_MainTex, i.uv_MainTex);
-			col *= _Color;
+			fixed4 col = tex2D(_MainTex, i.uv_MainTex) * _Color;
 			o.Albedo = col.rgb * facing;
 
 			// Clip transparency
@@ -97,7 +96,9 @@
 			o.Normal = lerp(float3(0.5, 0.5, 1), normal, _BumpStrength);
 			//o.Normal = UnpackNormal (tex2D (_BumpMap, i.uv_BumpMap));
 
+			o.Alpha = col.a;
 			o.Metallic = _Metallic * facing;
+			o.Metallic *= col.a;
 			o.Smoothness = _Smoothness * facing;
 			o.Emission = lerp(_CutoffColor, _Emission, facing);
 		}
