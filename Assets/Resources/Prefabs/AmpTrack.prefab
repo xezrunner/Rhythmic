@@ -18,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4930095538996185751
 Transform:
   m_ObjectHideFlags: 0
@@ -149,7 +149,10 @@ MonoBehaviour:
   TrackMaterial: {fileID: 2100000, guid: 71178a17f71500448933e07925ffcc97, type: 2}
   TrackMaterial_Active: {fileID: 2100000, guid: 4fa0820b1a6baa845bd6925c4593bb05,
     type: 2}
-  EdgeLightsMaterial: {fileID: 2100000, guid: d0d842f23fdb8de46a5916074826f995, type: 2}
+  LocalEdgeLightsMaterial: {fileID: 2100000, guid: d0d842f23fdb8de46a5916074826f995,
+    type: 2}
+  GlobalEdgeLightsMaterial: {fileID: 2100000, guid: d0d842f23fdb8de46a5916074826f995,
+    type: 2}
   ID: -1
   RealID: -1
   SetID: 0

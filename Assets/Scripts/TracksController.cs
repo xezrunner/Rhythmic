@@ -45,6 +45,7 @@ public class TracksController : MonoBehaviour
     // Clipping
     ClipManager clipManager;
     GameObject lengthPlane;
+    GameObject inversePlane;
 
     /// Functionality
 
@@ -82,21 +83,20 @@ public class TracksController : MonoBehaviour
         // Clip manager init
 
         clipManager = gameObject.AddComponent<ClipManager>();
+
         lengthPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        lengthPlane.transform.parent = transform;
         lengthPlane.GetComponent<MeshRenderer>().enabled = false;
+
+        inversePlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        inversePlane.transform.parent = transform;
+        inversePlane.GetComponent<MeshRenderer>().enabled = false;
+
         clipManager.plane = lengthPlane;
+        clipManager.inverse_plane = inversePlane;
 
         StartCoroutine(AddTrackMaterialsToClipper());
     }
-
-    void Update()
-    {
-        // Clipmanager update
-        if (SongController.IsPlaying) LengthClip();
-    }
-
-    /// Events
-    public event EventHandler<int[]> OnTrackSwitched;
 
     IEnumerator AddTrackMaterialsToClipper()
     {
@@ -106,7 +106,8 @@ public class TracksController : MonoBehaviour
         {
             clipManager.AddMaterial(t.TrackMaterial);
             clipManager.AddMaterial(t.TrackMaterial_Active);
-            clipManager.AddMaterial(t.EdgeLightsMaterial);
+            clipManager.AddMaterial(t.LocalEdgeLightsMaterial);
+            clipManager.AddMaterial(t.GlobalEdgeLightsMaterial);
         }
 
         clipManager.AddMaterial((Material)Resources.Load("Materials/NoteMaterial"));
@@ -114,6 +115,8 @@ public class TracksController : MonoBehaviour
         LengthClip();
     }
 
+    // WARNING! Paths should not traverse backwards, as the global edge lights are going to be visible ahead of the path!
+    // TODO: either fix this, or design paths in a way that they don't traverse backwards!
     public void LengthClip()
     {
         // Calculate clip plane offset based on measure draw distance
@@ -125,8 +128,25 @@ public class TracksController : MonoBehaviour
         lengthPlane.transform.position = planePos;
         lengthPlane.transform.rotation = planeRot;
 
+        // Inverse:
+        float inverse_dist = AmpPlayerLocomotion.Instance.DistanceTravelled - SongController.measureLengthInzPos;
+
+        Vector3 inverse_planePos = PathTools.GetPositionOnPath(PathTools.Path, inverse_dist);
+        Quaternion inverse_planeRot = PathTools.GetRotationOnPath(PathTools.Path, inverse_dist, new Vector3(90, 0, 0));
+
+        inversePlane.transform.position = inverse_planePos;
+        inversePlane.transform.rotation = inverse_planeRot;
+
         clipManager.Clip();
     }
+    void Update()
+    {
+        // Clipmanager update
+        if (SongController.IsPlaying) LengthClip();
+    }
+
+    /// Events
+    public event EventHandler<int[]> OnTrackSwitched;
 
     private void Tracks_OnTrackSwitched(object sender, int[] e)
     {

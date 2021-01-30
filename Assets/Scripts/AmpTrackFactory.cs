@@ -45,12 +45,10 @@ public partial class AmpTrack
 
         // Assign materials
         // TODO: move this to AmpTrackSection?
-        //Material[] mats = new Material[2] { TrackMaterial, TrackMaterial_Active };
-        //measure.MeshRenderer.materials = mats;
         measure.MeshRenderer.material = TrackMaterial;
         measure.ActiveSurfaceMeshRenderer.material = TrackMaterial_Active;
 
-        measure.EdgeLights_Local.MeshRenderer.material = EdgeLightsMaterial;
+        measure.EdgeLights_Local.MeshRenderer.material = LocalEdgeLightsMaterial;
 
         measure.EdgeLightsColor = Color;
 

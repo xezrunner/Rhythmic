@@ -82,6 +82,8 @@ public static class RhythmicGame
     public static bool TrackSeekingEnabled = true; // Whether to skip empty tracks when switching tracks
 
     public static int TrackCaptureLength = 7; // How many measures to capture when you clear a sequence
+
+    public static bool GlobalEdgeLightsCaptureClipping = false; // Whether global edge lights should clip along with the capture effects
     public static bool CapturedNoteLightup = true; // Whether notes that are being captured should light up
     public static bool CapturedNoteInteractiveLightup = true; // Whether inactive notes should light up as we pass by them
     public static bool CapturedNoteBPMPulsation = true; // Whether inactive notes should pulse with the BPM

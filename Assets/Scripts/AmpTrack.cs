@@ -25,7 +25,8 @@ public partial class AmpTrack : MonoBehaviour
     [Header("Measure materials")]
     public Material TrackMaterial;
     public Material TrackMaterial_Active;
-    public Material EdgeLightsMaterial;
+    public Material LocalEdgeLightsMaterial;
+    public Material GlobalEdgeLightsMaterial;
 
     /// Declarations, global variables, properties, events ...
 
@@ -71,23 +72,28 @@ public partial class AmpTrack : MonoBehaviour
         TunnelPos = TunnelTransform[0];
         TunnelRot = TunnelTransform[1];
 
-        // Global edge lights
-        //GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
-        //GlobalEdgeLights.Color = Color;
-
         // Materials setup:
         // Instance the measure materials so they are shared for this particular track only
         TrackMaterial = Instantiate(TrackMaterial);
         TrackMaterial_Active = Instantiate(TrackMaterial_Active);
-        EdgeLightsMaterial = Instantiate(EdgeLightsMaterial);
+        LocalEdgeLightsMaterial = Instantiate(LocalEdgeLightsMaterial);
+        GlobalEdgeLightsMaterial = Instantiate(GlobalEdgeLightsMaterial);
+
+        // Global edge lights
+        GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
+        GlobalEdgeLights.MeshRenderer.material = GlobalEdgeLightsMaterial; // Shared material
+        if (ID == 0) GlobalEdgeLights.gameObject.SetActive(true);
 
         // Color
         Color = Colors.ColorFromInstrument(Instrument);
+        GlobalEdgeLights.Color = Color;
 
         // Set up ClipManager for capture clipping
         ClipManager.AddMaterial(TrackMaterial);
         ClipManager.AddMaterial(TrackMaterial_Active);
-        ClipManager.AddMaterial(EdgeLightsMaterial);
+        ClipManager.AddMaterial(LocalEdgeLightsMaterial);
+        if (RhythmicGame.GlobalEdgeLightsCaptureClipping)
+            ClipManager.AddMaterial(GlobalEdgeLightsMaterial);
     }
 
     public List<AmpTrackSection> Measures = new List<AmpTrackSection>();
@@ -116,6 +122,7 @@ public partial class AmpTrack : MonoBehaviour
         set
         {
             _isTrackFocused = value;
+            GlobalEdgeLights.gameObject.SetActive(value);
 
             // Set global edge lights in measures
             //for (int i = Mathf.FloorToInt(Clock.Instance.bar) - 1; i < Measures.Count - 1; i++) // TODO: check reliability of this optimization!

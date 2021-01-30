@@ -191,12 +191,6 @@ public class AmpTrackSection : MonoBehaviour
         //LengthClip();
     }
 
-    public bool isSeq;
-    private void Update()
-    {
-        isSeq = IsSequence;
-    }
-
     /// Edge lights
     public void SetGlobalEdgeLights(bool value = true) => EdgeLights_Global.IsActive = value;
 

@@ -85,6 +85,7 @@ Material:
     - _DstBlend: 0
     - _EmissionEnabled: 1
     - _EnableExternalAlpha: 0
+    - _Enabled: 1
     - _FlipbookMode: 0
     - _GlossMapScale: 1
     - _Glossiness: 0
@@ -117,7 +118,7 @@ Material:
     - _Color: {r: 0.83137256, g: 0.3647059, b: 0.7058824, a: 1}
     - _ColorAddSubDiff: {r: -1, g: 1, b: 0, a: 0}
     - _CutoffColor: {r: 0, g: 0, b: 0, a: 0}
-    - _Emission: {r: 2.1666667, g: 2.147059, b: 0.87254906, a: 2.5}
+    - _Emission: {r: 2.0784314, g: 0.91176474, b: 1.7647059, a: 2.5}
     - _EmissionColor: {r: 2.1666667, g: 2.147059, b: 0.87254906, a: 2.5}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _InversePlane: {r: 0, g: 0, b: 0, a: 0}
