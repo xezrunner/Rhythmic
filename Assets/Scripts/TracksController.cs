@@ -85,10 +85,13 @@ public class TracksController : MonoBehaviour
         clipManager = gameObject.AddComponent<ClipManager>();
 
         lengthPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        lengthPlane.name = "Length clip plane";
         lengthPlane.transform.parent = transform;
         lengthPlane.GetComponent<MeshRenderer>().enabled = false;
 
+        // TODO: might not be needed if we force mostly straight paths or fall back to 'local' global edge lights.
         inversePlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        inversePlane.name = "Clip behind plane";
         inversePlane.transform.parent = transform;
         inversePlane.GetComponent<MeshRenderer>().enabled = false;
 
