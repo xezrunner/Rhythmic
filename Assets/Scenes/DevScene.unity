@@ -172,42 +172,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f0fbf93bdfe97d41a7159ea35bedf1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Clock: {fileID: 0}
-  AmpTrackController: {fileID: 0}
   defaultSong: dalatecht
-  songTracks: []
-  IsFake: 0
   Enabled: 1
-  songBpm: 0
-  songCountIn: 0
-  songLength: 0
-  songLengthInzPos: 0
-  songLengthInMeasures: 0
-  songFudgeFactor: 0
-  SlopMs: 0
-  SlopPos: 0
-  audioSrcList: []
-  mainAudioSource: {fileID: 0}
-  songSpeed: 1
+  IsFake: 0
+  IsPlaying: 0
+  songTimeScale: 1
   songOffset: 0
   songDspTime: 0
+  SlopMs: 0
+  SlopPos: 0
   beatHaptics: {x: 0.25, y: 0.8, z: 85}
-  beatTicks: 480
-  tickInSec: 0
-  tickInMs: 0
-  tickInPos: 0
-  secInTick: 0
-  secInMs: 0
-  secInPos: 0
-  msInTick: 0
-  msInSec: 0
-  msInPos: 0
-  posInTick: 0
-  posInSec: 0
-  posInMs: 0
-  StartPositionAdjustmentEnabled: 1
-  StartPosition: 0
-  trackStreamer: {fileID: 0}
+  StartDistanceAdjustmentEnabled: 1
+  StartDistance: 0
+  BG_CLICKSrc: {fileID: 0}
+  audioSrcList: []
+  songTracks: []
 --- !u!4 &22153599
 Transform:
   m_ObjectHideFlags: 0
@@ -1245,7 +1224,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &476351812
 MonoBehaviour:
@@ -2067,7 +2046,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &922609145
 GameObject:
@@ -2764,50 +2743,6 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!1 &1096277481
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1096277483}
-  - component: {fileID: 1096277482}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1096277482
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1096277481}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50ac449a56ce15145b388af6c2eed80c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Input: 0
---- !u!4 &1096277483
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1096277481}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1117322937
 GameObject:
   m_ObjectHideFlags: 0
@@ -9963,125 +9898,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &1716355856
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1716355859}
-  - component: {fileID: 1716355858}
-  - component: {fileID: 1716355857}
-  m_Layer: 0
-  m_Name: Path_straight
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1716355857
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1716355856}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f70edad9de08eee40a54f6226d0f9ddf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  autoUpdate: 1
-  pathCreator: {fileID: 1716355858}
-  roadWidth: 2.36
-  roadThickness: 0.4
-  flattenSurface: 0
-  roadMaterial: {fileID: 2100000, guid: 71178a17f71500448933e07925ffcc97, type: 2}
-  undersideMaterial: {fileID: 2100000, guid: 71178a17f71500448933e07925ffcc97, type: 2}
-  textureTiling: 0
-  debug_startPoint: 0
-  debug_length: -1
-  debug_xPosition: 0
-  edgeLightsThickness: 0.1
-  reactToPathChanges: 0
-  EdgeLightsPrefab: {fileID: 0}
-  TrackPrefab: {fileID: 0}
-  SectionPrefab: {fileID: 0}
-  EdgeLightsMaterial: {fileID: 2100000, guid: d0d842f23fdb8de46a5916074826f995, type: 2}
-  TrackObjects: []
---- !u!114 &1716355858
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1716355856}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e5ac92bc18f545cc84cd886ece82b4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  editorData:
-    _bezierPath:
-      points:
-      - {x: 0, y: 0, z: 0}
-      - {x: 0, y: 0, z: 32.2175}
-      - {x: 0, y: 0, z: 64.435}
-      - {x: 0, y: 0, z: 92.05}
-      - {x: 0, y: 0, z: 142.84135}
-      - {x: 0, y: 0, z: 202.09793}
-      - {x: 0, y: 0, z: 261.3545}
-      isClosed: 0
-      space: 0
-      controlMode: 3
-      autoControlLength: 0.3
-      boundsUpToDate: 0
-      bounds:
-        m_Center: {x: 0, y: 0, z: 0}
-        m_Extent: {x: 0, y: 0, z: 0}
-      perAnchorNormalsAngle:
-      - 0
-      - 0
-      - 0
-      globalNormalsAngle: 0
-      flipNormals: 0
-    vertexPathUpToDate: 1
-    vertexPathMaxAngleError: 0
-    vertexPathMinVertexSpacing: 0.01
-    showTransformTool: 1
-    showPathBounds: 0
-    showPerSegmentBounds: 0
-    displayAnchorPoints: 1
-    displayControlPoints: 1
-    bezierHandleScale: 1.16
-    globalDisplaySettingsFoldout: 0
-    keepConstantHandleSize: 1
-    showNormalsInVertexMode: 0
-    showBezierPathInVertexMode: 0
-    showDisplayOptions: 0
-    showPathOptions: 1
-    showVertexPathDisplayOptions: 0
-    showVertexPathOptions: 1
-    showNormals: 0
-    showNormalsHelpInfo: 0
-    tabIndex: 0
-  initialized: 1
---- !u!4 &1716355859
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1716355856}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1720734043
 GameObject:
   m_ObjectHideFlags: 0

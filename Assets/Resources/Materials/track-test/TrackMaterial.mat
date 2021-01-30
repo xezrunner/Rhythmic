@@ -62,20 +62,21 @@ Material:
     m_Ints: []
     m_Floats:
     - _BumpScale: 0.53
-    - _BumpStrength: 0.416
+    - _BumpStrength: 0.184
     - _Cutoff: 0
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _Enabled: 1
     - _GlossMapScale: 0.75
     - _Glossiness: 0.75
     - _GlossyReflections: 0
     - _InversePlaneEnabled: 0
-    - _Metallic: 0.85
+    - _Metallic: 0.953
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _PlaneEnabled: 1
-    - _Smoothness: 0.851
+    - _Smoothness: 0.879
     - _SmoothnessTextureChannel: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
