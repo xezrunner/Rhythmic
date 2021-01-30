@@ -17,7 +17,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
 
     AmpTrackSection measure;
     AmpTrack track;
-    ClippingPlane ClipManager;
+    ClipManager ClipManager;
 
     public bool IsCapturing;
 
@@ -33,7 +33,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         RotationOnPath = _measure.Rotation;
         Length = _measure.Length;
 
-        ClipManager = _measure.ClipManager;
+        ClipManager = track.ClipManager;
         ClipManager.inverse_plane = ClipPlane; // Assign inverse clip plane
 
         measure.IsCapturing = true;
@@ -91,16 +91,8 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         // Calculate clip plane offset based on fraction
         float dist = PositionOnPath.z + (Length * fraction);
 
-        if (fraction == 1f)
-            dist += 1f; // wtf?
-
-        //Vector3 localUp = Vector3.Cross(Path.GetTangentAtDistance(PositionOnPath.z + dist), Path.GetNormalAtDistance(PositionOnPath.z + dist));
-        //Vector3 localRight = Path.GetNormalAtDistance(PositionOnPath.z + dist);
-
-        //Vector3 planePos = Path.GetPointAtDistance(PositionOnPath.z + dist);
-        //planePos += (localRight * PositionOnPath.x) + (localUp * PositionOnPath.y); // dist
-
-        //Quaternion planeRot = Path.GetRotationAtDistance(PositionOnPath.z + dist) * Quaternion.Euler(90, 0, 0);
+        //if (fraction == 1f)
+        //    dist += 1f; // wtf?
 
         Vector3 planePos = PathTools.GetPositionOnPath(Path, dist);
         Quaternion planeRot = PathTools.GetRotationOnPath(Path, dist, new Vector3(90, 0, 0));

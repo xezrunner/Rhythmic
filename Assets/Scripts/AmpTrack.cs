@@ -12,30 +12,10 @@ public partial class AmpTrack : MonoBehaviour
     SongController SongController { get { return SongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
 
-    [NonSerialized] public bool sTrue;
-
-    void Start()
-    {
-        TunnelTransform = Tunnel.GetTransformForTrackID(RealID);
-        TunnelPos = TunnelTransform[0];
-        TunnelRot = TunnelTransform[1];
-
-        // Global edge lights
-        //GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
-        //GlobalEdgeLights.Color = Color;
-
-        // Materials setup:
-        // Instance the measure materials so they are shared for this particular track only
-        TrackMaterial = Instantiate(TrackMaterial);
-        EdgeLightsMaterial = Instantiate(EdgeLightsMaterial);
-
-        // Set up track material color:
-        TrackMaterial.SetColor("_Color", Colors.ConvertColor(Colors.ColorFromInstrument(Instrument)));
-
-        sTrue = true;
-    }
-
     /// References to the contents
+
+    public ClipManager ClipManager;
+
     [Header("Containers")]
     public Transform MeasureContainer;
 
@@ -83,6 +63,29 @@ public partial class AmpTrack : MonoBehaviour
     }
 
     public float zRot; // The Z rotation (looks like X-axis rotation from front) of this particular track.
+
+    void Start()
+    {
+        TunnelTransform = Tunnel.GetTransformForTrackID(RealID);
+        TunnelPos = TunnelTransform[0];
+        TunnelRot = TunnelTransform[1];
+
+        // Global edge lights
+        //GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
+        //GlobalEdgeLights.Color = Color;
+
+        // Materials setup:
+        // Instance the measure materials so they are shared for this particular track only
+        TrackMaterial = Instantiate(TrackMaterial);
+        EdgeLightsMaterial = Instantiate(EdgeLightsMaterial);
+
+        // Set up track material color:
+        TrackMaterial.SetColor("_Color", Colors.ConvertColor(Colors.ColorFromInstrument(Instrument)));
+
+        // Set up ClipManager for capture clipping
+        ClipManager.AddMaterial(TrackMaterial);
+        ClipManager.AddMaterial(EdgeLightsMaterial);
+    }
 
     public List<AmpTrackSection> Measures = new List<AmpTrackSection>();
     public AmpTrackSection CurrentMeasure { get { return Measures[Clock.Fbar]; } }

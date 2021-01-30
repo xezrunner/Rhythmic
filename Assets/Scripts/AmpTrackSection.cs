@@ -28,7 +28,7 @@ public class AmpTrackSection : MonoBehaviour
     public EdgeLights EdgeLights_Global; // This is the 'focus indicator' edge lights, which does not get clipped.
     public Transform NotesContainer;
 
-    public ClippingPlane ClipManager;
+    public ClipManager ClipManager;
     public GameObject LengthPlane; // This plane trims the model to the desired length
     public GameObject ClipPlane;
 
@@ -169,7 +169,7 @@ public class AmpTrackSection : MonoBehaviour
         // Automatically deform to path
         if (StartAutoDeformToPath) DeformMeshToPath();
 
-        LengthClip();
+        //LengthClip();
     }
 
     /// Edge lights

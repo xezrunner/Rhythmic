@@ -42,8 +42,9 @@ public class TracksController : MonoBehaviour
     public AmpTrack CurrentTrack; // The track that the player is currently on
     public AmpTrackSection CurrentMeasure { get { return CurrentTrack.CurrentMeasure; } }
 
-    /// Events
-    public event EventHandler<int[]> OnTrackSwitched;
+    // Clipping
+    ClipManager clipManager;
+    GameObject lengthPlane;
 
     /// Functionality
 
@@ -78,23 +79,24 @@ public class TracksController : MonoBehaviour
 
         StartCoroutine(RefreshSequences_Init());
 
-        // -----
+        // Clip manager init
 
-        clipper = gameObject.AddComponent<ClippingPlane>();
-        LengthPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        LengthPlane.GetComponent<MeshRenderer>().enabled = false;
-        clipper.plane = LengthPlane;
+        clipManager = gameObject.AddComponent<ClipManager>();
+        lengthPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        lengthPlane.GetComponent<MeshRenderer>().enabled = false;
+        clipManager.plane = lengthPlane;
 
         StartCoroutine(AddTrackMaterialsToClipper());
     }
 
-    GameObject LengthPlane;
-    ClippingPlane clipper;
-
     void Update()
     {
+        // Clipmanager update
         if (SongController.IsPlaying) LengthClip();
     }
+
+    /// Events
+    public event EventHandler<int[]> OnTrackSwitched;
 
     IEnumerator AddTrackMaterialsToClipper()
     {
@@ -102,11 +104,11 @@ public class TracksController : MonoBehaviour
 
         foreach (var t in Tracks)
         {
-            clipper.AddMaterial(t.TrackMaterial);
-            clipper.AddMaterial(t.EdgeLightsMaterial);
+            clipManager.AddMaterial(t.TrackMaterial);
+            clipManager.AddMaterial(t.EdgeLightsMaterial);
         }
 
-        clipper.AddMaterial((Material)Resources.Load("Materials/NoteMaterial"));
+        clipManager.AddMaterial((Material)Resources.Load("Materials/NoteMaterial"));
     }
 
     public void LengthClip()
@@ -117,10 +119,10 @@ public class TracksController : MonoBehaviour
         Vector3 planePos = PathTools.GetPositionOnPath(PathTools.Path, dist);
         Quaternion planeRot = PathTools.GetRotationOnPath(PathTools.Path, dist, new Vector3(90, 0, 0));
 
-        LengthPlane.transform.position = planePos;
-        LengthPlane.transform.rotation = planeRot;
+        lengthPlane.transform.position = planePos;
+        lengthPlane.transform.rotation = planeRot;
 
-        clipper.Clip();
+        clipManager.Clip();
     }
 
     private void Tracks_OnTrackSwitched(object sender, int[] e)
