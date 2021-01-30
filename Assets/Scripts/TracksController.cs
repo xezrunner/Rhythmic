@@ -109,6 +109,8 @@ public class TracksController : MonoBehaviour
         }
 
         clipManager.AddMaterial((Material)Resources.Load("Materials/NoteMaterial"));
+
+        LengthClip();
     }
 
     public void LengthClip()
