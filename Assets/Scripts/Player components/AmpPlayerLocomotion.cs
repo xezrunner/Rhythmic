@@ -45,7 +45,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
         // Set catcher visuals to bottom of tunnel, offset by 0.01f (up)
         CatcherVisuals.position = new Vector3(0, Tunnel.radius / 2 + 0.01f, 0);
 
-        DistanceTravelled = SongController.StartPosition;
+        DistanceTravelled = SongController.StartDistance;
 
         Locomotion(DistanceTravelled, true); // Position & rotate player on path right away
     }
@@ -98,7 +98,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
                 //DistanceTravelled += 4f * Time.deltaTime;
             else if (SongController.Enabled)
             {
-                Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songSpeed);
+                Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songTimeScale);
                 DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
             }
 

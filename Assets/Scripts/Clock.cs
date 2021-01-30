@@ -50,7 +50,7 @@ public class Clock : MonoBehaviour
         if (!SongController.IsPlaying) return;
 
         // Smoothly interpolate clock ticks
-        float step = 1 * SongController.songSpeed * Time.unscaledDeltaTime;
+        float step = 1 * SongController.songTimeScale * Time.unscaledDeltaTime;
 
         // TODO: we somehow want this to mvoe in sync with the songposition, while still being smooth.
         //seconds = Mathf.MoveTowards(SongController.songPosition, SongController.songLength, step);
