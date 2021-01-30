@@ -24,6 +24,7 @@ public partial class AmpTrack : MonoBehaviour
 
     [Header("Measure materials")]
     public Material TrackMaterial;
+    public Material TrackMaterial_Active;
     public Material EdgeLightsMaterial;
 
     /// Declarations, global variables, properties, events ...
@@ -48,7 +49,7 @@ public partial class AmpTrack : MonoBehaviour
         set
         {
             _color = value;
-            EdgeLightsMaterial.color = Color;
+            TrackMaterial_Active.color = Color;
         }
     }
 
@@ -77,6 +78,7 @@ public partial class AmpTrack : MonoBehaviour
         // Materials setup:
         // Instance the measure materials so they are shared for this particular track only
         TrackMaterial = Instantiate(TrackMaterial);
+        TrackMaterial_Active = Instantiate(TrackMaterial_Active);
         EdgeLightsMaterial = Instantiate(EdgeLightsMaterial);
 
         // Color
@@ -84,6 +86,7 @@ public partial class AmpTrack : MonoBehaviour
 
         // Set up ClipManager for capture clipping
         ClipManager.AddMaterial(TrackMaterial);
+        ClipManager.AddMaterial(TrackMaterial_Active);
         ClipManager.AddMaterial(EdgeLightsMaterial);
     }
 
@@ -115,13 +118,15 @@ public partial class AmpTrack : MonoBehaviour
             _isTrackFocused = value;
 
             // Set global edge lights in measures
-            for (int i = Mathf.FloorToInt(Clock.Instance.bar) - 1; i < Measures.Count - 1; i++) // TODO: check reliability of this optimization!
-            {
-                if (i < 0) i = 0; // correct the flooring of 0
+            //for (int i = Mathf.FloorToInt(Clock.Instance.bar) - 1; i < Measures.Count - 1; i++) // TODO: check reliability of this optimization!
+            //{
+            //    if (i < 0) i = 0; // correct the flooring of 0
 
-                AmpTrackSection m = Measures[i];
-                m.SetGlobalEdgeLights(value);
-            }
+            //    AmpTrackSection m = Measures[i];
+            //    m.SetGlobalEdgeLights(value);
+            //}
+
+            UpdateSequenceStates();
         }
     }
 
@@ -176,14 +181,19 @@ public partial class AmpTrack : MonoBehaviour
     }
 
     // Sequences
-    public void UpdateSequenceColors()
+    public void UpdateSequenceStates()
     {
         // Set the color for sequence measures
-        foreach (AmpTrackSection m in Measures)
-            if (m) m.MeasureColor = Color.black;
+        //foreach (AmpTrackSection m in Measures)
+        //    if (m) m.IsSequence = false;
+        for (int i = Clock.Fbar; i < Clock.Fbar + RhythmicGame.HorizonMeasures; i++)
+        {
+            AmpTrackSection m = Measures[i];
+            if (m) m.IsSequence = false;
+        }
 
         foreach (AmpTrackSection m in Sequences)
-            if (m) m.MeasureColor = Colors.ColorFromInstrument(Instrument);
+            if (m) m.IsSequence = true;
     }
 
     // Measure capturing
@@ -206,7 +216,6 @@ public partial class AmpTrack : MonoBehaviour
     public void CaptureMeasureAmount(int start, int amount) => TracksController.CaptureMeasureAmount(start, amount, this);
 
     /// Common
-    #region
     // Lanes
 
     /// <summary>
@@ -305,7 +314,6 @@ public partial class AmpTrack : MonoBehaviour
             return new Color(color.r / 255, color.g / 255, color.b / 255, color.a / 255);
         }
     }
-    #endregion
 }
 
 public enum LaneSide { Left = 0, Center = 1, Right = 2, UNKNOWN = 3 }

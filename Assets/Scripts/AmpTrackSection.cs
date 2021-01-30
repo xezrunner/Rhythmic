@@ -19,18 +19,23 @@ public class AmpTrackSection : MonoBehaviour
     AmpPlayerLocomotion Locomotion;
     public VertexPath Path;
 
-    /// References to the contents
     [Header("Common")]
-    //public GameObject Model; // Main track section model
-    public MeshRenderer MeshRenderer;
-    public MeshFilter MeshFilter; // Mesh of the model
-    public EdgeLights EdgeLights_Local; // This is visually part of the track model itself - it gets clipped with capturing
-    public EdgeLights EdgeLights_Global; // This is the 'focus indicator' edge lights, which does not get clipped.
-    public Transform NotesContainer;
-
     public ClipManager ClipManager;
     public GameObject LengthPlane; // This plane trims the model to the desired length
     public GameObject ClipPlane;
+
+    [Header("Content references")]
+    public MeshRenderer MeshRenderer;
+    public MeshFilter MeshFilter; // Mesh of the model
+
+    public GameObject ActiveSurface;
+    public MeshRenderer ActiveSurfaceMeshRenderer;
+    public MeshFilter ActiveSurfaceMeshFilter;
+
+    public EdgeLights EdgeLights_Local; // This is visually part of the track model itself - it gets clipped with capturing
+    public EdgeLights EdgeLights_Global; // This is the 'focus indicator' edge lights, which does not get clipped.
+
+    public Transform NotesContainer;
 
     [Header("Variables")]
     public AmpTrack Track; // The track this measure belongs to
@@ -57,7 +62,7 @@ public class AmpTrackSection : MonoBehaviour
         set { CaptureState = !value ? MeasureCaptureState.None : MeasureCaptureState.Captured; }
     }
 
-    private bool _isEnabled = true;
+    bool _isEnabled = true;
     public bool IsEnabled
     {
         get { return _isEnabled; }
@@ -71,6 +76,19 @@ public class AmpTrackSection : MonoBehaviour
             MeasureColor = Color.black;
         }
     }
+
+    bool _isSequence;
+    public bool IsSequence
+    {
+        get { return _isSequence; }
+        set
+        {
+            _isSequence = value;
+            if (value) IsFocused = Track.IsTrackFocused;
+            else IsFocused = false;
+        }
+    }
+    public bool IsFocused { get { return ActiveSurface.activeSelf; } set { ActiveSurface.SetActive(value); } }
 
     private Color _edgeLightsColor;
     public Color EdgeLightsColor
@@ -161,6 +179,7 @@ public class AmpTrackSection : MonoBehaviour
             EdgeLights_Local.gameObject.SetActive(false);
         }
 
+        // Create base mesh for deformation
         MeshFilter.mesh = TrackMeshCreator.CreateMesh(RhythmicGame.TrackWidth, Length);
 
         if (MeshFilter)
@@ -170,6 +189,12 @@ public class AmpTrackSection : MonoBehaviour
         if (StartAutoDeformToPath) DeformMeshToPath();
 
         //LengthClip();
+    }
+
+    public bool isSeq;
+    private void Update()
+    {
+        isSeq = IsSequence;
     }
 
     /// Edge lights
@@ -214,6 +239,8 @@ public class AmpTrackSection : MonoBehaviour
         // Mesh deformation
         MeshDeformer.DeformMesh(path, mesh, position, angle, originalMesh.vertices);
 
+        // Set active indicator mesh
+        ActiveSurfaceMeshFilter.mesh = mesh;
         // Set Edge lights mesh to the same mesh as top mesh!
         EdgeLights_Local.Mesh = EdgeLights_Global.Mesh = mesh;
 

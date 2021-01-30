@@ -2,6 +2,7 @@
 	//show values to edit in inspector
 	Properties{
 		_Color ("Tint", Color) = (0, 0, 0, 1)
+		_Enabled ("Enabled", Int) = 1
 		_MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
 		_Cutoff("AlphaCutoff", Range(0,1)) = 0.5
 		_BumpMap ("Bumpmap", 2D) = "bump" {}
@@ -39,9 +40,10 @@
 		#pragma target 3.0
 		#pragma surface surf Standard alpha
 
+		int _Enabled;
+		fixed4 _Color;
 		sampler2D _MainTex;
 		sampler2D _BumpMap;
-		fixed4 _Color;
 		float _Cutoff;
 
 		float _BumpStrength;
@@ -67,6 +69,8 @@
 		//the surface shader function which sets parameters the lighting function then uses
 		void surf (Input i, inout SurfaceOutputStandard o) 
 		{
+			if (_Enabled == 0) return;
+
 			if (_PlaneEnabled == 1 | _InversePlaneEnabled == 1)
 			{
 				//calculate signed distance to plane

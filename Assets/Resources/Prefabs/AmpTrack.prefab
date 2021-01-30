@@ -147,6 +147,8 @@ MonoBehaviour:
   MeasureContainer: {fileID: 267965190780180367}
   GlobalEdgeLights: {fileID: 1055625016937415464}
   TrackMaterial: {fileID: 2100000, guid: 71178a17f71500448933e07925ffcc97, type: 2}
+  TrackMaterial_Active: {fileID: 2100000, guid: 4fa0820b1a6baa845bd6925c4593bb05,
+    type: 2}
   EdgeLightsMaterial: {fileID: 2100000, guid: d0d842f23fdb8de46a5916074826f995, type: 2}
   ID: -1
   RealID: -1
@@ -176,8 +178,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfbadc5a2f73f2c4fabfbc59e982edde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ClipOnStart: 0
   GetMaterialsOnStart: 0
+  ClipOnStart: 0
+  DisableClippingOnNull: 0
   MeshRenderers: []
   plane: {fileID: 0}
   inverse_plane: {fileID: 0}

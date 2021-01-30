@@ -105,6 +105,7 @@ public class TracksController : MonoBehaviour
         foreach (var t in Tracks)
         {
             clipManager.AddMaterial(t.TrackMaterial);
+            clipManager.AddMaterial(t.TrackMaterial_Active);
             clipManager.AddMaterial(t.EdgeLightsMaterial);
         }
 
@@ -247,6 +248,7 @@ public class TracksController : MonoBehaviour
         {
             if (track & t == track) continue;
 
+            t.Sequences.ForEach(t => t.IsSequence = false); // Make previous sequences inactive
             t.Sequences.Clear();
 
             int currentMeasure;
@@ -269,7 +271,7 @@ public class TracksController : MonoBehaviour
                 t.Sequences.Add(m);
             }
 
-            t.UpdateSequenceColors();
+            t.UpdateSequenceStates();
 
             if (RhythmicGame.DebugSequenceRefreshEvents)
             {
@@ -286,10 +288,13 @@ public class TracksController : MonoBehaviour
         }
     }
 
+    public static bool IsLoaded;
     IEnumerator RefreshSequences_Init()
     {
-        while (Tracks[Tracks.Count - 1].Measures.Count < 2)
+        while (Tracks[Tracks.Count - 1].Measures.Count < RhythmicGame.HorizonMeasures)
             yield return null;
+
+        IsLoaded = true;
 
         RefreshSequences();
         RefreshTargetNotes();
@@ -316,8 +321,6 @@ public class TracksController : MonoBehaviour
 
         if (RhythmicGame.DebugPlayerTrackSwitchEvents)
             Debug.LogFormat("TRACKS: Track switched to {0} [{1}]", track.ID, track.TrackName != "" ? track.TrackName : track.name);
-
-        track.UpdateSequenceColors();
 
         // Invoke event!
         OnTrackSwitched?.Invoke(this, eventArgs);
