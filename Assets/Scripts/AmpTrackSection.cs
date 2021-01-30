@@ -94,7 +94,7 @@ public class AmpTrackSection : MonoBehaviour
     public Color EdgeLightsColor
     {
         get { return _edgeLightsColor; }
-        set { _edgeLightsColor = value; EdgeLights_Local.Color = /*EdgeLights_Global.Color*/ value; }
+        set { _edgeLightsColor = value; EdgeLights_Local.Color = /*EdgeLights_Global.Color =*/ value; }
     }
 
     private Color _measureColor;
@@ -236,14 +236,14 @@ public class AmpTrackSection : MonoBehaviour
         // Set active indicator mesh
         ActiveSurfaceMeshFilter.mesh = mesh;
         // Set Edge lights mesh to the same mesh as top mesh!
-        EdgeLights_Local.Mesh = EdgeLights_Global.Mesh = mesh;
+        EdgeLights_Local.Mesh = /*EdgeLights_Global.Mesh =*/ mesh;
 
         // Deform edge lights
         Vector3 edgelights_offset = new Vector3(0, 0.01f, 0); // Offset to the top of the track
 
         if (!IsEmpty || !IsCaptured)
             MeshDeformer.DeformMesh(path, EdgeLights_Local.Mesh, position, angle, originalMesh.vertices, edgelights_offset);
-        MeshDeformer.DeformMesh(path, EdgeLights_Global.Mesh, position, angle, originalMesh.vertices, edgelights_offset);
+        //MeshDeformer.DeformMesh(path, EdgeLights_Global.Mesh, position, angle, originalMesh.vertices, edgelights_offset);
     }
 
     public void LengthClip()
