@@ -28,7 +28,12 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
 
     /// Functionality
 
-    void Start() => SwitchToTrack(StartTrackID, true); // Automatically switch to a start track ID
+    void Start() => StartCoroutine(WaitForStart());  // Automatically switch to a start track ID, once we are loaded
+    IEnumerator WaitForStart()
+    {
+        while (!TracksController.IsLoaded) yield return null;
+        SwitchToTrack(StartTrackID, true);
+    }
 
     /// <summary>
     /// Calls SwitchToTrack() towards the direction specified.

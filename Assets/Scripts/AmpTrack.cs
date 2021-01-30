@@ -13,11 +13,20 @@ public partial class AmpTrack : MonoBehaviour
     TracksController TracksController { get { return TracksController.Instance; } }
 
     /// References to the contents
+
+    public ClipManager ClipManager;
+
     [Header("Containers")]
     public Transform MeasureContainer;
 
     [Header("Global Edge Light")]
     public EdgeLights GlobalEdgeLights;
+
+    [Header("Measure materials")]
+    public Material TrackMaterial;
+    public Material TrackMaterial_Active;
+    public Material LocalEdgeLightsMaterial;
+    public Material GlobalEdgeLightsMaterial;
 
     /// Declarations, global variables, properties, events ...
 
@@ -41,7 +50,7 @@ public partial class AmpTrack : MonoBehaviour
         set
         {
             _color = value;
-            Measures.ForEach(m => m.EdgeLightsColor = value);
+            TrackMaterial_Active.color = Color;
         }
     }
 
@@ -56,6 +65,36 @@ public partial class AmpTrack : MonoBehaviour
     }
 
     public float zRot; // The Z rotation (looks like X-axis rotation from front) of this particular track.
+
+    void Start()
+    {
+        TunnelTransform = Tunnel.GetTransformForTrackID(RealID);
+        TunnelPos = TunnelTransform[0];
+        TunnelRot = TunnelTransform[1];
+
+        // Materials setup:
+        // Instance the measure materials so they are shared for this particular track only
+        TrackMaterial = Instantiate(TrackMaterial);
+        TrackMaterial_Active = Instantiate(TrackMaterial_Active);
+        LocalEdgeLightsMaterial = Instantiate(LocalEdgeLightsMaterial);
+        GlobalEdgeLightsMaterial = Instantiate(GlobalEdgeLightsMaterial);
+
+        // Global edge lights
+        GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
+        GlobalEdgeLights.MeshRenderer.material = GlobalEdgeLightsMaterial; // Shared material
+        if (ID == 0) GlobalEdgeLights.gameObject.SetActive(true);
+
+        // Color
+        Color = Colors.ColorFromInstrument(Instrument);
+        GlobalEdgeLights.Color = Color;
+
+        // Set up ClipManager for capture clipping
+        ClipManager.AddMaterial(TrackMaterial);
+        ClipManager.AddMaterial(TrackMaterial_Active);
+        ClipManager.AddMaterial(LocalEdgeLightsMaterial);
+        if (RhythmicGame.GlobalEdgeLightsCaptureClipping)
+            ClipManager.AddMaterial(GlobalEdgeLightsMaterial);
+    }
 
     public List<AmpTrackSection> Measures = new List<AmpTrackSection>();
     public AmpTrackSection CurrentMeasure { get { return Measures[Clock.Fbar]; } }
@@ -83,15 +122,18 @@ public partial class AmpTrack : MonoBehaviour
         set
         {
             _isTrackFocused = value;
+            GlobalEdgeLights.gameObject.SetActive(value);
 
             // Set global edge lights in measures
-            for (int i = Mathf.FloorToInt(Clock.Instance.bar) - 1; i < Measures.Count - 1; i++) // TODO: check reliability of this optimization!
-            {
-                if (i < 0) i = 0; // correct the flooring of 0
+            //for (int i = Mathf.FloorToInt(Clock.Instance.bar) - 1; i < Measures.Count - 1; i++) // TODO: check reliability of this optimization!
+            //{
+            //    if (i < 0) i = 0; // correct the flooring of 0
 
-                AmpTrackSection m = Measures[i];
-                m.SetGlobalEdgeLights(value);
-            }
+            //    AmpTrackSection m = Measures[i];
+            //    m.SetGlobalEdgeLights(value);
+            //}
+
+            UpdateSequenceStates();
         }
     }
 
@@ -126,18 +168,7 @@ public partial class AmpTrack : MonoBehaviour
     public event EventHandler<int[]> MeasureCaptureFinished; // start - end
 
     /// Functionality
-
-    void Start()
-    {
-        TunnelTransform = Tunnel.GetTransformForTrackID(RealID);
-        TunnelPos = TunnelTransform[0];
-        TunnelRot = TunnelTransform[1];
-
-        // Global edge lights
-        GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
-        GlobalEdgeLights.Color = Color;
-    }
-
+    /// 
     // TODO: for debugging only
     [SerializeField] bool iscaptured;
 
@@ -157,14 +188,19 @@ public partial class AmpTrack : MonoBehaviour
     }
 
     // Sequences
-    public void UpdateSequenceColors()
+    public void UpdateSequenceStates()
     {
         // Set the color for sequence measures
-        foreach (AmpTrackSection m in Measures)
-            if (m) m.MeasureColor = Color.black;
+        //foreach (AmpTrackSection m in Measures)
+        //    if (m) m.IsSequence = false;
+        for (int i = Clock.Fbar; i < Clock.Fbar + RhythmicGame.HorizonMeasures; i++)
+        {
+            AmpTrackSection m = Measures[i];
+            if (m) m.IsSequence = false;
+        }
 
         foreach (AmpTrackSection m in Sequences)
-            if (m) m.MeasureColor = Colors.ColorFromInstrument(Instrument);
+            if (m) m.IsSequence = true;
     }
 
     // Measure capturing
@@ -187,7 +223,6 @@ public partial class AmpTrack : MonoBehaviour
     public void CaptureMeasureAmount(int start, int amount) => TracksController.CaptureMeasureAmount(start, amount, this);
 
     /// Common
-    #region
     // Lanes
 
     /// <summary>
@@ -232,7 +267,7 @@ public partial class AmpTrack : MonoBehaviour
     {
         static float Opacity = 255f;
 
-        public static Color Invalid = new Color(0, 0, 0);
+        public static Color Invalid = new Color(255, 255, 255, Opacity);
         public static Color Empty = new Color(118, 118, 118, Opacity);
 
         public static Color Drums = new Color(212, 93, 180, Opacity);
@@ -240,7 +275,7 @@ public partial class AmpTrack : MonoBehaviour
         public static Color Synth = new Color(221, 219, 89, Opacity);
         public static Color Guitar = new Color(255, 15, 20, Opacity);
         public static Color Vocals = new Color(0, 255, 0, Opacity);
-        public static Color Freestyle = new Color(255, 255, 255, Opacity);
+        public static Color Freestyle = new Color(110, 110, 110, Opacity);
 
         public static Material[] materialCache = new Material[6];
         public static Material GetMaterialForInstrument(InstrumentType inst)
@@ -259,7 +294,8 @@ public partial class AmpTrack : MonoBehaviour
 
         }
 
-        public static Color ColorFromInstrument(InstrumentType type)
+        public static Color ColorFromInstrument(InstrumentType type) { return ConvertColor(_ColorFromInstrument(type)); }
+        public static Color _ColorFromInstrument(InstrumentType type)
         {
             switch ((int)type)
             {
@@ -285,7 +321,6 @@ public partial class AmpTrack : MonoBehaviour
             return new Color(color.r / 255, color.g / 255, color.b / 255, color.a / 255);
         }
     }
-    #endregion
 }
 
 public enum LaneSide { Left = 0, Center = 1, Right = 2, UNKNOWN = 3 }

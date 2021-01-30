@@ -1,14 +1,9 @@
-﻿Shader "ClippingPlane"{
+Shader "ClippingPlane_Unlit"{
 	//show values to edit in inspector
 	Properties{
 		_Color ("Tint", Color) = (0, 0, 0, 1)
-		_Enabled ("Enabled", Int) = 1
 		_MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
 		_Cutoff("AlphaCutoff", Range(0,1)) = 0.5
-		_BumpMap ("Bumpmap", 2D) = "bump" {}
-		_BumpStrength("BumpStrength", Range(0, 1)) = 1
-		_Smoothness ("Smoothness", Range(0, 1)) = 0
-		_Metallic ("Metalness", Range(0, 1)) = 0
 
 		_Plane ("Plane", Float) = (0, 0, 0, 0)
 		_InversePlane ("InversePlane", Float) = (0, 0, 0, 0)
@@ -21,7 +16,7 @@
 
 	SubShader{
 		//the material is completely non-transparent and is rendered at the same time as the other opaque geometry
-		Tags{ "Queue"="Transparent" "RenderType"="Transparent"}
+		Tags{ "RenderType"="Transparent"}
 
 		// render faces regardless if they point towards the camera or away from it
 		//BlendOp Add
@@ -38,12 +33,15 @@
 		//vertex:vert makes the shader use vert as a vertex shader function
 
 		#pragma target 3.0
-		#pragma surface surf Standard alpha
+		#pragma surface surf Unlit
 
-		int _Enabled;
-		fixed4 _Color;
+		half4 LightingUnlit (SurfaceOutput s, half3 lightDir, half atten) {
+		return fixed4(0,0,0,0);//half4(s.Albedo, s.Alpha);
+         }
+
 		sampler2D _MainTex;
 		sampler2D _BumpMap;
+		fixed4 _Color;
 		float _Cutoff;
 
 		float _BumpStrength;
@@ -67,10 +65,8 @@
 		};
 
 		//the surface shader function which sets parameters the lighting function then uses
-		void surf (Input i, inout SurfaceOutputStandard o) 
+		void surf (Input i, inout SurfaceOutput o) 
 		{
-			if (_Enabled == 0) return;
-
 			if (_PlaneEnabled == 1 | _InversePlaneEnabled == 1)
 			{
 				//calculate signed distance to plane
@@ -90,20 +86,18 @@
 			float facing = i.facing * 0.5 + 0.5;
 			
 			//normal color stuff
-			fixed4 col = tex2D(_MainTex, i.uv_MainTex) * _Color;
+			fixed4 col = tex2D(_MainTex, i.uv_MainTex);
+			col *= _Color;
 			o.Albedo = col.rgb * facing;
 
 			// Clip transparency
 			clip(col.a - _Cutoff);
 
-			fixed3 normal = UnpackNormal (tex2D (_BumpMap, i.uv_BumpMap));
-			o.Normal = lerp(float3(0.5, 0.5, 1), normal, _BumpStrength);
-			//o.Normal = UnpackNormal (tex2D (_BumpMap, i.uv_BumpMap));
+			/* fixed3 normal = UnpackNormal (tex2D (_BumpMap, i.uv_BumpMap));
+			o.Normal = lerp(float3(0.5, 0.5, 1), normal, _BumpStrength); */
 
-			o.Alpha = col.a;
-			o.Metallic = _Metallic * facing;
-			o.Metallic *= col.a;
-			o.Smoothness = _Smoothness * facing;
+			//o.Metallic = _Metallic * facing;
+			//o.Smoothness = _Smoothness * facing;
 			o.Emission = lerp(_CutoffColor, _Emission, facing);
 		}
 		ENDCG

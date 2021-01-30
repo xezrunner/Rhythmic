@@ -1,20 +1,20 @@
 ﻿#undef LIVE_UPDATE
 
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
-public class ClippingPlane : MonoBehaviour
+public class ClipManager : MonoBehaviour
 {
+    public bool GetMaterialsOnStart = false;
+    public bool ClipOnStart = false;
+    public bool DisableClippingOnNull = false;
+
     public List<MeshRenderer> MeshRenderers = new List<MeshRenderer>();
     public GameObject plane;
     public GameObject inverse_plane;
 
     // Materials to pass values to
     public List<Material> materials = new List<Material>();
-
-    public static bool ClipOnStart = false;
 
     void Awake() => GetMaterials();
     void Start()
@@ -91,7 +91,7 @@ public class ClippingPlane : MonoBehaviour
                 _mat.SetVector("_Plane", planeRepresentation);
                 _mat.SetFloat("_PlaneEnabled", 1);
             }
-            else
+            else if (DisableClippingOnNull)
                 _mat.SetFloat("_PlaneEnabled", 0);
 
             if (inverse_plane)
@@ -99,7 +99,7 @@ public class ClippingPlane : MonoBehaviour
                 _mat.SetVector("_InversePlane", inverse_planeRepresentation);
                 _mat.SetFloat("_InversePlaneEnabled", 1);
             }
-            else
+            else if (DisableClippingOnNull)
                 _mat.SetFloat("_InversePlaneEnabled", 0);
         }
     }

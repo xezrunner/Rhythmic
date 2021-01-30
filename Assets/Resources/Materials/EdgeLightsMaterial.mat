@@ -85,6 +85,7 @@ Material:
     - _DstBlend: 0
     - _EmissionEnabled: 1
     - _EnableExternalAlpha: 0
+    - _Enabled: 1
     - _FlipbookMode: 0
     - _GlossMapScale: 1
     - _Glossiness: 0
@@ -95,7 +96,7 @@ Material:
     - _Mode: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _PlaneEnabled: 0
+    - _PlaneEnabled: 1
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
     - _SoftParticlesEnabled: 0
@@ -114,14 +115,14 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.83137256, g: 0.3647059, b: 0.7058824, a: 1}
     - _ColorAddSubDiff: {r: -1, g: 1, b: 0, a: 0}
     - _CutoffColor: {r: 0, g: 0, b: 0, a: 0}
-    - _Emission: {r: 3.4415908, g: 3.4415908, b: 3.4415908, a: 1}
-    - _EmissionColor: {r: 0.95686275, g: 1.6784314, b: 2.9960785, a: 1}
+    - _Emission: {r: 2.0784314, g: 0.91176474, b: 1.7647059, a: 2.5}
+    - _EmissionColor: {r: 2.1666667, g: 2.147059, b: 0.87254906, a: 2.5}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _InversePlane: {r: 0, g: 0, b: 0, a: 0}
-    - _Plane: {r: 0, g: 0, b: 0, a: 0}
+    - _Plane: {r: 0.8126483, g: -0.11073409, b: 0.57213694, a: 774.45135}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
