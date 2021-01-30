@@ -216,6 +216,8 @@ public class SongController : MonoBehaviour
         if (StartPositionAdjustmentEnabled)
             StartPosition = PathTools.Path.length - (songLengthInMeasures * measureLengthInzPos);
     }
+    public bool StartDistanceAdjustmentEnabled = true;
+    public float StartDistance; // pos
 
     // INIT & LOADING
 
