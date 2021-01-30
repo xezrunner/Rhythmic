@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TrackMaterial
+  m_Name: TrackMaterial_Active
   m_Shader: {fileID: 4800000, guid: 5800f3aa84ec8df40ac18ac3c6939b85, type: 3}
   m_ShaderKeywords: _EMISSION _GLOSSYREFLECTIONS_OFF _NORMALMAP _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
   m_LightmapFlags: 1
@@ -20,8 +20,8 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: e45c573e843e828458dea161b211ee19, type: 3}
-        m_Scale: {x: 1, y: 0.28}
+        m_Texture: {fileID: 2800000, guid: b2fe6598b3b7f584682bab659b855493, type: 3}
+        m_Scale: {x: 1, y: 0.2}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
         m_Texture: {fileID: 0}
@@ -41,7 +41,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 5585.7676}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
@@ -62,20 +62,21 @@ Material:
     m_Ints: []
     m_Floats:
     - _BumpScale: 0.53
-    - _BumpStrength: 0.5
+    - _BumpStrength: 0.416
     - _Cutoff: 0
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _Enabled: 1
     - _GlossMapScale: 0.75
     - _Glossiness: 0.75
     - _GlossyReflections: 0
     - _InversePlaneEnabled: 0
-    - _Metallic: 0.55
+    - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _PlaneEnabled: 0
-    - _Smoothness: 0.75
+    - _PlaneEnabled: 1
+    - _Smoothness: 0.43
     - _SmoothnessTextureChannel: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -85,7 +86,7 @@ Material:
     - _invert: 0
     m_Colors:
     - _ClippingCentre: {r: 0, g: 0, b: -1.1, a: 0}
-    - _Color: {r: 0.44313726, g: 0.44313726, b: 0.44313726, a: 1}
+    - _Color: {r: 0.83137256, g: 0.3647059, b: 0.7058824, a: 1}
     - _CutoffColor: {r: 0, g: 0, b: 0, a: 0}
     - _Emission: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

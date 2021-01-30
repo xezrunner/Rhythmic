@@ -124,7 +124,7 @@ public class AmplitudeSongController : SongController
             {
                 src.volume = 0.8f;
                 songLength = src.clip.length; // set song length to BG_CLICK clip length
-                mainAudioSource = src; // set as main BG_CLICK AudioSource
+                BG_CLICKSrc = src; // set as main BG_CLICK AudioSource
             }
             else
                 src.volume = counter == 0 ? 1f : 0f;
@@ -158,7 +158,7 @@ public class AmplitudeSongController : SongController
                 if (laneType == LaneSide.UNKNOWN)
                     continue;
 
-                float zPos = StartPosition + TickToPos(note.AbsoluteTime);
+                float zPos = StartDistance + TickToPos(note.AbsoluteTime);
                 int measureID = (int)note.AbsoluteTime / measureTicks;
                 string noteName = string.Format("CATCH_{0}::{1}_{2} ({3})", songTracks[i], measureID, laneType.ToString(), counter);
 

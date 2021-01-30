@@ -82,6 +82,14 @@ public class DebugController : MonoBehaviour
             world.SetActive(!world.activeInHierarchy); worldCamera.SetActive(!world.activeInHierarchy);
         }
 
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            if (Camera.main.renderingPath == RenderingPath.Forward)
+                Camera.main.renderingPath = RenderingPath.DeferredShading;
+            else
+                Camera.main.renderingPath = RenderingPath.Forward;
+        }
+
         // Sequence & notes refreshing
         if (Input.GetKeyDown(KeyCode.T))
         {

@@ -139,9 +139,9 @@ public class TrackMeshCreator : MonoBehaviour
 
         Vector3 tunnelCenter = (Tunnel.Instance) ? Tunnel.Instance.center : Vector3.zero;
 
-        bool isStartPointAdjustment = (SongController.Instance.StartPosition < 0);
+        bool isStartPointAdjustment = (SongController.Instance.StartDistance < 0);
         int startPointAdjustionNum = isStartPointAdjustment ? 1 : 0;
-        float startPointAdjustment = SongController.Instance.StartPosition;
+        float startPointAdjustment = SongController.Instance.StartDistance;
 
         Vector3[] vertices = new Vector3[(startPointAdjustionNum + path.NumPoints) * 8];
         Vector2[] uvs = new Vector2[vertices.Length];

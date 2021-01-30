@@ -5,6 +5,7 @@ using UnityEngine;
 using PathCreation;
 using NUnit.Framework;
 using System.Linq;
+using System.Threading.Tasks;
 
 /// New track controller
 // Manages the new tracks, section creations, captures etc...
@@ -41,8 +42,10 @@ public class TracksController : MonoBehaviour
     public AmpTrack CurrentTrack; // The track that the player is currently on
     public AmpTrackSection CurrentMeasure { get { return CurrentTrack.CurrentMeasure; } }
 
-    /// Events
-    public event EventHandler<int[]> OnTrackSwitched;
+    // Clipping
+    ClipManager clipManager;
+    GameObject lengthPlane;
+    GameObject inversePlane;
 
     /// Functionality
 
@@ -76,7 +79,74 @@ public class TracksController : MonoBehaviour
         CreateTracks();
 
         StartCoroutine(RefreshSequences_Init());
+
+        // Clip manager init
+
+        clipManager = gameObject.AddComponent<ClipManager>();
+
+        lengthPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        lengthPlane.transform.parent = transform;
+        lengthPlane.GetComponent<MeshRenderer>().enabled = false;
+
+        inversePlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        inversePlane.transform.parent = transform;
+        inversePlane.GetComponent<MeshRenderer>().enabled = false;
+
+        clipManager.plane = lengthPlane;
+        clipManager.inverse_plane = inversePlane;
+
+        StartCoroutine(AddTrackMaterialsToClipper());
     }
+
+    IEnumerator AddTrackMaterialsToClipper()
+    {
+        while (Tracks.Last().Measures.Count < RhythmicGame.HorizonMeasures) yield return null;
+
+        foreach (var t in Tracks)
+        {
+            clipManager.AddMaterial(t.TrackMaterial);
+            clipManager.AddMaterial(t.TrackMaterial_Active);
+            clipManager.AddMaterial(t.LocalEdgeLightsMaterial);
+            clipManager.AddMaterial(t.GlobalEdgeLightsMaterial);
+        }
+
+        clipManager.AddMaterial((Material)Resources.Load("Materials/NoteMaterial"));
+
+        LengthClip();
+    }
+
+    // WARNING! Paths should not traverse backwards, as the global edge lights are going to be visible ahead of the path!
+    // TODO: either fix this, or design paths in a way that they don't traverse backwards!
+    public void LengthClip()
+    {
+        // Calculate clip plane offset based on measure draw distance
+        float dist = AmpPlayerLocomotion.Instance.HorizonLength;
+
+        Vector3 planePos = PathTools.GetPositionOnPath(PathTools.Path, dist);
+        Quaternion planeRot = PathTools.GetRotationOnPath(PathTools.Path, dist, new Vector3(90, 0, 0));
+
+        lengthPlane.transform.position = planePos;
+        lengthPlane.transform.rotation = planeRot;
+
+        // Inverse:
+        float inverse_dist = AmpPlayerLocomotion.Instance.DistanceTravelled - SongController.measureLengthInzPos;
+
+        Vector3 inverse_planePos = PathTools.GetPositionOnPath(PathTools.Path, inverse_dist);
+        Quaternion inverse_planeRot = PathTools.GetRotationOnPath(PathTools.Path, inverse_dist, new Vector3(90, 0, 0));
+
+        inversePlane.transform.position = inverse_planePos;
+        inversePlane.transform.rotation = inverse_planeRot;
+
+        clipManager.Clip();
+    }
+    void Update()
+    {
+        // Clipmanager update
+        if (SongController.IsPlaying) LengthClip();
+    }
+
+    /// Events
+    public event EventHandler<int[]> OnTrackSwitched;
 
     private void Tracks_OnTrackSwitched(object sender, int[] e)
     {
@@ -198,6 +268,7 @@ public class TracksController : MonoBehaviour
         {
             if (track & t == track) continue;
 
+            t.Sequences.ForEach(t => t.IsSequence = false); // Make previous sequences inactive
             t.Sequences.Clear();
 
             int currentMeasure;
@@ -220,7 +291,7 @@ public class TracksController : MonoBehaviour
                 t.Sequences.Add(m);
             }
 
-            t.UpdateSequenceColors();
+            t.UpdateSequenceStates();
 
             if (RhythmicGame.DebugSequenceRefreshEvents)
             {
@@ -237,10 +308,13 @@ public class TracksController : MonoBehaviour
         }
     }
 
+    [NonSerialized] public bool IsLoaded;
     IEnumerator RefreshSequences_Init()
     {
-        while (Tracks[Tracks.Count - 1].Measures.Count < 2)
+        while (Tracks[Tracks.Count - 1].Measures.Count < RhythmicGame.HorizonMeasures)
             yield return null;
+
+        IsLoaded = true;
 
         RefreshSequences();
         RefreshTargetNotes();
@@ -267,8 +341,6 @@ public class TracksController : MonoBehaviour
 
         if (RhythmicGame.DebugPlayerTrackSwitchEvents)
             Debug.LogFormat("TRACKS: Track switched to {0} [{1}]", track.ID, track.TrackName != "" ? track.TrackName : track.name);
-
-        track.UpdateSequenceColors();
 
         // Invoke event!
         OnTrackSwitched?.Invoke(this, eventArgs);
