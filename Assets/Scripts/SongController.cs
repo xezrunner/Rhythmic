@@ -6,47 +6,51 @@ using UnityEngine.SceneManagement;
 public partial class SongController : MonoBehaviour
 {
     public static SongController Instance;
-    public Clock Clock;
-    public TracksController AmpTrackController;
 
-    // Controller properties
+    [NonSerialized] public Clock Clock;
+    [NonSerialized] public TracksController TracksController;
+
+    [Header("Controller properties")]
     public string defaultSong;
+
     public static string songName;
     public virtual string songFolder { get; set; }
 
-    public List<string> songTracks = new List<string>();
-    public List<List<KeyValuePair<int, MetaNote>>> songNotes = new List<List<KeyValuePair<int, MetaNote>>>();
-
-    public bool IsFake = false;
     public bool Enabled = true;
+    public bool IsFake = false;
+    public bool IsPlaying;
 
     // Song properties
-    public int songBpm;
-    public int songCountIn;
-    public float songLength;
-    public float songLengthInzPos;
-    public int songLengthInMeasures;
+    [NonSerialized] public int songBpm;
+    [NonSerialized] public int songCountIn;
+    [NonSerialized] public float songLength;
+    [NonSerialized] public float songLengthInzPos;
+    [NonSerialized] public int songLengthInMeasures;
 
+    // Playback properties
+    [Header("Playback properties")]
+    public float songTimeScale = 1f; // Playback speed.
+    public float songOffset;
+    public float songPosition { get { return BG_CLICKSrc.time; } } // Current song position in seconds | this is the BG_CLICK AudioSource's current time pos.
+    public float songDspTime; // How many seconds have passed since the song started
+
+    [Header("Slop properties")]
     public float SlopMs;
     public float SlopPos;
 
-    // Playback properties
-    public List<AudioSource> audioSrcList = new List<AudioSource>();
-    public AudioSource mainAudioSource; // The BG_CLICK AudioSource
-
-    bool _isPlaying;
-    public bool IsPlaying { get { return _isPlaying; } set { _isPlaying = value; /*Player.IsPlaying = value;*/ } } // Sets both local and Player values
-
-    public float songSpeed = 1f;
-    public float songOffset;
-    public float songPosition { get { return mainAudioSource.time; } } // Current song position in seconds | this is the BG_CLICK AudioSource's current time pos.
-    public float songDspTime; // How many seconds have passed since the song started
-
+    [Header("Haptic feedback")]
     public Vector3 beatHaptics;
 
     // Starting position adjustment to always reach end of the path
+    [Header("Start position adjustment")]
     public bool StartDistanceAdjustmentEnabled = true;
     public float StartDistance; // pos
+    
+    public AudioSource BG_CLICKSrc; // The BG_CLICK AudioSource
+    public List<AudioSource> audioSrcList = new List<AudioSource>();
+
+    public List<string> songTracks = new List<string>();
+    public List<List<KeyValuePair<int, MetaNote>>> songNotes = new List<List<KeyValuePair<int, MetaNote>>>();
 
     // INIT & LOADING
 
@@ -72,21 +76,23 @@ public partial class SongController : MonoBehaviour
 
         // Set / calculate slop ms and pos props
         //SlopMs = RhythmicGame.SlopMs / songFudgeFactor * (1f + 0.8f); // TODO: incorrect?
-        SlopMs = PosToMs(MsToPos(RhythmicGame.SlopMs), true);
-        //SlopMs = PosToSec(SecToPos(RhythmicGame.SlopMs / 1000f)) * 1000f;
+        //SlopMs = PosToSec(SecToPos(RhythmicGame.SlopMs / 1000f)) * 1000f; // incorrect?
+
+        //SlopMs = PosToMs(MsToPos(RhythmicGame.SlopMs), true);
+        SlopMs = RhythmicGame.SlopMs;
         SlopPos = MsToPos(SlopMs);
 
         Debug.Log($"SlopMs: {SlopMs} | SlopPos: {SlopPos}");
     }
 
     // Track streamer
-    public TrackStreamer trackStreamer;
+    [NonSerialized] public TrackStreamer trackStreamer;
 
     public void CreateTrackStreamer()
     {
-        if (!trackStreamer & AmpTrackController)
+        if (!trackStreamer & TracksController)
         {
-            trackStreamer = AmpTrackController.gameObject.AddComponent<TrackStreamer>();
+            trackStreamer = TracksController.gameObject.AddComponent<TrackStreamer>();
             Debug.LogFormat("TRACKS: Created track streamer!");
         }
         else
@@ -128,7 +134,7 @@ public partial class SongController : MonoBehaviour
     public virtual void CreateAmpTrackController()
     {
         GameObject ctrlGameObject = new GameObject() { name = "AMP_TRACKS" };
-        AmpTrackController = ctrlGameObject.AddComponent<TracksController>();
+        TracksController = ctrlGameObject.AddComponent<TracksController>();
 
         //AmpTrackController.OnTrackSwitched += TracksController_OnTrackSwitched;
         Debug.LogFormat("TRACKS: Created track controller!");
@@ -236,7 +242,7 @@ public partial class SongController : MonoBehaviour
     // Changes the speed of the music
     public void SetSongSpeed(float speed)
     {
-        songSpeed = speed;
+        songTimeScale = speed;
 
         // Changing the pitch of AudioSources also changes their speed
         audioSrcList.ForEach(src => src.pitch = speed);

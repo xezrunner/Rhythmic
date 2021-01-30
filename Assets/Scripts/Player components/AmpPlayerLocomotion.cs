@@ -98,7 +98,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
                 //DistanceTravelled += 4f * Time.deltaTime;
             else if (SongController.Enabled)
             {
-                Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songSpeed);
+                Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songTimeScale);
                 DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
             }
 

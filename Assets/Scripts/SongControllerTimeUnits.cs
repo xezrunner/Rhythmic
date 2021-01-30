@@ -4,7 +4,7 @@ using UnityEngine;
 
 public partial class SongController
 {
-    public float songFudgeFactor; // Default is 1
+    [NonSerialized] public float songFudgeFactor; // Default is 1
 
     /// Time & unit calculations
     /*---- SONG UNITS ------
@@ -20,7 +20,7 @@ public partial class SongController
     public float beatPerSec { get { return songBpm / 60f; } }
     public float secPerBeat { get { return 60f / songBpm; } }
 
-    public int beatTicks = 480;
+    [NonSerialized] public int beatTicks = 480;
     public int measureTicks { get { return beatTicks * 4; } }
     public int subbeatTicks { get { return beatTicks / 2; } }
 
@@ -29,24 +29,24 @@ public partial class SongController
 
     /// Individual time & position units
     // Ticks - how many ticks in a <unit>
-    public float tickInSec;
-    public float tickInMs;
-    public float tickInPos;
+    [NonSerialized] public float tickInSec;
+    [NonSerialized] public float tickInMs;
+    [NonSerialized] public float tickInPos;
 
     // Seconds - how many seconds in a <unit>
-    public float secInTick;
-    public float secInMs;
-    public float secInPos;
+    [NonSerialized] public float secInTick;
+    [NonSerialized] public float secInMs;
+    [NonSerialized] public float secInPos;
 
     // Milliseconds (ms) - how many ms in a <unit>
-    public float msInTick;
-    public float msInSec;
-    public float msInPos;
+    [NonSerialized] public float msInTick;
+    [NonSerialized] public float msInSec;
+    [NonSerialized] public float msInPos;
 
     // Meters (pos) - how many pos in a <unit>
-    public float posInTick;
-    public float posInSec;
-    public float posInMs;
+    [NonSerialized] public float posInTick;
+    [NonSerialized] public float posInSec;
+    [NonSerialized] public float posInMs;
 
     /// Convertors
     // Ticks -> 

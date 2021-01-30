@@ -124,7 +124,7 @@ public class AmplitudeSongController : SongController
             {
                 src.volume = 0.8f;
                 songLength = src.clip.length; // set song length to BG_CLICK clip length
-                mainAudioSource = src; // set as main BG_CLICK AudioSource
+                BG_CLICKSrc = src; // set as main BG_CLICK AudioSource
             }
             else
                 src.volume = counter == 0 ? 1f : 0f;
