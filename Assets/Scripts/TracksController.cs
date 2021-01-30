@@ -308,7 +308,7 @@ public class TracksController : MonoBehaviour
         }
     }
 
-    public static bool IsLoaded;
+    [NonSerialized] public bool IsLoaded;
     IEnumerator RefreshSequences_Init()
     {
         while (Tracks[Tracks.Count - 1].Measures.Count < RhythmicGame.HorizonMeasures)
