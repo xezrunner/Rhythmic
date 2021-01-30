@@ -4,7 +4,7 @@ using UnityEngine;
 
 public partial class SongController
 {
-    [NonSerialized] public float songFudgeFactor; // Default is 1
+    [NonSerialized] public float songFudgeFactor = 1f; // Default is 1
 
     /// Time & unit calculations
     /*---- SONG UNITS ------
