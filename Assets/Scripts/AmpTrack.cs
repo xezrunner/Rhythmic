@@ -48,7 +48,7 @@ public partial class AmpTrack : MonoBehaviour
         set
         {
             _color = value;
-            Measures.ForEach(m => m.EdgeLightsColor = value);
+            EdgeLightsMaterial.color = Color;
         }
     }
 
@@ -79,8 +79,8 @@ public partial class AmpTrack : MonoBehaviour
         TrackMaterial = Instantiate(TrackMaterial);
         EdgeLightsMaterial = Instantiate(EdgeLightsMaterial);
 
-        // Set up track material color:
-        TrackMaterial.SetColor("_Color", Colors.ConvertColor(Colors.ColorFromInstrument(Instrument)));
+        // Color
+        Color = Colors.ColorFromInstrument(Instrument);
 
         // Set up ClipManager for capture clipping
         ClipManager.AddMaterial(TrackMaterial);
@@ -251,7 +251,7 @@ public partial class AmpTrack : MonoBehaviour
     {
         static float Opacity = 255f;
 
-        public static Color Invalid = new Color(0, 0, 0);
+        public static Color Invalid = new Color(255, 255, 255, Opacity);
         public static Color Empty = new Color(118, 118, 118, Opacity);
 
         public static Color Drums = new Color(212, 93, 180, Opacity);
@@ -259,7 +259,7 @@ public partial class AmpTrack : MonoBehaviour
         public static Color Synth = new Color(221, 219, 89, Opacity);
         public static Color Guitar = new Color(255, 15, 20, Opacity);
         public static Color Vocals = new Color(0, 255, 0, Opacity);
-        public static Color Freestyle = new Color(255, 255, 255, Opacity);
+        public static Color Freestyle = new Color(110, 110, 110, Opacity);
 
         public static Material[] materialCache = new Material[6];
         public static Material GetMaterialForInstrument(InstrumentType inst)
@@ -278,7 +278,8 @@ public partial class AmpTrack : MonoBehaviour
 
         }
 
-        public static Color ColorFromInstrument(InstrumentType type)
+        public static Color ColorFromInstrument(InstrumentType type) { return ConvertColor(_ColorFromInstrument(type)); }
+        public static Color _ColorFromInstrument(InstrumentType type)
         {
             switch ((int)type)
             {

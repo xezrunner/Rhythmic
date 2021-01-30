@@ -76,14 +76,14 @@ public class AmpTrackSection : MonoBehaviour
     public Color EdgeLightsColor
     {
         get { return _edgeLightsColor; }
-        set { _edgeLightsColor = value; EdgeLights_Local.Color = /*EdgeLights_Global.Color =*/ value; }
+        set { _edgeLightsColor = value; EdgeLights_Local.Color = /*EdgeLights_Global.Color*/ value; }
     }
 
     private Color _measureColor;
     public Color MeasureColor
     {
         get { return _measureColor; }
-        set { _measureColor = value; /*if (Track.IsTrackFocused)*/ MeshRenderer.sharedMaterial.color = Colors.ConvertColor(value); }
+        set { _measureColor = value; }
     }
 
     // Deformation
