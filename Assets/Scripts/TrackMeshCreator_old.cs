@@ -443,7 +443,7 @@ public class TrackMeshCreator_old : PathSceneTool
         if (roadMaterial != null && undersideMaterial != null)
         {
             meshRenderer.sharedMaterials = new Material[] { roadMaterial, undersideMaterial, undersideMaterial };
-            meshRenderer.sharedMaterials[0].mainTextureScale = new Vector3(1, path.length);
+            //meshRenderer.sharedMaterials[0].mainTextureScale = new Vector3(1, path.length);
         }
 
         return meshHolder;

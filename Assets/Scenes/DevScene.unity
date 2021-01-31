@@ -172,7 +172,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f0fbf93bdfe97d41a7159ea35bedf1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultSong: dalatecht
+  defaultSong: perfectbrain
   Enabled: 1
   IsFake: 0
   IsPlaying: 0
@@ -182,7 +182,7 @@ MonoBehaviour:
   SlopMs: 0
   SlopPos: 0
   beatHaptics: {x: 0.25, y: 0.8, z: 85}
-  StartDistanceAdjustmentEnabled: 1
+  StartDistanceAdjustmentEnabled: 0
   StartDistance: 0
   BG_CLICKSrc: {fileID: 0}
   audioSrcList: []
@@ -962,12 +962,12 @@ GameObject:
   - component: {fileID: 435881602}
   - component: {fileID: 435881601}
   m_Layer: 0
-  m_Name: Pathe
+  m_Name: Path
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &435881601
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -985,14 +985,14 @@ MonoBehaviour:
   roadWidth: 3.6
   roadThickness: 0.5
   flattenSurface: 0
-  roadMaterial: {fileID: 2100000, guid: 71178a17f71500448933e07925ffcc97, type: 2}
+  roadMaterial: {fileID: 2100000, guid: d0d842f23fdb8de46a5916074826f995, type: 2}
   undersideMaterial: {fileID: 2100000, guid: 69561553b86bde34da494d1ffed3ba45, type: 2}
   textureTiling: 0
   debug_startPoint: 0
   debug_length: 816.16
   debug_xPosition: 0
   edgeLightsThickness: 0.1
-  reactToPathChanges: 0
+  reactToPathChanges: 1
   EdgeLightsPrefab: {fileID: 0}
   TrackPrefab: {fileID: 0}
   SectionPrefab: {fileID: 0}
@@ -1013,52 +1013,36 @@ MonoBehaviour:
   editorData:
     _bezierPath:
       points:
-      - {x: -572.7814, y: 236.69351, z: -979.28}
-      - {x: -323.3733, y: 202.70834, z: -803.68677}
-      - {x: -201.67078, y: 12.538879, z: -580.9907}
-      - {x: -30.951355, y: 0.09265137, z: -283.53052}
-      - {x: 139.76807, y: -12.353577, z: 13.9296875}
-      - {x: -433.70068, y: 10.638336, z: 124.88135}
-      - {x: -341.4016, y: 43.419617, z: 436.56226}
-      - {x: -249.10254, y: 76.2009, z: 748.24316}
-      - {x: -79.92218, y: 69.24359, z: 713.3362}
-      - {x: 91.54614, y: 95.12262, z: 723.3762}
-      - {x: 263.01447, y: 121.00165, z: 733.41626}
-      - {x: 169.70612, y: 92.96158, z: 622.31934}
-      - {x: 335.4607, y: 139.18765, z: 598.6467}
-      - {x: 501.21527, y: 185.41373, z: 574.9741}
-      - {x: 463.0003, y: 144.63107, z: 547.35913}
-      - {x: 531.8625, y: 212.40436, z: 639.79956}
-      - {x: 600.7247, y: 280.17764, z: 732.24}
-      - {x: 682.2089, y: 344.62613, z: 847.6649}
-      - {x: 493.03436, y: 362.9197, z: 937.376}
-      - {x: 303.8598, y: 381.2133, z: 1027.0872}
-      - {x: -43.266357, y: 75.0972, z: 1004.9414}
-      - {x: -462.70044, y: -52.223907, z: 425.13257}
-      - {x: -882.1345, y: -179.54501, z: -154.67627}
-      - {x: -632.2975, y: -71.368805, z: -18.533203}
-      - {x: -584.92786, y: -24.652557, z: -162.27368}
+      - {x: 0.15490007, y: 0.19193268, z: -23.750862}
+      - {x: -98.25845, y: 13.617345, z: 83.63298}
+      - {x: 167.5252, y: -54.150703, z: 128.31186}
+      - {x: 238.94243, y: -41.272522, z: 191.68051}
+      - {x: 310.35965, y: -28.394339, z: 255.04916}
+      - {x: 272.61423, y: -34.401974, z: 238.5108}
+      - {x: 367.94513, y: -16.596266, z: 295.08414}
+      - {x: 463.27603, y: 1.2094421, z: 351.65747}
+      - {x: 465.70337, y: 17.250946, z: 48.68814}
+      - {x: 557.54047, y: -2.1627502, z: 139.30405}
+      - {x: 649.37756, y: -21.576447, z: 229.91995}
+      - {x: 771.1877, y: 16.479279, z: 552.7219}
+      - {x: 735.31104, y: 56.814545, z: 533.8644}
       isClosed: 0
       space: 0
       controlMode: 1
-      autoControlLength: 0.626
+      autoControlLength: 0.3
       boundsUpToDate: 0
       bounds:
         m_Center: {x: 0, y: 0, z: 0}
         m_Extent: {x: 0, y: 0, z: 0}
       perAnchorNormalsAngle:
-      - 0
-      - 330
-      - 17.051256
-      - 124.55
-      - 325
-      - 0
-      - 180
-      - 0
-      - 0
+      - 335.47
+      - 345.31
+      - 353.6
+      - 19.8
+      - 19.8
       globalNormalsAngle: 0
       flipNormals: 0
-    vertexPathUpToDate: 0
+    vertexPathUpToDate: 1
     vertexPathMaxAngleError: 0.3
     vertexPathMinVertexSpacing: 0.01
     showTransformTool: 1
@@ -1066,9 +1050,9 @@ MonoBehaviour:
     showPerSegmentBounds: 0
     displayAnchorPoints: 1
     displayControlPoints: 1
-    bezierHandleScale: 15
+    bezierHandleScale: 1.64
     globalDisplaySettingsFoldout: 0
-    keepConstantHandleSize: 0
+    keepConstantHandleSize: 1
     showNormalsInVertexMode: 0
     showBezierPathInVertexMode: 0
     showDisplayOptions: 1
@@ -1087,7 +1071,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 435881600}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 572.7, y: -239.4, z: 995}
+  m_LocalPosition: {x: 31.7, y: 0, z: -59.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1010288848}
@@ -1224,7 +1208,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &476351812
 MonoBehaviour:
@@ -1750,13 +1734,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 835594478}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.16504757, y: 0, z: 0, w: 0.9862857}
   m_LocalPosition: {x: 0, y: 0, z: -8.62}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 571927865}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 19, y: 0, z: 0}
 --- !u!114 &835594480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2006,149 +1990,6 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!1 &892363204
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 892363207}
-  - component: {fileID: 892363206}
-  - component: {fileID: 892363205}
-  m_Layer: 0
-  m_Name: Path
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &892363205
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 892363204}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f70edad9de08eee40a54f6226d0f9ddf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  autoUpdate: 1
-  pathCreator: {fileID: 892363206}
-  roadWidth: 3.6
-  roadThickness: 0.5
-  flattenSurface: 0
-  roadMaterial: {fileID: 2100000, guid: 71178a17f71500448933e07925ffcc97, type: 2}
-  undersideMaterial: {fileID: 2100000, guid: 69561553b86bde34da494d1ffed3ba45, type: 2}
-  textureTiling: 0
-  debug_startPoint: 0
-  debug_length: -1
-  debug_xPosition: 0
-  edgeLightsThickness: 0.1
-  reactToPathChanges: 0
-  EdgeLightsPrefab: {fileID: 0}
-  TrackPrefab: {fileID: 0}
-  SectionPrefab: {fileID: 0}
-  EdgeLightsMaterial: {fileID: 2100000, guid: d0d842f23fdb8de46a5916074826f995, type: 2}
-  TrackObjects: []
---- !u!114 &892363206
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 892363204}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e5ac92bc18f545cc84cd886ece82b4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  editorData:
-    _bezierPath:
-      points:
-      - {x: 0, y: 0, z: -692.817}
-      - {x: 0, y: 0, z: -679.3069}
-      - {x: 0, y: 0, z: -621.54315}
-      - {x: 0, y: 0, z: -564.1}
-      - {x: 0, y: 0, z: -464.9496}
-      - {x: 375.99323, y: -58.895355, z: -107.50139}
-      - {x: 129.6086, y: 0, z: -45.02185}
-      - {x: -55.15689, y: 44.166023, z: 1.8319702}
-      - {x: -196.59126, y: 42.291298, z: 281.85132}
-      - {x: -242.58061, y: 43.41961, z: 492.9287}
-      - {x: -279.73972, y: 44.331276, z: 663.4779}
-      - {x: -79.039856, y: 51.239017, z: 678.0687}
-      - {x: 91.54596, y: 95.12262, z: 723.37646}
-      - {x: 260.71173, y: 138.6409, z: 768.307}
-      - {x: 179.02869, y: 126.04921, z: 687.45154}
-      - {x: 335.46002, y: 139.18765, z: 598.647}
-      - {x: 462.3224, y: 149.84264, z: 526.6284}
-      - {x: 490.53647, y: 169.2746, z: 574.4607}
-      - {x: 531.862, y: 212.40436, z: 639.80005}
-      - {x: 580.85834, y: 263.53986, z: 717.2677}
-      - {x: 598.0911, y: 330.50626, z: 852.3181}
-      - {x: 493.03333, y: 362.9197, z: 937.3766}
-      - {x: 214.70346, y: 448.79272, z: 1162.7222}
-      - {x: -504.335, y: 37.154068, z: 501.6006}
-      - {x: -462.70044, y: -52.22387, z: 425.13257}
-      isClosed: 0
-      space: 0
-      controlMode: 0
-      autoControlLength: 0.65
-      boundsUpToDate: 0
-      bounds:
-        m_Center: {x: 0, y: 0, z: 0}
-        m_Extent: {x: 0, y: 0, z: 0}
-      perAnchorNormalsAngle:
-      - 0
-      - 0
-      - 15
-      - 17.051256
-      - 10.47
-      - 325
-      - 0
-      - 26
-      - 0
-      globalNormalsAngle: 0
-      flipNormals: 0
-    vertexPathUpToDate: 1
-    vertexPathMaxAngleError: 0.3
-    vertexPathMinVertexSpacing: 0.01
-    showTransformTool: 1
-    showPathBounds: 0
-    showPerSegmentBounds: 0
-    displayAnchorPoints: 1
-    displayControlPoints: 1
-    bezierHandleScale: 56.32
-    globalDisplaySettingsFoldout: 0
-    keepConstantHandleSize: 0
-    showNormalsInVertexMode: 0
-    showBezierPathInVertexMode: 0
-    showDisplayOptions: 1
-    showPathOptions: 1
-    showVertexPathDisplayOptions: 0
-    showVertexPathOptions: 1
-    showNormals: 0
-    showNormalsHelpInfo: 0
-    tabIndex: 0
-  initialized: 1
---- !u!4 &892363207
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 892363204}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 660.76}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &922609145
 GameObject:
   m_ObjectHideFlags: 0
@@ -2573,7 +2414,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: world_
   FriendlyName: The World
-  PathCreator: {fileID: 892363206}
+  PathCreator: {fileID: 435881602}
   WorldVisualQuality: 0
   GeometryEnabled: 1
   LightingEnabled: 1
@@ -10772,6 +10613,46 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1225588844874855064, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588844874855064, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588844875742810, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: IsPlaying
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588844875742810, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: PathCreator
+      value: 
+      objectReference: {fileID: 435881602}
+    - target: {fileID: 1225588844875742810, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: SmoothDuration
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588844875742810, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: PositionOffset.x
+      value: 10.72
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588844875742810, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: TunnelRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588844875742810, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: DistanceTravelled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1225588844875742811, guid: 092cc62a45da22949af241be520f22ee,
         type: 3}
       propertyPath: m_RootOrder
