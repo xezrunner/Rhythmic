@@ -50,7 +50,7 @@ public partial class AmpTrack : MonoBehaviour
         set
         {
             _color = value;
-            TrackMaterial_Active.color = Color;
+            TrackMaterial_Active.color = value;
         }
     }
 

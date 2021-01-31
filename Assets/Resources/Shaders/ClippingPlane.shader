@@ -27,7 +27,7 @@
 		//BlendOp Add
         //Blend One Zero
         //ZWrite On
-		Lighting Off
+		Lighting On
         Cull Off
 
 		CGPROGRAM
