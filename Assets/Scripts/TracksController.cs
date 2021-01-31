@@ -90,13 +90,13 @@ public class TracksController : MonoBehaviour
         lengthPlane.GetComponent<MeshRenderer>().enabled = false;
 
         // TODO: might not be needed if we force mostly straight paths or fall back to 'local' global edge lights.
-        inversePlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        inversePlane.name = "Clip behind plane";
-        inversePlane.transform.parent = transform;
-        inversePlane.GetComponent<MeshRenderer>().enabled = false;
+        //inversePlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        //inversePlane.name = "Clip behind plane";
+        //inversePlane.transform.parent = transform;
+        //inversePlane.GetComponent<MeshRenderer>().enabled = false;
 
         clipManager.plane = lengthPlane;
-        clipManager.inverse_plane = inversePlane;
+        //clipManager.inverse_plane = inversePlane;
 
         StartCoroutine(AddTrackMaterialsToClipper());
     }
@@ -132,13 +132,13 @@ public class TracksController : MonoBehaviour
         lengthPlane.transform.rotation = planeRot;
 
         // Inverse:
-        float inverse_dist = AmpPlayerLocomotion.Instance.DistanceTravelled - SongController.measureLengthInzPos;
+        //float inverse_dist = AmpPlayerLocomotion.Instance.DistanceTravelled - SongController.measureLengthInzPos;
 
-        Vector3 inverse_planePos = PathTools.GetPositionOnPath(PathTools.Path, inverse_dist);
-        Quaternion inverse_planeRot = PathTools.GetRotationOnPath(PathTools.Path, inverse_dist, new Vector3(90, 0, 0));
+        //Vector3 inverse_planePos = PathTools.GetPositionOnPath(PathTools.Path, inverse_dist);
+        //Quaternion inverse_planeRot = PathTools.GetRotationOnPath(PathTools.Path, inverse_dist, new Vector3(90, 0, 0));
 
-        inversePlane.transform.position = inverse_planePos;
-        inversePlane.transform.rotation = inverse_planeRot;
+        //inversePlane.transform.position = inverse_planePos;
+        //inversePlane.transform.rotation = inverse_planeRot;
 
         clipManager.Clip();
     }
