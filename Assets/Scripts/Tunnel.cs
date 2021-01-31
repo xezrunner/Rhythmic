@@ -49,9 +49,12 @@ public class Tunnel : MonoBehaviour
 
         float angle = RhythmicGame.IsTunnelMode ? id * -rotZ : 0f;
         float posX = radius * Mathf.Sin(angle * Mathf.Deg2Rad) + center.x;
-        float posY = radius * Mathf.Cos(angle * Mathf.Deg2Rad) + center.y;
+        float posY = radius * Mathf.Cos(angle * Mathf.Deg2Rad); // This returns a position on the circle outline, thus the tunnel is perfectly centered.
 
-        transform[0] = new Vector3(posX + (!RhythmicGame.IsTunnelMode ? id * RhythmicGame.TrackWidth : 0f), posY);
+        transform[0] = new Vector3(posX +
+            /*                            |   Half width of all tracks accounting for 0   | + |       Track position       |   */
+            (!RhythmicGame.IsTunnelMode ? (-trackCount + 1) * (RhythmicGame.TrackWidth / 2) + (id * RhythmicGame.TrackWidth) : // Regular mode
+            0f), posY); // Tunnel mode
         transform[1].z = -angle;
 
         return transform;
