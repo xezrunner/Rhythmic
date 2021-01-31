@@ -22,7 +22,7 @@ public class DebugController : MonoBehaviour
     private void Start()
     {
         // TODO TODO TODO!!! This causes a Unity bug where the editor locks up when trying to play again!
-        ConsoleServer.StartConsoleServer();
+        //ConsoleServer.StartConsoleServer();
     }
 
     public bool isDebugOn = true;
