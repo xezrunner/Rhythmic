@@ -1,12 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class DebugController : MonoBehaviour
 {
@@ -159,13 +154,35 @@ public class DebugController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Keypad7))
         { }
 
-        if (Input.GetKeyDown(KeyCode.Keypad9))
+        // Debug move forward
+        //if (Input.GetKeyDown(KeyCode.Keypad9))
+        //{
+        //    AmpPlayerLocomotion.Instance.IsPlaying = true;
+        //    AmpPlayerLocomotion.Instance.DistanceTravelled += 140;
+        //    await Task.Delay(100);
+        //    AmpPlayerLocomotion.Instance.IsPlaying = false;
+        //}
+
+        if (Input.GetKeyDown(KeyCode.Keypad8))
         {
-            AmpPlayerLocomotion.Instance.IsPlaying = true;
-            AmpPlayerLocomotion.Instance.DistanceTravelled += 140;
-            await Task.Delay(100);
-            AmpPlayerLocomotion.Instance.IsPlaying = false;
+            float offset = 2f;
+            AmpPlayerLocomotion.Instance.DistanceTravelled += offset * SongController.posInSec;
+            SongController.Instance.OffsetSong(offset);
+            Clock.Instance.seconds += offset;
         }
+
+        if (Input.GetKeyDown(KeyCode.Keypad2))
+        {
+            float offset = 2f;
+            AmpPlayerLocomotion.Instance.DistanceTravelled -= offset * SongController.posInSec;
+            SongController.Instance.OffsetSong(-offset);
+            Clock.Instance.seconds -= offset;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Q))
+            AmpPlayerTrackSwitching.Instance.SwitchToTrack(0, true);
+        else if (Input.GetKeyDown(KeyCode.P))
+            AmpPlayerTrackSwitching.Instance.SwitchToTrack(TracksController.Instance.Tracks.Count - 1, true);
 
         // Timescale
         if (Input.GetKeyDown(KeyCode.Keypad8) & Input.GetKey(KeyCode.LeftControl)) // up
