@@ -177,17 +177,11 @@ public class TrackMeshCreator : MonoBehaviour
             Vector3 localRight = path.GetNormal(0);
 
             // Find position to left and right of current path vertex
-            Vector3 vertSideA = PathTools.GetPositionOnPath(path, startPointAdjustment) - localRight * Mathf.Abs(width / 2f);
-            Vector3 vertSideB = PathTools.GetPositionOnPath(path, startPointAdjustment) + localRight * Mathf.Abs(width / 2f);
+            Vector3 vertSideB = PathTools.GetPositionOnPath(path, startPointAdjustment, position - tunnelCenter) + localRight * Mathf.Abs(width / 2f);
+            Vector3 vertSideA = PathTools.GetPositionOnPath(path, startPointAdjustment, position - tunnelCenter) - localRight * Mathf.Abs(width / 2f);
 
-            // ***** OFFSET VERTEX POINTS FOR PARALLEL CURVES *****
-            // The calculations below create the mesh based on the vertex positions.
-            // By offseting the vertex positions, the calculations will take place according to their positions and the curve will thus be bigger or smaller, depending on the vertex positions.
-            vertSideB += (localRight * position.x) + (localUp * position.y);
-            vertSideA += (localRight * position.x) + (localUp * position.y);
-
-            vertSideA -= tunnelCenter;
-            vertSideB -= tunnelCenter;
+            vertSideA += (localUp * 0.01f);
+            vertSideB += (localUp * 0.01f);
 
             #region Add vertices, UVs and normals
             // Add top of road vertices
@@ -255,6 +249,9 @@ public class TrackMeshCreator : MonoBehaviour
             // By offseting the vertex positions, the calculations will take place according to their positions and the curve will thus be bigger or smaller, depending on the vertex positions.
             vertSideB += (localRight * position.x) + (localUp * position.y);
             vertSideA += (localRight * position.x) + (localUp * position.y);
+
+            vertSideA += (localUp * 0.01f);
+            vertSideB += (localUp * 0.01f);
 
             #region Add vertices, UVs and normals
             // Add top of road vertices
