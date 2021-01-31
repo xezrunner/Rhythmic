@@ -10,6 +10,8 @@ public enum TrackSwitchForce { None = 0, IgnoreSeeking = 1, Force = 2 }
 
 public class AmpPlayerTrackSwitching : MonoBehaviour
 {
+    public static AmpPlayerTrackSwitching Instance;
+
     [Header("Common")]
     public AmpPlayer Player;
     public Tunnel Tunnel { get { return Tunnel.Instance; } }
@@ -28,6 +30,7 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
 
     /// Functionality
 
+    void Awake() => Instance = this;
     void Start() => StartCoroutine(WaitForStart());  // Automatically switch to a start track ID, once we are loaded
     IEnumerator WaitForStart()
     {
@@ -171,7 +174,7 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
             Locomotion.Locomotion(Locomotion.DistanceTravelled);
 #endif
 
-        if (!SongController.IsPlaying) return;
+        if (!SongController.IsPlaying && !Locomotion.IsPlaying) return;
 
         Locomotion.PositionOffset = Vector3.SmoothDamp(Locomotion.PositionOffset, targetPos, ref pos_vel, 1f, 100f, EasingStrength * Time.deltaTime);
         //if (!RhythmicGame.IsTunnelMode)

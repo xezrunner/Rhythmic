@@ -92,7 +92,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
     public float LiveCaptDist;
     void Update()
     {
-        if (SongController.IsPlaying || IsPlaying)
+        if (IsPlaying || SongController.IsPlaying)
         {
             if (!SongController.IsPlaying && IsPlaying) { }
                 //DistanceTravelled += 4f * Time.deltaTime;

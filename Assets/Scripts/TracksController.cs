@@ -145,7 +145,7 @@ public class TracksController : MonoBehaviour
     void Update()
     {
         // Clipmanager update
-        if (SongController.IsPlaying) LengthClip();
+        if (SongController.IsPlaying || AmpPlayerLocomotion.Instance.IsPlaying) LengthClip();
     }
 
     /// Events
