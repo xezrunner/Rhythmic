@@ -10,6 +10,7 @@ TagManager:
   - TrackTrigger
   - SubbeatTrigger
   - Measure
+  - Remove
   layers:
   - Default
   - TransparentFX

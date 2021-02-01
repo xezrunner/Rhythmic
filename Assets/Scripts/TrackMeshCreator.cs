@@ -5,6 +5,7 @@ public class TrackMeshCreator : MonoBehaviour
 {
     /// Editor functionality
     #region Editor functionality
+    public Material material;
     public GameObject lastGo;
 
     [Header("Individual unit sizes")]
@@ -19,9 +20,9 @@ public class TrackMeshCreator : MonoBehaviour
     public float xPosition = 0f;
     public float yElevation = 0f;
 
-    public GameObject CreateGameObject()
+    public GameObject CreateGameObject(bool debug)
     {
-        Mesh mesh = CreateMesh_Editor();
+        Mesh mesh = CreateMesh_Editor(debug);
 
         var go = new GameObject();
         var meshFilter = go.AddComponent<MeshFilter>();
@@ -29,6 +30,8 @@ public class TrackMeshCreator : MonoBehaviour
 
         // Assign mesh
         meshFilter.sharedMesh = mesh;
+        // Assign material
+        meshRenderer.material = material;
 
         lastGo = go;
         return go;
@@ -40,11 +43,12 @@ public class TrackMeshCreator : MonoBehaviour
     }
 
     public bool TestDivisibility_Editor = true;
-    public Mesh CreateMesh_Editor() { return CreateMesh(DesiredWidth, DesiredLength, width, length); }
+    public Mesh CreateMesh_Editor(bool debug = false) { return CreateMesh(DesiredWidth, DesiredLength, width, length, debug); }
     #endregion
 
     /// Standalone functionality
     public static bool TestDivisibility = true;
+
 
     /// <summary>
     /// Checks whether the piece sizings are divisible.
@@ -60,7 +64,7 @@ public class TrackMeshCreator : MonoBehaviour
     static float lastDesiredValues;
 
     // TODO: Optimize this code!
-    public static Mesh CreateMesh(float desiredX, float desiredZ, float pieceX = 0.45f, float pieceZ = 0.5f)
+    public static Mesh CreateMesh(float desiredX, float desiredZ, float pieceX = 0.45f, float pieceZ = 0.5f, bool debug = false)
     {
         // Returned cached mesh if request is the same
         if (desiredX + desiredZ == lastDesiredValues) return cachedMesh;
@@ -87,8 +91,6 @@ public class TrackMeshCreator : MonoBehaviour
         // TODO: it adds 1 extra piece for some reason...
         //if (desiredZ % pieceZ != 0)
         //zSize--;
-
-        Mesh mesh = new Mesh() { name = "Procgen mesh (cust)" };
 
         Vector3[] vertices = new Vector3[(xSize + 1) * (zSize + 1)];
         int[] triangles = new int[xSize * zSize * 6];
@@ -119,6 +121,29 @@ public class TrackMeshCreator : MonoBehaviour
                 triangles[ti + 5] = vi + xSize + 2;
             }
         }
+
+        if (debug)
+        {
+            Logger.Log(vertices, printIndex: true);
+            Logger.Log(triangles, printIndex: false);
+
+            // Debug draw vertices
+            if (GameObject.FindGameObjectWithTag("Remove") == null)
+            {
+                int vID = 0;
+                foreach (Vector3 v in vertices)
+                {
+                    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    go.tag = "Remove";
+                    go.transform.position = v;
+                    go.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+                    go.name = vID.ToString();
+                    vID++;
+                }
+            }
+        }
+
+        Mesh mesh = new Mesh() { name = "Generated mesh (cust)" };
 
         mesh.vertices = vertices;
         mesh.triangles = triangles;
@@ -305,7 +330,7 @@ public class TrackMeshCreator : MonoBehaviour
 
         // ----- FINAL ----- //
 
-        Mesh mesh = new Mesh() { name = "Procgen mesh (full-length)" };
+        Mesh mesh = new Mesh() { name = "Generated mesh (full-length)" };
 
         mesh.vertices = vertices;
         mesh.uv = uvs;
