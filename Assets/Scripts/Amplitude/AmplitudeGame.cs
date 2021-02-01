@@ -32,11 +32,11 @@ public static class AmplitudeGame
     public static List<int[]> difficultyNoteNumbers = new List<int[]>()
     {
         // Beginner
-        new int[3] {0,0,0},
+        new int[3] {96,98,100},
         // Intermediate
-        new int[3] {0,0,0},
+        new int[3] {102,104,106},
         // Advanced
-        new int[3] {0,0,0},
+        new int[3] {108,110,112},
         // Expert
         new int[3] {114,116,118}
     };

@@ -102,6 +102,8 @@ public static class RhythmicGame
     // Tech props
     public static bool AutoFindPathFallback = true; // Whether to attempt finding an object named 'Path' in case a world/song path was never specified.
 
+    /* ----- DEBUG props ----- */
+
     // Event debug
     public static bool DebugTrackCapturingEvents = false;
     public static bool DebugTrackCapturingEase = false;
