@@ -346,6 +346,7 @@ public class TrackMeshCreator : MonoBehaviour
         return mesh;
     }
 
+#if false
     public static Mesh CreateFullLengthMeshForPath(float width, float height, Vector3 position, float angle, VertexPath path = null)
     {
         if (width == 0) width = RhythmicGame.TrackWidth;
@@ -404,7 +405,7 @@ public class TrackMeshCreator : MonoBehaviour
             vertSideB += (localRight * position.x) + (localUp * position.y);
             vertSideA += (localRight * position.x) + (localUp * position.y);
 
-            #region Add vertices, UVs and normals
+    #region Add vertices, UVs and normals
             // Add top of road vertices
             vertices[vertIndex + 0] = vertSideA;
             vertices[vertIndex + 1] = vertSideB;
@@ -433,7 +434,7 @@ public class TrackMeshCreator : MonoBehaviour
             normals[vertIndex + 5] = localRight;
             normals[vertIndex + 6] = -localRight;
             normals[vertIndex + 7] = localRight;
-            #endregion
+    #endregion
 
             // Set triangle indices
             if (i <= endVertex.previousIndex || path.isClosedLoop)
@@ -467,4 +468,164 @@ public class TrackMeshCreator : MonoBehaviour
 
         return mesh;
     }
+#endif
 }
+
+#if false
+
+// An attempt at the revival of the old mesh generation code
+
+public static Mesh CreateMesh(float desiredX, float desiredZ, float pieceX = 0.45f, float pieceZ = 0.5f, bool debug = false, float desiredY = .4f)
+    {
+        // Returned cached mesh if request is the same
+        if (desiredX + desiredZ == lastDesiredValues) return cachedMesh;
+
+        // Temp!
+        if (Application.isPlaying)
+        {
+            //pieceX = RhythmicGame.TrackWidth / 8;
+            pieceX = RhythmicGame.TrackWidth;
+            pieceZ = desiredZ / 32;
+        }
+
+        // How many times to go through stuff
+        int zSize = Mathf.RoundToInt(desiredZ / pieceZ);
+        int xSize = Mathf.RoundToInt(desiredX / pieceX);
+        int ySize = 1; // Y is only supposed to repeat once. (?)
+
+        Vector3[] vertices = new Vector3[zSize * 8 + 8];
+        Vector2[] uv = new Vector2[vertices.Length];
+        Vector4[] tangents = new Vector4[vertices.Length];
+        Vector3[] normals = new Vector3[vertices.Length];
+
+        // Triangles:
+        int numTris = 2 * zSize;
+        int[] triangles_top = new int[numTris * 3];
+        int[] underRoadTriangles = new int[numTris * 3];
+        int[] sideOfRoadTriangles = new int[numTris * 4 * 3];
+
+        int[] triangleMap = { 0, 8, 1, 1, 8, 9 };
+        int[] sidesTriangleMap = {
+           4, 6, 14,
+           12, 4, 14,
+           5, 15, 7,
+           13, 15, 5,
+
+           4, 12, 14,
+           6, 4, 14,
+           5, 15, 13,
+           7, 15, 5 };
+
+        // Generate mesh data
+        {
+            int vi = 0;
+            int ti = 0;
+
+            // Vertices & triangles:
+            for (int i = 0; i < zSize; i++, vi += 8, ti += 6)
+            {
+                Vector3 side0 = new Vector3(0 * pieceX - desiredX / 2, 0, i * pieceZ);
+                Vector3 side1 = new Vector3(1 * pieceX - desiredX / 2, 0, i * pieceZ);
+
+                // Add vertices
+                {
+                    /* top */
+vertices[vi] = side0;
+vertices[vi + 1] = side1;
+
+/* bottom */
+vertices[vi + 2] = side0 - Vector3.up * desiredY;
+vertices[vi + 3] = side1 - Vector3.up * desiredY;
+
+/* sides */
+vertices[vi + 4] = vertices[vi + 0];
+vertices[vi + 5] = vertices[vi + 1];
+vertices[vi + 6] = vertices[vi + 2];
+vertices[vi + 7] = vertices[vi + 3];
+                }
+
+                // Add normals
+                {
+    /* Top of road normals */
+    normals[vi + 0] = Vector3.up;
+    normals[vi + 1] = Vector3.up;
+    /* Bottom of road normals */
+    normals[vi + 2] = -Vector3.up;
+    normals[vi + 3] = -Vector3.up;
+    /* Sides of road normals */
+    normals[vi + 4] = -Vector3.right;
+    normals[vi + 5] = Vector3.right;
+    normals[vi + 6] = -Vector3.right;
+    normals[vi + 7] = Vector3.right;
+}
+
+uv[vi] = new Vector2(0, side0.z);
+uv[vi + 1] = new Vector2(1, side0.z);
+tangents[i] = new Vector4(1f, 0f, 0f, -1f);
+
+// Add triangles
+{
+    if (i < zSize - 1)
+    {
+        for (int t = 0; t < triangleMap.Length; t++)
+        {
+            triangles_top[ti + t] = (vi + triangleMap[t]) % vertices.Length;
+            underRoadTriangles[ti + t] = (vi + triangleMap[triangleMap.Length - 1 - t] + 2) % vertices.Length;
+        }
+        for (int t = 0; t < sidesTriangleMap.Length; t++)
+            sideOfRoadTriangles[ti * 4 + t] = (vi + sidesTriangleMap[t]) % vertices.Length;
+    }
+
+    /*
+    triangles[ti] = vi;
+    triangles[ti + 3] = triangles[ti + 2] = vi + 1;
+    triangles[ti + 4] = triangles[ti + 1] = vi + xSize + 1;
+    triangles[ti + 5] = vi + xSize + 2;
+    */
+}
+            }
+        }
+
+        if (debug)
+{
+    Logger.Log(vertices, printIndex: true);
+    //Logger.Log(triangles, printIndex: false);
+
+    // Debug draw vertices
+    if (GameObject.FindGameObjectWithTag("Remove") == null)
+    {
+        int vID = 0;
+        foreach (Vector3 v in vertices)
+        {
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.tag = "Remove";
+            go.transform.position = v;
+            go.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+            go.name = vID.ToString();
+            vID++;
+        }
+    }
+}
+
+Mesh mesh = new Mesh() { name = "Generated mesh (cust)" };
+
+mesh.vertices = vertices;
+mesh.uv = uv;
+mesh.normals = normals;
+mesh.tangents = tangents;
+
+mesh.subMeshCount = 2;
+mesh.SetTriangles(triangles_top, 0);
+
+int[] sideAndBottomTriangles = new int[sideOfRoadTriangles.Length + underRoadTriangles.Length];
+underRoadTriangles.CopyTo(sideAndBottomTriangles, 0);
+sideOfRoadTriangles.CopyTo(sideAndBottomTriangles, underRoadTriangles.Length);
+
+mesh.SetTriangles(sideAndBottomTriangles, 1);
+
+//mesh.RecalculateBounds();
+mesh.RecalculateNormals();
+return mesh;
+    }
+ 
+#endif
