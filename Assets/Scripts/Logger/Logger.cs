@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,6 +26,7 @@ public class Logger
                 Log($"Unsupported object passed to Logger | Type: {obj.GetType()}"); break;
 
             case string s: Log(s, logType); break;
+            case Array a: LogArray(a, logType, printIndex, separatorChar); break;
             case List<string> l: LogList(l, logType, printIndex, separatorChar); break;
             case List<int> l: LogList(l, logType, printIndex, separatorChar); break;
             case List<float> l: LogList(l, logType, printIndex, separatorChar); break;
@@ -41,12 +43,12 @@ public class Logger
     /// Log() for types
 
     // Lists:
-    public static void LogList<T>(List<T> list, CLogType logType, bool printIndex = true, char separatorChar = ',')
+    public static void LogArray(Array array, CLogType logType, bool printIndex = true, char separatorChar = ',')
     {
         string s = "";
 
         int i = 0;
-        foreach (var o in list) // Add element values to the string
+        foreach (var o in array) // Add element values to the string
         {
             // printIndex: true | [0]: first, [1]: second, [2]: third
             // printIndex: false | first, second, third
@@ -56,5 +58,23 @@ public class Logger
 
         s = s.Substring(0, s.Length - 2); // Remove trailing separator
         Log(s, logType); // Log!
+    }
+    public static void LogList<T>(List<T> list, CLogType logType, bool printIndex = true, char separatorChar = ',')
+    {
+        LogArray(list.ToArray(), logType, printIndex, separatorChar);
+
+        //string s = "";
+
+        //int i = 0;
+        //foreach (var o in list) // Add element values to the string
+        //{
+        //    // printIndex: true | [0]: first, [1]: second, [2]: third
+        //    // printIndex: false | first, second, third
+        //    s += (!printIndex ? "" : $"[{i}]: ") + o.ToString() + $"{separatorChar} ";
+        //    i++;
+        //}
+
+        //s = s.Substring(0, s.Length - 2); // Remove trailing separator
+        //Log(s, logType); // Log!
     }
 }
