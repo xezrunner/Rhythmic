@@ -32,6 +32,7 @@ public class Logger
             case List<float> l: LogList(l, logType, printIndex, separatorChar); break;
         }
     }
+    public static void Log(object obj, bool printIndex = true, char separatorChar = ',') => Log(obj, 0, printIndex, separatorChar);
 
     public static void Log(string text, CLogType logType = 0)
     {
