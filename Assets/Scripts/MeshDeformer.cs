@@ -1,25 +1,88 @@
 using PathCreation;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public static class MeshDeformer
 {
     // Deforms the parameter mesh's vertices
-    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3? offset = null) => DeformMesh(path, mesh, Vector3.zero, 0f, null, offset);
-    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, Vector3? offset = null) => DeformMesh(path, mesh, position, 0f, null, offset);
-    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, float angle = 0f, Vector3[] ogVerts = null, Vector3? offset = null)
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = true) => DeformMesh(path, mesh, Vector3.zero, 0f, null, offset, width, height, length, movePivotToStart);
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = true) => DeformMesh(path, mesh, position, 0f, null, offset, width, height, length, movePivotToStart);
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, float angle = 0f, Vector3[] ogVerts = null, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = true)
     {
         Vector3[] vertices = ogVerts != null ? ogVerts : new Vector3[mesh.vertices.Length];
         if (ogVerts == null) Array.Copy(mesh.vertices, vertices, mesh.vertices.Length);
 
-        // Transform mesh vertices
+        // XYZ adjustments
+        bool isXYZAdjustment = (width + height + length != -3); // Whether XYZ is adjusted at all
+        float maxX = -1;
+        float maxY = -1;
+        float maxZ = -1;
+
+        // Pivot adjustment to start
+        float p_maxZ = 0;
+        if (movePivotToStart)
+            p_maxZ = vertices.Max(v => v.z);
+
+        // XYZ adjustments setup:
+        if (isXYZAdjustment)
+        {
+            maxX = width != -1 ? vertices.Max(v => v.x) : width;
+            maxY = height != -1 ? vertices.Max(v => v.y) : height;
+            maxZ = length != -1 ? vertices.Max(v => v.z) : length;
+        }
+
+        // Deform mesh
         for (int i = 0; i < vertices.Length; i++)
-            vertices[i] = TransformVertex(path, vertices[i], position, angle, offset);
+        {
+            // Adjust Z pivot to the mesh starting point:
+            if (movePivotToStart)
+                vertices[i].z += p_maxZ;
+
+            // XYZ adjustments processing:
+            if (isXYZAdjustment)
+            {
+                if (maxX != -1) LerpAxis(ref vertices[i].x, width, maxX);
+                if (maxY != -1) LerpAxis(ref vertices[i].y, height, maxY);
+                if (maxZ != -1) LerpAxis(ref vertices[i].z, length, maxZ);
+            }
+
+            // Deform vertex points:
+            vertices[i] = TransformVertex(path, vertices[i], position, angle, offset, length);
+        }
 
         mesh.vertices = vertices;
         mesh.RecalculateBounds();
 
         return mesh;
+    }
+
+    /// <summary>
+    /// Lerps towards a target axis value. <br/>
+    /// It splits <paramref name="target"/> into half and determines the result (for both negative and positive sides) from the given
+    /// <paramref name="value"/>, turned into a fraction by <paramref name="valueMax"/>.
+    /// </summary>
+    /// <param name="value">The value to lerp.</param>
+    /// <param name="target">The target value you want to lerp to.</param>
+    /// <param name="valueMax">Used to determine the fraction value t from <paramref name="value"/>.</param>
+    /// <returns></returns>
+    static float LerpAxis(ref float value, float target, float valueMax)
+    {
+        float t = Mathf.Abs(value / valueMax);
+        float result;
+
+        target /= 2; // Split target value into 2
+
+        // Since Mathf.Lerp()'s t parameter does not support negative numbers, we have to swap the targets
+        // and use absolute value as t.
+        if (value < 0f)
+            result = Mathf.Lerp(0, -target, t);
+        else
+            result = Mathf.Lerp(0, target, t);
+
+        value = result; // Change ref value to result
+        return result;
     }
 
     /// <summary>
@@ -29,7 +92,7 @@ public static class MeshDeformer
     /// * the current vertex point's X and Y coords <br />
     /// In laymen's terms: the point and rotation along the path + the X and Y being offset with the path's rotation in mind
     /// </summary>
-    public static Vector3 TransformVertex(VertexPath path, Vector3 meshVertex, Vector3 position, float angle, Vector3? offset)
+    public static Vector3 TransformVertex(VertexPath path, Vector3 meshVertex, Vector3 position, float angle, Vector3? offset, float length = 0f)
     {
         Vector3 tunnelCenter = (Tunnel.Instance) ? Tunnel.Instance.center : Vector3.zero;
 

@@ -1,9 +1,7 @@
 using PathCreation;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.ProBuilder;
 
@@ -19,7 +17,11 @@ public class MeshDeformTest : MonoBehaviour
     public Mesh ogMesh;
     [HideInInspector]
     public Vector3? ogPos;
+    public float DesiredWidth = -1f;
+    public float DesiredHeight = -1f;
     public float DesiredLength = -1f;
+    public bool MovePivotToStart = true;
+
     VertexPath path { get { return pathcreator.path; } }
 
     void Awake()
@@ -67,7 +69,7 @@ public class MeshDeformTest : MonoBehaviour
         meshFilter.mesh = ogMesh;
         mesh = meshFilter.mesh;
 
-        MeshDeformer.DeformMesh(path, meshFilter.mesh, targetObject.transform.position, targetObject.transform.position.x);
+        MeshDeformer.DeformMesh(path, meshFilter.mesh, targetObject.transform.position, targetObject.transform.position, DesiredWidth, DesiredHeight, DesiredLength, MovePivotToStart);
 
         targetObject.transform.position = Vector3.zero;
 
