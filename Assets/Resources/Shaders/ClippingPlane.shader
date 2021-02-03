@@ -97,8 +97,8 @@
 			clip(col.a - _Cutoff);
 
 			fixed3 normal = UnpackNormal (tex2D (_BumpMap, i.uv_BumpMap));
-			o.Normal = lerp(float3(0.5, 0.5, 1), normal, _BumpStrength);
-			//o.Normal = UnpackNormal (tex2D (_BumpMap, i.uv_BumpMap));
+			//o.Normal = lerp(float3(0.5, 0.5, 1), normal, _BumpStrength); // REMOVEME: This used to offset the normal map texture.
+			o.Normal = UnpackScaleNormal (tex2D (_BumpMap, i.uv_BumpMap), _BumpStrength);
 
 			o.Alpha = col.a;
 			o.Metallic = _Metallic * facing;
