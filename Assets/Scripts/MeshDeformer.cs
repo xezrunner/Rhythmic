@@ -16,16 +16,15 @@ public static class MeshDeformer
         Vector3[] vertices = ogVerts != null ? ogVerts : new Vector3[mesh.vertices.Length];
         if (ogVerts == null) Array.Copy(mesh.vertices, vertices, mesh.vertices.Length);
 
-        // XYZ adjustments
-        bool isXYZAdjustment = (width + height + length != -3); // Whether XYZ is adjusted at all
-        float maxX = -1, maxY = -1, maxZ = -1;
-
-        // Pivot adjustment to start
+        // Pivot adjustment on Z axis
         float p_maxZ = 0;
         if (movePivotToStart)
-            p_maxZ = vertices.Max(v => v.z);
+            p_maxZ = GetMaxAxisValue(vertices, Axis.Z);
 
-        // XYZ adjustments setup:
+        // XYZ adjustments
+        bool isXYZAdjustment = (width + height + length != -3); // Whether at least one of the XYZ values is adjusted
+        float maxX = -1, maxY = -1, maxZ = -1;
+
         if (isXYZAdjustment)
         {
             maxX = width != -1 ? GetMaxAxisValue(vertices, Axis.X) : width;
@@ -66,7 +65,6 @@ public static class MeshDeformer
     /// <param name="value">The value to lerp.</param>
     /// <param name="target">The target value you want to lerp to.</param>
     /// <param name="valueMax">Used to determine the fraction value t from <paramref name="value"/>.</param>
-    /// <returns></returns>
     static float LerpAxis(ref float value, float target, float valueMax)
     {
         float t = Mathf.Abs(value / valueMax);
@@ -75,11 +73,8 @@ public static class MeshDeformer
         target /= 2; // Split target value into 2
 
         // Since Mathf.Lerp()'s t parameter does not support negative numbers, we have to swap the targets
-        // and use absolute value as t.
-        if (value < 0f)
-            result = Mathf.Lerp(0, -target, t);
-        else
-            result = Mathf.Lerp(0, target, t);
+        // and use the absolute value as t.
+        result = Mathf.Lerp(0, (value < 0f) ? -target : target, t);
 
         value = result; // Change ref value to result
         return result;
