@@ -1,29 +1,30 @@
 using PathCreation;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-
-public enum Axis { X = 0, Y = 1, Z = 2, W = 3 }
 
 public static class MeshDeformer
 {
     // Deforms the parameter mesh's vertices
-    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = true) => DeformMesh(path, mesh, Vector3.zero, 0f, null, offset, width, height, length, movePivotToStart);
-    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = true) => DeformMesh(path, mesh, position, 0f, null, offset, width, height, length, movePivotToStart);
-    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, float angle = 0f, Vector3[] ogVerts = null, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = true)
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3? offset = null) => DeformMesh(path, mesh, Vector3.zero, 0f, null, offset);
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, Vector3? offset = null) => DeformMesh(path, mesh, position, 0f, null, offset);
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, float angle = 0f, Vector3[] ogVerts = null, Vector3? offset = null)
     {
         Vector3[] vertices = ogVerts != null ? ogVerts : new Vector3[mesh.vertices.Length];
         if (ogVerts == null) Array.Copy(mesh.vertices, vertices, mesh.vertices.Length);
 
+<<<<<<< Updated upstream
+        // Transform mesh vertices
+        for (int i = 0; i < vertices.Length; i++)
+            vertices[i] = TransformVertex(path, vertices[i], position, angle, offset);
+=======
+		// Pivot adjustment to start
+        float p_maxZ = 0;
+        if (movePivotToStart)
+            p_maxZ = GetMaxAxisValue(vertices, Axis.Z);
+
         // XYZ adjustments
         bool isXYZAdjustment = (width + height + length != -3); // Whether XYZ is adjusted at all
         float maxX = -1, maxY = -1, maxZ = -1;
-
-        // Pivot adjustment to start
-        float p_maxZ = 0;
-        if (movePivotToStart)
-            p_maxZ = vertices.Max(v => v.z);
 
         // XYZ adjustments setup:
         if (isXYZAdjustment)
@@ -40,7 +41,7 @@ public static class MeshDeformer
             if (movePivotToStart)
                 vertices[i].z += p_maxZ;
 
-            // XYZ adjustments processing:
+            // XYZ adjustments:
             if (isXYZAdjustment)
             {
                 if (maxX != -1) LerpAxis(ref vertices[i].x, width, maxX);
@@ -51,6 +52,7 @@ public static class MeshDeformer
             // Deform vertex points:
             vertices[i] = TransformVertex(path, vertices[i], position, angle, offset, length);
         }
+>>>>>>> Stashed changes
 
         mesh.vertices = vertices;
         mesh.RecalculateBounds();
@@ -59,6 +61,8 @@ public static class MeshDeformer
     }
 
     /// <summary>
+<<<<<<< Updated upstream
+=======
     /// Lerps towards a target axis value. <br/>
     /// It splits <paramref name="target"/> into half and determines the result (for both negative and positive sides) from the given
     /// <paramref name="value"/>, turned into a fraction by <paramref name="valueMax"/>.
@@ -85,6 +89,7 @@ public static class MeshDeformer
         return result;
     }
 
+	// TODO: Generalize these for Vector2/3/4 & Quaternions?
     public static float GetMaxAxisValue(Mesh mesh, Axis axis) => GetMaxAxisValue(mesh.vertices, axis);
     public static float GetMaxAxisValue(Vector3[] vertices, Axis axis)
     {
@@ -113,13 +118,14 @@ public static class MeshDeformer
     }
 
     /// <summary>
+>>>>>>> Stashed changes
     /// The result is: <br />
     /// • Point along the path <br />
     /// + the rotation along the path <br />
     /// * the current vertex point's X and Y coords <br />
     /// In laymen's terms: the point and rotation along the path + the X and Y being offset with the path's rotation in mind
     /// </summary>
-    public static Vector3 TransformVertex(VertexPath path, Vector3 meshVertex, Vector3 position, float angle, Vector3? offset, float length = 0f)
+    public static Vector3 TransformVertex(VertexPath path, Vector3 meshVertex, Vector3 position, float angle, Vector3? offset)
     {
         Vector3 tunnelCenter = (Tunnel.Instance) ? Tunnel.Instance.center : Vector3.zero;
 
