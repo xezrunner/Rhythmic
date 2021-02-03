@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+public enum Axis { X = 0, Y = 1, Z = 2, W = 3 }
+
 public static class MeshDeformer
 {
     // Deforms the parameter mesh's vertices
@@ -16,9 +18,7 @@ public static class MeshDeformer
 
         // XYZ adjustments
         bool isXYZAdjustment = (width + height + length != -3); // Whether XYZ is adjusted at all
-        float maxX = -1;
-        float maxY = -1;
-        float maxZ = -1;
+        float maxX = -1, maxY = -1, maxZ = -1;
 
         // Pivot adjustment to start
         float p_maxZ = 0;
@@ -28,9 +28,9 @@ public static class MeshDeformer
         // XYZ adjustments setup:
         if (isXYZAdjustment)
         {
-            maxX = width != -1 ? vertices.Max(v => v.x) : width;
-            maxY = height != -1 ? vertices.Max(v => v.y) : height;
-            maxZ = length != -1 ? vertices.Max(v => v.z) : length;
+            maxX = width != -1 ? GetMaxAxisValue(vertices, Axis.X) : width;
+            maxY = height != -1 ? GetMaxAxisValue(vertices, Axis.Y) : height;
+            maxZ = length != -1 ? GetMaxAxisValue(vertices, Axis.Z) : length;
         }
 
         // Deform mesh
@@ -82,6 +82,33 @@ public static class MeshDeformer
             result = Mathf.Lerp(0, target, t);
 
         value = result; // Change ref value to result
+        return result;
+    }
+
+    public static float GetMaxAxisValue(Mesh mesh, Axis axis) => GetMaxAxisValue(mesh.vertices, axis);
+    public static float GetMaxAxisValue(Vector3[] vertices, Axis axis)
+    {
+        switch (axis)
+        {
+            case Axis.X: return vertices.Max(v => v.x);
+            case Axis.Y: return vertices.Max(v => v.y);
+            case Axis.Z: return vertices.Max(v => v.z);
+            case Axis.W:
+                Debug.LogError("GetMaxAxisValue(): W is not a valid axis for vertices!");
+                return 0;
+
+            default: return 0;
+        }
+    }
+
+    public static float[] GetMaxAxisValues(Mesh mesh) => GetMaxAxisValues(mesh.vertices);
+    public static float[] GetMaxAxisValues(Vector3[] vertices)
+    {
+        float[] result = new float[3];
+
+        for (int i = 0; i < 3; i++)
+            result[i] = GetMaxAxisValue(vertices, (Axis)i);
+
         return result;
     }
 
