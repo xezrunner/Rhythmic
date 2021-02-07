@@ -108,12 +108,13 @@ public static class MeshDeformer
     /// <param name="value">The value to lerp.</param>
     /// <param name="target">The target value you want to lerp to.</param>
     /// <param name="valueMax">Used to determine the fraction value t from <paramref name="value"/>.</param>
-    static float LerpAxis(ref float value, float target, float valueMax)
+    static float LerpAxis(ref float value, float target, float valueMax, bool split = true)
     {
         float t = Mathf.Abs(value / valueMax);
         float result;
 
-        target /= 2; // Split target value into 2
+        if (split)
+            target /= 2; // Split target value into 2
 
         // Since Mathf.Lerp()'s t parameter does not support negative numbers, we have to swap the targets
         // and use the absolute value as t.
