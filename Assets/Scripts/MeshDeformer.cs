@@ -24,7 +24,7 @@ public static class MeshDeformer
     /// Whether the mesh vertices should be displaced on the Z axis so that the mesh starts at its -Z axis edge. <br/>
     /// Useful for track-related models that don't already have their position pivoted to the -Z edge.
     /// </param>
-    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, float angle = 0f, Vector3[] ogVerts = null, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = true)
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, float angle = 0f, Vector3[] ogVerts = null, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = false)
     {
         Vector3[] vertices = ogVerts != null ? ogVerts : new Vector3[mesh.vertices.Length];
         if (ogVerts == null) Array.Copy(mesh.vertices, vertices, mesh.vertices.Length);
@@ -69,8 +69,8 @@ public static class MeshDeformer
 
         return mesh;
     }
-    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = true) => DeformMesh(path, mesh, Vector3.zero, 0f, null, offset, width, height, length, movePivotToStart);
-    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = true) => DeformMesh(path, mesh, position, 0f, null, offset, width, height, length, movePivotToStart);
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = false) => DeformMesh(path, mesh, Vector3.zero, 0f, null, offset, width, height, length, movePivotToStart);
+    public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = false) => DeformMesh(path, mesh, position, 0f, null, offset, width, height, length, movePivotToStart);
 
     /// <summary>
     /// The result is: <br />
