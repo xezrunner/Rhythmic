@@ -57,7 +57,7 @@ public static class MeshDeformer
             {
                 if (maxX != -1) LerpAxis(ref vertices[i].x, width, maxX);
                 if (maxY != -1) LerpAxis(ref vertices[i].y, height, maxY);
-                if (maxZ != -1) LerpAxis(ref vertices[i].z, length, maxZ);
+                if (maxZ != -1) LerpAxis(ref vertices[i].z, length, maxZ, split: false); // The Z axis does not require splitting here
             }
 
             // Deform vertex points:
