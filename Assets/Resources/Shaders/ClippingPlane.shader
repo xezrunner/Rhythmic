@@ -28,7 +28,7 @@
         //Blend One Zero
         //ZWrite On
 		Lighting On
-        Cull Off
+        //Cull Off
 
 		CGPROGRAM
 		//the shader is a surface shader, meaning that it will be extended by unity in the background 

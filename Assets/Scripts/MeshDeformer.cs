@@ -3,12 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 public enum Axis { X = 0, Y = 1, Z = 2, W = 3 }
 
 public static class MeshDeformer
 {
-    // Mesh deformation utilities:
+    /// Mesh deformation utilities
 
     // TODO: improve argument naming? Mostly width, height and length
     /// <summary>
@@ -26,8 +27,7 @@ public static class MeshDeformer
     /// </param>
     public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, float angle = 0f, Vector3[] ogVerts = null, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = false)
     {
-        Vector3[] vertices = ogVerts != null ? ogVerts : new Vector3[mesh.vertices.Length];
-        if (ogVerts == null) Array.Copy(mesh.vertices, vertices, mesh.vertices.Length);
+        Vector3[] vertices = mesh.vertices;
 
         // Pivot adjustment on Z axis
         float p_maxZ = 0;
@@ -49,12 +49,12 @@ public static class MeshDeformer
         for (int i = 0; i < vertices.Length; i++)
         {
             // Adjust Z pivot to the mesh starting point:
-            if (movePivotToStart)
-                vertices[i].z += p_maxZ;
+            vertices[i].z += p_maxZ;
 
             // XYZ adjustments processing:
             if (isXYZAdjustment)
             {
+                // We pass these values as reference so that we can change them from LerpAxis()
                 if (maxX != -1) LerpAxis(ref vertices[i].x, width, maxX);
                 if (maxY != -1) LerpAxis(ref vertices[i].y, height, maxY);
                 if (maxZ != -1) LerpAxis(ref vertices[i].z, length, maxZ, split: false); // The Z axis does not require splitting here
@@ -64,7 +64,7 @@ public static class MeshDeformer
             vertices[i] = TransformVertex(path, vertices[i], position, angle, offset, length);
         }
 
-        mesh.vertices = vertices;
+        mesh.SetVertices(vertices);
         mesh.RecalculateBounds();
 
         return mesh;
@@ -108,6 +108,7 @@ public static class MeshDeformer
     /// <param name="value">The value to lerp.</param>
     /// <param name="target">The target value you want to lerp to.</param>
     /// <param name="valueMax">Used to determine the fraction value t from <paramref name="value"/>.</param>
+    static float LerpAxis(float value, float target, float valueMax, bool split = true) { return LerpAxis(ref value, target, valueMax, split); } // TODO: is this legal? Will the ref here affect the original variable?
     static float LerpAxis(ref float value, float target, float valueMax, bool split = true)
     {
         float t = Mathf.Abs(value / valueMax);
@@ -146,7 +147,7 @@ public static class MeshDeformer
     /// <summary>
     /// Returns an array of 3 float values for all of a Vector3's components' max values.
     /// </summary>
-    public static float[] GetMaxAxisValues(Vector3[] vertices)
+    public static float[] GetMaxAxisValues(Vector3[] vertices) // TODO: copying the vertices - this is baaad!
     {
         float[] result = new float[3];
 
@@ -155,5 +156,5 @@ public static class MeshDeformer
 
         return result;
     }
-    public static float[] GetMaxAxisValues(Mesh mesh) => GetMaxAxisValues(mesh.vertices);
+    //public static float[] GetMaxAxisValues(Mesh mesh) => GetMaxAxisValues(mesh.vertices);
 }

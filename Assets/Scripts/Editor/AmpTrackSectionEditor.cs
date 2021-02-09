@@ -16,7 +16,6 @@ public class AmpTrackSectionEditor : Editor
     {
         base.OnInspectorGUI();
 
-        if (GUILayout.Button("Update mesh deformation")) script.DeformMeshToPath();
-
+        if (GUILayout.Button("Update mesh deformation")) script.DeformMesh();
     }
 }

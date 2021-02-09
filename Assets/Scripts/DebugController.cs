@@ -32,7 +32,7 @@ public class DebugController : MonoBehaviour
     int android_songcounter = 0;
 #endif
 
-    private async void LateUpdate()
+    private void LateUpdate()
     {
         if (Keyboard.current.jKey.wasPressedThisFrame)
             ConsoleServer.Write("Hi!!!");
@@ -112,6 +112,11 @@ public class DebugController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F11) & Input.GetKey(KeyCode.LeftControl))
         {
             RhythmicGame.PreferredResolution = new Vector2(1280, 720);
+            RhythmicGame.SetResolution(RhythmicGame.PreferredResolution);
+        }
+        if (Input.GetKeyDown(KeyCode.F12) & Input.GetKey(KeyCode.LeftControl) & Input.GetKey(KeyCode.LeftShift))
+        {
+            RhythmicGame.PreferredResolution = new Vector2(1920, 1080);
             RhythmicGame.SetResolution(RhythmicGame.PreferredResolution);
         }
 

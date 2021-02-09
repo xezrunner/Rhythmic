@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using static AmpTrack;
@@ -16,7 +16,11 @@ public static class AmplitudeGame
         get
         {
 #if UNITY_STANDALONE
-            string dataPath = Application.dataPath;
+            string dataPath;
+            if (Directory.Exists($"{Application.dataPath}//amp_songs"))
+                dataPath = Application.dataPath;
+            else
+                dataPath = @"H:\Unity projects\Rhythmic\Assets";
 #elif UNITY_ANDROID
             string dataPath = Application.persistentDataPath;
 #endif

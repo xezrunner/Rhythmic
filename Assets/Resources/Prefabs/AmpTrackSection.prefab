@@ -423,30 +423,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f75e21027411b764e89b02ad6add503a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ClipManager: {fileID: 0}
-  LengthPlane: {fileID: 1394400365724401751}
-  ClipPlane: {fileID: 29731176791887653}
-  MeshRenderer: {fileID: 4073595771148080985}
-  MeshFilter: {fileID: 1893114483968448368}
-  ActiveSurface: {fileID: 4549572625438042641}
-  ActiveSurfaceMeshRenderer: {fileID: 9084528915139375726}
-  ActiveSurfaceMeshFilter: {fileID: 6869271097212614579}
-  EdgeLights_Local: {fileID: 8780221033990194998}
-  EdgeLights_Global: {fileID: 4102071959169881778}
+  ModelRenderer: {fileID: 4073595771148080985}
+  ModelMesh: {fileID: 1893114483968448368}
   NotesContainer: {fileID: 1052880242004629714}
+  ClipManager: {fileID: 0}
+  ClipPlane: {fileID: 29731176791887653}
   Track: {fileID: 0}
   Notes: []
-  Position: {x: 0, y: 0, z: 0}
-  Rotation: 0
   ID: 0
   Length: 32
   Instrument: 0
   IsEmpty: 0
+  Position: {x: 0, y: 0, z: 0}
+  Rotation: 0
   IsCapturing: 0
   CaptureState: 0
-  StartAutoDeformToPath: 1
-  BlockDeformsInEditMode: 1
-  _deformLiveUpdate: 1
 --- !u!1 &6543889804386215059
 GameObject:
   m_ObjectHideFlags: 0
@@ -486,7 +477,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6543889804386215059}
-  m_Mesh: {fileID: 0}
+  m_Mesh: {fileID: 4517272219057500441, guid: 64cf8180d6a16ae429fc8d52b0a7efc1, type: 3}
 --- !u!23 &4073595771148080985
 MeshRenderer:
   m_ObjectHideFlags: 0
