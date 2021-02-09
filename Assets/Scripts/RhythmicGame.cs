@@ -68,7 +68,7 @@ public static class RhythmicGame
 
     public static int HorizonMeasures = 7; // How many measures should we be able to see ahead of us
     public static float HorizonMeasuresOffset = 15f; // How many units to offset from the horizon when clipping
-    public static bool FastStreaming = true;
+    public static bool FastStreaming = false;
     public static bool StreamAllMeasuresOnStart = false;
 
     public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode

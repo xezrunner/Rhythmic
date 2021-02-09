@@ -163,7 +163,7 @@ public class DebugController : MonoBehaviour
         //    AmpPlayerLocomotion.Instance.IsPlaying = false;
         //}
 
-        if (Input.GetKeyDown(KeyCode.Keypad8))
+        if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Keypad8))
         {
             float offset = 2f;
             AmpPlayerLocomotion.Instance.DistanceTravelled += offset * SongController.posInSec;
@@ -171,7 +171,7 @@ public class DebugController : MonoBehaviour
             Clock.Instance.seconds += offset;
         }
 
-        if (Input.GetKeyDown(KeyCode.Keypad2))
+        if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Keypad2))
         {
             float offset = 2f;
             AmpPlayerLocomotion.Instance.DistanceTravelled -= offset * SongController.posInSec;
@@ -185,14 +185,14 @@ public class DebugController : MonoBehaviour
             AmpPlayerTrackSwitching.Instance.SwitchToTrack(TracksController.Instance.Tracks.Count - 1, true);
 
         // Timescale
-        if (Input.GetKeyDown(KeyCode.Keypad8) & Input.GetKey(KeyCode.LeftControl)) // up
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Keypad8)) // up
         {
             if (Time.timeScale < 1f)
                 RhythmicGame.SetTimescale(Time.timeScale + 0.1f);
             else
                 RhythmicGame.SetTimescale(1f);
         }
-        if (Input.GetKeyDown(KeyCode.Keypad2) & Input.GetKey(KeyCode.LeftControl)) // down
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Keypad2)) // down
             if (Time.timeScale > 0.1f)
                 RhythmicGame.SetTimescale(Time.timeScale - 0.1f);
         if (Input.GetKeyDown(KeyCode.Keypad1)) // one

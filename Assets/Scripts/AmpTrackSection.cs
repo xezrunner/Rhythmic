@@ -114,14 +114,14 @@ public class AmpTrackSection : MonoBehaviour
 
     void Start()
     {
-        // TEMP: visualize measures (add separator to the end)
-        //{
-        //    var a = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        //    a.transform.parent = transform;
-        //    a.transform.localScale = new Vector3(transform.localScale.x, 0.1f, 0.1f);
-        //    a.transform.position = PathTools.GetPositionOnPath(Path, Position.z + Length, -Tunnel.Instance.center);
-        //    a.transform.rotation = PathTools.GetRotationOnPath(Path, Position.z + Length);
-        //}
+        /* TEMP: visualize measures (add separator to the end)
+        {
+            var a = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            a.transform.parent = transform;
+            a.transform.localScale = new Vector3(transform.localScale.x, 0.1f, 0.1f);
+            a.transform.position = PathTools.GetPositionOnPath(Path, Position.z + Length, -Tunnel.Instance.center);
+            a.transform.rotation = PathTools.GetRotationOnPath(Path, Position.z + Length);
+        } */
 
         // Set up global edge light based on track focus state
         SetGlobalEdgeLights(Track.IsTrackFocused);
