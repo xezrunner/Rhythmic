@@ -30,9 +30,7 @@ public static class MeshDeformer
         Vector3[] vertices = mesh.vertices;
 
         // Pivot adjustment on Z axis
-        float p_maxZ = 0;
-        if (movePivotToStart)
-            p_maxZ = GetMaxAxisValue(vertices, Axis.Z);
+        float p_maxZ = movePivotToStart ? GetMaxAxisValue(vertices, Axis.Z) : 0;
 
         // XYZ adjustments
         bool isXYZAdjustment = (width + height + length != -3); // Whether at least one of the XYZ values is adjusted
@@ -40,9 +38,9 @@ public static class MeshDeformer
 
         if (isXYZAdjustment)
         {
-            maxX = width != -1 ? GetMaxAxisValue(vertices, Axis.X) : width;
-            maxY = height != -1 ? GetMaxAxisValue(vertices, Axis.Y) : height;
-            maxZ = length != -1 ? GetMaxAxisValue(vertices, Axis.Z) : length;
+            if (width != -1) maxX = GetMaxAxisValue(vertices, Axis.X);
+            if (height != -1) maxY = GetMaxAxisValue(vertices, Axis.Y);
+            if (length != -1) maxZ = GetMaxAxisValue(vertices, Axis.Z);
         }
 
         // Deform mesh
