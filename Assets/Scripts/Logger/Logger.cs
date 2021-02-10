@@ -13,6 +13,23 @@ using UnityEngine;
 
 public class Logger
 {
+    static Action<object> GetUnityLogHandlerForLogType(CLogType logType)
+    {
+        switch (logType)
+        {
+            default:
+                return Debug.Log;
+
+            case CLogType.Warning:
+                return Debug.LogWarning;
+            case CLogType.Error:
+            case CLogType.Caution:
+                return Debug.LogError;
+        }
+    }
+    public static void LogUnity(object obj, CLogType logType) => GetUnityLogHandlerForLogType(logType)(obj);
+    public static void LogUnity(object obj) => Debug.Log(obj);
+
     /// <summary>
     /// This method handles logging out debugging information for supported Types.
     /// </summary>
@@ -22,7 +39,8 @@ public class Logger
         switch (obj)
         {
             default:
-                Log($"Unsupported object passed to Logger | Type: {obj.GetType()}"); break;
+                //Log($"Unsupported object passed to Logger | Type: {obj.GetType()}"); break;
+                LogUnity(obj); break;
 
             case string s: Log(s, logType); break;
             case Array a: LogArray(a, logType, printIndex, separatorChar); break;
@@ -31,14 +49,26 @@ public class Logger
             case List<float> l: LogList(l, logType, printIndex, separatorChar); break;
         }
     }
-    public static void Log(object obj, bool printIndex = true, char separatorChar = ',') => Log(obj, 0, printIndex, separatorChar);
 
-    public static void Log(string text, CLogType logType = 0)
+    public static void LogConsole(string text, CLogType logType)
     {
-        Debug.Log(text);
         if (ConsoleServer.IsServerActive) ConsoleServer.Write(text, logType);
     }
+
+    public static void Log(string text, CLogType logType)
+    {
+        LogUnity(text, logType);
+        LogConsole(text, logType);
+    }
+    public static void Log(string text) => Log(text, CLogType.Info);
+    public static void Log(object obj, bool printIndex = true, char separatorChar = ',') => Log(obj, 0, printIndex, separatorChar);
+    public static void LogFormat(string text, CLogType logType, params object[] args) => Log(string.Format(text, args), logType);
     public static void LogFormat(string text, params object[] args) => Log(string.Format(text, args));
+
+    public static void LogWarning(object obj, bool printIndex = true, char separatorChar = ',') => Log(obj, CLogType.Warning, printIndex, separatorChar);
+    public static void LogWarning(string text) => Log(text, CLogType.Warning);
+    public static void LogError(object obj, bool printIndex = true, char separatorChar = ',') => Log(obj, CLogType.Error, printIndex, separatorChar);
+    public static void LogError(string text) => Log(text, CLogType.Error);
 
     /// Log() for types
 
