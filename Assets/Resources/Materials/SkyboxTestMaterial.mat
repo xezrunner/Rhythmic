@@ -60,7 +60,7 @@ Material:
     - _SunDisk: 2
     - _SunSize: 0.04
     - _SunSizeConvergence: 5
-    - _Two: 1.25
+    - _Two: 0.87
     - _UpVectorPitch: 0
     - _UpVectorYaw: 0
     m_Colors:

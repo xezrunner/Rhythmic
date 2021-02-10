@@ -56,6 +56,7 @@ public static class RhythmicGame
     public static GameMatchType GameMatchTpye = GameMatchType.Singleplayer;
 
     public static bool IsLoading = true;
+    public static Vector2 Resolution { get { return new Vector2(Screen.currentResolution.width, Screen.currentResolution.height); } }
     public static Vector2 PreferredResolution = new Vector2(1920, 1080);
 
     // A/V calibration props | milliseconds
@@ -119,4 +120,5 @@ public static class RhythmicGame
 
     // Draw debug
     public static bool DebugDrawTunnelGizmos = false;
+    public static bool DebugDrawWorldLights = false;
 }
