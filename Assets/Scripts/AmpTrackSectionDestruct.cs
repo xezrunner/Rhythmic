@@ -15,28 +15,26 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     Vector3 PositionOnPath;
     float RotationOnPath; // Note: in Euler angles!
 
-    AmpTrackSection measure;
-    AmpTrack track;
+    AmpTrackSection Measure;
+    AmpTrack Track;
     ClipManager ClipManager;
 
-    public bool IsCapturing;
-
-    public void Init(AmpTrackSection _measure)
+    public void Init(AmpTrackSection m)
     {
-        this.measure = _measure;
-        track = measure.Track;
+        Measure = m;
+        Track = Measure.Track;
 
-        ID = _measure.ID;
-        Path = _measure.Path;
-        ClipPlane = _measure.ClipPlane; // Get capture clipping plane from AmpTrackSection
-        PositionOnPath = _measure.Position;
-        RotationOnPath = _measure.Rotation;
-        Length = _measure.Length;
+        ID = m.ID;
+        Path = m.Path;
+        ClipPlane = m.ClipPlane; // Get capture clipping plane from AmpTrackSection
+        PositionOnPath = m.Position;
+        RotationOnPath = m.Rotation;
+        Length = m.Length;
 
-        ClipManager = track.ClipManager;
+        ClipManager = Track.ClipManager;
         ClipManager.inverse_plane = ClipPlane; // Assign inverse clip plane
 
-        measure.IsCapturing = true;
+        Measure.IsCapturing = true;
 
         // Set fraction to current measure progress
         if (Mathf.FloorToInt(Clock.Instance.bar) == ID)
@@ -46,10 +44,10 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     void Awake()
     {
         // If not initialized with a measure, get it!
-        if (!measure)
+        if (!Measure)
             Init(GetComponent<AmpTrackSection>());
     }
-    void Start() { if (!measure.IsCaptured & !measure.IsCapturing) Clip(); } // Clip to start (0f)
+    void Start() { if (!Measure.IsCaptured & !Measure.IsCapturing) Clip(); } // Clip to start (0f)
 
     [Range(0, 1)]
     public float fraction;
@@ -60,27 +58,27 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     {
         if (fraction != 1f)
         {
-            fraction = Mathf.MoveTowards(fraction, 1.0f, track.captureAnimStep * Time.deltaTime);
+            fraction = Mathf.MoveTowards(fraction, 1.0f, Track.captureAnimStep * Time.deltaTime);
 
             // Capture notes
-            for (int i = 0; i < fraction * measure.Notes.Count; i++)
+            for (int i = 0; i < fraction * Measure.Notes.Count; i++)
                 if (!lastCapturedNotes.Contains(i))
                 {
-                    measure.Notes[i].CaptureNote();
+                    Measure.Notes[i].CaptureNote();
                     lastCapturedNotes.Add(i);
                 }
 
         }
         else // 1f, done
         {
-            measure.IsCapturing = false;
-            measure.IsCaptured = true;
+            Measure.IsCapturing = false;
+            Measure.IsCaptured = true;
             Destroy(this);
         }
 
         // Don't update clipping if the measure was already captured!
         // Do continue the rest of the capturing though, as we don't want to skip measures during capturing.
-        if (measure.CaptureState != MeasureCaptureState.Captured)
+        if (Measure.CaptureState != MeasureCaptureState.Captured)
             Clip(fraction);
     }
 

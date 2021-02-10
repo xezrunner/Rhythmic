@@ -1,6 +1,6 @@
 using UnityEngine;
-using PathCreation;
 using System.Collections.Generic;
+using PathCreation;
 
 public enum MeasureCaptureState { None = 0, Capturing = 1, Captured = 2 }
 
@@ -39,7 +39,7 @@ public class AmpTrackSection : MonoBehaviour
     public float Rotation; // Note: in Euler angles!
 
     public bool IsCapturing;
-    public MeasureCaptureState CaptureState;
+    public MeasureCaptureState CaptureState = MeasureCaptureState.None;
     public bool IsCaptured
     {
         get { return CaptureState > 0; }
@@ -47,7 +47,16 @@ public class AmpTrackSection : MonoBehaviour
     }
 
     bool _isEnabled = true;
-    public bool IsEnabled { get; set; } // tba
+    public bool IsEnabled
+    {
+        get { return _isEnabled; }
+        set
+        {
+            _isEnabled = value;
+            Notes.ForEach(n => n.IsEnabled = false);
+            // TODO: Disable active surface! (IsFocused / IsSequence to false?)
+        }
+    }
 
     public bool IsFocused { get; set; } // tba
 
@@ -73,8 +82,12 @@ public class AmpTrackSection : MonoBehaviour
     void Start()
     {
         // Disable measure visuals when empty or captured
-        if (IsEmpty || IsCaptured)
-            gameObject.SetActive(false); // TODO: tba
+        if (IsEmpty || IsCaptured) // TODO: revise!
+        {
+            ModelRenderer.enabled = false;
+            // tba
+            return;
+        }
 
         if (!ModelMesh || !ModelMesh.sharedMesh)
         { Debug.LogWarning($"Measure [init]: {ID} does not have a Model!"); return; }
