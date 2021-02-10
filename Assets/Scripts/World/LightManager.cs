@@ -1,19 +1,20 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace World
 {
-    public class LightGroup
+    public class LightGroup : MonoBehaviour
     {
-        public List<WorldLight> Lights;
+        public string Name;
+
+        public List<WorldLight> Lights = new List<WorldLight>();
     }
 
     public class LightManager : MonoBehaviour
     {
-        public LightManager Instance;
+        public static LightManager Instance;
 
-        public List<LightGroup> LightGroups;
+        public List<LightGroup> LightGroups = new List<LightGroup>();
 
         void Awake()
         {
@@ -25,6 +26,10 @@ namespace World
             Instance = this;
         }
 
+        void Start()
+        {
+            Debug.Log($"LightManager: Started [object: {gameObject.name}]");
+        }
 
     }
 } // endof namespace
