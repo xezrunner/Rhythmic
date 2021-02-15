@@ -38,6 +38,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
     void Start()
     {
         if (Path == null) GetPath();
+        if (!SongController.IsEnabled) return;
 
         // Position player to tunnel
         transform.position = Tunnel.center / 2;

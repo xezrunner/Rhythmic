@@ -112,7 +112,7 @@ public class AmplitudeSongController : SongController
 
             if (resourceRequest.asset == null)
             {
-                Debug.LogWarningFormat("AMP_SONGCTRL: Track {0} doesn't have audio clip - ignoring", track);
+                Logger.LogWarning($"AMP_SONGCTRL: Track {track} doesn't have audio clip - ignoring");
                 audioSrcList.Add(gameObject.AddComponent<AudioSource>());
                 continue;
             }
