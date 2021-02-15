@@ -11,6 +11,8 @@ public class DebugController : MonoBehaviour
     public GameObject section_controllerinput;
     public TextMeshProUGUI inputlagText;
     public TextMeshProUGUI framerateText;
+    public TextMeshProUGUI debugText;
+    public TextMeshProUGUI debugLineText;
 
     void Awake() => GameState.CreateGameState();
 
@@ -18,9 +20,42 @@ public class DebugController : MonoBehaviour
     {
         // TODO TODO TODO!!! This causes a Unity bug where the editor locks up when trying to play again!
         //ConsoleServer.StartConsoleServer();
+
+        if (RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks))
+            debugLineText.text += "Warning! RhythmicGame.FastStreamingLevel has Tracks flag! This is slow!";
     }
 
     public bool isDebugOn = true;
+    bool isDebugPrintOn = true;
+
+    void UpdateMainDebugText()
+    {
+        int trackCount = TracksController.Instance.Tracks.Count;
+        string trackNames = "";
+        TracksController.Instance.Tracks.ForEach(t => trackNames += $"{t.TrackName}  ");
+
+        string s = $"World: DevScene\n" +
+                   $"Room path: /rooms/_u_trans_/dev/dev_scene.drm [SceneToRoom]\n" +
+                   $"SongController Enabled: {SongController.IsEnabled}\n\n" +
+
+                   $"Song name: {SongController.songName}\n" +
+                   $"Song BPM: {SongController.songBpm}  Song scale: {SongController.songFudgeFactor.ToString("0.00")}\n\n" +
+
+                   $"Tracks: {trackNames}({trackCount})\n\n" +
+
+                   $"Timscale: [world: {Time.timeScale.ToString("0.00")}]  [song: {SongController.songTimeScale.ToString("0.00")}]\n" +
+                   $"Clock seconds: {Clock.Instance.seconds}\n" +
+                   $"Clock bar: {(int)Clock.Instance.bar}\n" +
+                   $"Clock beat: {(int)Clock.Instance.beat % 8} ({(int)Clock.Instance.beat})\n" +
+                   $"Locomotion DistanceTravelled: {AmpPlayerLocomotion.Instance.DistanceTravelled}\n\n" +
+
+                   $"LightManager: null | LightGroups:  (0)";
+
+        if (!isDebugPrintOn)
+            s += "\n\nDEBUG PRINT FREEZE";
+
+        debugText.text = s;
+    }
 
     public void AMP_ChangeSong(string value)
     {
@@ -34,6 +69,32 @@ public class DebugController : MonoBehaviour
 
     private void LateUpdate()
     {
+        // Debug control
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F3))
+        {
+            isDebugOn = !isDebugOn;
+            section_debug.SetActive(isDebugOn);
+        }
+
+        if (!isDebugOn)
+            return;
+
+        // ----- DEBUG LOOP ----- //
+
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F4)) // freeze printing
+        {
+            isDebugPrintOn = !isDebugPrintOn;
+            UpdateMainDebugText();
+        }
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F4)) // disable debug print UI
+        {
+            isDebugPrintOn = !isDebugPrintOn;
+            section_debug.SetActive(isDebugPrintOn);
+        }
+
+        if (isDebugPrintOn)
+            UpdateMainDebugText();
+
         if (Keyboard.current.jKey.wasPressedThisFrame)
             ConsoleServer.Write("Hi!!!");
 
@@ -121,8 +182,9 @@ public class DebugController : MonoBehaviour
         }
 
         // FPS Lock
-        if (Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(60); }
-        else if (Input.GetKeyDown(KeyCode.F2)) { RhythmicGame.SetFramerate(144); }
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(60); }
+        else if (Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(10); }
+        else if (Input.GetKeyDown(KeyCode.F2)) { RhythmicGame.SetFramerate(60); }
         else if (Input.GetKeyDown(KeyCode.F3)) { RhythmicGame.SetFramerate(200); }
         else if (Input.GetKeyDown(KeyCode.F4)) { RhythmicGame.SetFramerate(0); }
 
@@ -204,17 +266,6 @@ public class DebugController : MonoBehaviour
             RhythmicGame.SetTimescale(1f);
         if (Input.GetKeyDown(KeyCode.Keypad0)) // progressive slowmo test (tut)
             DoFailTest();
-
-        // Debug UI
-
-        if (Input.GetKeyDown(KeyCode.F3))
-        {
-            isDebugOn = !isDebugOn;
-            section_debug.SetActive(isDebugOn);
-        }
-
-        if (!isDebugOn)
-            return;
     }
 
     float deltaTime;
