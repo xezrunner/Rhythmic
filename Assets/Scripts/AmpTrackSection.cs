@@ -27,15 +27,14 @@ public class AmpTrackSection : MonoBehaviour
     public List<AmpNote> Notes = new List<AmpNote>();
 
     [Header("Properties")]
-
     public int ID;
-    public float Length = 32f; // in zPos!
     public AmpTrack.InstrumentType Instrument;
+
+    public float Length = 32f; // meters
+    public Vector3 Position; // meters
+    public float Rotation; // angles
+
     public bool IsEmpty;
-
-    public Vector3 Position;
-    public float Rotation; // Note: in Euler angles!
-
     public bool IsCapturing;
     public MeasureCaptureState CaptureState = MeasureCaptureState.None;
     public bool IsCaptured
