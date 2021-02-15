@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,7 +10,7 @@ using UnityEngine.InputSystem;
 public enum FastStreamingLevel
 {
     None = 0,
-    Notes = 1,
+    Notes = 1 << 0,
     Measures = 1 << 1,
     Tracks = 1 << 2,
 
