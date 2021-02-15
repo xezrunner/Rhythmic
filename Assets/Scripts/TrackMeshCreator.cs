@@ -124,8 +124,8 @@ public class TrackMeshCreator : MonoBehaviour
 
         if (debug)
         {
-            Logger.Log(vertices, true);
-            Logger.Log(triangles, false);
+            Logger.LogObject(vertices, true);
+            Logger.LogObject(triangles, false);
 
             // Debug draw vertices
             if (GameObject.FindGameObjectWithTag("Remove") == null)

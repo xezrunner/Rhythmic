@@ -234,6 +234,8 @@ public partial class SongController : MonoBehaviour
     }
     public void PlayPause()
     {
+        if (!IsEnabled) { Logger.LogMethod("Can't play - the controller is disabled.", this); return; }
+
         if (songPosition == 0f)
             Play();
         else

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 /// <summary>
@@ -50,27 +51,47 @@ public class Logger
         }
     }
 
-    public static void LogConsole(string text, CLogType logType)
-    {
-        if (ConsoleServer.IsServerActive) ConsoleServer.Write(text, logType);
-    }
+    public static void LogConsole(string text, CLogType logType) { if (ConsoleServer.IsServerActive) ConsoleServer.Write(text, logType); }
 
     public static void Log(string text, CLogType logType)
     {
         LogUnity(text, logType);
         LogConsole(text, logType);
+        if (logType > CLogType.Unimportant) DebugController.AddToDebugLine(text); // TEMP!
     }
+
+    /// <summary>Simple text logging.</summary>
     public static void Log(string text) => Log(text, CLogType.Info);
-    public static void Log(object obj, bool printIndex = true, char separatorChar = ',') => Log(obj, 0, printIndex, separatorChar);
+
+    /// <param name="objToType">Pass in 'this' to print out origin class name before the text.<br/>
+    /// You can also pass in a string if you want custom text before the log text.</param>
+    /// <param name="printMethodName">Whether to show the calling method (function) name.</param>
+    public static void Log(string text, object objToType, bool printMethodName = false, [CallerMemberName] string methodName = null)
+    {
+        string cName = "";
+        if (objToType != null)
+            if (objToType.GetType() == typeof(string)) cName = (string)objToType; // Automatically use the string value, in case you want custom text
+            else cName = objToType.GetType().BaseType.Name; // TODO: Using BaseType here, but we may want to use just the regular type instead? (AmplitudeSongController is the cause for this reasoning here)
+
+        string mName = printMethodName && (methodName != null && methodName != "") ? ((cName != "") ? $"/{methodName}()" : "") : ""; // .../methodName(): <text> | ignores '/' when there's no class name
+
+        Log($"{cName}{mName}: {text}", CLogType.Application); // Type/Method(): text
+    }
+
+    /// <summary>Logs the method name before the desired text.</summary>
+    /// <param name="objToType">Pass in 'this' to print out origin class name before the text.</param>
+    public static void LogMethod(string text, object objToType, [CallerMemberName] string methodName = null) => Log(text, objToType, true, methodName);
+    public static void LogObject(object obj, bool printIndex = true, char separatorChar = ',') => Log(obj, 0, printIndex, separatorChar);
     public static void LogFormat(string text, CLogType logType, params object[] args) => Log(string.Format(text, args), logType);
     public static void LogFormat(string text, params object[] args) => Log(string.Format(text, args));
 
-    public static void LogWarning(object obj, bool printIndex = true, char separatorChar = ',') => Log(obj, CLogType.Warning, printIndex, separatorChar);
     public static void LogWarning(string text) => Log(text, CLogType.Warning);
-    public static void LogError(object obj, bool printIndex = true, char separatorChar = ',') => Log(obj, CLogType.Error, printIndex, separatorChar);
-    public static void LogError(string text) => Log(text, CLogType.Error);
+    public static void LogObjectWarning(object obj, bool printIndex = true, char separatorChar = ',') => Log(obj, CLogType.Warning, printIndex, separatorChar);
 
-    /// Log() for types
+    public static void LogError(string text) => Log(text, CLogType.Error);
+    public static void LogObjectError(object obj, bool printIndex = true, char separatorChar = ',') => Log(obj, CLogType.Error, printIndex, separatorChar);
+
+    /// Log() for special/non-string types
 
     // Arrays:
     public static void LogArray(Array array, CLogType logType, bool printIndex = true, char separatorChar = ',')
@@ -89,7 +110,7 @@ public class Logger
         s = s.Substring(0, s.Length - 2); // Remove trailing separator
         Log(s, logType); // Log!
     }
-	// Lists:
-	// redirected to array logging:
+    // Lists:
+    // redirected to array logging:
     public static void LogList<T>(List<T> list, CLogType logType, bool printIndex = true, char separatorChar = ',') => LogArray(list.ToArray(), logType, printIndex, separatorChar);
 }
