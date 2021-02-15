@@ -43,8 +43,9 @@ public class TrackStreamer : MonoBehaviour
     private void Clock_OnBar(object sender, int e)
     {
         if (RhythmicGame.StreamAllMeasuresOnStart)
-            foreach (AmpTrack t in TracksController.Instance.Tracks)
-                t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].gameObject.SetActive(true);
+            foreach (AmpTrack t in TracksController.Instance.Tracks) { }
+                //t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].gameObject.SetActive(true);
+                //t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].ModelRenderer.enabled = true;
         else
             // Stream measures on every bar tick
             StreamMeasure(RhythmicGame.HorizonMeasures + e, -1, RhythmicGame.FastStreaming);
@@ -113,7 +114,8 @@ public class TrackStreamer : MonoBehaviour
             StreamNotes(id, track.RealID, measure);
 
             //if (measure.Position.z > AmpPlayerLocomotion.Instance.HorizonLength) measure.enabled = false;
-            if (measure.ID > Clock.Fbar + RhythmicGame.HorizonMeasures) measure.gameObject.SetActive(false);
+            //if (measure.ID > Clock.Fbar + RhythmicGame.HorizonMeasures) measure.gameObject.SetActive(false);
+            //if (measure.ID > Clock.Fbar + RhythmicGame.HorizonMeasures) measure.ModelRenderer.enabled = false;
         }
         else // Stream in the measure from all of the tracks!
         {

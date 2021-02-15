@@ -11,8 +11,6 @@ public class AmpTrackSection : MonoBehaviour
 {
     public VertexPath Path;
 
-    void Awake() => Path = PathTools.Path;
-
     /// ----- Properties -----
 
     [Header("Content references")]
@@ -79,8 +77,14 @@ public class AmpTrackSection : MonoBehaviour
 
     public static bool AllowDeformations = true; // TODO!
 
+    void Awake() => Path = PathTools.Path;
+
     void Start()
     {
+
+        if (!ModelMesh || !ModelMesh.sharedMesh)
+        { Debug.LogWarning($"Measure [init]: {ID} does not have a Model!"); return; }
+
         // Disable measure visuals when empty or captured
         if (IsEmpty || IsCaptured) // TODO: revise!
         {
@@ -88,9 +92,6 @@ public class AmpTrackSection : MonoBehaviour
             // tba
             return;
         }
-
-        if (!ModelMesh || !ModelMesh.sharedMesh)
-        { Debug.LogWarning($"Measure [init]: {ID} does not have a Model!"); return; }
 
         // Deform the mesh!
         DeformMesh();
