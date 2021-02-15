@@ -18,11 +18,37 @@ public class DebugController : MonoBehaviour
 
     private void Start()
     {
-        // TODO TODO TODO!!! This causes a Unity bug where the editor locks up when trying to play again!
+        // TODO TODO TODO!!! This causes a Unity bug where the editor locks up when the server is not properly closed & disposed!
         //ConsoleServer.StartConsoleServer();
 
         if (RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks))
-            debugLineText.text += "Warning! RhythmicGame.FastStreamingLevel has Tracks flag! This is slow!";
+            AddToDebugLine("Warning! RhythmicGame.FastStreamingLevel has Tracks flag! This is slow!");
+    }
+
+    int bananasCounter = 0;
+    void AddToDebugLine(string text)
+    {
+        if (debugLineText.text.Length == 0) { debugLineText.text = text; return; }
+        string s = debugLineText.text;
+
+        int charCount = 0;
+        int newlineCount = 0;
+        for (int i = 0; i < s.Length; i++, charCount++)
+        {
+            if (s[i] == '\n')
+                newlineCount++;
+        }
+
+        if (charCount == 0) // assume that we have one line without a newline
+            charCount = s.Length;
+
+        s = s.Insert(charCount, '\n' + text);
+        newlineCount++;
+
+        if (newlineCount >= 4) // line cleanup! max 4 lines!
+            s = s.Remove(0, s.IndexOf('\n') + 1);
+
+        debugLineText.text = s;
     }
 
     public bool isDebugOn = true;
@@ -30,26 +56,37 @@ public class DebugController : MonoBehaviour
 
     void UpdateMainDebugText()
     {
+        if (!SongController.IsEnabled)
+        {
+            debugText.text = "SongController Enabled: False";
+            return;
+        }
+
         int trackCount = TracksController.Instance.Tracks.Count;
         string trackNames = "";
         TracksController.Instance.Tracks.ForEach(t => trackNames += $"{t.TrackName}  ");
 
-        string s = $"World: DevScene\n" +
+        string s = /*$"World: DevScene\n" +
                    $"Room path: /rooms/_u_trans_/dev/dev_scene.drm [SceneToRoom]\n" +
-                   $"SongController Enabled: {SongController.IsEnabled}\n\n" +
+                   $"SongController Enabled: {SongController.IsEnabled}\n\n" +*/
 
                    $"Song name: {SongController.songName}\n" +
                    $"Song BPM: {SongController.songBpm}  Song scale: {SongController.songFudgeFactor.ToString("0.00")}\n\n" +
 
                    $"Tracks: {trackNames}({trackCount})\n\n" +
 
+                   $"SlopMs: {SongController.SlopMs}  SlopPos: {SongController.SlopPos}\n\n" +
+
+                   /*
                    $"Timscale: [world: {Time.timeScale.ToString("0.00")}]  [song: {SongController.songTimeScale.ToString("0.00")}]\n" +
                    $"Clock seconds: {Clock.Instance.seconds}\n" +
                    $"Clock bar: {(int)Clock.Instance.bar}\n" +
                    $"Clock beat: {(int)Clock.Instance.beat % 8} ({(int)Clock.Instance.beat})\n" +
-                   $"Locomotion DistanceTravelled: {AmpPlayerLocomotion.Instance.DistanceTravelled}\n\n" +
+                   $"Locomotion distance: {AmpPlayerLocomotion.Instance.DistanceTravelled}\n\n" +
+                   */
 
-                   $"LightManager: null | LightGroups:  (0)";
+                   //$"LightManager: null | LightGroups:  (0)";
+                   "";
 
         if (!isDebugPrintOn)
             s += "\n\nDEBUG PRINT FREEZE";
@@ -67,6 +104,7 @@ public class DebugController : MonoBehaviour
     int android_songcounter = 0;
 #endif
 
+
     private void LateUpdate()
     {
         // Debug control
@@ -80,6 +118,9 @@ public class DebugController : MonoBehaviour
             return;
 
         // ----- DEBUG LOOP ----- //
+
+        if (Input.GetKeyDown(KeyCode.L))
+            AddToDebugLine($"bananas! {bananasCounter++}");
 
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F4)) // freeze printing
         {
@@ -133,8 +174,8 @@ public class DebugController : MonoBehaviour
 
         if (Gamepad.current != null && Gamepad.current.dpad.down.wasPressedThisFrame)
         {
-            var world = GameObject.Find("WORLD_TUT");
-            var worldCamera = GameObject.Find("MainCamera");
+            var world = GameObject.Find("World");
+            var worldCamera = GameObject.Find("WorldCamera");
 
             world.SetActive(!world.activeInHierarchy); worldCamera.SetActive(!world.activeInHierarchy);
         }
@@ -182,9 +223,9 @@ public class DebugController : MonoBehaviour
         }
 
         // FPS Lock
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(60); }
-        else if (Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(10); }
-        else if (Input.GetKeyDown(KeyCode.F2)) { RhythmicGame.SetFramerate(60); }
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(10); }
+        else if (Input.GetKeyDown(KeyCode.F1)) { RhythmicGame.SetFramerate(60); }
+        else if (Input.GetKeyDown(KeyCode.F2)) { RhythmicGame.SetFramerate(120); }
         else if (Input.GetKeyDown(KeyCode.F3)) { RhythmicGame.SetFramerate(200); }
         else if (Input.GetKeyDown(KeyCode.F4)) { RhythmicGame.SetFramerate(0); }
 
