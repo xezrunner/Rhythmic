@@ -16,7 +16,7 @@ public partial class SongController : MonoBehaviour
     public static string songName;
     public virtual string songFolder { get; set; }
 
-    public bool Enabled = true;
+    public bool IsEnabled = true;
     public bool IsFake = false;
     public bool IsPlaying;
 
@@ -65,7 +65,7 @@ public partial class SongController : MonoBehaviour
         // Create clock
         CreateClock();
 
-        if (!Enabled)
+        if (!IsEnabled)
         { Debug.LogWarningFormat("SongCtrl: Disabled"); return; }
         if (IsFake) // TODO: fake song information implementation!
         { Debug.LogWarningFormat("SongCtrl: running in fake mode!"); return; }

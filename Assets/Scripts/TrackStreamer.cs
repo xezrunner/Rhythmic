@@ -8,6 +8,18 @@ using UnityEngine.InputSystem;
 // Track streaming system
 // Purpose: stream in the measures and notes in real-time as we are playing
 
+public enum FastStreamingLevel
+{
+    None = 0,
+    Notes = 1,
+    Measures = 1 << 1,
+    Tracks = 1 << 2,
+
+    All = Notes | Measures | Tracks,
+    MeasuresAndNotes = Measures | Notes,
+    TracksAndMeasures = Measures | Tracks,
+}
+
 public class TrackStreamer : MonoBehaviour
 {
     SongController SongController { get { return SongController.Instance; } }
@@ -25,7 +37,7 @@ public class TrackStreamer : MonoBehaviour
     {
         // Stream in the horizon!
         //StreamMeasureRange(0, RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreaming);
-        StreamMeasureRange(0, (RhythmicGame.StreamAllMeasuresOnStart) ? SongController.songLengthInMeasures : RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreaming);
+        StreamMeasureRange(0, (RhythmicGame.StreamAllMeasuresOnStart) ? SongController.songLengthInMeasures : RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
     }
 
     /// ***** ----- DEBUG TEST ----- *****
@@ -44,11 +56,11 @@ public class TrackStreamer : MonoBehaviour
     {
         if (RhythmicGame.StreamAllMeasuresOnStart)
             foreach (AmpTrack t in TracksController.Instance.Tracks) { }
-                //t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].gameObject.SetActive(true);
-                //t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].ModelRenderer.enabled = true;
+        //t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].gameObject.SetActive(true);
+        //t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].ModelRenderer.enabled = true;
         else
             // Stream measures on every bar tick
-            StreamMeasure(RhythmicGame.HorizonMeasures + e, -1, RhythmicGame.FastStreaming);
+            StreamMeasure(RhythmicGame.HorizonMeasures + e, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
 
         // Delete measures behind us
         // TODO: revise!
@@ -64,7 +76,7 @@ public class TrackStreamer : MonoBehaviour
         destroyCounter++;
     }
 
-    public void StreamNotes(int id, int trackID, AmpTrackSection measure) => StartCoroutine(_StreamNotes(id, trackID, measure, RhythmicGame.FastStreaming));
+    public void StreamNotes(int id, int trackID, AmpTrackSection measure) => StartCoroutine(_StreamNotes(id, trackID, measure, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Notes)));
     IEnumerator _StreamNotes(int id, int trackID, AmpTrackSection measure, bool immediate = false)
     {
         //for (int x = 1; x <= RhythmicGame.TunnelTrackDuplicationNum; x++)
@@ -83,8 +95,7 @@ public class TrackStreamer : MonoBehaviour
                 var note = track.CreateNote(kv.Value, measure);
                 //measure.ClipManager.AddMeshRenderer(note.NoteMeshRenderer); // TODO: CLIPPING - this is hacky
 
-                if (immediate) yield return null;
-                else yield return new WaitForSeconds(0.1f);
+                if (!immediate) yield return null;
             }
 
             measure.Notes.Last().IsLastNote = true; // TODO: optimization?
@@ -123,10 +134,9 @@ public class TrackStreamer : MonoBehaviour
             {
                 StartCoroutine(_StreamMeasure(id, i));
 
-                if (immediate) yield return null;
-                else yield return new WaitForSeconds(0.1f); // delay by a bit to account for performance drop
+                if (!RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks)) yield return null;
+                //else yield return new WaitForEndOfFrame(); // delay by a bit to account for performance drop
             }
-            yield return null;
         }
     }
 
@@ -143,8 +153,7 @@ public class TrackStreamer : MonoBehaviour
         for (int i = startID; i < endID; i++)
         {
             StreamMeasure(i, trackID, immediate);
-            //yield return new WaitForSeconds(0.1f);
+            if (!immediate) yield return null;
         }
-        yield return null;
     }
 }

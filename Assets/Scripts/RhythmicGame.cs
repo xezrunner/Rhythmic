@@ -68,7 +68,20 @@ public static class RhythmicGame
 
     public static int HorizonMeasures = 7; // How many measures should we be able to see ahead of us
     public static float HorizonMeasuresOffset = 15f; // How many units to offset from the horizon when clipping
+
+    // --- Fast streaming --- //
     public static bool FastStreaming = false;
+    static FastStreamingLevel _fastStreamingLevel = FastStreamingLevel.MeasuresAndNotes;
+
+    public static FastStreamingLevel FastStreamingLevel
+    {
+        get
+        {
+            if (FastStreaming) return _fastStreamingLevel;
+            else return FastStreamingLevel.None;
+        }
+    }
+
     public static bool StreamAllMeasuresOnStart = true;
 
     public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
@@ -101,6 +114,8 @@ public static class RhythmicGame
 
     // Tech props
     public static bool AutoFindPathFallback = true; // Whether to attempt finding an object named 'Path' in case a world/song path was never specified.
+    public static bool EnableTrackVisualClipping = true; // Controls all visual track clipping effects in the game.
+    public static bool DisableTrackLengthClipping = true; // Controls the horizon clipping effect
 
     /* ----- DEBUG props ----- */
 

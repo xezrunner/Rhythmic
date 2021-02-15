@@ -78,7 +78,6 @@ public class AmpTrackSection : MonoBehaviour
     public static bool AllowDeformations = true; // TODO!
 
     void Awake() => Path = PathTools.Path;
-
     void Start()
     {
 

@@ -21,7 +21,7 @@ public class AmplitudeSongController : SongController
     public List<MeasureInfo> songMeasures;
 
     // MIDI properties
-    public float DeltaTicksPerQuarterNote { get { return Enabled ? reader.midi.DeltaTicksPerQuarterNote : 480; } } // 1 subbeat's length in MIDI ticks
+    public float DeltaTicksPerQuarterNote { get { return IsEnabled ? reader.midi.DeltaTicksPerQuarterNote : 480; } } // 1 subbeat's length in MIDI ticks
     public float TunnelSpeedAccountation { get { return (songFudgeFactor == 0 ? 1f : songFudgeFactor); } } // tunnel scaling multiplication value
 
     public float GetzPosForNote(float absoluteTime) { return TickToPos(absoluteTime); } // Get note's zPos from its tick time | TODO: redundant?
@@ -35,7 +35,7 @@ public class AmplitudeSongController : SongController
         if (!File.Exists(songPath))
         {
             Debug.LogErrorFormat("AMP_SONGCTRL: Song {0} does not exist at path: {1}", songName, songPath);
-            Enabled = false; return;
+            IsEnabled = false; return;
         }
 
         // Load MIDI and set props!
