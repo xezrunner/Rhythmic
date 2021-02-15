@@ -5,16 +5,23 @@ using UnityEngine.InputSystem;
 
 public class DebugController : MonoBehaviour
 {
+    public static DebugController Instance;
+
     SongController SongController { get { return SongController.Instance; } }
 
     public GameObject section_debug;
     public GameObject section_controllerinput;
+
     public TextMeshProUGUI inputlagText;
     public TextMeshProUGUI framerateText;
     public TextMeshProUGUI debugText;
     public TextMeshProUGUI debugLineText;
 
-    void Awake() => GameState.CreateGameState();
+    void Awake()
+    {
+        Instance = this;
+        GameState.CreateGameState();
+    }
 
     private void Start()
     {
@@ -25,8 +32,11 @@ public class DebugController : MonoBehaviour
             AddToDebugLine("Warning! RhythmicGame.FastStreamingLevel has Tracks flag! This is slow!");
     }
 
-    int bananasCounter = 0;
-    void AddToDebugLine(string text)
+    int bananasCounter = -1;
+
+    // TODO: improve this! Add Logger compatibility!
+    public static void AddToDebugLine(string text) => Instance._AddToDebugLine(text);
+    void _AddToDebugLine(string text)
     {
         if (debugLineText.text.Length == 0) { debugLineText.text = text; return; }
         string s = debugLineText.text;
@@ -103,7 +113,6 @@ public class DebugController : MonoBehaviour
 #if UNITY_ANDROID
     int android_songcounter = 0;
 #endif
-
 
     private void LateUpdate()
     {
