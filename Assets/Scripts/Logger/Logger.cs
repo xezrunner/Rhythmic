@@ -57,7 +57,7 @@ public class Logger
     {
         LogUnity(text, logType);
         LogConsole(text, logType);
-        if (logType > CLogType.Unimportant) DebugController.AddToDebugLine(text); // TEMP!
+        //if (DebugUI.Instance && logType > CLogType.Unimportant) DebugUI.AddToDebugLine(text); // TEMP!
     }
 
     /// <summary>Simple text logging.</summary>
@@ -71,7 +71,7 @@ public class Logger
         string cName = "";
         if (objToType != null)
             if (objToType.GetType() == typeof(string)) cName = (string)objToType; // Automatically use the string value, in case you want custom text
-            else cName = objToType.GetType().BaseType.Name; // TODO: Using BaseType here, but we may want to use just the regular type instead? (AmplitudeSongController is the cause for this reasoning here)
+            else cName = objToType.GetType().Name;
 
         string mName = printMethodName && (methodName != null && methodName != "") ? ((cName != "") ? $"/{methodName}()" : "") : ""; // .../methodName(): <text> | ignores '/' when there's no class name
 
@@ -80,7 +80,8 @@ public class Logger
 
     /// <summary>Logs the method name before the desired text.</summary>
     /// <param name="objToType">Pass in 'this' to print out origin class name before the text.</param>
-    public static void LogMethod(string text, object objToType, [CallerMemberName] string methodName = null) => Log(text, objToType, true, methodName);
+    public static void LogMethod(string text, object objToType = null, [CallerMemberName] string methodName = null) => Log(text, objToType, true, methodName);
+
     public static void LogObject(object obj, bool printIndex = true, char separatorChar = ',') => Log(obj, 0, printIndex, separatorChar);
     public static void LogFormat(string text, CLogType logType, params object[] args) => Log(string.Format(text, args), logType);
     public static void LogFormat(string text, params object[] args) => Log(string.Format(text, args));

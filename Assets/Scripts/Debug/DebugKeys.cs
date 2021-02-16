@@ -1,152 +1,29 @@
-﻿using System.Threading.Tasks;
-using TMPro;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class DebugController : MonoBehaviour
+public partial class DebugKeys : MonoBehaviour
 {
-    public static DebugController Instance;
-
+    DebugUI DebugUI { get { return DebugUI.Instance; } }
     SongController SongController { get { return SongController.Instance; } }
 
-    public GameObject section_debug;
-    public GameObject section_controllerinput;
-
-    public TextMeshProUGUI inputlagText;
-    public TextMeshProUGUI framerateText;
-    public TextMeshProUGUI debugText;
-    public TextMeshProUGUI debugLineText;
-
-    void Awake()
-    {
-        Instance = this;
-        GameState.CreateGameState();
-    }
-
-    private void Start()
-    {
-        // TODO TODO TODO!!! This causes a Unity bug where the editor locks up when the server is not properly closed & disposed!
-        //ConsoleServer.StartConsoleServer();
-
-        if (RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks))
-            AddToDebugLine("Warning! RhythmicGame.FastStreamingLevel has Tracks flag! This is slow!");
-    }
-
-    int bananasCounter = -1;
-
-    // TODO: improve this! Add Logger compatibility!
-    public static void AddToDebugLine(string text) => Instance._AddToDebugLine(text);
-    void _AddToDebugLine(string text)
-    {
-        if (debugLineText.text.Length == 0) { debugLineText.text = text; return; }
-        string s = debugLineText.text;
-
-        int charCount = 0;
-        int newlineCount = 0;
-        for (int i = 0; i < s.Length; i++, charCount++)
-        {
-            if (s[i] == '\n')
-                newlineCount++;
-        }
-
-        if (charCount == 0) // assume that we have one line without a newline
-            charCount = s.Length;
-
-        s = s.Insert(charCount, '\n' + text);
-        newlineCount++;
-
-        if (newlineCount >= 4) // line cleanup! max 4 lines!
-            s = s.Remove(0, s.IndexOf('\n') + 1);
-
-        debugLineText.text = s;
-    }
-
-    public bool isDebugOn = true;
-    bool isDebugPrintOn = true;
-
-    void UpdateMainDebugText()
-    {
-        if (!SongController.IsEnabled)
-        {
-            debugText.text = "SongController Enabled: False";
-            return;
-        }
-
-        int trackCount = TracksController.Instance.Tracks.Count;
-        string trackNames = "";
-        TracksController.Instance.Tracks.ForEach(t => trackNames += $"{t.TrackName}  ");
-
-        string s = $"World: DevScene\n" +
-                   $"Room path: /rooms/_u_trans_/dev/dev_scene.drm [SceneToRoom]\n\n" +
-
-                   $"SongController Enabled: {SongController.IsEnabled}\n" +
-                   $"Song name: {SongController.songName}\n" +
-                   $"Song BPM: {SongController.songBpm}  Song scale: {SongController.songFudgeFactor.ToString("0.00")}\n\n" +
-
-                   $"Tracks: {trackNames}({trackCount})\n\n" +
-
-                   $"SlopMs: {SongController.SlopMs}  SlopPos: {SongController.SlopPos}\n\n" +
-
-                   $"Timscale: [world: {Time.timeScale.ToString("0.00")}]  [song: {SongController.songTimeScale.ToString("0.00")}]\n" +
-                   $"Clock seconds: {Clock.Instance.seconds}\n" +
-                   $"Clock bar: {(int)Clock.Instance.bar}\n" +
-                   $"Clock beat: {(int)Clock.Instance.beat % 8} ({(int)Clock.Instance.beat})\n" +
-                   $"Locomotion distance: {AmpPlayerLocomotion.Instance.DistanceTravelled}\n\n" +
-
-                   //$"LightManager: null | LightGroups:  (0)";
-                   "";
-
-        if (!isDebugPrintOn)
-            s += "\n\nDEBUG PRINT FREEZE";
-
-        debugText.text = s;
-    }
-
-    public void AMP_ChangeSong(string value)
-    {
-        SongController.songName = value;
-        //Player.ScoreText.text = string.Format("Song changed: {0} - restart!", value);
-    }
+    #region Song switching
 
 #if UNITY_ANDROID
     int android_songcounter = 0;
 #endif
-
-    private void LateUpdate()
+    public void AMP_ChangeSong(string value)
     {
-        // Debug control
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F3))
-        {
-            isDebugOn = !isDebugOn;
-            section_debug.SetActive(isDebugOn);
-        }
+        SongController.songName = value;
+        DebugUI.AddToDebugLine($"Song changed: {value} - press R to restart.");
+    }
 
-        if (!isDebugOn)
-            return;
-
-        // ----- DEBUG LOOP ----- //
-
-        if (Input.GetKeyDown(KeyCode.L))
-            AddToDebugLine($"bananas! {bananasCounter++}");
-
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F4)) // freeze printing
-        {
-            isDebugPrintOn = !isDebugPrintOn;
-            UpdateMainDebugText();
-        }
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F4)) // disable debug print UI
-        {
-            isDebugPrintOn = !isDebugPrintOn;
-            section_debug.SetActive(isDebugPrintOn);
-        }
-
-        if (isDebugPrintOn)
-            UpdateMainDebugText();
-
-        if (Keyboard.current.jKey.wasPressedThisFrame)
-            ConsoleServer.Write("Hi!!!");
-
-        // AMP songs debug
+    void HandleSongSwitching()
+    {
         if (Input.GetKeyDown(KeyCode.Alpha0))
             AMP_ChangeSong("tut0");
         else if (Input.GetKey(KeyCode.Alpha1))
@@ -178,14 +55,41 @@ public class DebugController : MonoBehaviour
             }
         }
 #endif
+    }
+    #endregion
+
+    void DEBUG_DisableWorld()
+    {
+        var world = GameObject.Find("World");
+        var worldCamera = GameObject.Find("WorldCamera");
+
+        world.SetActive(!world.activeInHierarchy); worldCamera.SetActive(!world.activeInHierarchy);
+    }
+
+
+
+    public async void DoFailTest()
+    {
+        int msCounter = 50;
+
+        for (float i = 1f; i > 0f; i -= 0.1f)
+        {
+            await Task.Delay(msCounter);
+            RhythmicGame.SetTimescale(i);
+            msCounter -= 5;
+        }
+    }
+
+    void Update()
+    {
+        if (Keyboard.current.jKey.wasPressedThisFrame)
+            ConsoleServer.Write("Hi!!!");
+
+        // AMP songs debug
+        HandleSongSwitching();
 
         if (Gamepad.current != null && Gamepad.current.dpad.down.wasPressedThisFrame)
-        {
-            var world = GameObject.Find("World");
-            var worldCamera = GameObject.Find("WorldCamera");
-
-            world.SetActive(!world.activeInHierarchy); worldCamera.SetActive(!world.activeInHierarchy);
-        }
+            DEBUG_DisableWorld();
 
         if (Input.GetKeyDown(KeyCode.M))
         {
@@ -247,12 +151,10 @@ public class DebugController : MonoBehaviour
         if (Input.GetKey(KeyCode.KeypadPlus))
         {
             RhythmicGame.SetAVCalibrationOffset(RhythmicGame.AVCalibrationOffsetMs + RhythmicGame.AVCalibrationStepMs);
-            inputlagText.text = string.Format("Player offset (ms): {0}", RhythmicGame.AVCalibrationOffsetMs);
         }
         else if (Input.GetKey(KeyCode.KeypadMinus))
         {
             RhythmicGame.SetAVCalibrationOffset(RhythmicGame.AVCalibrationOffsetMs - RhythmicGame.AVCalibrationStepMs);
-            inputlagText.text = string.Format("Player offset (ms): {0}", RhythmicGame.AVCalibrationOffsetMs);
         }
 
         // Track capturing debug
@@ -315,31 +217,4 @@ public class DebugController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Keypad0)) // progressive slowmo test (tut)
             DoFailTest();
     }
-
-    float deltaTime;
-    void Update()
-    {
-        if (!isDebugOn)
-            return;
-
-        // update framerate debug
-        if (Time.timeScale == 0f)
-            return;
-        deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
-        float fps = 1.0f / deltaTime;
-        framerateText.text = string.Format("Framerate: {0} FPS", Mathf.Ceil(fps).ToString());
-    }
-
-    public async void DoFailTest()
-    {
-        int msCounter = 50;
-
-        for (float i = 1f; i > 0f; i -= 0.1f)
-        {
-            await Task.Delay(msCounter);
-            RhythmicGame.SetTimescale(i);
-            msCounter -= 5;
-        }
-    }
-
 }

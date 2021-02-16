@@ -58,6 +58,9 @@ public static class RhythmicGame
     public static bool IsLoading = true;
     public static Vector2 PreferredResolution = new Vector2(1920, 1080);
 
+    // Debug system
+    public static DebugControllerState DebugControllerState = DebugControllerState.Uninitialized;
+
     // A/V calibration props | milliseconds
     public static float AVCalibrationOffsetMs = 0f;
     public static float AVCalibrationStepMs = 16.67f;
@@ -82,7 +85,6 @@ public static class RhythmicGame
             else return FastStreamingLevel.None;
         }
     }
-
 
     public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
     public static bool TunnelTrackDuplication = true; // Whether to duplicate tracks when using tunnel mode
