@@ -76,10 +76,10 @@ public class DebugController : MonoBehaviour
         string trackNames = "";
         TracksController.Instance.Tracks.ForEach(t => trackNames += $"{t.TrackName}  ");
 
-        string s = /*$"World: DevScene\n" +
-                   $"Room path: /rooms/_u_trans_/dev/dev_scene.drm [SceneToRoom]\n" +
-                   $"SongController Enabled: {SongController.IsEnabled}\n\n" +*/
+        string s = $"World: DevScene\n" +
+                   $"Room path: /rooms/_u_trans_/dev/dev_scene.drm [SceneToRoom]\n\n" +
 
+                   $"SongController Enabled: {SongController.IsEnabled}\n" +
                    $"Song name: {SongController.songName}\n" +
                    $"Song BPM: {SongController.songBpm}  Song scale: {SongController.songFudgeFactor.ToString("0.00")}\n\n" +
 
@@ -87,13 +87,11 @@ public class DebugController : MonoBehaviour
 
                    $"SlopMs: {SongController.SlopMs}  SlopPos: {SongController.SlopPos}\n\n" +
 
-                   /*
                    $"Timscale: [world: {Time.timeScale.ToString("0.00")}]  [song: {SongController.songTimeScale.ToString("0.00")}]\n" +
                    $"Clock seconds: {Clock.Instance.seconds}\n" +
                    $"Clock bar: {(int)Clock.Instance.bar}\n" +
                    $"Clock beat: {(int)Clock.Instance.beat % 8} ({(int)Clock.Instance.beat})\n" +
                    $"Locomotion distance: {AmpPlayerLocomotion.Instance.DistanceTravelled}\n\n" +
-                   */
 
                    //$"LightManager: null | LightGroups:  (0)";
                    "";
