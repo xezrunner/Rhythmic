@@ -90,7 +90,7 @@ public class DebugUI : DebugComponent
         if (newlineCount >= 4) // line cleanup! max 4 lines!
             s = s.Remove(0, s.IndexOf('\n') + 1);
 
-        debugLineText.text = s;
+        debugLineText.SetText(s);
     }
 
     /// Main debug text
