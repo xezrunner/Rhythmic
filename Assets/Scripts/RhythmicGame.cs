@@ -10,6 +10,7 @@ public enum GameLogic { AMPLITUDE, RHYTHMIC }
 public enum GameMode { Metagame, Gameplay, Practice, Editor, Charting, Debugging }
 public enum GameMatchType { Singleplayer = 0, LocalMultiplayer = 1, OnlineMultiplayer = 2 }
 
+// TODO: Some props here could be moved to their respective class!
 public static class RhythmicGame
 {
     public static GameState GameState;

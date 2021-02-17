@@ -66,7 +66,7 @@ public class DebugUI : DebugComponent
     public static void AddToDebugLine(string text)
     {
         if (Instance) Instance._AddToDebugLine(text);
-        else Logger.LogMethod("DebugUI has no global instance!", "DebugUI");
+        else Logger.LogMethod($"DebugUI has no global instance! {{text: '{text}'}}", "DebugUI", LogTarget.All & ~LogTarget.DebugLine);
     }
     void _AddToDebugLine(string text)
     {
