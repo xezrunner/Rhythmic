@@ -19,6 +19,7 @@ public enum LogTarget
     All = (Unity | RhythmicConsole | DebugLine)
 }
 
+// TODO: Add LogWarning & LogError (& LogIO, LogNetwork, LogApplication, LogGame)(?) variatons!
 public class Logger
 {
     public static LogTarget CurrentLogTarget = LogTarget.All;
