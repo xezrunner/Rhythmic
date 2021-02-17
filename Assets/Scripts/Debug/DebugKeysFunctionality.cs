@@ -53,11 +53,11 @@ public partial class DebugKeys
     {
         if (Input.GetKeyDown(KeyCode.Alpha0))
             AMP_ChangeSong("tut0");
-        else if (Input.GetKey(KeyCode.Alpha1))
+        else if (Input.GetKeyDown(KeyCode.Alpha1))
             AMP_ChangeSong("perfectbrain");
-        else if (Input.GetKey(KeyCode.Alpha2))
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
             AMP_ChangeSong("dreamer");
-        else if (Input.GetKey(KeyCode.Alpha3))
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
             AMP_ChangeSong("dalatecht");
 
 #if UNITY_ANDROID
@@ -83,7 +83,7 @@ public partial class DebugKeys
     }
     void DEBUG_SetFramerateLock(int framerate)
     {
-        RhythmicGame.SetFramerate(framerate, Input.GetKey(KeyCode.LeftControl) ? 1 : 0);
+        RhythmicGame.SetFramerate(framerate, Input.GetKey(KeyCode.LeftShift) ? 1 : 0);
     }
     void DEBUG_SetPreferredResolution(Vector2 resolution)
     {

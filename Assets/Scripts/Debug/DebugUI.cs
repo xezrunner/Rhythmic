@@ -148,7 +148,7 @@ public class DebugUI : DebugComponent
         if (Input.GetKeyDown(KeyCode.L))
             AddToDebugLine($"bananas! {bananasCounter++}");
 
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F4)) // freeze printing
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F3)) // freeze printing
         {
             IsDebugPrintOn = !IsDebugPrintOn;
             UpdateMainDebugText();
@@ -156,11 +156,8 @@ public class DebugUI : DebugComponent
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F4)) // disable debug print UI
         {
             IsDebugPrintOn = !IsDebugPrintOn;
-            //Main.SetActive(IsDebugPrintOn);
+            //Main.SetActive(IsDebugPrintOn); // TODO: fix!
         }
-
-        if (IsDebugPrintOn)
-            UpdateMainDebugText();
     }
 
     float deltaTime;
@@ -170,6 +167,11 @@ public class DebugUI : DebugComponent
 
         if (!IsDebugUIOn)
             return;
+
+        // DEBUG LOOP
+
+        if (IsDebugPrintOn)
+            UpdateMainDebugText();
 
         // update framerate debug
         if (Time.timeScale == 0f)

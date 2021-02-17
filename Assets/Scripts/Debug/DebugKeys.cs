@@ -50,7 +50,7 @@ public partial class DebugKeys : DebugComponent
             DEBUG_SetPreferredResolution(new Vector2(1920, 1080));
 
         // FPS Lock
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(10);
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(10);
         else if (Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(60);
         else if (Input.GetKeyDown(KeyCode.F2)) DEBUG_SetFramerateLock(120);
         else if (Input.GetKeyDown(KeyCode.F3)) DEBUG_SetFramerateLock(200);
