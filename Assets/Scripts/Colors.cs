@@ -12,6 +12,11 @@ public class Colors : MonoBehaviour
     // Functionality:
     public static Color ConvertToFloatColor(Color color)
     {
+        // Convert color to 0-1 color, if required
+        // TODO: hacky!
+        bool requiresConversion = color.r > 1 || color.g > 1 || color.b > 1;
+        if (!requiresConversion) return color;
+
         return new Color(color.r / 255, color.g / 255, color.b / 255, color.a / 255);
     }
 
