@@ -61,9 +61,9 @@ public class DebugController : MonoBehaviour
 
     void HandleState()
     {
-        foreach (KeyValuePair<DebugComAttribute, object> kv in DebugComponent.Components)
+        foreach (KeyValuePair<DebugComponentAttribute, object> kv in DebugComponents.MetaComponents)
         {
-            DebugComAttribute com_attr = kv.Key;
+            DebugComponentAttribute com_attr = kv.Key;
 
             DebugControllerState com_state = com_attr.State;
             DebugComponentType com_type = com_attr.ComponentType;
@@ -71,19 +71,19 @@ public class DebugController : MonoBehaviour
             DebugComponent com_instance;
 
             // Grab the values
-            if (kv.Value == null)
-            { Debug.LogError("Debug component value was null!"); continue; }
-
             if (com_type == DebugComponentType.Prefab)
             {
+                if (kv.Value == null)
+                { Debug.LogError("Debug component value was null!"); continue; }
+
                 object[] values = (object[])kv.Value;
                 com_instance = (values[0] != null) ? (DebugComponent)values[0] : null;
                 com_prefab = (values[1] != null) ? (GameObject)values[1] : null;
             }
             else
-                com_instance = (DebugComponent)kv.Value;
+                com_instance = (kv.Value != null) ? (DebugComponent)kv.Value : null;
 
-            if (!State.HasFlag(com_state)) // NO FLAG: Remove the debug component
+            if (!State.HasFlag(com_state) && com_instance) // NO FLAG: Remove the debug component
             {
                 com_instance.RemoveDebugComponent(com_type);
                 continue;

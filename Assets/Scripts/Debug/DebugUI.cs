@@ -35,11 +35,11 @@ public enum ComponentDebugLevel
     Lighting = (PlayerStats | LightingStats)
 }
 
-[DebugCom(DebugControllerState.DebugUI)]
+[DebugComponent(DebugControllerState.DebugUI)]
 public class DebugUI : DebugComponent
 {
     public static DebugUI Instance;
-    public static DebugComAttribute Attribute { get { return (DebugComAttribute)System.Attribute.GetCustomAttribute(typeof(DebugUI), typeof(DebugComAttribute)); } }
+    public static DebugComponentAttribute Attribute { get { return (DebugComponentAttribute)System.Attribute.GetCustomAttribute(typeof(DebugUI), typeof(DebugComponentAttribute)); } }
 
     static GameObject _Prefab;
     public static GameObject Prefab { get { if (!_Prefab) _Prefab = (GameObject)Resources.Load($"Prefabs/Debug/DebugUI"); return _Prefab; } }
@@ -62,6 +62,7 @@ public class DebugUI : DebugComponent
     int bananasCounter = -1;
 
     // TODO: improve this! Add Logger compatibility!
+    // TODO: Colors!
     public static void AddToDebugLine(string text) => Instance._AddToDebugLine(text);
     void _AddToDebugLine(string text)
     {

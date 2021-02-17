@@ -4,9 +4,20 @@ using UnityEngine;
 
 public enum DebugComponentType { Component = 0, Prefab = 1 }
 
+[AttributeUsage(AttributeTargets.Class)]
+public class DebugComponentAttribute : Attribute
+{
+    public DebugComponentAttribute(DebugControllerState state, DebugComponentType comType = DebugComponentType.Prefab) { State = state; ComponentType = comType; }
+    public DebugComponentAttribute(DebugControllerState state, Type type, DebugComponentType comType = DebugComponentType.Component) { State = state; Type = type; ComponentType = comType; }
+
+    public DebugControllerState State;
+    public DebugComponentType ComponentType;
+    public Type Type;
+}
+
 public class DebugComponent : MonoBehaviour
 {
-    public DebugComponent _Instance; // This is a generic instance to the DebugComponent type | TODO: might not need
+    public DebugComponent _Instance; // TODO: might not need
 
     //DebugController DebugController { get { return DebugController.Instance; } }
 
@@ -19,20 +30,9 @@ public class DebugComponent : MonoBehaviour
             Destroy(this); // Destroy the component only
     }
 
-    public static List<KeyValuePair<DebugComAttribute, object>> Components
-    {
-        get
-        {
-            return new List<KeyValuePair<DebugComAttribute, object>>()
-            {
-                new KeyValuePair<DebugComAttribute, object>(DebugUI.Attribute, new object[] { DebugUI.Instance, DebugUI.Prefab })
-            };
-        }
-    }
-
     public static void HandleState(DebugControllerState State, Type t)
     {
-        DebugComAttribute attr = (DebugComAttribute)Attribute.GetCustomAttribute(t, typeof(DebugComAttribute));
+        DebugComponentAttribute attr = (DebugComponentAttribute)Attribute.GetCustomAttribute(t, typeof(DebugComponentAttribute));
         Logger.LogMethod(attr.State.ToString(), "DebugComponent");
     }
 }
