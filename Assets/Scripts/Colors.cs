@@ -39,4 +39,16 @@ public class Colors : MonoBehaviour
         if (convertToFloat) return ConvertToFloatColor(finalColor);
         else return finalColor;
     }
+
+    // Global colors:
+
+    public static Color Info = ConvertHexToColor("#f0f0f0");
+    public static Color Unimportant = ConvertHexToColor("#7Bf0f0f0");
+    public static Color Warning = ConvertHexToColor("#ef6c00");
+    public static Color Error = ConvertHexToColor("#ff1744");
+    public static Color Caution = ConvertHexToColor("#F50057");
+    public static Color Network = ConvertHexToColor("#4CAF50");
+    public static Color IO = ConvertHexToColor("#FFD600");
+    public static Color Application = ConvertHexToColor("#03A9F4");
+    public static Color UNKNOWN = ConvertHexToColor("#4A148C");
 }
