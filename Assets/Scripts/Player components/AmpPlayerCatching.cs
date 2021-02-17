@@ -57,6 +57,8 @@ public class AmpPlayerCatching : MonoBehaviour
 
     private void Start()
     {
+        if (!SongController.IsEnabled) return;
+
         // Assign ourselves in TracksController
         TracksController.Catching = this;
 

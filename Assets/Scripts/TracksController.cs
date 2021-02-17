@@ -117,10 +117,24 @@ public class TracksController : MonoBehaviour
         LengthClip();
     }
 
+    bool clipping_lastVisualControlState = false; // false: has not set materials to OFF yet | true: ignore Clip() completely
+
     // WARNING! Paths should not traverse backwards, as the global edge lights are going to be visible ahead of the path!
     // TODO: either fix this, or design paths in a way that they don't traverse backwards!
     public void LengthClip()
     {
+        // Visual clipping control - disable all clipping!
+        // TODO: is comparing a static variable slow?
+        if (RhythmicGame.DisableTrackLengthClipping)
+        {
+            if (!clipping_lastVisualControlState) // Do this once
+                clipManager.materials.ForEach(m => m.SetFloat("_PlaneEnabled", 0));
+
+            clipping_lastVisualControlState = true;
+            return;
+        }
+        else clipping_lastVisualControlState = false;
+
         // Calculate clip plane offset based on measure draw distance
         float dist = AmpPlayerLocomotion.Instance.HorizonLength;
 
@@ -129,15 +143,6 @@ public class TracksController : MonoBehaviour
 
         lengthPlane.transform.position = planePos;
         lengthPlane.transform.rotation = planeRot;
-
-        // Inverse:
-        //float inverse_dist = AmpPlayerLocomotion.Instance.DistanceTravelled - SongController.measureLengthInzPos;
-
-        //Vector3 inverse_planePos = PathTools.GetPositionOnPath(PathTools.Path, inverse_dist);
-        //Quaternion inverse_planeRot = PathTools.GetRotationOnPath(PathTools.Path, inverse_dist, new Vector3(90, 0, 0));
-
-        //inversePlane.transform.position = inverse_planePos;
-        //inversePlane.transform.rotation = inverse_planeRot;
 
         clipManager.Clip();
     }

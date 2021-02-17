@@ -38,6 +38,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
     void Start()
     {
         if (Path == null) GetPath();
+        if (!SongController.IsEnabled) return;
 
         // Position player to tunnel
         transform.position = Tunnel.center / 2;
@@ -96,7 +97,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
         {
             if (!SongController.IsPlaying && IsPlaying) { }
                 //DistanceTravelled += 4f * Time.deltaTime;
-            else if (SongController.Enabled)
+            else if (SongController.IsEnabled)
             {
                 Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songTimeScale);
                 DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);

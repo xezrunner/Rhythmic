@@ -1,12 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 // Track streaming system
 // Purpose: stream in the measures and notes in real-time as we are playing
+
+public enum FastStreamingLevel
+{
+    None = 0,
+    Notes = 1 << 0,
+    Measures = 1 << 1,
+    Tracks = 1 << 2,
+
+    All = Notes | Measures | Tracks,
+    MeasuresAndNotes = Measures | Notes,
+    TracksAndMeasures = Measures | Tracks,
+}
 
 public class TrackStreamer : MonoBehaviour
 {
@@ -25,7 +36,7 @@ public class TrackStreamer : MonoBehaviour
     {
         // Stream in the horizon!
         //StreamMeasureRange(0, RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreaming);
-        StreamMeasureRange(0, (RhythmicGame.StreamAllMeasuresOnStart) ? SongController.songLengthInMeasures : RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreaming);
+        StreamMeasureRange(0, (RhythmicGame.StreamAllMeasuresOnStart) ? SongController.songLengthInMeasures : RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
     }
 
     /// ***** ----- DEBUG TEST ----- *****
@@ -43,11 +54,12 @@ public class TrackStreamer : MonoBehaviour
     private void Clock_OnBar(object sender, int e)
     {
         if (RhythmicGame.StreamAllMeasuresOnStart)
-            foreach (AmpTrack t in TracksController.Instance.Tracks)
-                t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].gameObject.SetActive(true);
+            foreach (AmpTrack t in TracksController.Instance.Tracks) { }
+        //t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].gameObject.SetActive(true);
+        //t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].ModelRenderer.enabled = true;
         else
             // Stream measures on every bar tick
-            StreamMeasure(RhythmicGame.HorizonMeasures + e, -1, RhythmicGame.FastStreaming);
+            StreamMeasure(RhythmicGame.HorizonMeasures + e, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
 
         // Delete measures behind us
         // TODO: revise!
@@ -63,7 +75,7 @@ public class TrackStreamer : MonoBehaviour
         destroyCounter++;
     }
 
-    public void StreamNotes(int id, int trackID, AmpTrackSection measure) => StartCoroutine(_StreamNotes(id, trackID, measure, RhythmicGame.FastStreaming));
+    public void StreamNotes(int id, int trackID, AmpTrackSection measure) => StartCoroutine(_StreamNotes(id, trackID, measure, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Notes)));
     IEnumerator _StreamNotes(int id, int trackID, AmpTrackSection measure, bool immediate = false)
     {
         //for (int x = 1; x <= RhythmicGame.TunnelTrackDuplicationNum; x++)
@@ -82,8 +94,7 @@ public class TrackStreamer : MonoBehaviour
                 var note = track.CreateNote(kv.Value, measure);
                 //measure.ClipManager.AddMeshRenderer(note.NoteMeshRenderer); // TODO: CLIPPING - this is hacky
 
-                if (immediate) yield return null;
-                else yield return new WaitForSeconds(0.1f);
+                if (!immediate) yield return null;
             }
 
             measure.Notes.Last().IsLastNote = true; // TODO: optimization?
@@ -113,7 +124,8 @@ public class TrackStreamer : MonoBehaviour
             StreamNotes(id, track.RealID, measure);
 
             //if (measure.Position.z > AmpPlayerLocomotion.Instance.HorizonLength) measure.enabled = false;
-            if (measure.ID > Clock.Fbar + RhythmicGame.HorizonMeasures) measure.gameObject.SetActive(false);
+            //if (measure.ID > Clock.Fbar + RhythmicGame.HorizonMeasures) measure.gameObject.SetActive(false);
+            //if (measure.ID > Clock.Fbar + RhythmicGame.HorizonMeasures) measure.ModelRenderer.enabled = false;
         }
         else // Stream in the measure from all of the tracks!
         {
@@ -121,10 +133,9 @@ public class TrackStreamer : MonoBehaviour
             {
                 StartCoroutine(_StreamMeasure(id, i));
 
-                if (immediate) yield return null;
-                else yield return new WaitForSeconds(0.1f); // delay by a bit to account for performance drop
+                if (!RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks)) yield return null;
+                //else yield return new WaitForEndOfFrame(); // delay by a bit to account for performance drop
             }
-            yield return null;
         }
     }
 
@@ -141,8 +152,7 @@ public class TrackStreamer : MonoBehaviour
         for (int i = startID; i < endID; i++)
         {
             StreamMeasure(i, trackID, immediate);
-            //yield return new WaitForSeconds(0.1f);
+            if (!immediate) yield return null;
         }
-        yield return null;
     }
 }

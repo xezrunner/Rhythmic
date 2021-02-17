@@ -10,6 +10,7 @@ public enum GameLogic { AMPLITUDE, RHYTHMIC }
 public enum GameMode { Metagame, Gameplay, Practice, Editor, Charting, Debugging }
 public enum GameMatchType { Singleplayer = 0, LocalMultiplayer = 1, OnlineMultiplayer = 2 }
 
+// TODO: Some props here could be moved to their respective class!
 public static class RhythmicGame
 {
     public static GameState GameState;
@@ -59,6 +60,9 @@ public static class RhythmicGame
     public static Vector2 Resolution { get { return new Vector2(Screen.currentResolution.width, Screen.currentResolution.height); } }
     public static Vector2 PreferredResolution = new Vector2(1920, 1080);
 
+    // Debug system
+    public static DebugControllerState DebugControllerState = DebugControllerState.Uninitialized;
+
     // A/V calibration props | milliseconds
     public static float AVCalibrationOffsetMs = 0f;
     public static float AVCalibrationStepMs = 16.67f;
@@ -69,8 +73,20 @@ public static class RhythmicGame
 
     public static int HorizonMeasures = 7; // How many measures should we be able to see ahead of us
     public static float HorizonMeasuresOffset = 15f; // How many units to offset from the horizon when clipping
-    public static bool FastStreaming = false;
+
+    // --- Track streaming --- //
     public static bool StreamAllMeasuresOnStart = false;
+    public static bool FastStreaming = false;
+    static FastStreamingLevel _fastStreamingLevel = FastStreamingLevel.MeasuresAndNotes;
+
+    public static FastStreamingLevel FastStreamingLevel
+    {
+        get
+        {
+            if (FastStreaming) return _fastStreamingLevel;
+            else return FastStreamingLevel.None;
+        }
+    }
 
     public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
     public static bool TunnelTrackDuplication = true; // Whether to duplicate tracks when using tunnel mode
@@ -102,6 +118,9 @@ public static class RhythmicGame
 
     // Tech props
     public static bool AutoFindPathFallback = true; // Whether to attempt finding an object named 'Path' in case a world/song path was never specified.
+
+    public static bool EnableTrackVisualClipping = true; // Controls all visual track clipping effects in the game.
+    public static bool DisableTrackLengthClipping = false; // Controls the horizon clipping effect
 
     /* ----- DEBUG props ----- */
 

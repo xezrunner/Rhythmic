@@ -45,13 +45,31 @@ public class ClipManager : MonoBehaviour
         }
     }
 
+    bool lastVisualControlState = false; // false: has not set materials to OFF yet | true: ignore Clip() completely
+
     public void Clip()
     {
+        // Visual clipping control - disable all clipping!
+        // TODO: is comparing a static variable slow?
+        if (!RhythmicGame.EnableTrackVisualClipping)
+        {
+            if (!lastVisualControlState) // Do this once
+            {
+                materials.ForEach(m => m.SetFloat("_PlaneEnabled", 0));
+                materials.ForEach(m => m.SetFloat("_InversePlaneEnabled", 0));
+            }
+
+            lastVisualControlState = true;
+            return;
+        }
+        else lastVisualControlState = false;
+
         if (materials == null) GetMaterials();
 
         Vector4 planeRepresentation = Vector4.zero;
         Vector4 inverse_planeRepresentation = Vector4.zero;
 
+        // ----- Clipping ----- //
         // Regular plane
         if (plane)
         {

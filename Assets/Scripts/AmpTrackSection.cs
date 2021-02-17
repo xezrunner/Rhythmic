@@ -11,8 +11,6 @@ public class AmpTrackSection : MonoBehaviour
 {
     public VertexPath Path;
 
-    void Awake() => Path = PathTools.Path;
-
     /// ----- Properties -----
 
     [Header("Content references")]
@@ -29,15 +27,14 @@ public class AmpTrackSection : MonoBehaviour
     public List<AmpNote> Notes = new List<AmpNote>();
 
     [Header("Properties")]
-
     public int ID;
-    public float Length = 32f; // in zPos!
     public AmpTrack.InstrumentType Instrument;
+
+    public float Length = 32f; // meters
+    public Vector3 Position; // meters
+    public float Rotation; // angles
+
     public bool IsEmpty;
-
-    public Vector3 Position;
-    public float Rotation; // Note: in Euler angles!
-
     public bool IsCapturing;
     public MeasureCaptureState CaptureState = MeasureCaptureState.None;
     public bool IsCaptured
@@ -79,8 +76,13 @@ public class AmpTrackSection : MonoBehaviour
 
     public static bool AllowDeformations = true; // TODO!
 
+    void Awake() => Path = PathTools.Path;
     void Start()
     {
+
+        if (!ModelMesh || !ModelMesh.sharedMesh)
+        { Debug.LogWarning($"Measure [init]: {ID} does not have a Model!"); return; }
+
         // Disable measure visuals when empty or captured
         if (IsEmpty || IsCaptured) // TODO: revise!
         {
@@ -88,9 +90,6 @@ public class AmpTrackSection : MonoBehaviour
             // tba
             return;
         }
-
-        if (!ModelMesh || !ModelMesh.sharedMesh)
-        { Debug.LogWarning($"Measure [init]: {ID} does not have a Model!"); return; }
 
         // Deform the mesh!
         DeformMesh();
