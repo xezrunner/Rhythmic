@@ -61,7 +61,7 @@ public class DebugController : MonoBehaviour
 
     void HandleState()
     {
-        foreach (KeyValuePair<DebugComponentAttribute, object> kv in DebugComponents.MetaComponents)
+        foreach (KeyValuePair<DebugComponentAttribute, object> kv in DebugComponents.GetMetaComponents())
         {
             DebugComponentAttribute com_attr = kv.Key;
 

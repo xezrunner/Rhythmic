@@ -2,6 +2,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+// A collection of debug functions used in the DebugKeys debug component.
+// TODO: repurpose as a general debug functionality class?
+
 public partial class DebugKeys
 {
     DebugUI DebugUI { get { return DebugUI.Instance; } }

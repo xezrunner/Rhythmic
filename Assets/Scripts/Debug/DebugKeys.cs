@@ -11,6 +11,7 @@ public partial class DebugKeys : DebugComponent
 
     void Awake() => Instance = this;
 
+    // Main loop
     void Update()
     {
         if (!IsEnabled)
