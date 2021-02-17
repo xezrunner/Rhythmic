@@ -63,7 +63,11 @@ public class DebugUI : DebugComponent
 
     // TODO: improve this! Add Logger compatibility!
     // TODO: Colors!
-    public static void AddToDebugLine(string text) => Instance._AddToDebugLine(text);
+    public static void AddToDebugLine(string text)
+    {
+        if (Instance) Instance._AddToDebugLine(text);
+        else Logger.LogMethod("DebugUI has no global instance!", "DebugUI");
+    }
     void _AddToDebugLine(string text)
     {
         if (debugLineText.text.Length == 0) { debugLineText.text = text; return; }
