@@ -172,7 +172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultSong: perfectbrain
-  IsEnabled: 1
+  IsEnabled: 0
   IsFake: 0
   IsPlaying: 0
   songTimeScale: 1
@@ -8393,8 +8393,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1848411857}
   - component: {fileID: 1848411858}
+  - component: {fileID: 1848411859}
   m_Layer: 0
-  m_Name: Logger tester
+  m_Name: test
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8429,6 +8430,21 @@ MonoBehaviour:
   Text: 
   MessageTypeID: 7
   TestList: []
+--- !u!114 &1848411859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1848411856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2a869c82a995884998e98f7e911e604, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Color: {x: 255, y: 255, z: 0, w: 100}
+  Input: '#10ffffff'
+  LogType: 0
 --- !u!1 &1888354782
 GameObject:
   m_ObjectHideFlags: 0

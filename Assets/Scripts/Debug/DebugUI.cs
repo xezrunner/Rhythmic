@@ -63,12 +63,14 @@ public class DebugUI : DebugComponent
 
     // TODO: improve this! Add Logger compatibility!
     // TODO: Colors!
-    public static void AddToDebugLine(string text)
+    public static void AddToDebugLine(string text, Color? color = null)
     {
-        if (Instance) Instance._AddToDebugLine(text);
-        else Logger.LogMethod($"DebugUI has no global instance! {{text: '{text}'}}", "DebugUI", LogTarget.All & ~LogTarget.DebugLine);
+        if (Instance) Instance._AddToDebugLine(text, color);
+        else Logger.LogMethod($"DebugUI has no global instance!    -    {text}", "DebugUI", LogTarget.All & ~LogTarget.DebugLine, CLogType.Warning);
     }
-    void _AddToDebugLine(string text)
+    public static void AddToDebugLine(string text, CLogType logType) => AddToDebugLine(text, Colors.GetColorForCLogType(logType));
+
+    void _AddToDebugLine(string text, Color? color = null)
     {
         if (debugLineText.text.Length == 0) { debugLineText.text = text; return; }
         string s = debugLineText.text;
@@ -83,6 +85,10 @@ public class DebugUI : DebugComponent
 
         if (charCount == 0) // assume that we have one line without a newline
             charCount = s.Length;
+
+        // Apply color if needed
+        if (color.HasValue)
+            text = text.AddColor(color.Value);
 
         s = s.Insert(charCount, '\n' + text);
         newlineCount++;
