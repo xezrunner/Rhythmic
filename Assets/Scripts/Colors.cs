@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Reflection;
 using UnityEngine;
 
 public class Colors : MonoBehaviour
@@ -8,6 +9,8 @@ public class Colors : MonoBehaviour
     public Vector4 Color = new Vector4(0, 0, 0, 255);
     [Header("For: ConvertHexToColor()")]
     public string Input;
+    [Header("For: GetColorForCLogType()")]
+    public CLogType LogType;
 
     // Functionality:
     public static Color ConvertToFloatColor(Color color)
@@ -19,7 +22,6 @@ public class Colors : MonoBehaviour
 
         return new Color(color.r / 255, color.g / 255, color.b / 255, color.a / 255);
     }
-
     public static Color ConvertHexToColor(string hex, bool convertToFloat = true)
     {
         // Remove # from start, if exists
@@ -42,6 +44,31 @@ public class Colors : MonoBehaviour
 
     // Global colors:
 
+    // ----- Logger & Console -----
+    public static Color GetColorForCLogType(CLogType logType)
+    {
+        FieldInfo field = typeof(Colors).GetField(logType.ToString(), BindingFlags.Public | BindingFlags.Static);
+        Color color = (Color)field.GetValue(null);
+
+        return color;
+
+        /* TODO: unneccesary (?)
+        switch (logType)
+        {
+            default: return UNKNOWN;
+            case CLogType.Info: return Info;
+            case CLogType.Unimportant: return Unimportant;
+            case CLogType.Warning: return Warning;
+            case CLogType.Error: return Error;
+            case CLogType.Caution: return Caution;
+            case CLogType.Network: return Network;
+            case CLogType.IO: return IO;
+            case CLogType.Application: return Application;
+        }
+        */
+    }
+
+    // TODO: brighten up some of these!
     public static Color Info = ConvertHexToColor("#f0f0f0");
     public static Color Unimportant = ConvertHexToColor("#7Bf0f0f0");
     public static Color Warning = ConvertHexToColor("#ef6c00");
