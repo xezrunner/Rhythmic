@@ -38,8 +38,11 @@ public class Logger
         }
     }
 
+    // TODO: support colors for 'object' too?
     public static void LogUnity(object obj, CLogType logType) => GetUnityLogHandlerForLogType(logType)(obj);
     public static void LogUnity(object obj) => Debug.Log(obj);
+    public static void LogUnity(string text, CLogType logType) => GetUnityLogHandlerForLogType(logType)(text.AddColor(Colors.GetColorForCLogType(logType)));
+    public static void LogUnity(string text) => Debug.Log(text);
     public static string LogConsole(string text, CLogType logType) { if (ConsoleServer.IsServerActive) ConsoleServer.Write(text, logType); return text; }
 
     public static string Log(string text, CLogType logType, LogTarget logTarget = LogTarget.All)
