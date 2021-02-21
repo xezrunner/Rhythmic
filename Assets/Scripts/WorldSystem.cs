@@ -5,6 +5,8 @@ public enum WorldVisualQuality { Default = 0, Low = 1, Medium = 2, High = 3, Ext
 
 public class WorldSystem : MonoBehaviour
 {
+    public static WorldSystem Instance;
+
     [Header("World info")]
     public string Name = "world_";
     public string FriendlyName = "The World";
@@ -28,6 +30,8 @@ public class WorldSystem : MonoBehaviour
 
     void Awake()
     {
+        Instance = this;
+
         // Let's find the path if fallback policy is on!
         // TODO: Songs will also have the ability to have a path!
         if (RhythmicGame.AutoFindPathFallback && Path == null)
