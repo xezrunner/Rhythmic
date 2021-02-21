@@ -101,6 +101,8 @@ public class DebugUI : DebugComponent
 
     /// Main debug text
 
+
+
     void UpdateMainDebugText()
     {
         if (!SongController.IsEnabled)
@@ -168,6 +170,8 @@ public class DebugUI : DebugComponent
             IsDebugPrintOn = !IsDebugPrintOn;
             //Main.SetActive(IsDebugPrintOn); // TODO: fix!
         }
+        if (Input.GetKeyDown(KeyCode.F5))
+        { }
     }
 
     float deltaTime;

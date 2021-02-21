@@ -172,7 +172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultSong: perfectbrain
-  IsEnabled: 0
+  IsEnabled: 1
   IsFake: 0
   IsPlaying: 0
   songTimeScale: 1
@@ -1881,7 +1881,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1052889308}
   m_Layer: 0
-  m_Name: User Interface (ToRemove!)
+  m_Name: User Interface (@ToRemove!)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7379,7 +7379,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Text: asd
-  MessageTypeID: 0
+  LogType: 0
   TestList: []
 --- !u!1 &1357065596
 GameObject:
