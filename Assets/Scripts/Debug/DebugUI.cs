@@ -54,8 +54,18 @@ public class DebugUI : DebugComponent
     [Header("Properties")]
     public bool IsDebugUIOn = true;
     public bool IsDebugPrintOn = true;
+    public bool _isDebugLineOn = false;
+    public bool IsDebugLineOn
+    {
+        get { return debugLineText.gameObject.activeSelf; }
+        set { debugLineText.gameObject.SetActive(value); }
+    }
 
-    void Awake() => _Instance = Instance = this;
+    void Awake()
+    {
+        _Instance = Instance = this;
+        IsDebugLineOn = _isDebugLineOn;
+    }
 
     /// Debug line
 
