@@ -44,8 +44,6 @@ public class DebugUI : DebugComponent
     static GameObject _Prefab;
     public static GameObject Prefab { get { if (!_Prefab) _Prefab = (GameObject)Resources.Load($"Prefabs/Debug/DebugUI"); return _Prefab; } }
 
-    SongController SongController { get { return SongController.Instance; } }
-
     [Header("Content references")]
     public TextMeshProUGUI framerateText;
     public TextMeshProUGUI debugText;
@@ -111,44 +109,23 @@ public class DebugUI : DebugComponent
 
     /// Main debug text
 
-
+    string _text;
+    public string Text
+    {
+        get { return _text; }
+        set
+        {
+            _text = value;
+            UpdateMainDebugText();
+        } 
+    }
 
     void UpdateMainDebugText()
     {
-        if (!SongController.IsEnabled)
-        {
-            debugText.text = "SongController Enabled: False";
-            return;
-        }
+        if (!IsDebugPrintOn && !_text.Contains("DEBUG PRINT FREEZE"))
+            _text += "\nDEBUG PRINT FREEZE";
 
-        int trackCount = TracksController.Instance.Tracks.Count;
-        string trackNames = "";
-        TracksController.Instance.Tracks.ForEach(t => trackNames += $"{t.TrackName}  ");
-
-        string s = $"World: DevScene\n" +
-                   $"Room path: /rooms/_u_trans_/dev/dev_scene.drm [SceneToRoom]\n\n" +
-
-                   $"SongController Enabled: {SongController.IsEnabled}\n" +
-                   $"Song name: {SongController.songName}\n" +
-                   $"Song BPM: {SongController.songBpm}  Song scale: {SongController.songFudgeFactor.ToString("0.00")}\n\n" +
-
-                   $"Tracks: {trackNames}({trackCount})\n\n" +
-
-                   $"SlopMs: {SongController.SlopMs}  SlopPos: {SongController.SlopPos}\n\n" +
-
-                   $"Timscale: [world: {Time.timeScale.ToString("0.00")}]  [song: {SongController.songTimeScale.ToString("0.00")}]\n" +
-                   $"Clock seconds: {Clock.Instance.seconds}\n" +
-                   $"Clock bar: {(int)Clock.Instance.bar}\n" +
-                   $"Clock beat: {(int)Clock.Instance.beat % 8} ({(int)Clock.Instance.beat})\n" +
-                   $"Locomotion distance: {AmpPlayerLocomotion.Instance.DistanceTravelled}\n\n" +
-
-                   //$"LightManager: null | LightGroups:  (0)";
-                   "";
-
-        if (!IsDebugPrintOn)
-            s += "\n\nDEBUG PRINT FREEZE";
-
-        debugText.text = s;
+        debugText.text = _text;
     }
 
     /// Debug main loop
@@ -191,11 +168,6 @@ public class DebugUI : DebugComponent
 
         if (!IsDebugUIOn)
             return;
-
-        // DEBUG LOOP
-
-        if (IsDebugPrintOn)
-            UpdateMainDebugText();
 
         // update framerate debug
         if (Time.timeScale == 0f)

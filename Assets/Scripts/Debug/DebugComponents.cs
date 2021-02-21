@@ -13,7 +13,8 @@ public static class DebugComponents
         return new List<KeyValuePair<DebugComponentAttribute, object>>()
             {
                 new KeyValuePair<DebugComponentAttribute, object>(DebugUI.Attribute, new object[]{ DebugUI.Instance, DebugUI.Prefab }),
-                new KeyValuePair<DebugComponentAttribute, object>(DebugKeys.Attribute, DebugKeys.Instance)
+                new KeyValuePair<DebugComponentAttribute, object>(DebugKeys.Attribute, DebugKeys.Instance),
+                new KeyValuePair<DebugComponentAttribute, object>(DebugStats.Attribute, DebugStats.Instance)
             };
     }
 }
