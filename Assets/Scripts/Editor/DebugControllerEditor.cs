@@ -12,7 +12,7 @@ public class DebugControllerEditor : Editor
         base.OnInspectorGUI();
 
         // State
-        main.State = (DebugControllerState)EditorGUILayout.EnumFlagsField("State: ", main.State);
+        main.State = (DebugComponentFlag)EditorGUILayout.EnumFlagsField("State: ", main.State);
 
         DrawDebugTests();
     }
@@ -27,7 +27,7 @@ public class DebugControllerEditor : Editor
         // -----
 
         if (GUILayout.Button("Set State to None"))
-            main.State = DebugControllerState.None;
+            main.State = DebugComponentFlag.None;
 
         // -----
 

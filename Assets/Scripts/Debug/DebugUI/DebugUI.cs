@@ -1,7 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public enum DebugUILevel
 {
@@ -35,33 +34,49 @@ public enum ComponentDebugLevel
     Lighting = (PlayerStats | LightingStats)
 }
 
-[DebugComponent(DebugControllerState.DebugUI)]
+public struct DebugUI_SelectionLine // Ambiguity with DebugLine
+{
+    public DebugUI_SelectionLine(int start, int end, object tag) { startIndex = start; endIndex = end; Tag = tag; Color = Color.white; SelectedColor = Colors.Application; }
+    public DebugUI_SelectionLine(int start, int end, object tag, Color color) { startIndex = start; endIndex = end; Tag = tag; Color = color; SelectedColor = Colors.Application; }
+    public DebugUI_SelectionLine(int start, int end, object tag, Color color, Color selectedColor) { startIndex = start; endIndex = end; Tag = tag; Color = color; SelectedColor = selectedColor; }
+
+    public int startIndex;
+    public int endIndex;
+    public object Tag;
+
+    public Color Color;
+    public Color SelectedColor;
+}
+
+public enum DebugUI_SelectionUpdateMode { Once = 0, ManualFlagging = 1, Always = 2 }
+
+[DebugComponent(DebugComponentFlag.DebugUI, DebugComponentType.Prefab, "Prefabs/Debug/DebugUI")]
 public class DebugUI : DebugComponent
 {
     public static DebugUI Instance;
-    public static DebugComponentAttribute Attribute { get { return (DebugComponentAttribute)System.Attribute.GetCustomAttribute(typeof(DebugUI), typeof(DebugComponentAttribute)); } }
-
-    static GameObject _Prefab;
-    public static GameObject Prefab { get { if (!_Prefab) _Prefab = (GameObject)Resources.Load($"Prefabs/Debug/DebugUI"); return _Prefab; } }
+    public static GameObject ObjectInstance;
 
     [Header("Content references")]
     public TextMeshProUGUI framerateText;
     public TextMeshProUGUI debugText;
     public TextMeshProUGUI debugLineText;
 
-    [Header("Properties")]
+    [Header("Control states")]
     public bool IsDebugUIOn = true;
     public bool IsDebugPrintOn = true;
-    public bool _isDebugLineOn = false;
+    public bool _isDebugLineOn = true;
     public bool IsDebugLineOn
     {
         get { return debugLineText.gameObject.activeSelf; }
         set { debugLineText.gameObject.SetActive(value); }
     }
 
+    [Header("Debug Line")]
+    public int MaxDebugLineCount = 4;
+
     void Awake()
     {
-        _Instance = Instance = this;
+        Instance = this;
         IsDebugLineOn = _isDebugLineOn;
     }
 
@@ -80,11 +95,11 @@ public class DebugUI : DebugComponent
 
     void _AddToDebugLine(string text, Color? color = null)
     {
-        if (debugLineText.text.Length == 0) { debugLineText.text = text; return; }
+        //if (debugLineText.text.Length == 0) { debugLineText.text = text; return; }
         string s = debugLineText.text;
 
         int charCount = 0;
-        int newlineCount = 0;
+        int newlineCount = -1;
         for (int i = 0; i < s.Length; i++, charCount++)
         {
             if (s[i] == '\n')
@@ -98,10 +113,12 @@ public class DebugUI : DebugComponent
         if (color.HasValue)
             text = text.AddColor(color.Value);
 
-        s = s.Insert(charCount, '\n' + text);
+        // TODO: look at these:
+        //s = s.Insert(charCount, '\n' + text);
+        s = s.Insert(charCount, text + '\n');
         newlineCount++;
 
-        if (newlineCount >= 4) // line cleanup! max 4 lines!
+        if (newlineCount >= MaxDebugLineCount) // line cleanup! max 4 lines!
             s = s.Remove(0, s.IndexOf('\n') + 1);
 
         debugLineText.SetText(s);
@@ -110,14 +127,14 @@ public class DebugUI : DebugComponent
     /// Main debug text
 
     string _text;
-    public string Text
+    public string Text // Hiding!
     {
         get { return _text; }
         set
         {
             _text = value;
             UpdateMainDebugText();
-        } 
+        }
     }
 
     void UpdateMainDebugText()

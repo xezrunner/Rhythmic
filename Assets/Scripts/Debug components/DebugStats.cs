@@ -11,11 +11,10 @@ public enum StatsMode
     Default = Short
 }
 
-[DebugComponent(DebugControllerState.DebugUI, typeof(DebugStats))]
+[DebugComponent(DebugComponentFlag.DebugUI, DebugComponentType.Component)]
 public class DebugStats : DebugComponent
 {
     public static DebugStats Instance;
-    public static DebugComponentAttribute Attribute { get { return (DebugComponentAttribute)System.Attribute.GetCustomAttribute(typeof(DebugStats), typeof(DebugComponentAttribute)); } }
 
     DebugUI DebugUI { get { return DebugUI.Instance; } }
     WorldSystem WorldSystem { get { return WorldSystem.Instance; } }
@@ -61,7 +60,7 @@ public class DebugStats : DebugComponent
         if (!SongController.IsEnabled) AddLine($"SongController Disabled");
 
         // World name:
-        if (StatsMode > StatsMode.ShortShort)
+        if (StatsMode > StatsMode.ShortShort && WorldSystem.Instance)
             AddLine($"World: {WorldSystem.Name}");
 
         // No stats from this point onwards if SongController and others don't exist!
@@ -122,6 +121,6 @@ public class DebugStats : DebugComponent
         }
 
         // Set stats string in DebugUI
-        DebugUI.Text = Stats();
+        if (DebugUI) DebugUI.Text = Stats();
     }
 }
