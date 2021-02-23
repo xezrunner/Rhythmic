@@ -100,6 +100,9 @@ public class TracksController : MonoBehaviour
         StartCoroutine(AddTrackMaterialsToClipper());
     }
 
+    // Shared AmpNote material (TODO: move somewhere else? Into AmpNote as static?)
+    public Material SharedNoteMaterial;
+
     IEnumerator AddTrackMaterialsToClipper()
     {
         while (Tracks.Last().Measures.Count < RhythmicGame.HorizonMeasures) yield return null;
@@ -112,7 +115,10 @@ public class TracksController : MonoBehaviour
             clipManager.AddMaterial(t.GlobalEdgeLightsMaterial);
         }
 
-        clipManager.AddMaterial((Material)Resources.Load("Materials/NoteMaterial"));
+        // Instantiate a shared Note Material
+        SharedNoteMaterial = Instantiate((Material)Resources.Load("Materials/NoteMaterial"));
+
+        clipManager.AddMaterial(SharedNoteMaterial);
 
         LengthClip();
     }
