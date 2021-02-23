@@ -56,7 +56,6 @@ public class DebugComponentAttribute : Attribute
 
 public class DebugComponent : MonoBehaviour
 {
-    //public RefDebugComInstance Instances;
     public string Name { get { return GetType().Name; } }
     public DebugComponentAttribute Attribute { get { return (DebugComponentAttribute)System.Attribute.GetCustomAttribute(GetType(), typeof(DebugComponentAttribute)); } }
 
@@ -97,19 +96,7 @@ public class DebugComponent : MonoBehaviour
 
         // Max line count:
         if (Attribute.AdditiveMaxLines > 0)
-        {
-            string[] lines = Text.Split('\n');
-            int lineCount = lines.Length - 1;
-            if (lineCount > Attribute.AdditiveMaxLines)
-            {
-                int lineDiff = Mathf.Abs(Attribute.AdditiveMaxLines - lineCount);
-                string[] newLines = new string[Attribute.AdditiveMaxLines + 1]; // newline at end!
-                for (int i = lineDiff; i < lineCount; i++) // Remove lines from start to keep max line count
-                    newLines[i - lineDiff] = lines[i];
-
-                Text = string.Join("\n", newLines);
-            }
-        }
+            Text = Text.MaxLines(Attribute.AdditiveMaxLines);
 
         // Add selection line:
         if (isSelectable && SelectionLines.Where(i => i.Tag == selectionTag) != null) // TODO: performance!

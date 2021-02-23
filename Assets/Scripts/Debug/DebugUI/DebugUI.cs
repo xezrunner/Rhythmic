@@ -127,17 +127,7 @@ public class DebugUI : DebugComponent
         s += text + '\n';
 
         // line cleanup!
-        string[] lines = s.Split('\n');
-        int lineCount = lines.Length - 1;
-        if (lineCount > MaxDebugLineCount)
-        {
-            int lineDiff = Mathf.Abs(MaxDebugLineCount - lineCount);
-            string[] newLines = new string[MaxDebugLineCount + 1]; // newline at end!
-            for (int i = lineDiff; i < lineCount; i++) // Remove lines from start to keep max line count
-                newLines[i - lineDiff] = lines[i];
-
-            s = string.Join("\n", newLines);
-        }
+        s = s.MaxLines(MaxDebugLineCount);
 
         debugLineText.SetText(s);
     }
