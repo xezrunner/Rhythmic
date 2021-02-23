@@ -13,4 +13,21 @@ public static class StringExtensions
         return $"<color={hex}>{text}</color>"; // Return the colored string
     }
     public static string ColorHexFromUnityColor(this Color unityColor) => $"#{ColorUtility.ToHtmlStringRGBA(unityColor)}";
+
+    // Max lines:
+    public static string MaxLines(this string text, int maxLines)
+    {
+        string[] lines = text.Split('\n');
+        int lineCount = lines.Length - 1;
+        if (lineCount > maxLines)
+        {
+            int lineDiff = Mathf.Abs(maxLines - lineCount);
+            string[] newLines = new string[maxLines + 1]; // newline at end!
+            for (int i = lineDiff; i < lineCount; i++) // Remove lines from start to keep max line count
+                newLines[i - lineDiff] = lines[i];
+
+            text = string.Join("\n", newLines);
+        }
+        return text;
+    }
 }
