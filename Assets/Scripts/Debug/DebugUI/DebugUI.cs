@@ -89,7 +89,7 @@ public class DebugUI : DebugComponent
     public static void AddToDebugLine(string text, Color? color = null)
     {
         if (Instance) Instance._AddToDebugLine(text, color);
-        else Logger.LogMethod($"DebugUI has no global instance!    -    {text}", "DebugUI", LogTarget.All & ~LogTarget.DebugLine, CLogType.Warning);
+        else Logger.LogMethod($"DebugUI has no global instance!    -    {text}", "DebugUI", CLogType.Warning, LogTarget.All & ~LogTarget.DebugLine);
     }
     public static void AddToDebugLine(string text, CLogType logType) => AddToDebugLine(text, Colors.GetColorForCLogType(logType));
 
