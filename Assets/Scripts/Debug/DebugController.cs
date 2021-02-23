@@ -16,14 +16,14 @@ public enum DebugComponentFlag
 
     MorlettoDebug = 1 << 7,
 
-    Default = Level1,
+    Default = Level2,
     Full = (DebugKeys | DebugLogging | DebugUI | DebugMenu | DebugInterfaces | DebugEditor | MorlettoDebug),
     Level0 = (DebugKeys | DebugUI | DebugMenu),
     Level1 = (DebugKeys | DebugLogging | DebugUI | DebugMenu | DebugEditor),
     Level2 = (DebugKeys | DebugLogging | DebugUI | DebugMenu | DebugInterfaces | DebugEditor),
 }
 
-public class DebugController : MonoBehaviour
+public partial class DebugController : MonoBehaviour
 {
     public static DebugController Instance;
 
@@ -31,7 +31,7 @@ public class DebugController : MonoBehaviour
     public Transform UICanvas;
 
     [Header("Properties")]
-    public DebugComponentFlag DefaultState = DebugComponentFlag.Default;
+    [NonSerialized /*TEMP*/] public DebugComponentFlag DefaultState = DebugComponentFlag.Default;
     DebugComponentFlag _State = DebugComponentFlag.Uninitialized;
     public DebugComponentFlag State
     {
@@ -65,7 +65,7 @@ public class DebugController : MonoBehaviour
 
     void HandleState()
     {
-        foreach (MetaDebugComponent com_meta in DebugComponents.GetMetaComponents())
+        foreach (MetaDebugComponent com_meta in MetaComponents)
         {
             // Unpack:
             Type com_type = com_meta.Type;
@@ -114,7 +114,7 @@ public class DebugController : MonoBehaviour
                     com_obj.name = com_type.Name;
 
                     // Special case: DebugUI goes under UICanvas!
-                    Transform parent = (com_flag == DebugComponentFlag.DebugUI) ? UICanvas.transform : transform;
+                    Transform parent = (com_type == typeof(DebugUI)) ? UICanvas.transform : transform;
                     com_obj.transform.SetParent(parent, false); // If attaching to UICanvas, the param worldPositionStays needs to be false.
                 }
             }
@@ -123,50 +123,4 @@ public class DebugController : MonoBehaviour
                 com_instance.RemoveComponent();
         }
     }
-
-    //void HandleState0()
-    //{
-    //    foreach (KeyValuePair<DebugComponentAttribute, object> kv in DebugComponents.GetMetaComponents())
-    //    {
-    //        DebugComponentAttribute com_attr = kv.Key;
-
-    //        DebugControllerState com_state = com_attr.State;
-    //        DebugComponentType com_type = com_attr.ComponentType;
-    //        GameObject com_prefab = null;
-    //        DebugComponent com_instance;
-
-    //        // Grab the values
-    //        if (com_type == DebugComponentType.Prefab)
-    //        {
-    //            if (kv.Value == null)
-    //            { Debug.LogError("Debug component value was null!"); continue; }
-
-    //            object[] values = (object[])kv.Value;
-    //            com_instance = (values[0] != null) ? (DebugComponent)values[0] : null;
-    //            com_prefab = (values[1] != null) ? (GameObject)values[1] : null;
-    //        }
-    //        else
-    //            com_instance = (kv.Value != null) ? (DebugComponent)kv.Value : null;
-
-    //        if (!State.HasFlag(com_state) && com_instance) // NO FLAG: Remove the debug component
-    //        {
-    //            com_instance.RemoveDebugComponent(com_type);
-    //            continue;
-    //        }
-    //        else // FLAG: Add the debug component if it doesn't exist yet
-    //        {
-    //            if (com_type == DebugComponentType.Component) // TODO: different objects for each debug com?
-    //            { if (com_instance == null && com_attr.Type != null) gameObject.AddComponent(com_attr.Type); }
-    //            else if (com_type == DebugComponentType.Prefab)
-    //            {
-    //                if (com_instance != null) continue; // Do we already have an instance?
-    //                if (com_prefab == null)
-    //                { Logger.LogError("DebugController/InitState(): Prefab was null!"); continue; }
-
-    //                GameObject obj = Instantiate(com_prefab); // Instantiate prefab
-    //                obj.transform.SetParent(UICanvas, false); // Parent to the DebugController UICanvas object
-    //            }
-    //        }
-    //    }
-    //}
 }

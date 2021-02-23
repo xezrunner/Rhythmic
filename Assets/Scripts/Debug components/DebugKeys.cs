@@ -4,17 +4,26 @@ using UnityEngine.InputSystem;
 [DebugComponent(DebugComponentFlag.DebugKeys, DebugComponentType.Component)]
 public partial class DebugKeys : DebugComponent
 {
-    public static DebugKeys Instance;
+    public static RefDebugComInstance Instance;
 
     public bool IsEnabled = true;
 
-    void Awake() => Instance = this;
+    void Awake() => Instance = new RefDebugComInstance(this);
 
     // Main loop
     void Update()
     {
         if (!IsEnabled)
             return;
+
+        // DebugUI Active components:
+        if (DebugUI.Instance)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha8))
+                DebugUI.SwitchToInterface(typeof(SelectionComponentTest));
+                        if (Input.GetKeyDown(KeyCode.Alpha9))
+                DebugUI.SwitchToInterface(typeof(DebugStats));
+        }
 
         // ConsoleServer test
         if (Input.GetKeyDown(KeyCode.J))
