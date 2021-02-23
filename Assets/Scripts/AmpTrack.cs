@@ -66,18 +66,22 @@ public partial class AmpTrack : MonoBehaviour
 
     public float zRot; // The Z rotation (looks like X-axis rotation from front) of this particular track.
 
+    void Awake()
+    {
+        // Materials setup:
+        // Instance the measure materials so they are shared for this particular track only.
+        // This has to be done in Awake(), as the Color property (which changes a TrackMaterial_Active) is being set sooner than Start().
+        TrackMaterial = Instantiate(TrackMaterial);
+        TrackMaterial_Active = Instantiate(TrackMaterial_Active);
+        LocalEdgeLightsMaterial = Instantiate(LocalEdgeLightsMaterial);
+        GlobalEdgeLightsMaterial = Instantiate(GlobalEdgeLightsMaterial);
+    }
+
     void Start()
     {
         TunnelTransform = Tunnel.GetTransformForTrackID(RealID);
         TunnelPos = TunnelTransform[0];
         TunnelRot = TunnelTransform[1];
-
-        // Materials setup:
-        // Instance the measure materials so they are shared for this particular track only
-        TrackMaterial = Instantiate(TrackMaterial);
-        TrackMaterial_Active = Instantiate(TrackMaterial_Active);
-        LocalEdgeLightsMaterial = Instantiate(LocalEdgeLightsMaterial);
-        GlobalEdgeLightsMaterial = Instantiate(GlobalEdgeLightsMaterial);
 
         // Global edge lights
         GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);

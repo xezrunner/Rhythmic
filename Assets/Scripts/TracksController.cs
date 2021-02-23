@@ -115,7 +115,7 @@ public class TracksController : MonoBehaviour
             clipManager.AddMaterial(t.GlobalEdgeLightsMaterial);
         }
 
-        // Instantiate a shared Note Material
+        // Instantiate a shared Note Material | (TODO: move somewhere else? Into AmpNote as static?)
         SharedNoteMaterial = Instantiate((Material)Resources.Load("Materials/NoteMaterial"));
 
         clipManager.AddMaterial(SharedNoteMaterial);
@@ -163,7 +163,7 @@ public class TracksController : MonoBehaviour
 
     private void Tracks_OnTrackSwitched(object sender, int[] e)
     {
-        Debug.LogFormat("TRACKS: Track switched from {0} to {1}", e[0], e[1]);
+        Debug.LogFormat("TRACKS <event>: Track switched from {0} to {1}", e[0], e[1]);
     }
 
     /// Tracks
