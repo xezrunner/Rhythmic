@@ -55,25 +55,29 @@ public class DebugStats : DebugComponent
         // Tracks stats:
         {
             string trackNames = "";
-            TracksController.Instance.Tracks.ForEach(t => trackNames += $"{t.TrackName.AddColor(AmpTrack.Colors.ColorFromInstrument(t.Instrument) * 1.25f)}  ");
-            string trackCount = $"({TracksController.Instance.Tracks.Count})".AddColor(1, 1, 1, 0.67f);
+            TracksController.Instance.Tracks.ForEach(t => trackNames += $"{t.TrackName.AddColor(t.IsTrackCaptured ? Color.white : AmpTrack.Colors.ColorFromInstrument(t.Instrument) * 1.25f, t.IsTrackFocused ? 1 : 0.60f)}  ");
+            string trackCount = $"({TracksController.Instance.Tracks.Count})".AddColor(1, 1, 1, 0.80f);
 
             AddLine($"Tracks: {trackNames}{trackCount}", 2);
         }
 
         // Slop stats:
         if (StatsMode > StatsMode.ShortShort)
-            AddLine($"SlopMs: {SongController.SlopMs}  SlopPos: {SongController.SlopPos}", 2);
+            AddLine($"Slop: {SongController.SlopMs} ms " + $"({SongController.SlopPos} m)".AddColor(1, 1, 1, 0.80f));
+        // Song start distance offset stats:
+        if (StatsMode > StatsMode.ShortShort)
+            AddLine($"Start distance offset: {SongController.StartDistance}");
 
         // Timescale stats:
         if (StatsMode > StatsMode.ShortShort)
-            AddLine($"Timscale: [world: {Time.timeScale.ToString("0.00")}]  [song: {SongController.songTimeScale.ToString("0.00")}]");
+            AddLine($"Timscale: [song: {SongController.songTimeScale.ToString("0.00")}]  [world: {Time.timeScale.ToString("0.00")}]", -1);
+        // Locomotion dist stats:
+        AddLine($"Locomotion distance: {AmpPlayerLocomotion.DistanceTravelled}");
 
         // Clock stats:
-        AddLine($"Clock seconds: {Clock.seconds}");
-        AddLine($"Clock bar: {(int)Clock.bar}");
-        AddLine($"Clock beat: {(int)Clock.beat % 8} ({(int)Clock.beat})");
-        AddLine($"Locomotion distance: {AmpPlayerLocomotion.DistanceTravelled}");
+        AddLine($"Clock seconds: {Clock.seconds}"                              .AddColor(1, 1, 1, 0.8f));
+        AddLine($"Clock bar: {(int)Clock.bar}"                                 .AddColor(1,1,1,0.8f));
+        AddLine($"Clock beat: {(int)Clock.beat % 8} ({(int)Clock.beat})"       .AddColor(1,1,1,0.8f));
 
         // More goes here...
     }
