@@ -40,8 +40,6 @@ public enum ComponentDebugLevel
 [DebugComponent(DebugComponentFlag.DebugUI, DebugComponentType.Prefab, "Prefabs/Debug/DebugUI")]
 public class DebugUI : DebugComponent
 {
-    DebugController DebugController { get { return DebugController.Instance; } }
-
     public static DebugUI Instance;
     public static RefDebugComInstance Instances;
 
@@ -68,6 +66,7 @@ public class DebugUI : DebugComponent
 
     [Header("Debug Line")]
     public int MaxDebugLineCount = 4;
+    public static int DebugLine_LineTimeoutMs = 2300;
 
     void Awake()
     {
@@ -124,6 +123,8 @@ public class DebugUI : DebugComponent
     public static void AddToDebugLine(string text, CLogType logType) => AddToDebugLine(text, Colors.GetColorForCLogType(logType));
     void _AddToDebugLine(string text, Color? color = null)
     {
+        debugLine_ElapsedTime = 0; // Reset timeout
+
         string s = debugLineText.text;
 
         // Apply color if needed
@@ -138,6 +139,27 @@ public class DebugUI : DebugComponent
         debugLineText.SetText(s);
     }
 
+    // TODO: fade effects?
+    void HandleDebugLineTimeout()
+    {
+        if (debugLineText.text.Length == 0)
+            return;
+
+        // Keep track of elapsed ms for debug line
+        debugLine_ElapsedTime += Time.unscaledDeltaTime * 1000;
+
+        if (debugLine_ElapsedTime > DebugLine_LineTimeoutMs)
+        {
+            debugLine_ElapsedTime = 0;
+            string[] lines = debugLineText.text.Split('\n');
+            string[] newLines = new string[lines.Length - 1];
+            for (int i = 1; i < lines.Length; i++)
+                newLines[i - 1] = lines[i];
+
+            debugLineText.text = string.Join("\n", newLines);
+        }
+    }
+
     /// Main debug text
 
     void HandleActiveComponentText(bool force = false)
@@ -149,8 +171,8 @@ public class DebugUI : DebugComponent
         {
             if (updateFreq != 0)
             {
-                if (elapsedSinceLastUpdate > updateFreq)
-                    elapsedSinceLastUpdate = 0;
+                if (mainText_ElapsedTime > updateFreq)
+                    mainText_ElapsedTime = 0;
                 else return; // Not enough time has passed!
             }
 
@@ -176,7 +198,7 @@ public class DebugUI : DebugComponent
     {
         string s = $"DebugUI SELF DEBUG:\n".AddColor(1, 1, 1) +
                    $"Active component: {(ActiveComponent ? ActiveComponent.Name.AddColor(Colors.Application, SelfDebugOpacity) : "None")}\n" +
-                   $"Elapsed time since last update: {elapsedSinceLastUpdate} ms {((ActiveComponent && ActiveComponent.Attribute.UpdateFrequencyInMs != -1) ? $"  Active com update freq: {ActiveComponent.Attribute.UpdateFrequencyInMs}" : "")}\n" +
+                   $"Elapsed time since last update: {mainText_ElapsedTime} ms {((ActiveComponent && ActiveComponent.Attribute.UpdateFrequencyInMs != -1) ? $"  Active com update freq: {ActiveComponent.Attribute.UpdateFrequencyInMs}" : "")}\n" +
                    $"" +
                    $"\n";
         s = s.AddColor(1, 1, 1, SelfDebugOpacity);
@@ -227,7 +249,8 @@ public class DebugUI : DebugComponent
         { }
     }
 
-    float elapsedSinceLastUpdate;
+    float debugLine_ElapsedTime;
+    float mainText_ElapsedTime;
     float FPS_deltaTime;
     void Update()
     {
@@ -238,11 +261,13 @@ public class DebugUI : DebugComponent
 
         // MAIN DEBUG LOOP:
 
+        HandleDebugLineTimeout();
+
         // Keep track of elapsed ms for update frequency
-        elapsedSinceLastUpdate += Time.unscaledDeltaTime * 1000;
-        // Get active component text!
-        HandleActiveComponentText();
-        // Update if needed
+        mainText_ElapsedTime += Time.unscaledDeltaTime * 1000;
+        HandleActiveComponentText(); // Get active component text!
+
+        // Update self text manually if needed
         if (IsSelfDebug || AlwaysUpdate)
             UpdateMainDebugText();
 
