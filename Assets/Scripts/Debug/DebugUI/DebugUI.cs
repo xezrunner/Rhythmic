@@ -81,16 +81,16 @@ public class DebugUI : DebugComponent
     DebugComponent ActiveComponent;
 
     // Switches to a different debug component interface.
-    public void SwitchToInterface(Type type)
+    public void SwitchToComponent(Type type)
     {
         RefDebugComInstance instance = (RefDebugComInstance)type.GetField("Instance", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).GetValue(null);
 
         if (instance.Component == null)
         { Logger.LogWarning($"Cannot switch to component {type.Name} - not available!"); return; }
 
-        SwitchToInterface(instance.Component);
+        SwitchToComponent(instance.Component);
     }
-    public void SwitchToInterface(DebugComponent com)
+    public void SwitchToComponent(DebugComponent com)
     {
         if (ActiveComponent == com) return;
         if (com == null)
