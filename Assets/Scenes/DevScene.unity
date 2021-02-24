@@ -1196,7 +1196,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   renderMode: 0
   kernelSize: 1
-  interpolation: 0.25
+  interpolation: 0.2
   downsample: 0
   iterations: 5
   gammaCorrection: 0
@@ -1879,7 +1879,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c42d303cebc6ba248a3c0d7166f64f4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Instance: {fileID: 0}
   LightGroups: []
 --- !u!4 &1051047168 stripped
 Transform:

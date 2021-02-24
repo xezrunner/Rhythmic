@@ -1,6 +1,5 @@
 ﻿using UnityEditor;
 using UnityEngine;
-using World;
 
 [CustomEditor(typeof(WorldLight))]
 public class WorldLightEditor : Editor
