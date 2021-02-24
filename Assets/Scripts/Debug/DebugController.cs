@@ -17,7 +17,7 @@ public enum DebugComponentFlag
 
     MorlettoDebug = 1 << 8,
 
-    Default = Level1,
+    Default = Level2,
     Full = (DebugKeys | DebugLogging | DebugUI | DebugMenu | DebugInterfaces | DebugEditor | MorlettoDebug),
     Level0 = (DebugKeys | DebugUI | DebugMenu),
     Level1 = (DebugKeys | DebugLogging | DebugUI | DebugMenu | DebugStats | DebugEditor),

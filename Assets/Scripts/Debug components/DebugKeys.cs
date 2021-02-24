@@ -19,6 +19,8 @@ public partial class DebugKeys : DebugComponent
         // DebugUI Active components:
         if (DebugUI.Instance)
         {
+            if (Input.GetKeyDown(KeyCode.Alpha7)) // empty com
+                DebugUI.SwitchToComponent();
             if (Input.GetKeyDown(KeyCode.Alpha8))
                 DebugUI.SwitchToComponent(typeof(SelectionComponentTest));
             if (Input.GetKeyDown(KeyCode.Alpha9))

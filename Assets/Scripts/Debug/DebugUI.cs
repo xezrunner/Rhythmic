@@ -104,6 +104,11 @@ public class DebugUI : DebugComponent
 
         if (!com.IsUIComponent) Logger.LogMethod($"Component {com.Name.AddColor(Colors.Application)} is not an UI component.", CLogType.Warning, this);
     }
+    public void SwitchToComponent() // Empty active component
+    {
+        ActiveComponent = null;
+        MainText = "";
+    }
 
     /// Debug line
 
@@ -183,7 +188,7 @@ public class DebugUI : DebugComponent
     {
         string s = IsSelfDebug ? SelfDebug() : "";
 
-        if (!IsDebugPrintOn)
+        if (!IsDebugPrintOn && ActiveComponent)
             s += "DEBUG PRINT FREEZE\n\n";
 
         debugText.text = s + _mainText;
