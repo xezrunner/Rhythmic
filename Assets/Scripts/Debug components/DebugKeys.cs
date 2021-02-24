@@ -16,11 +16,14 @@ public partial class DebugKeys : DebugComponent
         if (!IsEnabled)
             return;
 
-        // DebugUI Active components:
+        // DebugUI:
         if (DebugUI.Instance)
         {
-            if (Input.GetKeyDown(KeyCode.Alpha7)) // empty com
+            if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.Alpha7)) // toggle debug line
+                DebugUI.IsDebugLineOn = !DebugUI.IsDebugLineOn;
+            else if (Input.GetKeyDown(KeyCode.Alpha7)) // empty com
                 DebugUI.SwitchToComponent();
+
             if (Input.GetKeyDown(KeyCode.Alpha8))
                 DebugUI.SwitchToComponent(typeof(SelectionComponentTest));
             if (Input.GetKeyDown(KeyCode.Alpha9))
