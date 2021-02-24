@@ -1,19 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-public static class DebugComponents
+public struct MetaDebugComponent
 {
-    // This needs to be a method to always give the latest result.
-    /// <summary>Get the list of debug components' metadata that can be used.</summary>
-    public static List<KeyValuePair<DebugComponentAttribute, object>> GetMetaComponents()
+    public MetaDebugComponent(Type type, DebugComponent instance) { Type = type; Instance = instance; ObjectInstance = null; }
+    public MetaDebugComponent(Type type, DebugComponent instance, object obj_instance) { Type = type; Instance = instance; ObjectInstance = obj_instance; }
+
+    public DebugComponentAttribute Attribute
     {
-        return new List<KeyValuePair<DebugComponentAttribute, object>>()
-            {
-                new KeyValuePair<DebugComponentAttribute, object>(DebugUI.Attribute, new object[]{ DebugUI.Instance, DebugUI.Prefab }),
-                new KeyValuePair<DebugComponentAttribute, object>(DebugKeys.Attribute, DebugKeys.Instance)
-            };
+        get { return (DebugComponentAttribute)System.Attribute.GetCustomAttribute(Type, typeof(DebugComponentAttribute)); }
     }
+
+    public Type Type;
+    public DebugComponent Instance;
+    public object ObjectInstance; // This is the literal object hosting the component. In case of Prefab comtypes, it's the object instance itself
+}
+
+public partial class DebugController
+{
+    public List<MetaDebugComponent> MetaComponents = new List<MetaDebugComponent>()
+    {
+        new MetaDebugComponent(typeof(DebugUI), DebugUI.Instance),
+        new MetaDebugComponent(typeof(DebugKeys), DebugKeys.Instance.Component),
+        new MetaDebugComponent(typeof(DebugStats), DebugStats.Instance.Component),
+        new MetaDebugComponent(typeof(SelectionComponentTest), SelectionComponentTest.Instance.Component)
+    };
 }

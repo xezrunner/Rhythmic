@@ -61,7 +61,8 @@ public static class RhythmicGame
     public static Vector2 PreferredResolution = new Vector2(1920, 1080);
 
     // Debug system
-    public static DebugControllerState DebugControllerState = DebugControllerState.Uninitialized;
+    public static DebugComponentFlag DebugControllerFlags = DebugComponentFlag.Uninitialized;
+    public static bool AutoLoadDebugStats = false;
 
     // A/V calibration props | milliseconds
     public static float AVCalibrationOffsetMs = 0f;

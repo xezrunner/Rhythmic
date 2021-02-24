@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public enum DebugUILevel
 {
@@ -35,16 +37,11 @@ public enum ComponentDebugLevel
     Lighting = (PlayerStats | LightingStats)
 }
 
-[DebugComponent(DebugControllerState.DebugUI)]
+[DebugComponent(DebugComponentFlag.DebugUI, DebugComponentType.Prefab, "Prefabs/Debug/DebugUI")]
 public class DebugUI : DebugComponent
 {
     public static DebugUI Instance;
-    public static DebugComponentAttribute Attribute { get { return (DebugComponentAttribute)System.Attribute.GetCustomAttribute(typeof(DebugUI), typeof(DebugComponentAttribute)); } }
-
-    static GameObject _Prefab;
-    public static GameObject Prefab { get { if (!_Prefab) _Prefab = (GameObject)Resources.Load($"Prefabs/Debug/DebugUI"); return _Prefab; } }
-
-    SongController SongController { get { return SongController.Instance; } }
+    public static RefDebugComInstance Instances;
 
     [Header("Content references")]
     public TextMeshProUGUI framerateText;
@@ -52,10 +49,65 @@ public class DebugUI : DebugComponent
     public TextMeshProUGUI debugLineText;
 
     [Header("Properties")]
+    public float SelfDebugOpacity = 0.8f;
+
+    [Header("Control states")]
+    [NonSerialized] public bool IsSelfDebug = false;
+    public bool AlwaysUpdate = false;
+
     public bool IsDebugUIOn = true;
     public bool IsDebugPrintOn = true;
+    public bool _isDebugLineOn = true;
+    public bool IsDebugLineOn
+    {
+        get { return debugLineText.gameObject.activeSelf; }
+        set { debugLineText.gameObject.SetActive(value); }
+    }
 
-    void Awake() => _Instance = Instance = this;
+    [Header("Debug Line")]
+    public int MaxDebugLineCount = 4;
+    public static int DebugLine_LineTimeoutMs = 2300;
+
+    void Awake()
+    {
+        Instance = this;
+        Instances = new RefDebugComInstance(this, gameObject);
+        IsDebugLineOn = _isDebugLineOn;
+    }
+
+    /// Interface switching
+
+    DebugComponent ActiveComponent;
+
+    // Switches to a different debug component interface.
+    public void SwitchToComponent(Type type)
+    {
+        RefDebugComInstance instance = (RefDebugComInstance)type.GetField("Instance", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).GetValue(null);
+
+        if (instance.Component == null)
+        { Logger.LogWarning($"Cannot switch to component {type.Name} - not available!"); return; }
+
+        SwitchToComponent(instance.Component);
+    }
+    public void SwitchToComponent(DebugComponent com)
+    {
+        if (ActiveComponent == com) return;
+        if (com == null)
+        { Logger.LogWarning($"Component {com.GetType().Name} is not available!"); return; }
+
+        //if (com.Attribute.DebugFlag != DebugComponentFlag.DebugUI || com.Attribute.DebugFlag != DebugComponentFlag.DebugInterfaces || com.Attribute.DebugFlag != DebugComponentFlag.DebugMenu)
+        //{ Logger.LogMethod($"Component {com.Name} has the debug flag {com.Attribute.DebugFlag}, which isn't allowed in DebugUI.", this, CLogType.Error); return; }
+
+        ActiveComponent = com;
+        HandleActiveComponentText(true); // Grab text forcefully upon switching
+
+        if (!com.IsUIComponent) Logger.LogMethod($"Component {com.Name.AddColor(Colors.Application)} is not an UI component.", CLogType.Warning, this);
+    }
+    public void SwitchToComponent() // Empty active component
+    {
+        ActiveComponent = null;
+        MainText = "";
+    }
 
     /// Debug line
 
@@ -66,82 +118,107 @@ public class DebugUI : DebugComponent
     public static void AddToDebugLine(string text, Color? color = null)
     {
         if (Instance) Instance._AddToDebugLine(text, color);
-        else Logger.LogMethod($"DebugUI has no global instance!    -    {text}", "DebugUI", LogTarget.All & ~LogTarget.DebugLine, CLogType.Warning);
+        else Logger.LogMethod($"DebugUI has no global instance!    -    {text}", CLogType.Warning, LogTarget.All & ~LogTarget.DebugLine, "DebugUI");
     }
     public static void AddToDebugLine(string text, CLogType logType) => AddToDebugLine(text, Colors.GetColorForCLogType(logType));
-
     void _AddToDebugLine(string text, Color? color = null)
     {
-        if (debugLineText.text.Length == 0) { debugLineText.text = text; return; }
+        debugLine_ElapsedTime = 0; // Reset timeout
+
         string s = debugLineText.text;
-
-        int charCount = 0;
-        int newlineCount = 0;
-        for (int i = 0; i < s.Length; i++, charCount++)
-        {
-            if (s[i] == '\n')
-                newlineCount++;
-        }
-
-        if (charCount == 0) // assume that we have one line without a newline
-            charCount = s.Length;
 
         // Apply color if needed
         if (color.HasValue)
             text = text.AddColor(color.Value);
 
-        s = s.Insert(charCount, '\n' + text);
-        newlineCount++;
+        s += text + '\n';
 
-        if (newlineCount >= 4) // line cleanup! max 4 lines!
-            s = s.Remove(0, s.IndexOf('\n') + 1);
+        // line cleanup!
+        s = s.MaxLines(MaxDebugLineCount);
 
         debugLineText.SetText(s);
     }
 
+    // TODO: fade effects?
+    void HandleDebugLineTimeout()
+    {
+        if (debugLineText.text.Length == 0)
+            return;
+
+        // Keep track of elapsed ms for debug line
+        debugLine_ElapsedTime += Time.unscaledDeltaTime * 1000;
+
+        if (debugLine_ElapsedTime > DebugLine_LineTimeoutMs)
+        {
+            debugLine_ElapsedTime = 0;
+            string[] lines = debugLineText.text.Split('\n');
+            string[] newLines = new string[lines.Length - 1];
+            for (int i = 1; i < lines.Length; i++)
+                newLines[i - 1] = lines[i];
+
+            debugLineText.text = string.Join("\n", newLines);
+        }
+    }
+
     /// Main debug text
+
+    void HandleActiveComponentText(bool force = false)
+    {
+        if (!ActiveComponent) return;
+
+        float updateFreq = ActiveComponent.Attribute.UpdateFrequencyInMs;
+        if (force || updateFreq != -1)
+        {
+            if (updateFreq != 0)
+            {
+                if (mainText_ElapsedTime > updateFreq)
+                    mainText_ElapsedTime = 0;
+                else return; // Not enough time has passed!
+            }
+
+            // If com attr TextMode is Clear, remove component text before calling the component!
+            if (ActiveComponent.Attribute.TextMode == DebugComTextMode.Clear) ActiveComponent.ClearText();
+            ActiveComponent.UI_Main();
+            MainText = ActiveComponent.Text;
+        }
+    }
+
+    string _mainText;
+    public string MainText // This is the main debug UI text, not to be confused with DebugComponent.Text!
+    {
+        get { return _mainText; }
+        set
+        {
+            _mainText = value;
+            UpdateMainDebugText();
+        }
+    }
+
+    string SelfDebug()
+    {
+        string s = $"DebugUI SELF DEBUG:\n".AddColor(1, 1, 1) +
+                   $"Active component: {(ActiveComponent ? ActiveComponent.Name.AddColor(Colors.Application, SelfDebugOpacity) : "None")}\n" +
+                   $"Elapsed time since last update: {mainText_ElapsedTime} ms {((ActiveComponent && ActiveComponent.Attribute.UpdateFrequencyInMs != -1) ? $"  Active com update freq: {ActiveComponent.Attribute.UpdateFrequencyInMs}" : "")}\n" +
+                   $"" +
+                   $"\n";
+        s = s.AddColor(1, 1, 1, SelfDebugOpacity);
+
+        return s;
+    }
 
     void UpdateMainDebugText()
     {
-        if (!SongController.IsEnabled)
-        {
-            debugText.text = "SongController Enabled: False";
-            return;
-        }
+        string s = IsSelfDebug ? SelfDebug() : "";
 
-        int trackCount = TracksController.Instance.Tracks.Count;
-        string trackNames = "";
-        TracksController.Instance.Tracks.ForEach(t => trackNames += $"{t.TrackName}  ");
+        if (!IsDebugPrintOn && ActiveComponent)
+            s += "DEBUG PRINT FREEZE\n\n";
 
-        string s = $"World: DevScene\n" +
-                   $"Room path: /rooms/_u_trans_/dev/dev_scene.drm [SceneToRoom]\n\n" +
-
-                   $"SongController Enabled: {SongController.IsEnabled}\n" +
-                   $"Song name: {SongController.songName}\n" +
-                   $"Song BPM: {SongController.songBpm}  Song scale: {SongController.songFudgeFactor.ToString("0.00")}\n\n" +
-
-                   $"Tracks: {trackNames}({trackCount})\n\n" +
-
-                   $"SlopMs: {SongController.SlopMs}  SlopPos: {SongController.SlopPos}\n\n" +
-
-                   $"Timscale: [world: {Time.timeScale.ToString("0.00")}]  [song: {SongController.songTimeScale.ToString("0.00")}]\n" +
-                   $"Clock seconds: {Clock.Instance.seconds}\n" +
-                   $"Clock bar: {(int)Clock.Instance.bar}\n" +
-                   $"Clock beat: {(int)Clock.Instance.beat % 8} ({(int)Clock.Instance.beat})\n" +
-                   $"Locomotion distance: {AmpPlayerLocomotion.Instance.DistanceTravelled}\n\n" +
-
-                   //$"LightManager: null | LightGroups:  (0)";
-                   "";
-
-        if (!IsDebugPrintOn)
-            s += "\n\nDEBUG PRINT FREEZE";
-
-        debugText.text = s;
+        debugText.text = s + _mainText;
     }
 
     /// Debug main loop
 
-    private void ProcessKeys()
+    void ProcessKeys()
     {
         // Debug control
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F3))
@@ -168,9 +245,13 @@ public class DebugUI : DebugComponent
             IsDebugPrintOn = !IsDebugPrintOn;
             //Main.SetActive(IsDebugPrintOn); // TODO: fix!
         }
+        if (Input.GetKeyDown(KeyCode.F5))
+        { }
     }
 
-    float deltaTime;
+    float debugLine_ElapsedTime;
+    float mainText_ElapsedTime;
+    float FPS_deltaTime;
     void Update()
     {
         ProcessKeys();
@@ -178,16 +259,23 @@ public class DebugUI : DebugComponent
         if (!IsDebugUIOn)
             return;
 
-        // DEBUG LOOP
+        // MAIN DEBUG LOOP:
 
-        if (IsDebugPrintOn)
+        HandleDebugLineTimeout();
+
+        // Keep track of elapsed ms for update frequency
+        mainText_ElapsedTime += Time.unscaledDeltaTime * 1000;
+        HandleActiveComponentText(); // Get active component text!
+
+        // Update self text manually if needed
+        if (IsSelfDebug || AlwaysUpdate)
             UpdateMainDebugText();
 
         // update framerate debug
         if (Time.timeScale == 0f)
             return;
-        deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
-        float fps = 1.0f / deltaTime;
+        FPS_deltaTime += (Time.unscaledDeltaTime - FPS_deltaTime) * 0.1f;
+        float fps = 1.0f / FPS_deltaTime;
         framerateText.text = string.Format("Framerate: {0} FPS", Mathf.Ceil(fps).ToString());
     }
 }

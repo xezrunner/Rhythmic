@@ -126,15 +126,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1107775275328118755}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a6e18caee2803642bbe1cf1185519df, type: 3}
+  m_Script: {fileID: 11500000, guid: 5049103772c15194ab4a8d0c15301511, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _Instance: {fileID: 0}
+  SelfParent: {fileID: 0}
   framerateText: {fileID: 7496315346850896928}
   debugText: {fileID: 1372489059162963837}
   debugLineText: {fileID: 5759626619220457274}
-  IsDebugOn: 1
+  IsDebugUIOn: 1
   IsDebugPrintOn: 1
+  _isDebugLineOn: 1
 --- !u!1 &2811061962626832764
 GameObject:
   m_ObjectHideFlags: 0

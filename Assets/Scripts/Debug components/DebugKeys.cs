@@ -1,21 +1,34 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
-[DebugComponent(DebugControllerState.DebugKeys, typeof(DebugKeys))] // TODO: improve attribute?
+[DebugComponent(DebugComponentFlag.DebugKeys, DebugComponentType.Component)]
 public partial class DebugKeys : DebugComponent
 {
-    public static DebugKeys Instance;
-    public static DebugComponentAttribute Attribute { get { return (DebugComponentAttribute)System.Attribute.GetCustomAttribute(typeof(DebugKeys), typeof(DebugComponentAttribute)); } }
+    public static RefDebugComInstance Instance;
 
     public bool IsEnabled = true;
 
-    void Awake() => Instance = this;
+    void Awake() => Instance = new RefDebugComInstance(this);
 
     // Main loop
     void Update()
     {
         if (!IsEnabled)
             return;
+
+        // DebugUI:
+        if (DebugUI.Instance)
+        {
+            if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.Alpha7)) // toggle debug line
+                DebugUI.IsDebugLineOn = !DebugUI.IsDebugLineOn;
+            else if (Input.GetKeyDown(KeyCode.Alpha7)) // empty com
+                DebugUI.SwitchToComponent();
+
+            if (Input.GetKeyDown(KeyCode.Alpha8))
+                DebugUI.SwitchToComponent(typeof(SelectionComponentTest));
+            if (Input.GetKeyDown(KeyCode.Alpha9))
+                DebugUI.SwitchToComponent(typeof(DebugStats));
+        }
 
         // ConsoleServer test
         if (Input.GetKeyDown(KeyCode.J))
@@ -51,11 +64,14 @@ public partial class DebugKeys : DebugComponent
             DEBUG_SetPreferredResolution(new Vector2(1920, 1080));
 
         // FPS Lock
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(10);
-        else if (Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(60);
-        else if (Input.GetKeyDown(KeyCode.F2)) DEBUG_SetFramerateLock(120);
-        else if (Input.GetKeyDown(KeyCode.F3)) DEBUG_SetFramerateLock(200);
-        else if (Input.GetKeyDown(KeyCode.F4)) DEBUG_SetFramerateLock(0);
+        if (Input.GetKey(KeyCode.LeftAlt))
+        {
+            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(10);
+            else if (Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(60);
+            else if (Input.GetKeyDown(KeyCode.F2)) DEBUG_SetFramerateLock(120);
+            else if (Input.GetKeyDown(KeyCode.F3)) DEBUG_SetFramerateLock(200);
+            else if (Input.GetKeyDown(KeyCode.F4)) DEBUG_SetFramerateLock(0);
+        }
 
         // Toggle tunnel mode
         if (Input.GetKeyDown(KeyCode.F))

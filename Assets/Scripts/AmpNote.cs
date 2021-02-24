@@ -20,6 +20,9 @@ public class AmpNote : MonoBehaviour
     public ParticleSystem.MainModule PS_main;
     public ParticleSystem PS;
 
+    /// Materials (TODO: revise)
+    public Material SharedNoteMaterial;
+
     /// Colors
     Color _dotLightColor = Color.white;
     public Color DotLightColor
@@ -74,6 +77,9 @@ public class AmpNote : MonoBehaviour
 
     void Start()
     {
+        if (SharedNoteMaterial)
+            NoteMeshRenderer.material = SharedNoteMaterial;
+
         // Setup dotlight
         // TODO: cleanup!
         //DotLight.SetActive(false);
