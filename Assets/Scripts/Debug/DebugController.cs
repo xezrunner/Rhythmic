@@ -61,6 +61,10 @@ public partial class DebugController : MonoBehaviour
             State = RhythmicGame.DebugControllerFlags;
             if (needsInit) HandleState();
         }
+
+        // Automatically activate DebugStats (TODO: should make DebugStats an additive component)
+        // TODO: DebugStats shouldn't auto-activate based on whether the flag is present. (prop: AutoShowDebugStats?)
+        if (RhythmicGame.AutoLoadDebugStats) DebugUI.SwitchToComponent(typeof(DebugStats));
     }
 
     // TODO: ActiveComponents list?
@@ -126,9 +130,5 @@ public partial class DebugController : MonoBehaviour
             else if (!State.HasFlag(com_flag) && com_instance)
                 com_instance.RemoveComponent();
         }
-
-        // Automatically activate DebugStats (TODO: should make DebugStats an additive component)
-        // TODO: DebugStats shouldn't auto-activate based on whether the flag is present. (prop: AutoShowDebugStats?)
-        DebugUI.SwitchToComponent(typeof(DebugStats));
     }
 }
