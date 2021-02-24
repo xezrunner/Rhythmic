@@ -92,7 +92,11 @@ public class DebugComponent : MonoBehaviour
         // Add newlines:
         for (int i = 0; i < Mathf.Abs(linesToAdd); i++)
             if (linesToAdd > 0) Text += '\n';
-            else Text = Text.Insert(Text.Length - line.Length, "\n");
+            else
+            {
+                Text = Text.Insert(Text.Length - line.Length, "\n");
+                Text += '\n'; // Add one newline at the end of the string.
+            }
 
         // Max line count:
         if (Attribute.AdditiveMaxLines > 0)
