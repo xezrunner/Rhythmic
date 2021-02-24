@@ -142,13 +142,17 @@ public class DebugUI : DebugComponent
         float updateFreq = ActiveComponent.Attribute.UpdateFrequencyInMs;
         if (force || updateFreq != -1)
         {
-            if (updateFreq != 0 && elapsedSinceLastUpdate > updateFreq)
-                elapsedSinceLastUpdate = 0;
+            if (updateFreq != 0)
+            {
+                if (elapsedSinceLastUpdate > updateFreq)
+                    elapsedSinceLastUpdate = 0;
+                else return; // Not enough time has passed!
+            }
 
-                // If com attr TextMode is Clear, remove component text before calling the component!
-                if (ActiveComponent.Attribute.TextMode == DebugComTextMode.Clear) ActiveComponent.ClearText();
-                ActiveComponent.UI_Main();
-                MainText = ActiveComponent.Text;
+            // If com attr TextMode is Clear, remove component text before calling the component!
+            if (ActiveComponent.Attribute.TextMode == DebugComTextMode.Clear) ActiveComponent.ClearText();
+            ActiveComponent.UI_Main();
+            MainText = ActiveComponent.Text;
         }
     }
 
