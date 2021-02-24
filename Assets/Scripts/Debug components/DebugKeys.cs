@@ -21,7 +21,7 @@ public partial class DebugKeys : DebugComponent
         {
             if (Input.GetKeyDown(KeyCode.Alpha8))
                 DebugUI.SwitchToInterface(typeof(SelectionComponentTest));
-                        if (Input.GetKeyDown(KeyCode.Alpha9))
+            if (Input.GetKeyDown(KeyCode.Alpha9))
                 DebugUI.SwitchToInterface(typeof(DebugStats));
         }
 

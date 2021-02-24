@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 
@@ -53,7 +54,7 @@ public class DebugUI : DebugComponent
     public float SelfDebugOpacity = 0.8f;
 
     [Header("Control states")]
-    public bool IsSelfDebug = true;
+    [NonSerialized] public bool IsSelfDebug = false;
     public bool AlwaysUpdate = false;
 
     public bool IsDebugUIOn = true;
@@ -101,7 +102,7 @@ public class DebugUI : DebugComponent
         ActiveComponent = com;
         HandleActiveComponentText(true); // Grab text forcefully upon switching
 
-        if (!com.IsUIComponent) Logger.LogWarning($"Component {com.Name} is not an UI component.");
+        if (!com.IsUIComponent) Logger.LogMethod($"Component {com.Name.AddColor(Colors.Application)} is not an UI component.", CLogType.Warning, this);
     }
 
     /// Debug line
@@ -113,7 +114,7 @@ public class DebugUI : DebugComponent
     public static void AddToDebugLine(string text, Color? color = null)
     {
         if (Instance) Instance._AddToDebugLine(text, color);
-        else Logger.LogMethod($"DebugUI has no global instance!    -    {text}", "DebugUI", CLogType.Warning, LogTarget.All & ~LogTarget.DebugLine);
+        else Logger.LogMethod($"DebugUI has no global instance!    -    {text}", CLogType.Warning, LogTarget.All & ~LogTarget.DebugLine, "DebugUI");
     }
     public static void AddToDebugLine(string text, CLogType logType) => AddToDebugLine(text, Colors.GetColorForCLogType(logType));
     void _AddToDebugLine(string text, Color? color = null)

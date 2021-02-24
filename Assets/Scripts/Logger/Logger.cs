@@ -97,7 +97,9 @@ public class Logger
 
     /// <summary>Logs the method name before the desired text.</summary>
     /// <param name="objToType">Pass in 'this' to print out origin class name before the text.</param>
-    public static string LogMethod(string text, object objToType = null, CLogType logType = 0, LogTarget logTarget = LogTarget.All, [CallerMemberName] string methodName = null) => Log(text, objToType, true, logType, logTarget, methodName);
+    public static string LogMethod(string text = "", CLogType logType = 0, LogTarget logTarget = LogTarget.All, object objToType = null, [CallerMemberName] string methodName = null) => Log(text, objToType, true, logType, logTarget, methodName);
+    public static string LogMethod(string text = "", CLogType logType = 0, object objToType = null, [CallerMemberName] string methodName = "") => Log(text, objToType, true, logType, CurrentLogTarget, methodName);
+    public static string LogMethod(string text = "", object objToType = null, [CallerMemberName] string methodName = "") => Log(text, objToType, true, CLogType.Info, CurrentLogTarget, methodName);
 
     public static string LogObject(object obj, bool printIndex = true, char separatorChar = ',', LogTarget logTarget = LogTarget.All) => Log(obj, 0, printIndex, separatorChar, logTarget);
     public static string LogFormat(string text, CLogType logType, LogTarget logTarget = LogTarget.All, params object[] args) => Log(string.Format(text, args), logType, logTarget);
