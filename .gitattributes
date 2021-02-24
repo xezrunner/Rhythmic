@@ -4,3 +4,5 @@
 *.prefab     linguist-generated=true 
 *.unity     linguist-generated=true 
 *.scene     linguist-generated=true 
+
+Assets/TextMesh Pro/* linguist-vendored
