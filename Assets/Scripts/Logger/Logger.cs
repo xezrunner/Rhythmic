@@ -15,15 +15,15 @@ using UnityEngine;
 public enum LogTarget
 {
     Unity = 0, RhythmicConsole = 1 << 0, DebugLine = 1 << 1,
-    Default = (Unity | RhythmicConsole),
-    All = (Unity | RhythmicConsole | DebugLine)
+    Default = (Unity | RhythmicConsole), All = (Unity | RhythmicConsole | DebugLine)
 }
 
 // TODO: Add LogWarning & LogError (& LogIO, LogNetwork, LogApplication, LogGame)(?) variatons!
-public class Logger
+public static partial class Logger
 {
     public static LogTarget CurrentLogTarget = LogTarget.All;
 
+    /// Unity logging:
     static Action<object> GetUnityLogHandlerForLogType(CLogType logType)
     {
         switch (logType)
@@ -38,14 +38,16 @@ public class Logger
                 return Debug.LogError;
         }
     }
-
     // TODO: support colors for 'object' too?
-    public static void LogUnity(object obj, CLogType logType) => GetUnityLogHandlerForLogType(logType)(obj);
     public static void LogUnity(object obj) => Debug.Log(obj);
-    public static void LogUnity(string text, CLogType logType) => GetUnityLogHandlerForLogType(logType)(text.AddColor(Colors.GetColorForCLogType(logType)));
-    public static void LogUnity(string text) => Debug.Log(text);
+    public static void LogUnity(object obj, CLogType logType) => GetUnityLogHandlerForLogType(logType)(obj);
+    
+    /// RhythmicConsole logging:
     public static string LogConsole(string text, CLogType logType) { if (ConsoleServer.IsServerActive) ConsoleServer.Write(text, logType); return text; }
 
+    /// Log():
+
+    // Logging router:
     public static string Log(string text, CLogType logType, LogTarget logTarget = LogTarget.All)
     {
         if (logTarget.HasFlag(LogTarget.Unity) && CurrentLogTarget.HasFlag(LogTarget.Unity)) LogUnity(text, logType);
@@ -56,7 +58,7 @@ public class Logger
     }
     // Log without logging to Unity
     static string LogR(string text, CLogType logType = CLogType.Info) => Log(text, logType, CurrentLogTarget & ~LogTarget.Unity);
-
+    // Object logging (handling objects):
     /// <summary>
     /// This method handles logging out debugging information for supported Types.
     /// </summary>
@@ -76,10 +78,9 @@ public class Logger
             case List<float> l: return LogList(l, logType, printIndex, separatorChar, logTarget);
         }
     }
-
-    /// <summary>Simple text logging.</summary>
+    // Simple text logging:
     public static string Log(string text) => Log(text, CLogType.Info);
-
+    // Class/Method() logging:
     /// <param name="objToType">Pass in 'this' to print out origin class name before the text.<br/>
     /// You can also pass in a string if you want custom text before the log text.</param>
     /// <param name="printMethodName">Whether to show the calling method (function) name.</param>
@@ -95,25 +96,9 @@ public class Logger
         return Log($"{cName}{mName}: {text}", logType, logTarget); // Type/Method(): text
     }
 
-    /// <summary>Logs the method name before the desired text.</summary>
-    /// <param name="objToType">Pass in 'this' to print out origin class name before the text.</param>
-    public static string LogMethod(string text = "", CLogType logType = 0, LogTarget logTarget = LogTarget.All, object objToType = null, [CallerMemberName] string methodName = null) => Log(text, objToType, true, logType, logTarget, methodName);
-    public static string LogMethod(string text = "", CLogType logType = 0, object objToType = null, [CallerMemberName] string methodName = "") => Log(text, objToType, true, logType, CurrentLogTarget, methodName);
-    public static string LogMethod(string text = "", object objToType = null, [CallerMemberName] string methodName = "") => Log(text, objToType, true, CLogType.Info, CurrentLogTarget, methodName);
+    /// -------
 
-    public static string LogObject(object obj, bool printIndex = true, char separatorChar = ',', LogTarget logTarget = LogTarget.All) => Log(obj, 0, printIndex, separatorChar, logTarget);
-    public static string LogFormat(string text, CLogType logType, LogTarget logTarget = LogTarget.All, params object[] args) => Log(string.Format(text, args), logType, logTarget);
-    public static string LogFormat(string text, LogTarget logTarget = LogTarget.All, params object[] args) => Log(string.Format(text, args), logTarget);
-
-    public static string LogWarning(string text, LogTarget logTarget = LogTarget.All) => Log(text, CLogType.Warning, logTarget);
-    public static string LogObjectWarning(object obj, bool printIndex = true, char separatorChar = ',', LogTarget logTarget = LogTarget.All) => Log(obj, CLogType.Warning, printIndex, separatorChar, logTarget);
-
-    public static string LogError(string text, LogTarget logTarget = LogTarget.All) => Log(text, CLogType.Error, logTarget);
-    public static string LogObjectError(object obj, bool printIndex = true, char separatorChar = ',', LogTarget logTarget = LogTarget.All) => Log(obj, CLogType.Error, printIndex, separatorChar, logTarget);
-
-    /// Log() for special/non-string types
-
-    // Arrays:
+    // Special/non-string type logging:
     public static string LogArray(Array array, CLogType logType, bool printIndex = true, char separatorChar = ',', LogTarget logTarget = LogTarget.All)
     {
         string s = "";
@@ -130,7 +115,6 @@ public class Logger
         s = s.Substring(0, s.Length - 2); // Remove trailing separator
         return Log(s, logType, logTarget); // Log!
     }
-    // Lists:
-    // redirected to array logging:
+    // Lists - redirected to array logging:
     public static string LogList<T>(List<T> list, CLogType logType, bool printIndex = true, char separatorChar = ',', LogTarget logTarget = LogTarget.All) => LogArray(list.ToArray(), logType, printIndex, separatorChar, logTarget);
 }
