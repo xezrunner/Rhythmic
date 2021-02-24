@@ -83,6 +83,7 @@ public partial class AmpTrack
         // set up
         obj.name = meta.Name;
         AmpNote note = obj.GetComponent<AmpNote>();
+        note.SharedNoteMaterial = TracksController.SharedNoteMaterial;
         note.Track = this;
         note.TrackID = RealID;
         note.MeasureID = meta.MeasureID;

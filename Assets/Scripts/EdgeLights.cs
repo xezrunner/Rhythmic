@@ -27,7 +27,7 @@ public class EdgeLights : MonoBehaviour
             // Convert color to 0-1 value, if required
             bool requiresConversion = value.r > 1 || value.g > 1 || value.b > 1;
             if (requiresConversion)
-                _convertedColor = Colors.ConvertColor(value);
+                _convertedColor = Colors.ConvertToFloatColor(value);
             else
                 _convertedColor = value;
 

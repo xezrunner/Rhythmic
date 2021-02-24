@@ -10,6 +10,7 @@ public enum GameLogic { AMPLITUDE, RHYTHMIC }
 public enum GameMode { Metagame, Gameplay, Practice, Editor, Charting, Debugging }
 public enum GameMatchType { Singleplayer = 0, LocalMultiplayer = 1, OnlineMultiplayer = 2 }
 
+// TODO: Some props here could be moved to their respective class!
 public static class RhythmicGame
 {
     public static GameState GameState;
@@ -58,6 +59,9 @@ public static class RhythmicGame
     public static bool IsLoading = true;
     public static Vector2 PreferredResolution = new Vector2(1920, 1080);
 
+    // Debug system
+    public static DebugComponentFlag DebugControllerFlags = DebugComponentFlag.Uninitialized;
+
     // A/V calibration props | milliseconds
     public static float AVCalibrationOffsetMs = 0f;
     public static float AVCalibrationStepMs = 16.67f;
@@ -82,7 +86,6 @@ public static class RhythmicGame
             else return FastStreamingLevel.None;
         }
     }
-
 
     public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
     public static bool TunnelTrackDuplication = true; // Whether to duplicate tracks when using tunnel mode

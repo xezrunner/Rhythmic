@@ -6,14 +6,14 @@ public class LoggerTesterCom : MonoBehaviour
 {
     [Header("Input")]
     public string Text;
-    public CLogType MessageTypeID = CLogType.Application;
+    public CLogType LogType = CLogType.Info;
 
     public List<string> TestList = new List<string>();
 
     public void SendText()
     {
-        string debugInfo = $"CLogType: {MessageTypeID} [{MessageTypeID}]";
-        Logger.Log($"{Text} | {debugInfo}", MessageTypeID);
+        string debugInfo = $"CLogType: {LogType} [{(int)LogType}]";
+        Logger.Log($"{Text} | {debugInfo}", LogType);
     }
 
     public void SendObject(bool printIndex = true, char separatorChar = ',') => Logger.Log(TestList, 0, printIndex, separatorChar);
