@@ -50,12 +50,12 @@ public partial class DebugController : MonoBehaviour
         // Start Rhythmic Console Server (for standalone console app)
         //ConsoleServer.StartConsoleServer();
 
-        if (RhythmicGame.DebugControllerState == DebugComponentFlag.Uninitialized)
+        if (RhythmicGame.DebugControllerFlags == DebugComponentFlag.Uninitialized)
             State = DefaultState;
         else
         {
-            bool needsInit = State == RhythmicGame.DebugControllerState;
-            State = RhythmicGame.DebugControllerState;
+            bool needsInit = State == RhythmicGame.DebugControllerFlags;
+            State = RhythmicGame.DebugControllerFlags;
             if (needsInit) HandleState();
         }
     }
