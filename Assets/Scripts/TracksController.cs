@@ -163,7 +163,7 @@ public class TracksController : MonoBehaviour
 
     private void Tracks_OnTrackSwitched(object sender, int[] e)
     {
-        Debug.LogFormat("TRACKS <event>: Track switched from {0} to {1}", e[0], e[1]);
+        //Debug.LogFormat("TRACKS <event>: Track switched from {0} to {1}", e[0], e[1]);
     }
 
     /// Tracks

@@ -54,11 +54,11 @@ public class DebugStats : DebugComponent
 
         // Tracks stats:
         {
-            int trackCount = TracksController.Instance.Tracks.Count;
             string trackNames = "";
-            TracksController.Instance.Tracks.ForEach(t => trackNames += $"{t.TrackName}  ");
+            TracksController.Instance.Tracks.ForEach(t => trackNames += $"{t.TrackName.AddColor(AmpTrack.Colors.ColorFromInstrument(t.Instrument) * 1.25f)}  ");
+            string trackCount = $"({TracksController.Instance.Tracks.Count})".AddColor(1, 1, 1, 0.67f);
 
-            AddLine($"Tracks: {trackNames}({trackCount})", 2);
+            AddLine($"Tracks: {trackNames}{trackCount}", 2);
         }
 
         // Slop stats:
