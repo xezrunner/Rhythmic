@@ -26,6 +26,8 @@ public enum DebugComponentFlag
 
 public partial class DebugController : MonoBehaviour
 {
+    DebugUI DebugUI { get { return DebugUI.Instance; } }
+
     public static DebugController Instance;
 
     [Header("Content references")]
@@ -66,6 +68,7 @@ public partial class DebugController : MonoBehaviour
 
     void HandleState()
     {
+        // Activate / Deactivate components:
         foreach (MetaDebugComponent com_meta in MetaComponents)
         {
             // Unpack:
@@ -123,5 +126,9 @@ public partial class DebugController : MonoBehaviour
             else if (!State.HasFlag(com_flag) && com_instance)
                 com_instance.RemoveComponent();
         }
+
+        // Automatically activate DebugStats (TODO: should make DebugStats an additive component)
+        // TODO: DebugStats shouldn't auto-activate based on whether the flag is present. (prop: AutoShowDebugStats?)
+        DebugUI.SwitchToComponent(typeof(DebugStats));
     }
 }
