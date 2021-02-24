@@ -11,16 +11,17 @@ public enum DebugComponentFlag
 
     DebugUI = 1 << 3,
     DebugMenu = 1 << 4,
-    DebugInterfaces = 1 << 5,
-    DebugEditor = 1 << 6,
+    DebugStats = 1 << 5,
+    DebugInterfaces = 1 << 6,
+    DebugEditor = 1 << 7,
 
-    MorlettoDebug = 1 << 7,
+    MorlettoDebug = 1 << 8,
 
-    Default = Level2,
+    Default = Level1,
     Full = (DebugKeys | DebugLogging | DebugUI | DebugMenu | DebugInterfaces | DebugEditor | MorlettoDebug),
     Level0 = (DebugKeys | DebugUI | DebugMenu),
-    Level1 = (DebugKeys | DebugLogging | DebugUI | DebugMenu | DebugEditor),
-    Level2 = (DebugKeys | DebugLogging | DebugUI | DebugMenu | DebugInterfaces | DebugEditor),
+    Level1 = (DebugKeys | DebugLogging | DebugUI | DebugMenu | DebugStats | DebugEditor),
+    Level2 = (DebugKeys | DebugLogging | DebugUI | DebugMenu | DebugStats | DebugInterfaces | DebugEditor),
 }
 
 public partial class DebugController : MonoBehaviour
