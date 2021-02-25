@@ -128,22 +128,26 @@ public class WorldLight : MonoBehaviour
         float prevIntensity = from.HasValue ? from.Value : Intensity;
 
         if (durationSec <= 0)
-        { Intensity = target; yield break; }
-
-        float elapsedTime = 0;
-        float t = 0;
-
-        while (t <= 1) // TODO: < rather than <= (?)
+            Intensity = target;
+        else
         {
-            // Lerp the intensity
-            Intensity = Mathf.Lerp(prevIntensity, target, t);
+            float elapsedTime = 0;
+            float t = 0;
 
-            elapsedTime += Time.deltaTime; // TODO: song delta time!
-            t = elapsedTime / durationSec;
+            while (t <= 1) // TODO: < rather than <= (?)
+            {
+                // Lerp the intensity
+                Intensity = Mathf.Lerp(prevIntensity, target, t);
 
-            yield return null;
+                elapsedTime += Time.deltaTime; // TODO: song delta time!
+                t = elapsedTime / durationSec;
+
+                yield return null;
+            }
         }
 
-        Logger.LogMethod("Done!", this);
+        Logger.LogMethod($"[{Name} ({ID})]".AddColor(0.6f) +
+            $"  {prevIntensity.ToString().AddColor(1, 0.2f, 0.2f)} -> {target.ToString().AddColor(0.1f, 1, 0.1f)} " + $"@ {durationSec}s]".AddColor(1, 1, 0.1f)
+            + " - done animating!", this);
     }
 }

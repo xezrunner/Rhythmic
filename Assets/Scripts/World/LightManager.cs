@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +8,6 @@ public class LightManager : MonoBehaviour
 {
     #region Editor params
     [HideInInspector] public string Editor_LightToFind;
-
-    // Foldouts:
-    [HideInInspector] public bool Editor_LightListFoldout;
-    [HideInInspector] public bool Editor_ToolsFoldout;
     #endregion
 
     //public static LightManager Instance;

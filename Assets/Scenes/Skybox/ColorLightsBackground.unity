@@ -185,7 +185,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Editor_LightToFind: 
-  Editor_ListLights: 0
   LightGroups:
   - {fileID: 813076014}
 --- !u!4 &334964008
@@ -346,7 +345,7 @@ MonoBehaviour:
   Gizmos_MainSize: 65
   Light: {fileID: 368576590}
   LightGroup: {fileID: 813076014}
-  ID: 0
+  ID: 1
   CircleDivision: 1.2
 --- !u!1 &813076013
 GameObject:

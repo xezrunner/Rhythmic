@@ -20,17 +20,21 @@ public class LightManagerEditor : Editor
         DrawCurrentLight();
     }
 
+    bool tools_foldOut = true;
     void DrawTools()
     {
         if (Application.isEditor && !Application.isPlaying) return;
 
-        main.Editor_ToolsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(main.Editor_ToolsFoldout, "Tools");
-        if (!main.Editor_ToolsFoldout) { EditorGUILayout.EndFoldoutHeaderGroup(); return; }
+        tools_foldOut = EditorGUILayout.BeginFoldoutHeaderGroup(tools_foldOut, "Tools");
+        if (!tools_foldOut) { EditorGUILayout.EndFoldoutHeaderGroup(); return; }
+
+        float duration = 1f;
+        duration = EditorGUILayout.Slider("Animation duration (seconds)", duration, 0, 15);
 
         if (GUILayout.Button("Fade in all lights"))
-            main.AnimateIntensities(main.LightGroups, -1);
+            main.AnimateIntensities(main.LightGroups, -1, duration);
         if (GUILayout.Button("Fade out all lights"))
-            main.AnimateIntensities(main.LightGroups, 0);
+            main.AnimateIntensities(main.LightGroups, 0, duration);
 
         EditorGUILayout.EndFoldoutHeaderGroup();
     }
@@ -56,12 +60,13 @@ public class LightManagerEditor : Editor
         EditorGUILayout.EndFoldoutHeaderGroup();
     }
 
+    bool lightList_foldOut;
     void DrawLightList()
     {
         if (Application.isEditor && !Application.isPlaying) return;
 
-        main.Editor_LightListFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(main.Editor_LightListFoldout, "Current lights");
-        if (!main.Editor_LightListFoldout) { EditorGUILayout.EndFoldoutHeaderGroup(); return; }
+        lightList_foldOut = EditorGUILayout.BeginFoldoutHeaderGroup(lightList_foldOut, "Current lights");
+        if (!lightList_foldOut) { EditorGUILayout.EndFoldoutHeaderGroup(); return; }
 
         foreach (var group in main.LightGroups)
         {
