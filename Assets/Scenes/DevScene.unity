@@ -605,7 +605,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 793695456}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!108 &374805166
 Light:
@@ -618,7 +618,7 @@ Light:
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
-  m_Color: {r: 0.122641504, g: 0.122641504, b: 0.122641504, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_Intensity: 2.8
   m_Range: 1000
   m_SpotAngle: 30
@@ -1145,8 +1145,8 @@ Transform:
   - {fileID: 2131858185}
   - {fileID: 45527307}
   - {fileID: 1272539912}
-  - {fileID: 374805165}
   - {fileID: 1357065597}
+  - {fileID: 374805165}
   m_Father: {fileID: 1010288848}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1854,19 +1854,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08fb75fbbc1b58d49bcf58945be8b2c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Name: world_
-  FriendlyName: The World
+  CurrentWorld: {fileID: 0}
   PathCreator: {fileID: 435881602}
   LightManager: {fileID: 0}
   WorldVisualQuality: 0
   GeometryEnabled: 1
   LightingEnabled: 1
   EffectsEnabled: 1
-  FogEnabled: 1
-  FogDensity: -1
-  FogColor: {r: 0, g: 0, b: 0, a: 0}
-  AuxilliaryFogEnabled: 1
-  AtmosphericFogEnabled: 1
 --- !u!114 &1010288851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7425,7 +7419,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 793695456}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!108 &1357065598
 Light:
@@ -7438,7 +7432,7 @@ Light:
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
-  m_Color: {r: 0.14150941, g: 0.14150941, b: 0.14150941, a: 1}
+  m_Color: {r: 0.13756824, g: 1, b: 0, a: 1}
   m_Intensity: 1.7
   m_Range: 1780
   m_SpotAngle: 30

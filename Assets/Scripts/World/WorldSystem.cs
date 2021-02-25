@@ -1,4 +1,5 @@
 using PathCreation;
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum WorldVisualQuality { Default = 0, Low = 1, Medium = 2, High = 3, Extreme = 4 }
@@ -7,9 +8,10 @@ public class WorldSystem : MonoBehaviour
 {
     public static WorldSystem Instance;
 
-    [Header("World info")]
-    public string Name = "world_";
-    public string FriendlyName = "The World";
+    public World CurrentWorld;
+
+    public string Name { get { return !CurrentWorld ? "null" : CurrentWorld.Name; } }
+    public string FriendlyName { get { return !CurrentWorld ? "None" : CurrentWorld.FriendlyName; } }
 
     [Header("Path system")]
     public PathCreator PathCreator;
@@ -17,6 +19,16 @@ public class WorldSystem : MonoBehaviour
 
     [Header("Lighting")]
     public LightManager LightManager;
+    public void AddLightGroups(List<LightGroup> groups)
+    {
+        if (LightManager.LightGroups.Count > 0)
+            Logger.LogMethodW("There are LightGroups for some reason...", this);
+
+        if (groups.Count == 0)
+            Logger.LogMethodW($"World {Name} has no light groups.", this);
+        else
+            groups.ForEach(i => LightManager.LightGroups.Add(i)); // Add all groups to our LM!
+    }
 
     [Header("Visual properties")]
     public WorldVisualQuality WorldVisualQuality = WorldVisualQuality.Default;
@@ -24,18 +36,11 @@ public class WorldSystem : MonoBehaviour
     public bool LightingEnabled = true;
     public bool EffectsEnabled = true;
 
-    [Header("Fog properties")]
-    public bool FogEnabled = true;
-    public float FogDensity = -1;
-    public Color FogColor = new Color(0.5f, 0.5f, 0.5f);
-    public bool AuxilliaryFogEnabled = true;
-    public bool AtmosphericFogEnabled = true;
-
     void Awake()
     {
         if (Instance) // Do not allow multiple instances!
         {
-            Debug.LogError($"WorldSystem [init]: Only one instance of a WorldSystem can exist! [current: {Instance.gameObject.name}]");
+            Logger.LogError($"WorldSystem [init]: Only one instance of a WorldSystem can exist! [current: {Instance.gameObject.name}]");
             return;
         }
         Instance = this;
@@ -44,14 +49,12 @@ public class WorldSystem : MonoBehaviour
         // TODO: Songs will also have the ability to have a path!
         if (RhythmicGame.AutoFindPathFallback && Path == null)
         {
-            if (PathCreator == null) Debug.LogError("World: Path was null -> PathCreator was null!");
-            else if (PathCreator.path == null) Debug.LogError($"World: Path was null -> PathCreator [{PathCreator.name}.path] was null!");
+            if (PathCreator == null) Logger.LogError("World: Path was null -> PathCreator was null!");
+            else if (PathCreator.path == null) Logger.LogError($"World: Path was null -> PathCreator [{PathCreator.name}.path] was null!");
             else Path = PathCreator.path;
         }
 
         // Assign Path in the global PathTools!
         PathTools.Path = Path;
     }
-
-
 }

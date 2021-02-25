@@ -140,5 +140,5 @@ public static class RhythmicGame
 
     // Draw debug
     public static bool DebugDrawTunnelGizmos = false;
-    public static bool DebugDrawWorldLights = false;
+    public static bool DebugDrawWorldLights = true;
 }
