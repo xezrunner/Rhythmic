@@ -11,6 +11,9 @@ public class World : MonoBehaviour
     public string Name = "world_";
     public string FriendlyName = "The World";
 
+    [Header("Skybox")]
+    public Skybox Skybox;
+
     [Header("Path system")]
     public PathCreator PathCreator;
 
@@ -37,6 +40,7 @@ public class World : MonoBehaviour
 
         // Add ourselves to WorldSystem:
         WorldSystem.CurrentWorld = this;
+        WorldSystem.CurrentSkybox = Skybox;
 
         // Add LightGroups to WorldSystem
         WorldSystem.AddLightGroups(LightGroups);

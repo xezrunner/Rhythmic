@@ -9,6 +9,7 @@ public class WorldSystem : MonoBehaviour
     public static WorldSystem Instance;
 
     public World CurrentWorld;
+    public Skybox CurrentSkybox;
 
     public string Name { get { return !CurrentWorld ? "null" : CurrentWorld.Name; } }
     public string FriendlyName { get { return !CurrentWorld ? "None" : CurrentWorld.FriendlyName; } }
