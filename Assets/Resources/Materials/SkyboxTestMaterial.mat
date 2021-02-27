@@ -50,26 +50,26 @@ Material:
     m_Ints: []
     m_Floats:
     - _AtmosphereThickness: 1
-    - _Exponent: 3.07
+    - _Exponent: 2.06
     - _Exposure: 1.3
-    - _Intensity: 1
-    - _One: 0.91
+    - _Intensity: 1.36
+    - _One: 0.55
     - _Rotation: 0
     - _RotationSpeed: 2
     - _Scale: 1.67
     - _SunDisk: 2
     - _SunSize: 0.04
     - _SunSizeConvergence: 5
-    - _Two: 1.25
+    - _Two: 1.56
     - _UpVectorPitch: 0
     - _UpVectorYaw: 0
     m_Colors:
     - _Color: {r: 0.24688502, g: 0.3927771, b: 0.7169812, a: 1}
-    - _Color1: {r: 0, g: 0.08749856, b: 0.5754717, a: 0}
-    - _Color2: {r: 0, g: 0.7529412, b: 0.6737418, a: 1}
+    - _Color1: {r: 0, g: 0.0931846, b: 0.6226415, a: 0}
+    - _Color2: {r: 0.7529412, g: 0.34440187, b: 0, a: 1}
     - _GroundColor: {r: 0.369, g: 0.349, b: 0.341, a: 1}
     - _Rotation: {r: 1, g: 0.09, b: 0, a: 0}
     - _SkyTint: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _Tint: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
-    - _UpVector: {r: 0, g: 0, b: 0.99, a: 0}
+    - _UpVector: {r: 0.27, g: -0.13, b: 0, a: 0}
   m_BuildTextureStacks: []

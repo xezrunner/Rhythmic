@@ -41,7 +41,7 @@ public static partial class Logger
     // TODO: support colors for 'object' too?
     public static void LogUnity(object obj) => Debug.Log(obj);
     public static void LogUnity(object obj, CLogType logType) => GetUnityLogHandlerForLogType(logType)(obj);
-    
+
     /// RhythmicConsole logging:
     public static string LogConsole(string text, CLogType logType) { if (ConsoleServer.IsServerActive) ConsoleServer.Write(text, logType); return text; }
 
@@ -52,12 +52,14 @@ public static partial class Logger
     {
         if (logTarget.HasFlag(LogTarget.Unity) && CurrentLogTarget.HasFlag(LogTarget.Unity)) LogUnity(text, logType);
         if (logTarget.HasFlag(LogTarget.RhythmicConsole) && CurrentLogTarget.HasFlag(LogTarget.RhythmicConsole)) LogConsole(text, logType);
-        if (logTarget.HasFlag(LogTarget.DebugLine) && CurrentLogTarget.HasFlag(LogTarget.DebugLine)) DebugUI.AddToDebugLine(text, Colors.GetColorForCLogType(logType)); // TODO: methods for this?
+        if (Application.isPlaying && !Application.isEditor)
+            if (logTarget.HasFlag(LogTarget.DebugLine) && CurrentLogTarget.HasFlag(LogTarget.DebugLine)) DebugUI.AddToDebugLine(text, Colors.GetColorForCLogType(logType)); // TODO: methods for this?
 
         return text;
     }
     // Log without logging to Unity
     static string LogR(string text, CLogType logType = CLogType.Info) => Log(text, logType, CurrentLogTarget & ~LogTarget.Unity);
+
     // Object logging (handling objects):
     /// <summary>
     /// This method handles logging out debugging information for supported Types.
@@ -71,6 +73,7 @@ public static partial class Logger
                 LogUnity(obj);
                 return LogR($"Unsupported object passed to Logger | Name: {nameof(obj)}, Type: {obj.GetType()}");
 
+            // TODO: Vector2,3,4
             case string s: return Log(s, logType, logTarget);
             case Array a: return LogArray(a, logType, printIndex, separatorChar, logTarget);
             case List<string> l: return LogList(l, logType, printIndex, separatorChar, logTarget);
