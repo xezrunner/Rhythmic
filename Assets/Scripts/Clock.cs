@@ -42,10 +42,10 @@ public class Clock : MonoBehaviour
     public event EventHandler<int> OnBeat;
     public event EventHandler<int> OnSubbeat;
 
-    public event EventHandler OnPlayerSlop;
+    //public event EventHandler OnPlayerSlop;
 
     // Main clock loop
-    void FixedUpdate()
+    void Update()
     {
         if (!SongController.IsPlaying) return;
 
@@ -78,5 +78,8 @@ public class Clock : MonoBehaviour
         lastBar = (int)bar;
         lastBeat = (int)beat;
         lastSubbeat = (int)subbeat;
+
+        if (bar > SongController.songLengthInMeasures)
+            SongController.IsSongOver = true;
     }
 }

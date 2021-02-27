@@ -19,6 +19,7 @@ public partial class SongController : MonoBehaviour
     public bool IsEnabled = true;
     public bool IsFake = false;
     public bool IsPlaying;
+    public bool IsSongOver;
 
     // Song properties
     [NonSerialized] public int songBpm;
@@ -252,6 +253,7 @@ public partial class SongController : MonoBehaviour
     // Seeks forward or backward in the music, by seconds
     public void OffsetSong(float offset)
     {
+        if (IsSongOver) return;
         audioSrcList.ForEach(src => src.time += offset); // offset music by seconds!
                                                          //Player.OffsetPlayer(offset * (Player.PlayerSpeed * secPerBeat / songFudgeFactor * (1f + 0.8f))); // offset player by zPos!
     }

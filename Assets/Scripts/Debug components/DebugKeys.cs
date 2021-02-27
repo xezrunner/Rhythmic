@@ -64,14 +64,11 @@ public partial class DebugKeys : DebugComponent
             DEBUG_SetPreferredResolution(new Vector2(1920, 1080));
 
         // FPS Lock
-        if (Input.GetKey(KeyCode.LeftAlt))
-        {
-            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(10);
-            else if (Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(60);
-            else if (Input.GetKeyDown(KeyCode.F2)) DEBUG_SetFramerateLock(120);
-            else if (Input.GetKeyDown(KeyCode.F3)) DEBUG_SetFramerateLock(200);
-            else if (Input.GetKeyDown(KeyCode.F4)) DEBUG_SetFramerateLock(0);
-        }
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(10);
+        else if (Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(60);
+        else if (Input.GetKeyDown(KeyCode.F2)) DEBUG_SetFramerateLock(120);
+        else if (Input.GetKeyDown(KeyCode.F3)) DEBUG_SetFramerateLock(200);
+        else if (Input.GetKeyDown(KeyCode.F4)) DEBUG_SetFramerateLock(0);
 
         // Toggle tunnel mode
         if (Input.GetKeyDown(KeyCode.F))
@@ -97,11 +94,11 @@ public partial class DebugKeys : DebugComponent
         if (Input.GetKeyDown(KeyCode.Keypad7))
             DEBUG_RestoreCapturedTracks();
 
-        if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Keypad8))
-            DEBUG_OffsetSong(2f);
+        if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.Keypad8))
+            DEBUG_OffsetSong(Input.GetKey(KeyCode.LeftShift) ? 10f : 2f);
 
         if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Keypad2))
-            DEBUG_OffsetSong(2f);
+            DEBUG_OffsetSong(-2f);
 
         // Quick track switching
         if (Input.GetKeyDown(KeyCode.Q)) // First track (0)

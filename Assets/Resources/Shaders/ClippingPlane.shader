@@ -69,7 +69,11 @@
 		//the surface shader function which sets parameters the lighting function then uses
 		void surf (Input i, inout SurfaceOutputStandard o) 
 		{
-			if (_Enabled == 0) return;
+			if (_Enabled == 0) 
+			{
+				discard; // TODO: revise!
+				return;
+			}
 
 			if (_PlaneEnabled == 1 | _InversePlaneEnabled == 1)
 			{

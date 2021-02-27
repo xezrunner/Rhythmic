@@ -105,6 +105,8 @@ public class AmpPlayerLocomotion : MonoBehaviour
 
             Locomotion(DistanceTravelled);
 
+            if (SongController.IsSongOver) return;
+
             // Live note capture glow thing
             foreach (AmpTrack t in TracksController.Tracks)
             {

@@ -50,7 +50,7 @@ public class DebugStats : DebugComponent
         }
 
         // Song stats:
-        AddLine($"Song name: {SongController.songName}  BPM: {SongController.songBpm}", 2);
+        AddLine($"Song name: {SongController.songName}  " + $"BPM: {SongController.songBpm}".AddColor(0.8f), 2);
 
         // Tracks stats:
         {
@@ -75,9 +75,9 @@ public class DebugStats : DebugComponent
         AddLine($"Locomotion distance: {AmpPlayerLocomotion.DistanceTravelled}");
 
         // Clock stats:
-        AddLine($"Clock seconds: {Clock.seconds}"                              .AddColor(1, 1, 1, 0.8f));
-        AddLine($"Clock bar: {(int)Clock.bar}"                                 .AddColor(1,1,1,0.8f));
-        AddLine($"Clock beat: {(int)Clock.beat % 8} ({(int)Clock.beat})"       .AddColor(1,1,1,0.8f));
+        AddLine($"Clock seconds: {Clock.seconds}".AddColor(1, 1, 1, 0.8f));
+        AddLine($"Clock bar: {(int)Clock.bar}  Fbar: {Clock.Fbar}  ".AddColor(1, 1, 1, 0.8f) + $"({SongController.songLengthInMeasures})".AddColor(1, 1, 1, 0.6f));
+        AddLine($"Clock beat: {(int)Clock.beat % 8} ({(int)Clock.beat})".AddColor(1, 1, 1, 0.8f));
 
         // More goes here...
     }

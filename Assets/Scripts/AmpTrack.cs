@@ -84,15 +84,16 @@ public partial class AmpTrack : MonoBehaviour
         TunnelRot = TunnelTransform[1];
 
         // Global edge lights
-        GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
-        GlobalEdgeLights.MeshRenderer.material = GlobalEdgeLightsMaterial; // Shared material
-        if (ID == 0) GlobalEdgeLights.gameObject.SetActive(true);
+        //GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
+        //GlobalEdgeLights.MeshRenderer.material = GlobalEdgeLightsMaterial; // Shared material
+        //if (ID == 0) GlobalEdgeLights.gameObject.SetActive(true);
 
         // Color
         Color = Colors.ColorFromInstrument(Instrument);
-        GlobalEdgeLights.Color = Color;
+        //GlobalEdgeLights.Color = Color;
+
         LocalEdgeLightsMaterial.SetColor("_Emission", Color * 2.0f); // TODO
-        // TODO: local edgelights!
+        GlobalEdgeLightsMaterial.SetColor("_Emission", Color * 2.0f); // TODO
 
         // Set up ClipManager for capture clipping
         ClipManager.AddMaterial(TrackMaterial);
@@ -128,16 +129,8 @@ public partial class AmpTrack : MonoBehaviour
         set
         {
             _isTrackFocused = value;
-            GlobalEdgeLights.gameObject.SetActive(value);
-
-            // Set global edge lights in measures
-            //for (int i = Mathf.FloorToInt(Clock.Instance.bar) - 1; i < Measures.Count - 1; i++) // TODO: check reliability of this optimization!
-            //{
-            //    if (i < 0) i = 0; // correct the flooring of 0
-
-            //    AmpTrackSection m = Measures[i];
-            //    m.SetGlobalEdgeLights(value);
-            //}
+            foreach (AmpTrackSection m in Measures)
+                if (m) m.IsFocused = value;
 
             UpdateSequenceStates();
         }
@@ -199,6 +192,10 @@ public partial class AmpTrack : MonoBehaviour
         // Set the color for sequence measures
         //foreach (AmpTrackSection m in Measures)
         //    if (m) m.IsSequence = false;
+
+        int range = Clock.Fbar + RhythmicGame.HorizonMeasures;
+        if (range > SongController.songLengthInMeasures) return;
+
         for (int i = Clock.Fbar; i < Clock.Fbar + RhythmicGame.HorizonMeasures; i++)
         {
             AmpTrackSection m = Measures[i];

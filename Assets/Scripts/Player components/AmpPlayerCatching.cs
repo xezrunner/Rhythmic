@@ -71,6 +71,7 @@ public class AmpPlayerCatching : MonoBehaviour
     private void LateUpdate()
     {
         if (!SongController.IsPlaying) return;
+        if (SongController.IsSongOver) return;
 
         // TEMP
         foreach (AmpTrack t in TracksController.Tracks)

@@ -17,6 +17,8 @@ public class AmpTrackSection : MonoBehaviour
     public MeshRenderer ModelRenderer;
     public MeshFilter ModelMesh; // Mesh of the model
 
+    public Material GlobalEdgeLightMaterial; // test
+
     public Transform NotesContainer;
 
     public ClipManager ClipManager;
@@ -55,7 +57,18 @@ public class AmpTrackSection : MonoBehaviour
         }
     }
 
-    public bool IsFocused { get; set; } // tba
+    bool _isFocused;
+    public bool IsFocused
+    {
+        get { return _isFocused; }
+        set
+        {
+            _isFocused = value;
+
+            // Toggle edge light material
+            GlobalEdgeLightMaterial.SetInt("_Enabled", value ? 1 : 0); // TODO: Optimization?
+        }
+    }
 
     bool _isSequence;
     public bool IsSequence
@@ -65,7 +78,7 @@ public class AmpTrackSection : MonoBehaviour
         {
             _isSequence = value;
             if (value) IsFocused = Track.IsTrackFocused;
-            else IsFocused = false;
+            //else IsFocused = false;
         }
     }
 
@@ -79,17 +92,16 @@ public class AmpTrackSection : MonoBehaviour
     void Awake() => Path = PathTools.Path;
     void Start()
     {
-
         if (!ModelMesh || !ModelMesh.sharedMesh)
         { Debug.LogWarning($"Measure [init]: {ID} does not have a Model!"); return; }
 
         // Disable measure visuals when empty or captured
-        if (IsEmpty || IsCaptured) // TODO: revise!
+        if (IsEmpty || IsCaptured)
         {
-            ModelRenderer.enabled = false;
-            // tba
-            return;
+            ModelRenderer.materials = new Material[0];
+            ModelRenderer.material = GlobalEdgeLightMaterial;
         }
+        //IsFocused = Track.IsTrackFocused; // TODO: is this needed?
 
         // Deform the mesh!
         DeformMesh();

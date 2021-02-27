@@ -62,7 +62,7 @@ public static class RhythmicGame
 
     // Debug system
     public static DebugComponentFlag DebugControllerFlags = DebugComponentFlag.Uninitialized;
-    public static bool AutoLoadDebugStats = false;
+    public static bool AutoLoadDebugStats = true;
 
     // A/V calibration props | milliseconds
     public static float AVCalibrationOffsetMs = 0f;
@@ -76,7 +76,7 @@ public static class RhythmicGame
     public static float HorizonMeasuresOffset = 15f; // How many units to offset from the horizon when clipping
 
     // --- Track streaming --- //
-    public static bool StreamAllMeasuresOnStart = false;
+    public static bool StreamAllMeasuresOnStart = true;
     public static bool FastStreaming = false;
     static FastStreamingLevel _fastStreamingLevel = FastStreamingLevel.MeasuresAndNotes;
 

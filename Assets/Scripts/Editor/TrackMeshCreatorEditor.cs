@@ -20,8 +20,16 @@ public class TrackMeshCreatorEditor : PathSceneToolEditor
         GUILayout.Label(string.Format("Curavture distance in zPos: {0}", script.pathCreator.path.length));
         GUILayout.Label(string.Format("Track objects: {0}", script.TrackObjects.Count));
 
+        GUILayout.BeginHorizontal();
+
         if (GUILayout.Button("Create object"))
             script.Debug_CreateTestMesh(Keyboard.current.leftShiftKey.isPressed, Keyboard.current.leftCtrlKey.isPressed);
+        if (GUILayout.Button("Create 6x"))
+            for (int i = 0; i < 6; i++)
+                script.Debug_CreateTestMesh(Keyboard.current.leftShiftKey.isPressed, Keyboard.current.leftCtrlKey.isPressed);
+
+        GUILayout.EndHorizontal();
+
         if (GUILayout.Button("Delete all test objects"))
         {
             script.TrackObjects.ForEach(g => DestroyImmediate(g));
@@ -58,6 +66,6 @@ public class TrackMeshCreatorEditor : PathSceneToolEditor
             var gObj = script.CreateEdgeLights(script.debug_startPoint, script.debug_length, script.debug_xPosition);
             script.TrackObjects.Add(gObj);
             script.debug_xPosition++;
-        }    
+        }
     }
 }

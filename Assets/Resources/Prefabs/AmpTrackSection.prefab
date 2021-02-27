@@ -324,7 +324,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4836132808484383190}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -337,7 +337,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d0d842f23fdb8de46a5916074826f995, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -428,14 +428,15 @@ MonoBehaviour:
   NotesContainer: {fileID: 1052880242004629714}
   ClipManager: {fileID: 0}
   ClipPlane: {fileID: 29731176791887653}
+  mats: []
   Track: {fileID: 0}
   Notes: []
   ID: 0
-  Length: 32
   Instrument: 0
-  IsEmpty: 0
+  Length: 32
   Position: {x: 0, y: 0, z: 0}
   Rotation: 0
+  IsEmpty: 0
   IsCapturing: 0
   CaptureState: 0
 --- !u!1 &6543889804386215059
@@ -538,7 +539,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4455918259785193276
 Transform:
   m_ObjectHideFlags: 0

@@ -53,6 +53,8 @@ public class TrackStreamer : MonoBehaviour
     int destroyCounter = 0; // Keep track of the last destroyed ID
     private void Clock_OnBar(object sender, int e)
     {
+        if (SongController.IsSongOver) return;
+
         if (RhythmicGame.StreamAllMeasuresOnStart)
             foreach (AmpTrack t in TracksController.Instance.Tracks) { }
         //t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].gameObject.SetActive(true);
