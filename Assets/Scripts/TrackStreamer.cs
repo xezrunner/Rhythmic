@@ -27,6 +27,9 @@ public class TrackStreamer : MonoBehaviour
     TracksController TrackController { get { return TracksController.Instance; } }
     Clock Clock { get { return Clock.Instance; } }
 
+    public float StreamDelay = 0.1f;
+    public float DestroyStreamDelay = 0.1f;
+
     public List<Dictionary<int, MetaMeasure>> metaMeasures;
 
     void Awake() { Instance = this; Clock.OnBar += Clock_OnBar; metaMeasures = SongController.CreateMetaMeasureList(); }
@@ -34,7 +37,7 @@ public class TrackStreamer : MonoBehaviour
     {
         // Stream in the horizon!
         //StreamMeasureRange(0, RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreaming);
-        StreamMeasureRange(0, (RhythmicGame.StreamAllMeasuresOnStart) ? SongController.songLengthInMeasures : RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
+        StreamMeasureRange(0, RhythmicGame.StreamAllMeasuresOnStart ? SongController.songLengthInMeasures : RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
     }
 
     /// ***** ----- DEBUG TEST ----- *****
@@ -48,7 +51,6 @@ public class TrackStreamer : MonoBehaviour
         }
     }
 
-    int destroyCounter = 0; // Keep track of the last destroyed ID
     private void Clock_OnBar(object sender, int e)
     {
         if (SongController.IsSongOver) return;
@@ -63,14 +65,30 @@ public class TrackStreamer : MonoBehaviour
         // Delete measures behind us
         // TODO: revise!
         if (e < 2) return;
+        DestroyBehind(RhythmicGame.FastStreaming); // RhythmicGame.FastStreaming
+    }
+
+    int destroyCounter = 0; // Keep track of the last destroyed ID
+
+    public void DestroyBehind(bool immediate = false) => StartCoroutine(_DestroyBehind(immediate));
+    IEnumerator _DestroyBehind(bool immediate = false)
+    {
         for (int t = 0; t < TrackController.Tracks.Count; t++)
         {
             var track = TrackController.Tracks[t];
-            var measure = track.Measures[destroyCounter];
-            Destroy(measure.gameObject);
-            //track.Measures.RemoveAt(0);
-            track.Measures[destroyCounter] = null;
+            for (int i = 0; i < Clock.Fbar - 1; i++)
+            {
+                var measure = track.Measures[i];
+                if (!measure) continue;
+                Destroy(measure.gameObject);
+
+                track.Measures[destroyCounter] = null;
+
+                if (!immediate) yield return new WaitForSeconds(DestroyStreamDelay);
+            }
+
         }
+
         destroyCounter++;
     }
 
@@ -93,7 +111,7 @@ public class TrackStreamer : MonoBehaviour
                 var note = track.CreateNote(kv.Value, measure);
                 //measure.ClipManager.AddMeshRenderer(note.NoteMeshRenderer); // TODO: CLIPPING - this is hacky
 
-                if (!immediate) yield return null;
+                if (!immediate) yield return new WaitForSeconds(StreamDelay);
             }
 
             measure.Notes.Last().IsLastNote = true; // TODO: optimization?
@@ -132,7 +150,7 @@ public class TrackStreamer : MonoBehaviour
             {
                 StartCoroutine(_StreamMeasure(id, i));
 
-                if (!RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks)) yield return null;
+                if (!RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks)) yield return new WaitForSeconds(StreamDelay);
                 //else yield return new WaitForEndOfFrame(); // delay by a bit to account for performance drop
             }
         }
@@ -151,7 +169,7 @@ public class TrackStreamer : MonoBehaviour
         for (int i = startID; i < endID; i++)
         {
             StreamMeasure(i, trackID, immediate);
-            if (!immediate) yield return null;
+            if (!immediate) yield return new WaitForSeconds(StreamDelay);
         }
     }
 }

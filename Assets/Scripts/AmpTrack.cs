@@ -198,6 +198,7 @@ public partial class AmpTrack : MonoBehaviour
 
         for (int i = Clock.Fbar; i < Clock.Fbar + RhythmicGame.HorizonMeasures; i++)
         {
+            if (i >= Measures.Count) continue;
             AmpTrackSection m = Measures[i];
             if (m) m.IsSequence = false;
         }

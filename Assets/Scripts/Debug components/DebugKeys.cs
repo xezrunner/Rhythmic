@@ -74,11 +74,30 @@ public partial class DebugKeys : DebugComponent
         if (Input.GetKeyDown(KeyCode.F))
             DEBUG_ToggleTunnelMode();
 
+        // Streamer delay test
+        if (Keyboard.current.leftCtrlKey.isPressed)
+        {
+            bool shouldLog = true;
+
+            if (Keyboard.current.numpadPlusKey.wasPressedThisFrame)
+                TrackStreamer.Instance.DestroyStreamDelay += 0.1f;
+            else if (Keyboard.current.numpadMinusKey.wasPressedThisFrame)
+                TrackStreamer.Instance.DestroyStreamDelay -= 0.1f;
+            else
+                shouldLog = false;
+
+            if (shouldLog)
+                Logger.Log($"DestroyStreamDelay: {TrackStreamer.Instance.DestroyStreamDelay.ToString().AddColor(Colors.Application)}", "TrackStreamer", false);
+        }
+
         // Lag compensation
-        if (Input.GetKey(KeyCode.KeypadPlus))
-            RhythmicGame.SetAVCalibrationOffset(RhythmicGame.AVCalibrationOffsetMs + RhythmicGame.AVCalibrationStepMs);
-        else if (Input.GetKey(KeyCode.KeypadMinus))
-            RhythmicGame.SetAVCalibrationOffset(RhythmicGame.AVCalibrationOffsetMs - RhythmicGame.AVCalibrationStepMs);
+        if (!Keyboard.current.leftCtrlKey.isPressed)
+        {
+            if (Input.GetKey(KeyCode.KeypadPlus))
+                RhythmicGame.SetAVCalibrationOffset(RhythmicGame.AVCalibrationOffsetMs + RhythmicGame.AVCalibrationStepMs);
+            else if (Input.GetKey(KeyCode.KeypadMinus))
+                RhythmicGame.SetAVCalibrationOffset(RhythmicGame.AVCalibrationOffsetMs - RhythmicGame.AVCalibrationStepMs);
+        }
 
         // Track capturing debug
         if (Input.GetKeyDown(KeyCode.H)) // current track, 5

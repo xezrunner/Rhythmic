@@ -6,7 +6,7 @@ public enum StatsMode
     Default = Short
 }
 
-[DebugComponent(DebugComponentFlag.DebugStats, DebugComponentType.Component, 0)]
+[DebugComponent(DebugComponentFlag.DebugStats, DebugComponentType.Component, 500)]
 public class DebugStats : DebugComponent
 {
     public static RefDebugComInstance Instance;
