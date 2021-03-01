@@ -94,18 +94,25 @@ public partial class DebugKeys : DebugComponent
         if (Input.GetKeyDown(KeyCode.Keypad7))
             DEBUG_RestoreCapturedTracks();
 
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.Keypad8))
+        // Song offsetting
+        if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad8Key.isPressed)
             DEBUG_OffsetSong(1);
-        else if (Input.GetKey(KeyCode.LeftAlt) && Input.GetKey(KeyCode.Keypad8))
+        if (Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad8Key.isPressed)
             DEBUG_OffsetSong(0.1f);
-        else if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.Keypad8))
+        if (Keyboard.current.leftShiftKey.isPressed && Keyboard.current.numpad8Key.isPressed)
             DEBUG_OffsetSong(2);
-
-        //if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.Keypad8))
-        //    DEBUG_OffsetSong(Input.GetKey(KeyCode.LeftShift) ? 10f : 2f);
-
-        if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Keypad2))
+        /* backwards */
+        if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad2Key.isPressed)
             DEBUG_OffsetSong(-2f);
+        if (Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad2Key.isPressed)
+            DEBUG_OffsetSong(-0.1f);
+
+        // Enable IsPlaying property in Locomotion
+        if (Keyboard.current.shiftKey.isPressed && Keyboard.current.numpad9Key.isPressed)
+        {
+            AmpPlayerLocomotion.Instance.IsPlaying = !AmpPlayerLocomotion.Instance.IsPlaying;
+            Debug.Log($"Locomotion IsPlaying: {AmpPlayerLocomotion.Instance.IsPlaying}");
+        }
 
         // Quick track switching
         if (Input.GetKeyDown(KeyCode.Q)) // First track (0)
