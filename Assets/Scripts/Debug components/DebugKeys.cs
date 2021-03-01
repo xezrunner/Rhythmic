@@ -127,7 +127,7 @@ public partial class DebugKeys : DebugComponent
         if (Input.GetKeyDown(KeyCode.Q)) // First track (0)
             AmpPlayerTrackSwitching.Instance.SwitchToTrack(0, true);
         else if (Input.GetKeyDown(KeyCode.P)) // Last track
-            AmpPlayerTrackSwitching.Instance.SwitchToTrack(TracksController.Instance.Tracks.Count - 1, true);
+            AmpPlayerTrackSwitching.Instance.SwitchToTrack(TracksController.Instance.Tracks.Length - 1, true);
 
         // Timescale
         DEBUG_HandleTimescale();

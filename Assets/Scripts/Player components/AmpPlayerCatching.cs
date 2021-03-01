@@ -63,7 +63,7 @@ public class AmpPlayerCatching : MonoBehaviour
         TracksController.Catching = this;
 
         // Set up notesToCatch array
-        TracksController.targetNotes = new AmpNote[TracksController.Tracks.Count];
+        TracksController.targetNotes = new AmpNote[TracksController.Tracks.Length];
     }
 
     int lastIgnoreBar = -1;

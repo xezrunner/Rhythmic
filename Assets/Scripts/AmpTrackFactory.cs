@@ -1,5 +1,4 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 
 // Factory class for generating measures and notes in an AmpTrack
 
@@ -9,23 +8,22 @@ public partial class AmpTrack
     public GameObject TrackSectionPrefab;
     public GameObject NotePrefab;
 
-    public static AmpTrack CreateTrack(int ID, string name, InstrumentType instrument, int? realID = null, TracksController TracksController = null)
+    public static AmpTrack CreateTrack(int ID, string name, InstrumentType instrument, int realID, bool isCloneTrack, int trackSetID)
     {
-        if (!TracksController) TracksController = TracksController.Instance;
-
-        var obj = Instantiate(TracksController.Instance.TrackPrefab, TracksController.gameObject.transform);
-        obj.name = name;
+        var obj = Instantiate(TracksController.Instance.TrackPrefab, TracksController.Instance.gameObject.transform);
+        obj.name = name + (isCloneTrack ? $"F{realID}" : "");
 
         // Add Track component:
         AmpTrack com = obj.GetComponent<AmpTrack>();
 
         com.ID = ID;
-        com.RealID = realID.HasValue ? realID.Value : ID; // Assign the same ID if realID was not desired
+        com.RealID = realID;
         com.TrackName = name;
+        com.IsCloneTrack = isCloneTrack;
+        com.TrackSetID = trackSetID;
         com.Instrument = instrument;
         com.Path = PathTools.Path;
 
-        TracksController.Tracks.Add(com);
         return com;
     }
     public AmpTrackSection CreateMeasure(MetaMeasure meta)
@@ -43,7 +41,7 @@ public partial class AmpTrack
         measure.IsCaptured = meta.IsCaptured;
 
         // Assign materials
-        // TODO: move this to AmpTrackSection?
+        // TODO: improve!
         Material[] modelMaterials = new Material[3];
         modelMaterials[0] = TrackMaterial;
         modelMaterials[1] = LocalEdgeLightsMaterial;

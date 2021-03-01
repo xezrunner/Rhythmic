@@ -80,7 +80,7 @@ public class TrackStreamer : MonoBehaviour
     public void DestroyBehind(bool immediate = false) => StartCoroutine(_DestroyBehind(immediate));
     IEnumerator _DestroyBehind(bool immediate = false)
     {
-        for (int t = 0; t < TrackController.Tracks.Count; t++)
+        for (int t = 0; t < TrackController.Tracks.Length; t++)
         {
             var track = TrackController.Tracks[t];
             for (int i = 0; i < Clock.Fbar - 1; i++)
@@ -158,7 +158,7 @@ public class TrackStreamer : MonoBehaviour
         }
         else // Stream in the measure from all of the tracks!
         {
-            for (int i = 0; i < TrackController.Tracks.Count; i++)
+            for (int i = 0; i < TrackController.Tracks.Length; i++)
             {
                 StartCoroutine(_StreamMeasure(id, i));
 

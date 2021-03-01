@@ -68,9 +68,13 @@ public class DebugStats : DebugComponent
         // Tracks stats:
         {
             string trackNames = $"{(RhythmicGame.IsTunnelMode ? "\nTunnel mode ON  " : "")}";
-            TracksController.Instance.Tracks.ForEach(t => trackNames += $"{t.TrackName.AddColor(t.IsTrackCaptured ? Color.white : AmpTrack.Colors.ColorFromInstrument(t.Instrument) * 1.25f, t.IsTrackFocused ? 1 : 0.40f)}" +
-                                                                        $"{(t.RealID > TracksController.songTracks.Count ? $"F{t.RealID}" : "")}".AddColor(0.5f) + "  ");
-            string trackCount = $"({TracksController.Instance.Tracks.Count})".AddColor(1, 1, 1, 0.80f);
+            foreach (AmpTrack t in TracksController.Instance.Tracks)
+            {
+                trackNames += $"{t.TrackName.AddColor(t.IsTrackCaptured ? Color.white : AmpTrack.Colors.ColorFromInstrument(t.Instrument) * 1.25f, t.IsTrackFocused ? 1 : 0.40f)}" +
+                                                                                        $"{(t.RealID > TracksController.songTracks.Count ? $"F{t.RealID}" : "")}".AddColor(0.5f) + "  ";
+            }
+            
+            string trackCount = $"({TracksController.Instance.Tracks.Length})".AddColor(1, 1, 1, 0.80f);
 
             AddLine($"Tracks: {trackNames}{trackCount}", 2);
         }

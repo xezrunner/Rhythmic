@@ -39,6 +39,9 @@ public partial class AmpTrack : MonoBehaviour
     public int SetID = 0; // TUNNEL DUPLICATION: which track set does this track belong to?
     public string TrackName = ""; // Instrument name of the track. Object name *should* be the same.
 
+    public bool IsCloneTrack; // Whether this track is cloned in Tunnel mode.
+    public int TrackSetID; // The ID of the track set this track belongs to.
+
     public Vector3[] TunnelTransform;
     public Vector3 TunnelPos;
     public Vector3 TunnelRot;
