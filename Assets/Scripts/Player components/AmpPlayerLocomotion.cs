@@ -82,9 +82,9 @@ public class AmpPlayerLocomotion : MonoBehaviour
         Vector3 targetPos = PathTools.GetPositionOnPath(Path, distance, (!RhythmicGame.IsTunnelMode) ? PositionOffset : Vector3.zero); // no X movement in tunnel mode
         transform.position = targetPos;
 
-        Quaternion totalRot = PathTools.GetRotationOnPath(Path, distance, RhythmicGame.IsTunnelMode ? TunnelRotation : Vector3.zero + offset);
         Quaternion pathRot = PathTools.GetRotationOnPath(Path, distance, offset);
         Quaternion tunnelRot = RhythmicGame.IsTunnelMode ? Quaternion.Euler(TunnelRotation) : Quaternion.identity;
+        Quaternion totalRot = PathTools.GetRotationOnPath(Path, distance, RhythmicGame.IsTunnelMode ? TunnelRotation : Vector3.zero + offset);
 
         if (instant) // Don't do smoothing
         {
@@ -96,7 +96,8 @@ public class AmpPlayerLocomotion : MonoBehaviour
             NonInterpolatable.localRotation = totalRot;
             Interpolatable.localRotation = QuaternionUtil.SmoothDamp(Interpolatable.localRotation, RhythmicGame.IsTunnelMode ? pathRot : totalRot, ref rotVelocity, SmoothDuration);
             // Different smoothing for tunnel rotation:
-            Interpolatable_TunnelRotation.localRotation = QuaternionUtil.SmoothDamp(Interpolatable_TunnelRotation.localRotation, tunnelRot, ref tunnelrotVelocity, TunnelSmoothDuration);
+            //Interpolatable_TunnelRotation.localRotation = QuaternionUtil.SmoothDamp(Interpolatable_TunnelRotation.localRotation, tunnelRot, ref tunnelrotVelocity, TunnelSmoothDuration);
+            Interpolatable_TunnelRotation.localRotation = Quaternion.Euler(RotationOffset);
         }
     }
 

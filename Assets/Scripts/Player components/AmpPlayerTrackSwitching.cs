@@ -23,7 +23,8 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
     public int StartTrackID = 0; // -1 is clear focus, < -2 does nothing
 
     public bool IsAnimating;
-    public float EasingStrength = 10f;
+    public float PositionEasingStrength = 10f;
+    public float RotationEasingStrength = 10f;
     public float Duration = 1f;
     [Range(0, 1)]
     public float AnimationProgress;
@@ -145,7 +146,6 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
 
         // When rotating beyond 180, we want a smooth transition to the inverse angles instead. 
         // We utilize the fact that negative angles are the same as 360 - (-angle) | (example:  -60 = 330) and vice-versa.
-        /*
         if (RhythmicGame.IsTunnelMode)
         {
             // LEFT
@@ -163,7 +163,6 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
                 Locomotion.NonInterpolatable.localRotation = targetRot;
             }
         }
-        */
 
         Locomotion.TunnelRotation = targetRot;
     }
@@ -178,8 +177,8 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
 
         if (!SongController.IsPlaying && !Locomotion.IsPlaying) return;
 
-        Locomotion.PositionOffset = Vector3.SmoothDamp(Locomotion.PositionOffset, targetPos, ref pos_vel, 1f, 100f, EasingStrength * Time.deltaTime);
-        //if (!RhythmicGame.IsTunnelMode)
-        //    Locomotion.RotationOffset = Vector3.SmoothDamp(Locomotion.RotationOffset, targetRot, ref rot_vel, 1f, 100f, EasingStrength * Time.deltaTime);
+        Locomotion.PositionOffset = Vector3.SmoothDamp(Locomotion.PositionOffset, targetPos, ref pos_vel, 1f, 100f, PositionEasingStrength * Time.deltaTime);
+        Locomotion.RotationOffset = Vector3.SmoothDamp(Locomotion.RotationOffset, RhythmicGame.IsTunnelMode ? targetRot : Vector3.zero,
+                                                       ref rot_vel, 1f, 100f, RotationEasingStrength * Time.deltaTime);
     }
 }
