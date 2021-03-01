@@ -21,13 +21,15 @@ public enum FastStreamingLevel
 
 public class TrackStreamer : MonoBehaviour
 {
+    public static TrackStreamer Instance;
+
     SongController SongController { get { return SongController.Instance; } }
     TracksController TrackController { get { return TracksController.Instance; } }
     Clock Clock { get { return Clock.Instance; } }
 
     public List<Dictionary<int, MetaMeasure>> metaMeasures;
 
-    void Awake() { Clock.OnBar += Clock_OnBar; metaMeasures = SongController.metaMeasures; }
+    void Awake() { Instance = this; Clock.OnBar += Clock_OnBar; metaMeasures = SongController.CreateMetaMeasureList(); }
     void Start()
     {
         // Stream in the horizon!

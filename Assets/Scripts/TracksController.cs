@@ -17,6 +17,7 @@ public class TracksController : MonoBehaviour
 
     public static TracksController Instance;
     public SongController SongController { get { return SongController.Instance; } }
+    TrackStreamer TrackStreamer { get { return TrackStreamer.Instance; } }
     Clock Clock { get { return Clock.Instance; } }
 
     [Header("Common")]
@@ -390,16 +391,22 @@ public class TracksController : MonoBehaviour
 
         // Immediately consider all measures as captured (isCaptured returns true even when capturing)
         for (int i = start; i < end; i++)
-            if (track.Measures[i].CaptureState != MeasureCaptureState.Captured)
-                track.Measures[i].CaptureState = MeasureCaptureState.Capturing;
+        {
+            if (i >= track.Measures.Count) continue;
+            AmpTrackSection m = track.Measures[i];
+            if (!m) continue;
+
+            if (m.CaptureState != MeasureCaptureState.Captured)
+                m.CaptureState = MeasureCaptureState.Capturing;
+        }
 
         // Init capture process - wait for captures to finish before proceeding to next one
         for (int i = start; i < end; i++)
         {
             if (i < track.Measures.Count)
                 yield return track.CaptureMeasure(track.Measures[i]);
-            else // This measure doesn't yet exist - change meta measure to captured state!
-                metaMeasures[track.RealID][i].IsCaptured = true;
+            else // This measure doesn't yet exist - change meta measure to captured state in TrackStreamer!
+                TrackStreamer.metaMeasures[track.RealID][i].IsCaptured = true;
         }
 
         track.IsTrackCapturing = false;

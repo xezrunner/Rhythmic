@@ -101,7 +101,7 @@ public partial class SongController : MonoBehaviour
             Debug.LogWarning("AMP_CTRL: TrackStreamer already exists!");
     }
 
-    public List<Dictionary<int, MetaMeasure>> metaMeasures;
+    // TODO: This is TrackStreamer's responsibility. Move there?
     public List<Dictionary<int, MetaMeasure>> CreateMetaMeasureList()
     {
         List<Dictionary<int, MetaMeasure>> list = new List<Dictionary<int, MetaMeasure>>();

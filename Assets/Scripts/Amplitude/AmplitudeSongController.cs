@@ -75,7 +75,6 @@ public class AmplitudeSongController : SongController
         // Create measure list!
         // TODO: eliminate!!!!!
         songMeasures = CreateMeasureList();
-        metaMeasures = CreateMetaMeasureList();
         songNotes = CreateNoteList();
 
         // TODO: move elsewhere
