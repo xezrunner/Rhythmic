@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -125,6 +127,27 @@ public partial class DebugKeys
         AmpPlayerLocomotion.Instance.DistanceTravelled += offset * SongController.posInSec;
         SongController.Instance.OffsetSong(offset);
         Clock.Instance.seconds += offset;
+    }
+    bool? prevSmooth;
+    void HandleSongOffsetting()
+    {
+        if (!prevSmooth.HasValue) prevSmooth = AmpPlayerLocomotion.Instance.SmoothEnabled;
+        AmpPlayerLocomotion.Instance.SmoothEnabled = false; // Disable smoothing in Locomotion
+
+        if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad8Key.isPressed)
+            DEBUG_OffsetSong(1);
+        else if (Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad8Key.isPressed)
+            DEBUG_OffsetSong(0.1f);
+        else if (Keyboard.current.leftShiftKey.isPressed && Keyboard.current.numpad8Key.isPressed)
+            DEBUG_OffsetSong(2);
+        /* backwards - UNSTABLE */
+        else if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad2Key.isPressed)
+            DEBUG_OffsetSong(-2f);
+        else if (Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad2Key.isPressed)
+            DEBUG_OffsetSong(-0.1f);
+
+        else // Restore smoothing in Locomotion
+            AmpPlayerLocomotion.Instance.SmoothEnabled = prevSmooth.Value;
     }
     void DEBUG_HandleTimescale()
     {

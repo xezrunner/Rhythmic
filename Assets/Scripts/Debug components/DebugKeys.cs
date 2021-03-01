@@ -95,17 +95,7 @@ public partial class DebugKeys : DebugComponent
             DEBUG_RestoreCapturedTracks();
 
         // Song offsetting
-        if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad8Key.isPressed)
-            DEBUG_OffsetSong(1);
-        if (Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad8Key.isPressed)
-            DEBUG_OffsetSong(0.1f);
-        if (Keyboard.current.leftShiftKey.isPressed && Keyboard.current.numpad8Key.isPressed)
-            DEBUG_OffsetSong(2);
-        /* backwards */
-        if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad2Key.isPressed)
-            DEBUG_OffsetSong(-2f);
-        if (Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad2Key.isPressed)
-            DEBUG_OffsetSong(-0.1f);
+        HandleSongOffsetting();
 
         // Enable IsPlaying property in Locomotion
         if (Keyboard.current.shiftKey.isPressed && Keyboard.current.numpad9Key.wasPressedThisFrame)
