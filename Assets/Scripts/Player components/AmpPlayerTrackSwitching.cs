@@ -128,16 +128,37 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
     Vector3 pos_vel;
     Vector3 rot_vel;
 
+    public string debug;
+
     /// <summary>
     /// Prepares the track switching animation values. <br/>
     /// Also transforms the camera to properly 'wrap around' FreQ mode rotations.
     /// </summary>
     void TrackSwitchAnimation(Vector3[] trans)
     {
-        // Extract Tunnel trans for easy access
-        // TODO: change to just floats?
         targetPos = trans[0];
+
+        if (targetRot.z > 180 && trans[1].z < 180)
+        {
+            Vector3 target = Locomotion.RotationOffset;
+            target.z = -(360 - target.z);
+            Locomotion.SetTunnelRotationImmediate(target);
+        }
+        else if (targetRot.z < 180 && trans[1].z > 180)
+        {
+            Vector3 target = Locomotion.RotationOffset;
+            target.z = (360 + target.z);
+            Locomotion.SetTunnelRotationImmediate(target);
+        }
+
         targetRot = trans[1];
+
+        if (debug != "") // TEST
+        {
+            int parsed;
+            if (int.TryParse(debug, out parsed))
+                targetRot.z = parsed;
+        }
 
         if (RhythmicGame.DebugPlayerCameraAnimEvents)
             Debug.LogFormat("Track switching camera debug: Tunnel information: ID: {0} [pos]: {1} | [rot]: {2}", TracksController.CurrentTrackID, targetPos, targetRot);
@@ -148,20 +169,23 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
         // We utilize the fact that negative angles are the same as 360 - (-angle) | (example:  -60 = 330) and vice-versa.
         if (RhythmicGame.IsTunnelMode)
         {
+            Logger.Log($"targetRot: {targetRot}");
+            /*
             // LEFT
             // If the target is on the right part of the tunnel & the difference between target and camera is 180
-            if ((targetRot.z > transform.eulerAngles.z) & (targetRot.z - transform.eulerAngles.z > 180))
+            if ((targetRot.z > Locomotion.RotationOffset.z) & (targetRot.z - Locomotion.RotationOffset.z > 180))
                 targetRot.z = -(360 - targetRot.z); // change to 0 - target
 
             // RIGHT
             // If the target is on the left part of the tunnel & the difference between camera and target is 180
-            else if ((targetRot.z < transform.eulerAngles.z) & (transform.eulerAngles.z - targetRot.z > 180)) // RIGHT
+            else if ((targetRot.z < Locomotion.RotationOffset.z) & (Locomotion.RotationOffset.z - targetRot.z > 180)) // RIGHT
             {
-                //transform.eulerAngles = new Vector3(0, 0, -(360 - transform.eulerAngles.z)); // change to 360 + target
+                //Locomotion.RotationOffset = new Vector3(0, 0, -(360 - Locomotion.RotationOffset.z)); // change to 360 + target
                 Quaternion targetRot = PathTools.GetRotationOnPath(Locomotion.Path, Locomotion.DistanceTravelled, Locomotion.TunnelRotation);
                 Locomotion.Interpolatable.localRotation = targetRot;
                 Locomotion.NonInterpolatable.localRotation = targetRot;
             }
+            */
         }
 
         Locomotion.TunnelRotation = targetRot;

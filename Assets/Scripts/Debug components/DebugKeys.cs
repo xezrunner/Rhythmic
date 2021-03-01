@@ -108,10 +108,10 @@ public partial class DebugKeys : DebugComponent
             DEBUG_OffsetSong(-0.1f);
 
         // Enable IsPlaying property in Locomotion
-        if (Keyboard.current.shiftKey.isPressed && Keyboard.current.numpad9Key.isPressed)
+        if (Keyboard.current.shiftKey.isPressed && Keyboard.current.numpad9Key.wasPressedThisFrame)
         {
             AmpPlayerLocomotion.Instance.IsPlaying = !AmpPlayerLocomotion.Instance.IsPlaying;
-            Debug.Log($"Locomotion IsPlaying: {AmpPlayerLocomotion.Instance.IsPlaying}");
+            Logger.Log($"DEBUG: Locomotion IsPlaying: {AmpPlayerLocomotion.Instance.IsPlaying}");
         }
 
         // Quick track switching

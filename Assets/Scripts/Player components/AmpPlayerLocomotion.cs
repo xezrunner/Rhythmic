@@ -67,7 +67,11 @@ public class AmpPlayerLocomotion : MonoBehaviour
 
     public Vector3 offset;
 
-    public GameObject LengthPlane;
+    public void SetTunnelRotationImmediate(Vector3 target)
+    {
+        Interpolatable_TunnelRotation.localRotation = Quaternion.Euler(target);
+        RotationOffset = target;
+    }
 
     /// <summary>
     /// Moves the player along the path for a given distance. <br/>
