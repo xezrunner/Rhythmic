@@ -72,11 +72,11 @@ public static class RhythmicGame
     public static float SlopMs = 100f; // 100f
     public static float DebounceWindowMs = 85f;
 
-    public static int HorizonMeasures = 7; // How many measures should we be able to see ahead of us
+    public static int HorizonMeasures = 5; // How many measures should we be able to see ahead of us
     public static float HorizonMeasuresOffset = 15f; // How many units to offset from the horizon when clipping
 
     // --- Track streaming --- //
-    public static bool StreamAllMeasuresOnStart = false;
+    public static bool StreamAllMeasuresOnStart = true;
     public static bool FastStreaming = false;
     static FastStreamingLevel _fastStreamingLevel = FastStreamingLevel.MeasuresAndNotes;
 

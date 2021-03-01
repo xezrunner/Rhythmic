@@ -49,7 +49,7 @@ public class DebugStats : DebugComponent
         }
 
         // Song stats:
-        AddLine($"Song: {SongController.songName}  " + $"BPM: {SongController.songBpm}".AddColor(0.8f), 2);
+        AddLine($"Song: {SongController.songName}  " + $"BPM: {SongController.songBpm}".AddColor(0.6f), 2);
 
         /// --- END OF BASIC INFO ---
         /// Add stuff below:

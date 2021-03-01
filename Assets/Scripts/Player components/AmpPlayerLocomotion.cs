@@ -64,7 +64,6 @@ public class AmpPlayerLocomotion : MonoBehaviour
 
     // Locomotion
     Quaternion rotVelocity; // Temporary value holding current rotation velocity (ref)
-    Quaternion tunnelrotVelocity; // Temporary value holding current rotation velocity (ref)
 
     public Vector3 offset;
 

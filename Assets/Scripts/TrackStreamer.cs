@@ -55,10 +55,9 @@ public class TrackStreamer : MonoBehaviour
     {
         if (SongController.IsSongOver) return;
 
-        if (RhythmicGame.StreamAllMeasuresOnStart)
-            foreach (AmpTrack t in TracksController.Instance.Tracks) { }
-        //t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].gameObject.SetActive(true);
-        //t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].ModelRenderer.enabled = true;
+        if (RhythmicGame.StreamAllMeasuresOnStart) { }
+        //foreach (AmpTrack t in TracksController.Instance.Tracks)
+        //    t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].gameObject.SetActive(true);
         else
             // Stream measures on every bar tick
             StreamMeasure(RhythmicGame.HorizonMeasures + e, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
