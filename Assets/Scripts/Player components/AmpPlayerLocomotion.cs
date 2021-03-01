@@ -16,6 +16,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
     [Header("Camera and containers")]
     public Camera MainCamera;
     public Transform Interpolatable;
+    public Transform Interpolatable_TunnelRotation;
     public Transform NonInterpolatable;
 
     [Header("Contents")]
@@ -23,6 +24,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
 
     [Header("Properties")]
     public float SmoothDuration = 1.0f;
+    public float TunnelSmoothDuration = 1.0f;
     public float Speed = 4f;
     public float Step;
     public float DistanceTravelled;
@@ -61,6 +63,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
 
     // Locomotion
     Quaternion rotVelocity; // Temporary value holding current rotation velocity (ref)
+    Quaternion tunnelrotVelocity; // Temporary value holding current rotation velocity (ref)
 
     public Vector3 offset;
 
@@ -79,14 +82,21 @@ public class AmpPlayerLocomotion : MonoBehaviour
         Vector3 targetPos = PathTools.GetPositionOnPath(Path, distance, (!RhythmicGame.IsTunnelMode) ? PositionOffset : Vector3.zero); // no X movement in tunnel mode
         transform.position = targetPos;
 
-        Quaternion targetRot = PathTools.GetRotationOnPath(Path, distance, TunnelRotation + offset);
+        Quaternion totalRot = PathTools.GetRotationOnPath(Path, distance, RhythmicGame.IsTunnelMode ? TunnelRotation : Vector3.zero + offset);
+        Quaternion pathRot = PathTools.GetRotationOnPath(Path, distance, offset);
+        Quaternion tunnelRot = RhythmicGame.IsTunnelMode ? Quaternion.Euler(TunnelRotation) : Quaternion.identity;
 
-        if (instant) // Don't do fancy smoothing
-            Interpolatable.localRotation = NonInterpolatable.localRotation = targetRot;
+        if (instant) // Don't do smoothing
+        {
+            NonInterpolatable.localRotation = Interpolatable.localRotation = totalRot;
+            Interpolatable_TunnelRotation.localRotation = tunnelRot;
+        }
         else
         {
-            NonInterpolatable.localRotation = targetRot;
-            Interpolatable.localRotation = QuaternionUtil.SmoothDamp(Interpolatable.localRotation, targetRot, ref rotVelocity, SmoothDuration);
+            NonInterpolatable.localRotation = totalRot;
+            Interpolatable.localRotation = QuaternionUtil.SmoothDamp(Interpolatable.localRotation, RhythmicGame.IsTunnelMode ? pathRot : totalRot, ref rotVelocity, SmoothDuration);
+            // Different smoothing for tunnel rotation:
+            Interpolatable_TunnelRotation.localRotation = QuaternionUtil.SmoothDamp(Interpolatable_TunnelRotation.localRotation, tunnelRot, ref tunnelrotVelocity, TunnelSmoothDuration);
         }
     }
 
@@ -99,7 +109,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
         if (IsPlaying || SongController.IsPlaying)
         {
             if (!SongController.IsPlaying && IsPlaying) { }
-                //DistanceTravelled += 4f * Time.deltaTime;
+            //DistanceTravelled += 4f * Time.deltaTime;
             else if (SongController.IsEnabled)
             {
                 Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songTimeScale);

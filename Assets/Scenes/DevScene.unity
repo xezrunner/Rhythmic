@@ -966,12 +966,6 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!4 &571927865 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1225588845973347185, guid: 092cc62a45da22949af241be520f22ee,
-    type: 3}
-  m_PrefabInstance: {fileID: 1225588844699761903}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &577783838
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1386,11 +1380,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 835594478}
-  m_LocalRotation: {x: 0.16504757, y: 0, z: 0, w: 0.9862857}
+  m_LocalRotation: {x: 0.16504757, y: -0, z: -0, w: 0.9862857}
   m_LocalPosition: {x: 0, y: 0, z: -8.62}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 571927865}
+  m_Father: {fileID: 1225588844699761904}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 19, y: 0, z: 0}
 --- !u!114 &835594480
@@ -2248,7 +2242,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: -51.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 571927865}
+  m_Father: {fileID: 1225588844699761904}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!199 &1117322939
@@ -9822,6 +9816,11 @@ PrefabInstance:
       propertyPath: TunnelRotation.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1225588844875742810, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: Interpolatable_TunnelRotation
+      value: 
+      objectReference: {fileID: 1225588844699761904}
     - target: {fileID: 1225588844875742811, guid: 092cc62a45da22949af241be520f22ee,
         type: 3}
       propertyPath: m_RootOrder
@@ -9919,6 +9918,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1225588845251898411, guid: 092cc62a45da22949af241be520f22ee,
         type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588845251898411, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
@@ -9957,5 +9961,16 @@ PrefabInstance:
       propertyPath: m_TagString
       value: MainCamera
       objectReference: {fileID: 0}
+    - target: {fileID: 8290928694047090807, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 092cc62a45da22949af241be520f22ee, type: 3}
+--- !u!4 &1225588844699761904 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8290928694047090807, guid: 092cc62a45da22949af241be520f22ee,
+    type: 3}
+  m_PrefabInstance: {fileID: 1225588844699761903}
+  m_PrefabAsset: {fileID: 0}
