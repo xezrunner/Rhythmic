@@ -88,14 +88,22 @@ public static partial class Logger
     /// <param name="objToType">Pass in 'this' to print out origin class name before the text.<br/>
     /// You can also pass in a string if you want custom text before the log text.</param>
     /// <param name="printMethodName">Whether to show the calling method (function) name.</param>
+    // TODO: do we need printMethodName? We can just pass in "" or null instead.
     public static string Log(string text, object objToType, bool printMethodName = false, CLogType logType = 0, LogTarget logTarget = LogTarget.All, [CallerMemberName] string methodName = null)
     {
-        string cName = "";
+        // Build class name:
+        string cName = ""; // className
         if (objToType != null)
             if (objToType.GetType() == typeof(string)) cName = (string)objToType; // Automatically use the string value, in case you want custom text
             else cName = objToType.GetType().Name;
 
-        string mName = printMethodName && (methodName != null && methodName != "") ? ((cName != "") ? $"/{methodName}()" : "") : ""; // .../methodName(): <text> | ignores '/' when there's no class name
+        // Build method name:
+        string mName = ""; // .../methodName()
+        if (printMethodName && (methodName != null || methodName != ""))
+        {
+            mName += cName != "" ? "/" : ""; // '/' character after cName, if exists
+            mName += $"{methodName}()";
+        }
 
         return Log($"{cName}{mName}: {text}", logType, logTarget); // Type/Method(): text
     }

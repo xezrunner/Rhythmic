@@ -122,7 +122,10 @@ public partial class DebugKeys
         else
             TracksController.CaptureMeasureAmount(start, count, track);
     }
-    void DEBUG_RestoreCapturedTracks() { }
+    void DEBUG_RestoreCapturedTracks()
+    {
+        Logger.LogMethodE("not yet implemented!");
+    }
 
     void DEBUG_OffsetSong(float offset = 2f)
     {
