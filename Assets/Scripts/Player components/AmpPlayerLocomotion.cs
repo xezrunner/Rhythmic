@@ -27,6 +27,8 @@ public class AmpPlayerLocomotion : MonoBehaviour
     public float Step;
     public float DistanceTravelled;
     public float HorizonLength;
+    public float CameraPullback = 12.8f;
+    public float CameraElevation = 7.53f;
 
     [Header("Track switching")]
     public Vector3 PositionOffset;
@@ -41,10 +43,11 @@ public class AmpPlayerLocomotion : MonoBehaviour
         if (!SongController.IsEnabled) return;
 
         // Position player to tunnel
-        transform.position = Tunnel.center / 2;
-        MainCamera.transform.localPosition -= Tunnel.center;
+        transform.position = !RhythmicGame.IsTunnelMode ? Tunnel.center : new Vector3(Tunnel.center.x, Tunnel.center.y - Tunnel.radius);
+        MainCamera.transform.position = new Vector3(Tunnel.center.x, Tunnel.center.y + CameraElevation, -CameraPullback);
+        //MainCamera.transform.localPosition -= Tunnel.center;
         // Set catcher visuals to bottom of tunnel, offset by 0.01f (up)
-        CatcherVisuals.position = new Vector3(0, Tunnel.radius / 2 + 0.01f, 0);
+        CatcherVisuals.position = new Vector3(0, 0.01f, 0);
 
         DistanceTravelled = SongController.StartDistance;
 

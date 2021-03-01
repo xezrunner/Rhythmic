@@ -384,6 +384,8 @@ MonoBehaviour:
   Step: 0
   DistanceTravelled: 0
   HorizonLength: 0
+  CameraPullback: 12.8
+  CameraElevation: 7.53
   PositionOffset: {x: 0, y: 0, z: 0}
   RotationOffset: {x: 0, y: 0, z: 0}
   TunnelRotation: {x: 0, y: 0, z: 0}

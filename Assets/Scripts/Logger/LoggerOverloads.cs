@@ -34,6 +34,8 @@ public partial class Logger
     // Standard:
     /// <summary>Logs the method name before the desired text.</summary>
     /// <param name="objToType">Pass in 'this' to print out origin class name before the text.</param>
+    // TODO: Warning: When we want to specify LogTarget, it will see it as an object and call the method with objToType param instead!
+    // That is very erroneous and wrong!!!
     public static string LogMethod(string text = "", CLogType logType = 0, LogTarget logTarget = LogTarget.All, object objToType = null, [CallerMemberName] string methodName = null) => Log(text, objToType, true, logType, logTarget, methodName);
     public static string LogMethod(string text = "", CLogType logType = 0, object objToType = null, [CallerMemberName] string methodName = "") => Log(text, objToType, true, logType, CurrentLogTarget, methodName);
     public static string LogMethod(string text = "", object objToType = null, [CallerMemberName] string methodName = "") => Log(text, objToType, true, CLogType.Info, CurrentLogTarget, methodName);

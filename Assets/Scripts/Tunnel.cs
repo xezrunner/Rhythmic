@@ -41,7 +41,7 @@ public class Tunnel : MonoBehaviour
         radius = -outline / (2f * Mathf.PI) + 0.0945f; // TODO: There's a gap between the tracks for some reason... what could this be?
         diameter = radius * 2f;
 
-        center = new Vector2(0, -radius);
+        center = new Vector2(0, 0);
     }
     public Vector3[] GetTransformForTrackID(int id)
     {
@@ -51,10 +51,9 @@ public class Tunnel : MonoBehaviour
         float posX = radius * Mathf.Sin(angle * Mathf.Deg2Rad) + center.x;
         float posY = radius * Mathf.Cos(angle * Mathf.Deg2Rad); // This returns a position on the circle outline, thus the tunnel is perfectly centered.
 
-        transform[0] = new Vector3(posX +
-            /*                            |   Half width of all tracks accounting for 0   | + |       Track position       |   */
-            (!RhythmicGame.IsTunnelMode ? (-trackCount + 1) * (RhythmicGame.TrackWidth / 2) + (id * RhythmicGame.TrackWidth) : // Regular mode
-            0f), posY); // Tunnel mode
+        float x = (!RhythmicGame.IsTunnelMode) ? (-trackCount + 1) * (RhythmicGame.TrackWidth / 2) + (id * RhythmicGame.TrackWidth) : 0;
+
+        transform[0] = new Vector3(posX + x, posY, 0); // Tunnel mode
         transform[1].z = -angle;
 
         return transform;

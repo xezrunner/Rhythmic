@@ -15,7 +15,8 @@ using UnityEngine;
 public enum LogTarget
 {
     Unity = 0, RhythmicConsole = 1 << 0, DebugLine = 1 << 1,
-    Default = (Unity | RhythmicConsole), All = (Unity | RhythmicConsole | DebugLine)
+    UnityAndConsole = (Unity | RhythmicConsole),
+    Default = UnityAndConsole, All = (Unity | RhythmicConsole | DebugLine)
 }
 
 // TODO: Add LogWarning & LogError (& LogIO, LogNetwork, LogApplication, LogGame)(?) variatons!

@@ -45,7 +45,7 @@ public partial class DebugKeys : DebugComponent
             DEBUG_ToggleRenderingPath();
 
         // Sequence & notes refreshing
-        else if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetKeyDown(KeyCode.Z))
             DEBUG_RefreshSequencesNotes(true);
         if (Input.GetKeyDown(KeyCode.T))
             DEBUG_RefreshSequencesNotes(false);
@@ -55,7 +55,7 @@ public partial class DebugKeys : DebugComponent
         if (Input.GetKeyDown(KeyCode.R))
             RhythmicGame.Restart();
         if (Input.GetKeyDown(KeyCode.Escape))
-            SongController.TogglePause();
+            SongController.PlayPause();
 
         // Resolution
         if (Input.GetKeyDown(KeyCode.F11) & Input.GetKey(KeyCode.LeftControl))
@@ -94,8 +94,15 @@ public partial class DebugKeys : DebugComponent
         if (Input.GetKeyDown(KeyCode.Keypad7))
             DEBUG_RestoreCapturedTracks();
 
-        if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.Keypad8))
-            DEBUG_OffsetSong(Input.GetKey(KeyCode.LeftShift) ? 10f : 2f);
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.Keypad8))
+            DEBUG_OffsetSong(1);
+        else if (Input.GetKey(KeyCode.LeftAlt) && Input.GetKey(KeyCode.Keypad8))
+            DEBUG_OffsetSong(0.1f);
+        else if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.Keypad8))
+            DEBUG_OffsetSong(2);
+
+        //if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.Keypad8))
+        //    DEBUG_OffsetSong(Input.GetKey(KeyCode.LeftShift) ? 10f : 2f);
 
         if (!Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Keypad2))
             DEBUG_OffsetSong(-2f);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public partial class SongController : MonoBehaviour
@@ -236,6 +237,7 @@ public partial class SongController : MonoBehaviour
     public void PlayPause()
     {
         if (!IsEnabled) { Logger.LogMethod("Can't play - the controller is disabled.", this); return; }
+        if (Keyboard.current.altKey.isPressed) return; // Alt + Enter is for fullscreen! Ignore!
 
         if (songPosition == 0f)
             Play();
