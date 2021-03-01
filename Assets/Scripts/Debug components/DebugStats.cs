@@ -44,18 +44,32 @@ public class DebugStats : DebugComponent
         if (!SongController.IsEnabled) return;
         if (!TracksController || !Clock || !AmpPlayerLocomotion)
         {
-            AddLine();
-            AddLine("Major gameplay components are null!".AddColor(Colors.Error));
+            AddLine("\nMajor gameplay components are null!".AddColor(Colors.Error));
             return;
         }
 
         // Song stats:
-        AddLine($"Song name: {SongController.songName}  " + $"BPM: {SongController.songBpm}".AddColor(0.8f), 2);
+        AddLine($"Song: {SongController.songName}  " + $"BPM: {SongController.songBpm}".AddColor(0.8f), 2);
+
+        /// --- END OF BASIC INFO ---
+        /// Add stuff below:
+
+        // Locomotion stats:
+        {
+            AddLine($"Locomotion dist: {AmpPlayerLocomotion.DistanceTravelled}");
+            AddLine($"Locomotion pos: {AmpPlayerLocomotion.transform.position}");
+            AddLine($"Locomotion rot: [non-interp: {AmpPlayerLocomotion.NonInterpolatable.rotation.eulerAngles}]  " +
+                                    //$"[interp: {AmpPlayerLocomotion.Interpolatable.rotation.eulerAngles}]");
+                                    $"[smooth: {AmpPlayerLocomotion.SmoothDuration.ToString().AddColor(AmpPlayerLocomotion.SmoothEnabled ? Color.green : new Color(1, 1, 1, 0.4f))}]");
+            if (RhythmicGame.IsTunnelMode) AddLine($"Tunnel rot: {AmpPlayerLocomotion.TunnelRotation.z}");
+            AddLine();
+        }
 
         // Tracks stats:
         {
-            string trackNames = "";
-            TracksController.Instance.Tracks.ForEach(t => trackNames += $"{t.TrackName.AddColor(t.IsTrackCaptured ? Color.white : AmpTrack.Colors.ColorFromInstrument(t.Instrument) * 1.25f, t.IsTrackFocused ? 1 : 0.60f)}  ");
+            string trackNames = $"{(RhythmicGame.IsTunnelMode ? "\nTunnel mode ON  " : "")}";
+            TracksController.Instance.Tracks.ForEach(t => trackNames += $"{t.TrackName.AddColor(t.IsTrackCaptured ? Color.white : AmpTrack.Colors.ColorFromInstrument(t.Instrument) * 1.25f, t.IsTrackFocused ? 1 : 0.40f)}" +
+                                                                        $"{(t.RealID > TracksController.songTracks.Count ? $"F{t.RealID}" : "")}".AddColor(0.5f) + "  ");
             string trackCount = $"({TracksController.Instance.Tracks.Count})".AddColor(1, 1, 1, 0.80f);
 
             AddLine($"Tracks: {trackNames}{trackCount}", 2);
@@ -71,8 +85,6 @@ public class DebugStats : DebugComponent
         // Timescale stats:
         if (StatsMode > StatsMode.ShortShort)
             AddLine($"Timscale: [song: {SongController.songTimeScale.ToString("0.00")}]  [world: {Time.timeScale.ToString("0.00")}]", -1);
-        // Locomotion dist stats:
-        AddLine($"Locomotion distance: {AmpPlayerLocomotion.DistanceTravelled}");
 
         // Clock stats:
         AddLine($"Clock seconds: {Clock.seconds}".AddColor(1, 1, 1, 0.8f));

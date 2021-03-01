@@ -92,6 +92,8 @@ public class DebugComponent : MonoBehaviour
         // Add newlines:
         // TODO: We may want to change the linesToAdd param to behave as extra lines rather than the total amount of lines to add.
         // This would reduce the confusion of having to type '2' as a param when we want to separate entries.
+        // TODO: Possibly even add both? (linesToAddAfter, linesToAddBefore?)
+
         // TODO: we may want a Separator() / AddSeparator() function to add extra space? (although AddLine() would be just fine... hmm!)
         for (int i = 0; i < Mathf.Abs(linesToAdd); i++)
             if (linesToAdd > 0) Text += '\n';
