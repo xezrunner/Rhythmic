@@ -89,9 +89,6 @@ public class AmpTrackSection : MonoBehaviour
 
     public static bool AllowDeformations = true; // TODO!
 
-    static Mesh _Mesh;
-    List<Vector3> og_verts;
-
     void Awake() => Path = PathTools.Path;
     void Start()
     {
@@ -107,10 +104,9 @@ public class AmpTrackSection : MonoBehaviour
         //IsFocused = Track.IsTrackFocused; // TODO: is this needed?
 
         // Deform the mesh!
-        ModelMesh.mesh.GetVertices(og_verts);
         DeformMesh();
     }
 
     public void DeformMesh() => MeshDeformer.DeformMesh
-                                  (Path, ModelMesh.mesh, Position, Rotation, ogVerts: og_verts, offset: null, RhythmicGame.TrackWidth, -1, Length, movePivotToStart: true); // TODO: unneccessary parameters
+                                  (Path, ModelMesh.mesh, Position, Rotation, ogVerts: null, offset: null, RhythmicGame.TrackWidth, -1, Length, movePivotToStart: true); // TODO: unneccessary parameters
 }
