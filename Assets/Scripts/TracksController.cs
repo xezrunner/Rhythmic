@@ -29,11 +29,6 @@ public class TracksController : MonoBehaviour
     [Header("Variables")]
     public List<AmpTrack> Tracks = new List<AmpTrack>();
     public List<string> songTracks = new List<string>();
-    public List<Dictionary<int, MetaMeasure>> metaMeasures
-    {
-        get { return SongController.metaMeasures; }
-        set { SongController.metaMeasures = value; }
-    }
 
     [Header("Properties")]
     public int CurrentRealTrackID = -1; // This is the RealID of the track that the player is currently on | -1 is none

@@ -85,6 +85,8 @@ public partial class DebugKeys
             Camera.main.renderingPath = RenderingPath.DeferredShading;
         else
             Camera.main.renderingPath = RenderingPath.Forward;
+
+        Logger.LogMethod(Camera.main.renderingPath.ToString(), "Debug");
     }
     void DEBUG_SetFramerateLock(int framerate)
     {

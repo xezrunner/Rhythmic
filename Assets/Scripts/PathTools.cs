@@ -22,8 +22,9 @@ public static class PathTools
         }
 
         // Normals
-        Vector3 localUp = Vector3.Cross(path.GetTangentAtDistance(dist), path.GetNormalAtDistance(dist));
-        Vector3 localRight = path.GetNormalAtDistance(dist);
+        Vector3 normal = path.GetNormalAtDistance(dist);
+        Vector3 localUp = Vector3.Cross(path.GetTangentAtDistance(dist), normal);
+        Vector3 localRight = normal;
 
         // The point on the path
         // In case of a negative distance, it's the very beginning of the path.
@@ -33,14 +34,14 @@ public static class PathTools
         if (outOfPath)
         {
             Quaternion rot = GetRotationOnPath(path, dist); // Get rotation for the very beginning or end of the path
-            pointOnPath += (rot * new Vector3(0, 0, distance)); // Traverse backwards from the path starting point direction
+            pointOnPath += rot * new Vector3(0, 0, distance); // Traverse backwards from the path starting point direction
         }
 
         Vector3 finalVec = pointOnPath +
-                      localRight * tunnelCenter.x + // Translate to offset
-                      localUp * tunnelCenter.y +
-                      localRight * offset.x +
-                      localUp * offset.y;
+                           localRight * tunnelCenter.x + // Translate to offset
+                           localUp * tunnelCenter.y +
+                           localRight * offset.x +
+                           localUp * offset.y;
 
         return finalVec;
     }

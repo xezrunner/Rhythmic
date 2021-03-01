@@ -101,8 +101,6 @@ public class AmpTrackSection : MonoBehaviour
             ModelRenderer.materials = new Material[0];
             ModelRenderer.material = GlobalEdgeLightMaterial;
         }
-        //IsFocused = Track.IsTrackFocused; // TODO: is this needed?
-
         // Deform the mesh!
         DeformMesh();
     }

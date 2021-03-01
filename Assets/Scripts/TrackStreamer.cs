@@ -25,13 +25,9 @@ public class TrackStreamer : MonoBehaviour
     TracksController TrackController { get { return TracksController.Instance; } }
     Clock Clock { get { return Clock.Instance; } }
 
-    public List<Dictionary<int, MetaMeasure>> metaMeasures
-    {
-        get { return SongController.metaMeasures; }
-        set { SongController.metaMeasures = value; }
-    }
+    public List<Dictionary<int, MetaMeasure>> metaMeasures;
 
-    void Awake() { Clock.OnBar += Clock_OnBar; }
+    void Awake() { Clock.OnBar += Clock_OnBar; metaMeasures = SongController.metaMeasures; }
     void Start()
     {
         // Stream in the horizon!

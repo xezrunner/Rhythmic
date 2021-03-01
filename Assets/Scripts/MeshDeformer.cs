@@ -76,7 +76,7 @@ public static class MeshDeformer
     /// </summary>
     public static Vector3 TransformVertex(VertexPath path, Vector3 meshVertex, Vector3 position, float angle, Vector3? offset, float length = 0f)
     {
-        Vector3 tunnelCenter = (Tunnel.Instance) ? Tunnel.Instance.center : Vector3.zero;
+        Vector3 tunnelCenter = Tunnel.Instance ? Tunnel.Instance.center : Vector3.zero;
 
         float distance = meshVertex.z + position.z; // Vertex Z distance along path + desired Z offset
         Vector3 vertexXY = new Vector3(meshVertex.x, meshVertex.y, 0); // Vertex X and Y points (horizontal)
@@ -103,7 +103,6 @@ public static class MeshDeformer
     /// <param name="value">The value to lerp.</param>
     /// <param name="target">The target value you want to lerp to.</param>
     /// <param name="valueMax">Used to determine the fraction value t from <paramref name="value"/>.</param>
-    static float LerpAxis(float value, float target, float valueMax, bool split = true) { return LerpAxis(ref value, target, valueMax, split); } // TODO: is this legal? Will the ref here affect the original variable?
     static float LerpAxis(ref float value, float target, float valueMax, bool split = true)
     {
         float t = Mathf.Abs(value / valueMax);
