@@ -23,6 +23,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
     public Transform CatcherVisuals;
 
     [Header("Properties")]
+    public bool SmoothEnabled = true;
     public float SmoothDuration = 1.0f;
     public float TunnelSmoothDuration = 1.0f;
     public float Speed = 4f;
@@ -121,7 +122,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
                 DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
             }
 
-            Locomotion(DistanceTravelled);
+            Locomotion(DistanceTravelled, !SmoothEnabled);
 
             if (SongController.IsSongOver) return;
 
