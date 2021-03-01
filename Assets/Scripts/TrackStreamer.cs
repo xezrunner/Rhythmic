@@ -32,7 +32,12 @@ public class TrackStreamer : MonoBehaviour
 
     public List<Dictionary<int, MetaMeasure>> metaMeasures;
 
-    void Awake() { Instance = this; Clock.OnBar += Clock_OnBar; metaMeasures = SongController.CreateMetaMeasureList(); }
+    void Awake()
+    {
+        Instance = this;
+        Clock.OnBar += Clock_OnBar; 
+        metaMeasures = SongController.CreateMetaMeasureList();
+    }
     void Start()
     {
         // Stream in the horizon!
@@ -41,6 +46,7 @@ public class TrackStreamer : MonoBehaviour
     }
 
     /// ***** ----- DEBUG TEST ----- *****
+#if false
     int wowCounter = 0;
     void LateUpdate()
     {
@@ -50,6 +56,7 @@ public class TrackStreamer : MonoBehaviour
             wowCounter++;
         }
     }
+#endif
 
     private void Clock_OnBar(object sender, int e)
     {
@@ -60,7 +67,7 @@ public class TrackStreamer : MonoBehaviour
         //    t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].gameObject.SetActive(true);
         else
             // Stream measures on every bar tick
-            StreamMeasure(RhythmicGame.HorizonMeasures + e, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
+            StreamMeasure(e + RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
 
         // Delete measures behind us
         // TODO: revise!
@@ -86,9 +93,7 @@ public class TrackStreamer : MonoBehaviour
 
                 if (!immediate) yield return new WaitForSeconds(DestroyStreamDelay);
             }
-
         }
-
         destroyCounter++;
     }
 
@@ -132,6 +137,13 @@ public class TrackStreamer : MonoBehaviour
         {
             MetaMeasure meta = metaMeasures[trackID][id];
             AmpTrack track = TrackController.Tracks[trackID];
+
+            // Error checking:
+            {
+                // TODO: Not sure if this is needed:
+                //if (!RhythmicGame.StreamAllMeasuresOnStart && id > Clock.Fbar + RhythmicGame.HorizonMeasures) { Logger.LogMethodE($"Tried streaming measure {id.ToString().AddColor(Colors.Warning)}, which is beyond the horizon! ", this); yield break; }
+                if (id < track.Measures.Count && track.Measures[id] != null) { Logger.LogMethodE($"Tried streaming measure {id.ToString().AddColor(Colors.Warning)}, which already exists!", this); yield break; }
+            }
 
             // Create section!
             AmpTrackSection measure = track.CreateMeasure(meta);
