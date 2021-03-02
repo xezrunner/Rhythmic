@@ -80,9 +80,9 @@ public class TrackStreamer : MonoBehaviour
     public void DestroyBehind(bool immediate = false) => StartCoroutine(_DestroyBehind(immediate));
     IEnumerator _DestroyBehind(bool immediate = false)
     {
-        for (int t = 0; t < TrackController.Tracks.Length; t++)
+        for (int t = 0; t < TrackController.MainTracks.Length; t++)
         {
-            var track = TrackController.Tracks[t];
+            var track = TrackController.MainTracks[t];
             for (int i = 0; i < Clock.Fbar - 1; i++)
             {
                 var measure = track.Measures[i];
@@ -102,7 +102,7 @@ public class TrackStreamer : MonoBehaviour
     {
         //for (int x = 1; x <= RhythmicGame.TunnelTrackDuplicationNum; x++)
         //{
-        AmpTrack track = TrackController.Tracks[trackID];
+        AmpTrack track = TrackController.MainTracks[trackID];
 
         var measureNotes = SongController.songNotes[track.ID].Where(i => i.Key == id);
         if (measureNotes.Count() == 0)
@@ -158,12 +158,10 @@ public class TrackStreamer : MonoBehaviour
         }
         else // Stream in the measure from all of the tracks!
         {
-            for (int i = 0; i < TrackController.Tracks.Length; i++)
+            for (int i = 0; i < TrackController.MainTracks.Length; i++)
             {
                 StartCoroutine(_StreamMeasure(id, i));
-
-                if (!RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks)) yield return new WaitForSeconds(StreamDelay);
-                //else yield return new WaitForEndOfFrame(); // delay by a bit to account for performance drop
+                if (!immediate && !RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks)) yield return new WaitForSeconds(StreamDelay);
             }
         }
     }

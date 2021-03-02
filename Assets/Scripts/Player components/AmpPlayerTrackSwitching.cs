@@ -60,8 +60,7 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
         {
             // Handle edges, roll over in Tunnel mode or when wrapping!
             if (!RhythmicGame.IsTunnelMode) // Regular mode
-                id = Mathf.Clamp(id + (direction == HDirection.Left ? -1 : 1),
-                    0, TracksController.Tracks.Length - 1);
+                id = Mathf.Clamp(id + (direction == HDirection.Left ? -1 : 1), 0, TracksController.Tracks.Length - 1);
             else // Tunnel mode
             {
                 id += (direction == HDirection.Left) ? -1 : 1;

@@ -208,9 +208,9 @@ public class TracksController : MonoBehaviour
 
     public void DisableCurrentMeasures(bool current = false)
     {
-        foreach (AmpTrack t in Tracks)
+        foreach (AmpTrack t in MainTracks)
         {
-            if (t == CurrentTrack & !current) continue;
+            if (t == CurrentTrack & !current) continue; // Ignore current track
             t.Measures[Clock.Fbar].IsEnabled = false;
             t.IsTrackBeingPlayed = false;
         }
@@ -254,7 +254,7 @@ public class TracksController : MonoBehaviour
             targetNotes[track.ID] = note;
         }
 
-        foreach (AmpTrack t in Tracks)
+        foreach (AmpTrack t in MainTracks)
         {
             if (track && t == track) continue; // Ignore specified track
             if (track && lastRefreshUpcomingState) break; // If we already refreshed, skip
@@ -273,7 +273,7 @@ public class TracksController : MonoBehaviour
 
             if (RhythmicGame.DebugTargetNoteRefreshEvents)
             {
-                string endMarker = (t.ID == 0 || t.ID == Tracks.Length - 1) ? "  ******" : "";
+                string endMarker = (t.ID == 0 || t.ID == MainTracks.Length - 1) ? "  ******" : "";
                 Debug.Log($"RefreshTargetNotes(): Target note for {t.TrackName}: {note.name}" + endMarker);
             }
         }
@@ -291,7 +291,7 @@ public class TracksController : MonoBehaviour
         int sequenceNum = RhythmicGame.SequenceAmount;
         if (sequenceNum < 1) { Debug.LogError("Tracks: There cannot be less than 1 measures set as sequences!"); return; }
 
-        foreach (AmpTrack t in Tracks)
+        foreach (AmpTrack t in MainTracks)
         {
             if (track & t == track) continue;
 
@@ -329,12 +329,13 @@ public class TracksController : MonoBehaviour
                 foreach (var m in t.Sequences) seq_string += m.ID + ", ";
                 seq_string = seq_string.Substring(0, seq_string.Length - 2); // Remove final trailing ', '
 
-                string endMarker = (t.ID == 0 || t.ID == Tracks.Length - 1) ? "  ******" : ""; // Mark final line
+                string endMarker = (t.ID == 0 || t.ID == MainTracks.Length - 1) ? "  ******" : ""; // Mark final line
                 Debug.Log($"RefreshSequences(): Sequences for {t.TrackName}: {seq_string}" + endMarker);
             }
         }
     }
 
+    // TODO: global WaitForLoading or something
     [NonSerialized] public bool IsLoaded;
     IEnumerator RefreshSequences_Init()
     {
@@ -363,8 +364,8 @@ public class TracksController : MonoBehaviour
         CurrentRealTrackID = track.RealID;
 
         // Handle focus states
-        foreach (AmpTrack t in Tracks)
-            t.IsTrackFocused = (t.RealID == track.RealID); // Focused state is whether t's ID is the same as the requested track's ID
+        foreach (AmpTrack t in MainTracks)
+            t.IsTrackFocused = t.RealID == track.RealID; // Focused state is whether t's ID is the same as the requested track's ID
 
         if (RhythmicGame.DebugPlayerTrackSwitchEvents)
             Debug.LogFormat("TRACKS: Track switched to {0} [{1}]", track.ID, track.TrackName != "" ? track.TrackName : track.name);
@@ -381,7 +382,7 @@ public class TracksController : MonoBehaviour
     /// <param name="start">Measure ID to start capturing from</param>
     /// <param name="end">Last Measure ID to capture</param>
     public void CaptureMeasureRange(int start, int end, AmpTrack track) => StartCoroutine(_CaptureMeasureRange(start, end, track));
-    public void CaptureMeasureRange(int start, int end, int trackID) => StartCoroutine(_CaptureMeasureRange(start, end, Tracks[trackID]));
+    public void CaptureMeasureRange(int start, int end, int trackID) => StartCoroutine(_CaptureMeasureRange(start, end, MainTracks[trackID]));
     public void CaptureMeasureRange(int start, int end, AmpTrack[] tracks)
     {
         foreach (AmpTrack t in tracks)
@@ -397,7 +398,7 @@ public class TracksController : MonoBehaviour
     /// <param name="start">Measure ID to start capturing from</param>
     /// <param name="amount">Amount of measures to capture from starting point onward</param>
     public void CaptureMeasureAmount(int start, int amount, AmpTrack track) => StartCoroutine(_CaptureMeasureRange(start, start + amount, track));
-    public void CaptureMeasureAmount(int start, int amount, int trackID) => CaptureMeasureRange(start, start + amount, Tracks[trackID]);
+    public void CaptureMeasureAmount(int start, int amount, int trackID) => CaptureMeasureRange(start, start + amount, MainTracks[trackID]);
     public void CaptureMeasureAmount(int start, int amount, AmpTrack[] tracks) => CaptureMeasureRange(start, start + amount, tracks);
 
     IEnumerator _CaptureMeasureRange(int start, int end, AmpTrack track)

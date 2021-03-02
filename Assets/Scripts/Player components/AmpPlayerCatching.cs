@@ -63,7 +63,7 @@ public class AmpPlayerCatching : MonoBehaviour
         TracksController.Catching = this;
 
         // Set up notesToCatch array
-        TracksController.targetNotes = new AmpNote[TracksController.Tracks.Length];
+        TracksController.targetNotes = new AmpNote[TracksController.MainTracks.Length];
     }
 
     int lastIgnoreBar = -1;
@@ -74,7 +74,7 @@ public class AmpPlayerCatching : MonoBehaviour
         if (SongController.IsSongOver) return;
 
         // TEMP
-        foreach (AmpTrack t in TracksController.Tracks)
+        foreach (AmpTrack t in TracksController.MainTracks)
         {
             if (t.IsTrackCaptured)
             {

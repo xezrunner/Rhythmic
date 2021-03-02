@@ -126,6 +126,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
             if (SongController.IsSongOver) return;
 
             // Live note capture glow thing
+            // TODO: Improve performance!
             foreach (AmpTrack t in TracksController.Tracks)
             {
                 if (t == TracksController.CurrentTrack && (!t.CurrentMeasure.IsEmpty & !t.CurrentMeasure.IsCaptured)) continue;
