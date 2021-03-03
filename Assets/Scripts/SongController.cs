@@ -262,9 +262,10 @@ public partial class SongController : MonoBehaviour
 
             if (finalTime < 0)
                 Logger.LogMethodE($"Song time cannot be a negative value! [finalTime: {finalTime}]", this);
-            else if (finalTime > src.clip.length)
+            else if (src.clip && finalTime > src.clip.length)
                 Logger.LogMethodE($"Song time exceeded clip length! [finalTime: {finalTime}", this);
-            src.time += offset;
+            else
+                src.time += offset;
         }
     }
 
