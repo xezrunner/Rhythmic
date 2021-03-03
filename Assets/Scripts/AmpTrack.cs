@@ -93,10 +93,11 @@ public partial class AmpTrack : MonoBehaviour
 
         // Color
         Color = Colors.ColorFromInstrument(Instrument);
-        //GlobalEdgeLights.Color = Color;
 
-        LocalEdgeLightsMaterial.SetColor("_Emission", Color * 2.0f); // TODO
-        GlobalEdgeLightsMaterial.SetColor("_Emission", Color * 2.0f); // TODO
+        // TODO: EdgeLights colors!
+        LocalEdgeLightsMaterial.SetColor("_Emission", Color * 2.0f);
+        GlobalEdgeLightsMaterial.SetColor("_Emission", Color * 2.0f);
+        GlobalEdgeLightsMaterial.SetInteger("_Enabled", 0);
 
         // Set up ClipManager for capture clipping
         ClipManager.AddMaterial(TrackMaterial);
