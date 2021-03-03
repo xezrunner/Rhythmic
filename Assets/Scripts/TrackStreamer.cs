@@ -100,9 +100,7 @@ public class TrackStreamer : MonoBehaviour
     public void StreamNotes(int id, int trackID, AmpTrackSection measure) => StartCoroutine(_StreamNotes(id, trackID, measure, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Notes)));
     IEnumerator _StreamNotes(int id, int trackID, AmpTrackSection measure, bool immediate = false)
     {
-        //for (int x = 1; x <= RhythmicGame.TunnelTrackDuplicationNum; x++)
-        //{
-        AmpTrack track = TrackController.MainTracks[trackID];
+        AmpTrack track = TrackController.Tracks[trackID];
 
         var measureNotes = SongController.songNotes[track.ID].Where(i => i.Key == id);
         if (measureNotes.Count() == 0)
@@ -114,14 +112,11 @@ public class TrackStreamer : MonoBehaviour
                 kv.Value.IsCaptured = measure.IsCaptured; // foreshadowing
 
                 var note = track.CreateNote(kv.Value, measure);
-                //measure.ClipManager.AddMeshRenderer(note.NoteMeshRenderer); // TODO: CLIPPING - this is hacky
-
                 if (!immediate) yield return new WaitForSeconds(StreamDelay);
             }
 
             measure.Notes.Last().IsLastNote = true; // TODO: optimization?
         }
-        //}
     }
 
     /// <summary>
@@ -150,7 +145,7 @@ public class TrackStreamer : MonoBehaviour
 
             // Stream notes!
             // Get all meta notes from the current measure
-            StreamNotes(id, track.ID, measure);
+            StreamNotes(id, track.RealID, measure);
 
             //if (measure.Position.z > AmpPlayerLocomotion.Instance.HorizonLength) measure.enabled = false;
             //if (measure.ID > Clock.Fbar + RhythmicGame.HorizonMeasures) measure.gameObject.SetActive(false);
