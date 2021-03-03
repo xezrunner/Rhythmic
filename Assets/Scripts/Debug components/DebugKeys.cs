@@ -58,7 +58,7 @@ public partial class DebugKeys : DebugComponent
             SongController.PlayPause();
 
         // Resolution
-        if (Input.GetKeyDown(KeyCode.F11) & Input.GetKey(KeyCode.LeftControl))
+        if (Input.GetKeyDown(KeyCode.F11) & Input.GetKey(KeyCode.LeftControl) & Input.GetKey(KeyCode.LeftShift))
             DEBUG_SetPreferredResolution(new Vector2(1280, 720));
         if (Input.GetKeyDown(KeyCode.F12) & Input.GetKey(KeyCode.LeftControl) & Input.GetKey(KeyCode.LeftShift))
             DEBUG_SetPreferredResolution(new Vector2(1920, 1080));
