@@ -100,8 +100,6 @@ public class DebugUI : DebugComponent
 
         ActiveComponent = com;
         HandleActiveComponentText(true); // Grab text forcefully upon switching
-
-        if (!com.IsUIComponent) Logger.LogMethod($"Component {com.Name.AddColor(Colors.Application)} is not an UI component.", CLogType.Warning, this);
     }
     public void SwitchToComponent() // Empty active component
     {
@@ -180,7 +178,11 @@ public class DebugUI : DebugComponent
             // If com attr TextMode is Clear, remove component text before calling the component!
             if (ActiveComponent.Attribute.TextMode == DebugComTextMode.Clear) ActiveComponent.ClearText();
             ActiveComponent.UI_Main();
-            MainText = ActiveComponent.Text;
+
+            if (ActiveComponent.Text == "")
+                Logger.LogMethod($"Component {ActiveComponent.Name.AddColor(Colors.Application)} is not an UI component.", CLogType.Warning, this);
+            else
+                MainText = ActiveComponent.Text;
         }
     }
 
