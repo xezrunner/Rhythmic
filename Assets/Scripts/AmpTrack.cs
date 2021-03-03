@@ -141,6 +141,11 @@ public partial class AmpTrack : MonoBehaviour
             UpdateSequenceStates();
         }
     }
+    public void SetIsTrackFocused(int realID)
+    {
+        IsTrackFocused = (RealID == realID);
+        foreach (AmpTrack t in TrackTwins) t.IsTrackFocused = (t.RealID == realID);
+    }
 
     int _capturedOnBar;
     bool _isTrackCaptured;

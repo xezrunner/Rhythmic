@@ -387,10 +387,10 @@ public class TracksController : MonoBehaviour
 
         // Handle focus states
         foreach (AmpTrack t in MainTracks)
-            t.IsTrackFocused = t.RealID == track.RealID; // Focused state is whether t's ID is the same as the requested track's ID
+            t.SetIsTrackFocused(track.RealID); // Focused state is whether t's ID is the same as the requested track's ID
 
         if (RhythmicGame.DebugPlayerTrackSwitchEvents)
-            Debug.LogFormat("TRACKS: Track switched to {0} [{1}]", track.ID, track.TrackName != "" ? track.TrackName : track.name);
+            Debug.LogFormat("TRACKS: Track switched to {0} [{1}]", track.RealID, track.name);
 
         // Invoke event!
         OnTrackSwitched?.Invoke(this, eventArgs);
