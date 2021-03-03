@@ -47,7 +47,7 @@ public partial class SongController : MonoBehaviour
     [Header("Start position adjustment")]
     public bool StartDistanceAdjustmentEnabled = true;
     public float StartDistance; // pos
-    
+
     public AudioSource BG_CLICKSrc; // The BG_CLICK AudioSource
     public List<AudioSource> audioSrcList = new List<AudioSource>();
 
@@ -256,8 +256,16 @@ public partial class SongController : MonoBehaviour
     public void OffsetSong(float offset)
     {
         if (IsSongOver) return;
-        audioSrcList.ForEach(src => src.time += offset); // offset music by seconds!
-                                                         //Player.OffsetPlayer(offset * (Player.PlayerSpeed * secPerBeat / songFudgeFactor * (1f + 0.8f))); // offset player by zPos!
+        foreach (AudioSource src in audioSrcList)
+        {
+            float finalTime = src.time + offset;
+
+            if (finalTime < 0)
+                Logger.LogMethodE($"Song time cannot be a negative value! [finalTime: {finalTime}]", this);
+            else if (finalTime > src.clip.length)
+                Logger.LogMethodE($"Song time exceeded clip length! [finalTime: {finalTime}", this);
+            src.time += offset;
+        }
     }
 
     // GAMEPLAY
