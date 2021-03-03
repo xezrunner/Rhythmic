@@ -139,16 +139,16 @@ public partial class DebugKeys
         if (!prevSmooth.HasValue) prevSmooth = AmpPlayerLocomotion.Instance.SmoothEnabled;
         AmpPlayerLocomotion.Instance.SmoothEnabled = false; // Disable smoothing in Locomotion
 
-        if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad8Key.isPressed)
+        if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad9Key.isPressed)
             DEBUG_OffsetSong(1);
-        else if (Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad8Key.isPressed)
+        else if (Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad9Key.isPressed)
             DEBUG_OffsetSong(0.1f);
-        else if (Keyboard.current.leftShiftKey.isPressed && Keyboard.current.numpad8Key.isPressed)
+        else if (Keyboard.current.leftShiftKey.isPressed && Keyboard.current.numpad9Key.isPressed)
             DEBUG_OffsetSong(2);
         /* backwards - UNSTABLE */
-        else if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad2Key.isPressed)
+        else if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad3Key.isPressed)
             DEBUG_OffsetSong(-2f);
-        else if (Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad2Key.isPressed)
+        else if (Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad3Key.isPressed)
             DEBUG_OffsetSong(-0.1f);
 
         else // Restore smoothing in Locomotion
