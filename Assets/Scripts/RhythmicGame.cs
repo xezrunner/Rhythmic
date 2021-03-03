@@ -97,6 +97,8 @@ public static class RhythmicGame
         get { return (IsTunnelMode & TunnelTrackDuplication) ? _tunnelTrackDuplicationNum : 1; }
         set { _tunnelTrackDuplicationNum = value; }
     }
+    public static int TunnelTrackDuplicationMult { get { return _tunnelTrackDuplicationNum - 1; } }
+
     public static bool TrackSeekingEnabled = true; // Whether to skip empty tracks when switching tracks
 
     public static int TrackCaptureLength = 7; // How many measures to capture when you clear a sequence
