@@ -80,14 +80,14 @@ public partial class DebugKeys : DebugComponent
             bool shouldLog = true;
 
             if (Keyboard.current.numpadPlusKey.wasPressedThisFrame)
-                TrackStreamer.Instance.DestroyStreamDelay += 0.1f;
+                TrackStreamer.Instance.DestroyDelay += 0.1f;
             else if (Keyboard.current.numpadMinusKey.wasPressedThisFrame)
-                TrackStreamer.Instance.DestroyStreamDelay -= 0.1f;
+                TrackStreamer.Instance.DestroyDelay -= 0.1f;
             else
                 shouldLog = false;
 
             if (shouldLog)
-                Logger.Log($"DestroyStreamDelay: {TrackStreamer.Instance.DestroyStreamDelay.ToString().AddColor(Colors.Application)}", "TrackStreamer", false);
+                Logger.Log($"DestroyDelay: {TrackStreamer.Instance.DestroyDelay.ToString().AddColor(Colors.Application)}", "TrackStreamer", false);
         }
 
         // Lag compensation

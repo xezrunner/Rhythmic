@@ -28,7 +28,7 @@ public class TrackStreamer : MonoBehaviour
     Clock Clock { get { return Clock.Instance; } }
 
     public float StreamDelay = 0.1f;
-    public float DestroyStreamDelay = 0.1f;
+    public float DestroyDelay = 0f;
 
     public List<Dictionary<int, MetaMeasure>> metaMeasures;
 
@@ -72,7 +72,7 @@ public class TrackStreamer : MonoBehaviour
         // Delete measures behind us
         // TODO: revise!
         if (e < 2) return;
-        DestroyBehind(RhythmicGame.FastStreaming); // RhythmicGame.FastStreaming
+        DestroyBehind(DestroyDelay == 0);
     }
 
     int destroyCounter = 0; // Keep track of the last destroyed ID
@@ -80,9 +80,9 @@ public class TrackStreamer : MonoBehaviour
     public void DestroyBehind(bool immediate = false) => StartCoroutine(_DestroyBehind(immediate));
     IEnumerator _DestroyBehind(bool immediate = false)
     {
-        for (int t = 0; t < TrackController.MainTracks.Length; t++)
+        for (int t = 0; t < TrackController.Tracks.Length; t++)
         {
-            var track = TrackController.MainTracks[t];
+            var track = TrackController.Tracks[t];
             for (int i = 0; i < Clock.Fbar - 1; i++)
             {
                 var measure = track.Measures[i];
@@ -91,7 +91,7 @@ public class TrackStreamer : MonoBehaviour
 
                 track.Measures[destroyCounter] = null;
 
-                if (!immediate) yield return new WaitForSeconds(DestroyStreamDelay);
+                if (!immediate) yield return new WaitForSeconds(DestroyDelay);
             }
         }
         destroyCounter++;

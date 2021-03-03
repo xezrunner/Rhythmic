@@ -66,7 +66,7 @@ public class AmpTrackSection : MonoBehaviour
             _isFocused = value;
 
             // Toggle edge light material
-            GlobalEdgeLightMaterial.SetInt("_Enabled", value ? 1 : 0); // TODO: Optimization?
+            GlobalEdgeLightMaterial.SetInteger("_Enabled", value ? 1 : 0); // TODO: Optimization?
         }
     }
 
