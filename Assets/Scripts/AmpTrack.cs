@@ -125,11 +125,6 @@ public partial class AmpTrack : MonoBehaviour
         set { IsEnabled = true; /* additional logic here... */ }
     }
 
-    // Compatibility backport from OG Track
-    // TODO: change functionality in TUT?
-    bool _TUT_IsTrackEnabled;
-    public bool TUT_IsTrackEnabled { get; set; /* TBA */ }
-
     public bool IsTrackBeingPlayed { get; set; }
 
     bool _isTrackFocused;
@@ -228,8 +223,8 @@ public partial class AmpTrack : MonoBehaviour
         //Destroy(destruct);
     }
 
-    public void CaptureMeasureRange(int start, int end) => TracksController.CaptureMeasureRange(start, end, this);
-    public void CaptureMeasureAmount(int start, int amount) => TracksController.CaptureMeasureAmount(start, amount, this);
+    public void CaptureMeasureRange(int start, int end) => TracksController.CaptureMeasureRange(start, end, ID);
+    public void CaptureMeasureAmount(int start, int amount) => TracksController.CaptureMeasureAmount(start, amount, ID);
 
     /// Common
     // Lanes

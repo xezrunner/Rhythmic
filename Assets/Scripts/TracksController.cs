@@ -403,8 +403,12 @@ public class TracksController : MonoBehaviour
     /// </summary>
     /// <param name="start">Measure ID to start capturing from</param>
     /// <param name="end">Last Measure ID to capture</param>
-    public void CaptureMeasureRange(int start, int end, AmpTrack track) => StartCoroutine(_CaptureMeasureRange(start, end, track));
-    public void CaptureMeasureRange(int start, int end, int trackID) => StartCoroutine(_CaptureMeasureRange(start, end, MainTracks[trackID]));
+    public void CaptureMeasureRange(int start, int end, int id)
+    {
+        foreach (AmpTrack[] set in TrackSets)
+            StartCoroutine(_CaptureMeasureRange(start, end, set[id]));
+    }
+    public void CaptureMeasureRange(int start, int end, AmpTrack track) => CaptureMeasureRange(start, end, track.ID);
     public void CaptureMeasureRange(int start, int end, AmpTrack[] tracks)
     {
         foreach (AmpTrack t in tracks)
@@ -419,7 +423,7 @@ public class TracksController : MonoBehaviour
     /// </summary>
     /// <param name="start">Measure ID to start capturing from</param>
     /// <param name="amount">Amount of measures to capture from starting point onward</param>
-    public void CaptureMeasureAmount(int start, int amount, AmpTrack track) => StartCoroutine(_CaptureMeasureRange(start, start + amount, track));
+    public void CaptureMeasureAmount(int start, int amount, AmpTrack track) => CaptureMeasureRange(start, start + amount, track);
     public void CaptureMeasureAmount(int start, int amount, int trackID) => CaptureMeasureRange(start, start + amount, MainTracks[trackID]);
     public void CaptureMeasureAmount(int start, int amount, AmpTrack[] tracks) => CaptureMeasureRange(start, start + amount, tracks);
 
