@@ -150,7 +150,7 @@ public class TrackStreamer : MonoBehaviour
 
             // Stream notes!
             // Get all meta notes from the current measure
-            StreamNotes(id, track.RealID, measure);
+            StreamNotes(id, track.ID, measure);
 
             //if (measure.Position.z > AmpPlayerLocomotion.Instance.HorizonLength) measure.enabled = false;
             //if (measure.ID > Clock.Fbar + RhythmicGame.HorizonMeasures) measure.gameObject.SetActive(false);
@@ -158,7 +158,7 @@ public class TrackStreamer : MonoBehaviour
         }
         else // Stream in the measure from all of the tracks!
         {
-            for (int i = 0; i < TrackController.MainTracks.Length; i++)
+            for (int i = 0; i < TrackController.Tracks.Length; i++)
             {
                 StartCoroutine(_StreamMeasure(id, i));
                 if (!immediate && !RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks)) yield return new WaitForSeconds(StreamDelay);

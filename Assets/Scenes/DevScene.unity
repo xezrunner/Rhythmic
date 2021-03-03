@@ -1332,7 +1332,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &793695456
 Transform:
   m_ObjectHideFlags: 0
@@ -2038,7 +2038,7 @@ Animation:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1010288847}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Animation: {fileID: 7400000, guid: 0d383ad4c590edf4c8a422786bcf5498, type: 2}
   m_Animations:
@@ -9889,7 +9889,7 @@ PrefabInstance:
     - target: {fileID: 1225588845251898407, guid: 092cc62a45da22949af241be520f22ee,
         type: 3}
       propertyPath: m_ClearFlags
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1225588845251898407, guid: 092cc62a45da22949af241be520f22ee,
         type: 3}
