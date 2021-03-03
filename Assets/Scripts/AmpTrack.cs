@@ -41,6 +41,7 @@ public partial class AmpTrack : MonoBehaviour
 
     public bool IsCloneTrack; // Whether this track is cloned in Tunnel mode.
     public int TrackSetID; // The ID of the track set this track belongs to.
+    public AmpTrack[] TrackTwins;
 
     public Vector3[] TunnelTransform;
     public Vector3 TunnelPos;
@@ -79,7 +80,6 @@ public partial class AmpTrack : MonoBehaviour
         LocalEdgeLightsMaterial = Instantiate(LocalEdgeLightsMaterial);
         GlobalEdgeLightsMaterial = Instantiate(GlobalEdgeLightsMaterial);
     }
-
     void Start()
     {
         TunnelTransform = Tunnel.GetTransformForTrackID(RealID);
@@ -111,8 +111,15 @@ public partial class AmpTrack : MonoBehaviour
 
     public List<AmpTrackSection> Sequences = new List<AmpTrackSection>();
 
+    /// Compatibility backport from OG Track
+    // TODO: change functionality in TUT?
+    bool _TUT_IsTrackEnabled;
+    public bool TUT_IsTrackEnabled { get; set; /* TBA */ }
+
     bool _isEnabled;
-    public bool IsEnabled // Disable notes within track, grey out everything
+    // Disable all measures within track, grey out everything
+    // TODO: May want to have this be what TUT_IsTrackEnabled is?
+    public bool IsEnabled
     {
         get { return _isEnabled; }
         set { IsEnabled = true; /* additional logic here... */ }
@@ -171,17 +178,12 @@ public partial class AmpTrack : MonoBehaviour
 
     /// Functionality
 
-    // TODO: for debugging only
-    [SerializeField] bool iscaptured;
-
     float smoothStep;
 
     [NonSerialized]
     public float captureAnimStep = 0.85f;
     private void Update()
     {
-        iscaptured = IsTrackCaptured;
-
         if (IsTrackCapturing)
         {
             if (RhythmicGame.DebugTrackCapturingEase) Debug.Log("CAPTURE: step: " + captureAnimStep);

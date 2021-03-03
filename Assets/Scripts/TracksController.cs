@@ -200,6 +200,28 @@ public class TracksController : MonoBehaviour
                 counter++;
             }
         }
+
+        // Assign twins in Tunnel mode:
+        if (RhythmicGame.IsTunnelMode && RhythmicGame.TunnelTrackDuplication)
+        {
+            int duplCount = RhythmicGame.TunnelTrackDuplicationNum; // 3
+            for (int i = 0, z = 0; i < Tracks.Length; i++, z++) // i: 18 | z: 6
+            {
+                if (z >= MainTracks.Length) z = 0; // Reset main track counter
+
+                AmpTrack t = Tracks[i];
+                t.TrackTwins = new AmpTrack[duplCount - 1];
+                for (int x = 0, y = 0; x < TrackSets.Length; x++) // x: 3
+                {
+                    // Assign those tracksets' tracks, which are not identical to current track set (ignore self)
+                    if (t.TrackSetID != x)
+                        t.TrackTwins[y] = TrackSets[x][z];
+                    else continue;
+
+                    y++;
+                }
+            }
+        }
     }
 
     /// Track states
