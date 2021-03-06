@@ -29,7 +29,7 @@ public static class AmplitudeGame
     }
     public static string AMP_GetSongFilePath(string songName, AMP_FileExtension extension)
     {
-        return string.Format("{0}//{1}//{1}.{2}", AMP_songFolder, songName, extension);
+        return string.Format("{0}/{1}/{1}.{2}", AMP_songFolder, songName, extension);
     }
 
     // This list contains the note numbers that correspond to each lane, for each difficulty level
