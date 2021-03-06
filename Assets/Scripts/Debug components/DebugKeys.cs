@@ -127,7 +127,7 @@ public partial class DebugKeys : DebugComponent
         HandleSongOffsetting();
 
         // Enable IsPlaying property in Locomotion
-        if (Keyboard.current.shiftKey.isPressed && Keyboard.current.numpad9Key.wasPressedThisFrame)
+        if (Keyboard.current.shiftKey.isPressed && Keyboard.current.numpadMinusKey.wasPressedThisFrame)
         {
             AmpPlayerLocomotion.Instance.IsPlaying = !AmpPlayerLocomotion.Instance.IsPlaying;
             Logger.Log($"DEBUG: Locomotion IsPlaying: {AmpPlayerLocomotion.Instance.IsPlaying}");

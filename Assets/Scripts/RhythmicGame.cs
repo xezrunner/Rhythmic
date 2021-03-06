@@ -89,7 +89,7 @@ public static class RhythmicGame
         }
     }
 
-    public static bool IsTunnelMode = true; // Whether to use tunnel gameplay mode
+    public static bool IsTunnelMode = false; // Whether to use tunnel gameplay mode
     public static bool TunnelTrackDuplication = true; // Whether to duplicate tracks when using tunnel mode
     public static bool IsTunnelTrackDuplication { get { return (IsTunnelMode && TunnelTrackDuplication); } }
     static int _tunnelTrackDuplicationNum = 3; // How many times should track sets exist in Tunnel mode
