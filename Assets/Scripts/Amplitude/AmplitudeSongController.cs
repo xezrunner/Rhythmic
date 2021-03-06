@@ -141,17 +141,19 @@ public class AmplitudeSongController : SongController
     public override List<List<KeyValuePair<int, MetaNote>>> CreateNoteList()
     {
         List<List<KeyValuePair<int, MetaNote>>> list = new List<List<KeyValuePair<int, MetaNote>>>();
-        for (int i = 0; i < songTracks.Count; i++)
+        for (int t = 0; t < songTracks.Count; t++)
         {
-            var AMP_NoteOnEvents = GetNoteOnEventsForTrack(i);
+            var AMP_NoteOnEvents = GetNoteOnEventsForTrack(t);
 
             if (AMP_NoteOnEvents == null)
-                throw new Exception("AMP_TRACK: Note on events are null for track " + songTracks[i]);
+                throw new Exception("AMP_TRACK: Note on events are null for track " + songTracks[t]);
 
             int counter = 0;
             List<KeyValuePair<int, MetaNote>> kvList = new List<KeyValuePair<int, MetaNote>>();
-            foreach (NoteOnEvent note in AMP_NoteOnEvents)
+            for (int i = 0; i < AMP_NoteOnEvents.Count; i++)
             {
+                NoteOnEvent note = AMP_NoteOnEvents[i];
+
                 // get lane type for note lane
                 LaneSide laneType = AmplitudeGame.GetLaneTypeFromNoteNumber(note.NoteNumber);
                 if (laneType == LaneSide.UNKNOWN)
@@ -159,13 +161,14 @@ public class AmplitudeSongController : SongController
 
                 float zPos = StartDistance + TickToPos(note.AbsoluteTime);
                 int measureID = (int)note.AbsoluteTime / measureTicks;
-                string noteName = string.Format("CATCH_{0}::{1}_{2} ({3})", songTracks[i], measureID, laneType.ToString(), counter);
+                string noteName = string.Format("CATCH_{0}::{1}_{2} ({3})", songTracks[t], measureID, laneType.ToString(), counter);
 
                 NoteType noteType = NoteType.Generic; // TODO: AMP note types for powerups?!
 
                 MetaNote metaNote = new MetaNote()
                 {
                     Name = noteName,
+                    ID = i,
                     Type = noteType,
                     Lane = laneType,
                     MeasureID = measureID,

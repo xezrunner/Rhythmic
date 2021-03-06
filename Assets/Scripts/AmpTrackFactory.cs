@@ -84,6 +84,7 @@ public partial class AmpTrack
         // set up
         obj.name = meta.Name;
         AmpNote note = obj.GetComponent<AmpNote>();
+        note.ID = meta.ID;
         note.SharedNoteMaterial = TracksController.SharedNoteMaterial;
         note.Track = this;
         note.TrackID = RealID;
@@ -98,6 +99,7 @@ public partial class AmpTrack
     }
 }
 
+// TODO: structs!
 public class MetaMeasure
 {
     public int ID;
@@ -110,6 +112,7 @@ public class MetaMeasure
 public class MetaNote
 {
     public string Name;
+    public int ID;
     public NoteType Type;
     public LaneSide Lane;
     public int MeasureID;

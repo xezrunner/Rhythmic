@@ -24,6 +24,20 @@ public class AmpNote : MonoBehaviour
     public Material SharedNoteMaterial;
 
     /// Colors
+    Color _color = Color.white;
+    public Color Color
+    {
+        get { return _color; }
+        set
+        {
+            if (RhythmicGame.IsTunnelMode && RhythmicGame.TunnelTrackDuplication)
+                foreach (AmpTrack t in Track.TrackTwins)
+                    t.Measures[MeasureID].Notes[ID].NoteMeshRenderer.material.color = value;
+
+            NoteMeshRenderer.material.color = value;
+        }
+    }
+
     Color _dotLightColor = Color.white;
     public Color DotLightColor
     {
@@ -34,7 +48,7 @@ public class AmpNote : MonoBehaviour
     float _dotLightGlowIntensity = 1f;
     public float DotLightGlowIntensity
     {
-        get { return _dotLightGlowIntensity; } 
+        get { return _dotLightGlowIntensity; }
         set
         {
             _dotLightGlowIntensity = value;
@@ -43,6 +57,7 @@ public class AmpNote : MonoBehaviour
     }
 
     /// Global variables and properties
+    public int ID;
     public AmpTrack Track;
     public int TrackID;
     public int MeasureID;

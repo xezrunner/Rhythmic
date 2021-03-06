@@ -272,7 +272,7 @@ public class TracksController : MonoBehaviour
 
             if (!note) { Debug.LogError($"Tracks/RefreshTargetNotes({track.ID}): upcoming note was null!"); Debug.Break(); System.Diagnostics.Debugger.Break(); }
 
-            note.NoteMeshRenderer.material.color = Color.green;
+            note.Color = Color.green;
             targetNotes[track.ID] = note;
         }
 
@@ -290,7 +290,7 @@ public class TracksController : MonoBehaviour
             AmpNote note = t.Sequences[0].Notes[0];
             if (!note) { Debug.LogError($"Tracks/RefreshTargetNotes({track == null}): couldn't find the first note for track {t.ID} sequence [0]"); Debug.Break(); System.Diagnostics.Debugger.Break(); }
 
-            note.NoteMeshRenderer.material.color = Color.green;
+            note.Color = Color.green;
             targetNotes[t.ID] = note;
 
             if (RhythmicGame.DebugTargetNoteRefreshEvents)

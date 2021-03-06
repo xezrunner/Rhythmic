@@ -88,7 +88,7 @@ public class DebugStats : DebugComponent
 
         // Timescale stats:
         if (StatsMode > StatsMode.ShortShort)
-            AddLine($"Timscale: [song: {SongController.songTimeScale.ToString("0.00")}]  [world: {Time.timeScale.ToString("0.00")}]", -1);
+            AddLine($"Timescale: [song: {SongController.songTimeScale.ToString("0.00")}]  [world: {Time.timeScale.ToString("0.00")}]", -1);
 
         // Clock stats:
         AddLine($"Clock seconds: {Clock.seconds}".AddColor(1, 1, 1, 0.8f));
