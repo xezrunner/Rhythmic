@@ -112,7 +112,7 @@ public class AmpPlayerCatching : MonoBehaviour
             lastIgnoreBar = Clock.Fbar; // avoid slop check spam
 
             if (RhythmicGame.DebugCatcherSlopEvents)
-                Debug.LogWarning($">>>>>>> SLOP! <<<<<<< | Track ID: {TracksController.CurrentTrackID} IsTrackCaptured: {TracksController.CurrentTrack.IsTrackCaptured}");
+                Logger.LogWarning($">>>>>>> SLOP! <<<<<<< | Track ID: {TracksController.CurrentRealTrackID}; targetNote dist: {TracksController.targetNotes[note.TrackID].Distance}, dist: {dist}, maxDist: {note.Distance + SongController.SlopPos}");
         }
     }
 
@@ -128,25 +128,24 @@ public class AmpPlayerCatching : MonoBehaviour
                 {
                     AmpNote note = result.note;
 
-                    note.CaptureNote(NoteCaptureFX.CatcherCapture);
-                    note.Track.IsTrackBeingPlayed = true;
+                    note.CaptureNote(NoteCaptureFX.CatcherCapture, true);
+                    note.Track.SetIsTrackBeingPlayed(true);
 
-                    if (note.IsLastNote & note.MeasureID == note.Track.Sequences.Last().ID)
+                    if (!note.IsLastNote)
+                    {
+                        // Disable other measures
+                        TracksController.DisableCurrentMeasures();
+                        TracksController.RefreshTargetNotes(TracksController.CurrentTrack);
+                    }
+                    else
                     {
                         note.Track.CaptureMeasureAmount(Clock.Fbar, RhythmicGame.TrackCaptureLength);
 
-                        //TracksController.targetNotes[note.TrackID] = null; // No target notes on this track anymore.
                         TracksController.lastRefreshUpcomingState = false; // TODO: do this in a better place?
 
                         // TODO: refreshing refactor, individual track option?
                         TracksController.RefreshSequences();
                         TracksController.RefreshTargetNotes();
-                    }
-                    else
-                    {
-                        // Disable other measures
-                        TracksController.DisableCurrentMeasures();
-                        TracksController.RefreshTargetNotes(TracksController.CurrentTrack);
                     }
 
                     break;

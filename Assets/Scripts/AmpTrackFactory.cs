@@ -66,7 +66,7 @@ public partial class AmpTrack
         Measures.Add(measure);
         return measure;
     }
-    public AmpNote CreateNote(MetaNote meta, AmpTrackSection measure = null, bool lastNote = false)
+    public AmpNote CreateNote(MetaNote meta, AmpTrackSection measure = null, int id = 0, bool lastNote = false)
     {
         /// Create object
         var obj = Instantiate(NotePrefab);
@@ -84,7 +84,8 @@ public partial class AmpTrack
         // set up
         obj.name = meta.Name;
         AmpNote note = obj.GetComponent<AmpNote>();
-        note.ID = meta.ID;
+        note.ID = id;
+        note.TotalID = meta.TotalID;
         note.SharedNoteMaterial = TracksController.SharedNoteMaterial;
         note.Track = this;
         note.TrackID = RealID;
@@ -112,7 +113,7 @@ public class MetaMeasure
 public class MetaNote
 {
     public string Name;
-    public int ID;
+    public int TotalID;
     public NoteType Type;
     public LaneSide Lane;
     public int MeasureID;

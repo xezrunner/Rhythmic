@@ -105,12 +105,26 @@ public partial class AmpTrack : MonoBehaviour
         ClipManager.AddMaterial(LocalEdgeLightsMaterial);
         if (RhythmicGame.GlobalEdgeLightsCaptureClipping)
             ClipManager.AddMaterial(GlobalEdgeLightsMaterial);
+
+        if (IsCloneTrack)
+            foreach (AmpTrack t in TrackTwins)
+                t.Sequences = TracksController.Tracks[ID].Sequences;
     }
 
     public List<AmpTrackSection> Measures = new List<AmpTrackSection>();
     public AmpTrackSection CurrentMeasure { get { return Measures[Clock.Fbar]; } }
 
     public List<AmpTrackSection> Sequences = new List<AmpTrackSection>();
+    public void AddSequence(AmpTrackSection measure)
+    {
+        foreach (AmpTrack t in TrackTwins) t.Sequences.Add(measure);
+        Sequences.Add(measure);
+    }
+    public void ClearSequences()
+    {
+        foreach (AmpTrack t in TrackTwins) t.Sequences.Clear();
+        Sequences.Clear();
+    }
 
     /// Compatibility backport from OG Track
     // TODO: change functionality in TUT?
@@ -126,7 +140,12 @@ public partial class AmpTrack : MonoBehaviour
         set { IsEnabled = true; /* additional logic here... */ }
     }
 
-    public bool IsTrackBeingPlayed { get; set; }
+    public bool IsTrackBeingPlayed;
+    public void SetIsTrackBeingPlayed(bool value)
+    {
+        IsTrackBeingPlayed = value;
+        foreach (AmpTrack t in TrackTwins) t.IsTrackBeingPlayed = value;
+    }
 
     bool _isTrackFocused;
     public bool IsTrackFocused

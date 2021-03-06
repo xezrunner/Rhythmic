@@ -202,7 +202,7 @@ public class TracksController : MonoBehaviour
         }
 
         // Assign twins in Tunnel mode:
-        if (RhythmicGame.IsTunnelMode && RhythmicGame.TunnelTrackDuplication)
+        if (RhythmicGame.IsTunnelTrackDuplication)
         {
             int duplCount = RhythmicGame.TunnelTrackDuplicationNum; // 3
             for (int i = 0, z = 0; i < Tracks.Length; i++, z++) // i: 18 | z: 6
@@ -230,9 +230,9 @@ public class TracksController : MonoBehaviour
 
     public void DisableCurrentMeasures(bool current = false)
     {
-        foreach (AmpTrack t in MainTracks)
+        foreach (AmpTrack t in Tracks)
         {
-            if (t == CurrentTrack & !current) continue; // Ignore current track
+            if (!current && t.ID == CurrentTrack.ID) continue; // Ignore current track
             t.Measures[Clock.Fbar].IsEnabled = false;
             t.IsTrackBeingPlayed = false;
         }
@@ -254,11 +254,15 @@ public class TracksController : MonoBehaviour
     {
         if (track)
         {
+            //Debug.Break();
+            //Debug.DebugBreak();
+
             if (!lastRefreshUpcomingState)
                 RefreshSequences(track);
 
             AmpNote note = null;
 
+            // Find next note to catch!
             foreach (AmpTrackSection m in track.Sequences)
             {
                 foreach (AmpNote n in m.Notes)
@@ -270,15 +274,23 @@ public class TracksController : MonoBehaviour
                 if (note) break;
             }
 
-            if (!note) { Debug.LogError($"Tracks/RefreshTargetNotes({track.ID}): upcoming note was null!"); Debug.Break(); System.Diagnostics.Debugger.Break(); }
+            if (!note)
+                Debug.LogError($"Tracks/RefreshTargetNotes({track.ID}): upcoming note was null!"); 
 
             note.Color = Color.green;
             targetNotes[track.ID] = note;
+
+            { // debug log targetNotes:
+                string s = "targetNotes: ";
+                foreach (AmpNote n in targetNotes)
+                    s += $"[{n.ID}{$"/{n.TrackID}".AddColor(.5f)}]  ";
+                Logger.Log(s);
+            }
         }
 
         foreach (AmpTrack t in MainTracks)
         {
-            if (track && t == track) continue; // Ignore specified track
+            if (track && t.ID == track.ID) continue; // Ignore specified track
             if (track && lastRefreshUpcomingState) break; // If we already refreshed, skip
             if (t.Sequences.Count == 0) // No sequences were found in this track!
             {
@@ -315,7 +327,7 @@ public class TracksController : MonoBehaviour
 
         foreach (AmpTrack t in MainTracks)
         {
-            if (track & t == track) continue;
+            if (track && t.ID == track.ID) continue;
 
             t.Sequences.ForEach(t => t.IsSequence = false); // Make previous sequences inactive
             t.Sequences.Clear();

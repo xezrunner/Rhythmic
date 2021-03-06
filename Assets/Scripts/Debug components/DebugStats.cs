@@ -3,7 +3,7 @@
 public enum StatsMode
 {
     None = 0, ShortShort = 1, Short = 2, Long = 3,
-    Default = Short
+    Default = Long
 }
 
 [DebugComponent(DebugComponentFlag.DebugStats, DebugComponentType.Component, 250)]
@@ -73,15 +73,29 @@ public class DebugStats : DebugComponent
                 trackNames += $"{t.TrackName.AddColor(t.IsTrackCaptured ? Color.white : AmpTrack.Colors.ColorFromInstrument(t.Instrument) * 1.25f, t.IsTrackFocused ? 1 : 0.40f)}" +
                                                                                         $"{(t.RealID > TracksController.songTracks.Count ? $"F{t.RealID}" : "")}".AddColor(0.5f) + "  ";
             }
-            
+
             string trackCount = $"({TracksController.Instance.Tracks.Length})".AddColor(1, 1, 1, 0.80f);
 
-            AddLine($"Tracks: {trackNames}{trackCount}", 2);
+            AddLine($"Tracks: {trackNames}{trackCount}");
+        }
+        // Target notes:
+        {
+            string s = "Target notes: ";
+            for (int i = 0; i < TracksController.targetNotes.Length; i++)
+            {
+                AmpNote n = TracksController.targetNotes[i];
+                AmpTrack t = TracksController.MainTracks[i];
+                if (!n | !t) s += "null ";
+                else
+                    s += $"{t.TrackName}: ".AddColor(t.Color) +
+                     $"[{n.ID} " + $"{n.TotalID}]  ".AddColor(.42f);
+            }
+            AddLine(s);
         }
 
         // Slop stats:
         if (StatsMode > StatsMode.ShortShort)
-            AddLine($"Slop: {SongController.SlopMs} ms " + $"({SongController.SlopPos} m)".AddColor(1, 1, 1, 0.80f));
+            AddLine($"Slop: {SongController.SlopMs} ms " + $"({SongController.SlopPos} m)".AddColor(1, 1, 1, 0.80f), -1);
         // Song start distance offset stats:
         if (StatsMode > StatsMode.ShortShort)
             AddLine($"Start distance offset: {SongController.StartDistance}");

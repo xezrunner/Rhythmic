@@ -16,6 +16,16 @@ public partial class DebugKeys : DebugComponent
         if (!IsEnabled)
             return;
 
+        if (Input.GetKeyDown(KeyCode.KeypadDivide))
+        {
+            AmpTrack t = TracksController.CurrentTrack;
+            string s = $"Sequences [{t.TrackName}]: ";
+            foreach (var m in t.Sequences)
+                s += $"({m.ID}); ";
+            s += $"  [total: {t.Sequences.Count}]";
+            Logger.Log(s);
+        }
+
         // DebugUI:
         if (DebugUI.Instance)
         {

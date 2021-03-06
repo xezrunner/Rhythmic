@@ -35,7 +35,7 @@ public class TrackStreamer : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        Clock.OnBar += Clock_OnBar; 
+        Clock.OnBar += Clock_OnBar;
         metaMeasures = SongController.CreateMetaMeasureList();
     }
     void Start()
@@ -103,19 +103,19 @@ public class TrackStreamer : MonoBehaviour
         AmpTrack track = TrackController.Tracks[trackID];
 
         var measureNotes = SongController.songNotes[track.ID].Where(i => i.Key == id);
-        if (measureNotes.Count() == 0)
-            measure.IsEmpty = true;
+        int count = measureNotes.Count();
+        if (count == 0) measure.IsEmpty = true;
         else
         {
+            int i = 0;
             foreach (KeyValuePair<int, MetaNote> kv in measureNotes)
             {
                 kv.Value.IsCaptured = measure.IsCaptured; // foreshadowing
 
-                var note = track.CreateNote(kv.Value, measure);
+                var note = track.CreateNote(kv.Value, measure, i, (i == count - 1));
+                i++;
                 if (!immediate) yield return new WaitForSeconds(StreamDelay);
             }
-
-            measure.Notes.Last().IsLastNote = true; // TODO: optimization?
         }
     }
 

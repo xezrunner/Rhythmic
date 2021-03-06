@@ -30,9 +30,12 @@ public class AmpNote : MonoBehaviour
         get { return _color; }
         set
         {
-            if (RhythmicGame.IsTunnelMode && RhythmicGame.TunnelTrackDuplication)
+            if (RhythmicGame.IsTunnelTrackDuplication)
                 foreach (AmpTrack t in Track.TrackTwins)
-                    t.Measures[MeasureID].Notes[ID].NoteMeshRenderer.material.color = value;
+                {
+                    var n = t.Measures[MeasureID].Notes[ID];
+                    if (n) n.NoteMeshRenderer.material.color = value;
+                }
 
             NoteMeshRenderer.material.color = value;
         }
@@ -58,6 +61,7 @@ public class AmpNote : MonoBehaviour
 
     /// Global variables and properties
     public int ID;
+    public int TotalID;
     public AmpTrack Track;
     public int TrackID;
     public int MeasureID;
@@ -109,7 +113,8 @@ public class AmpNote : MonoBehaviour
 
     [SerializeField] AmpNoteFX FXCom;
 
-    public void CaptureNote(NoteCaptureFX fx = NoteCaptureFX.DestructCapture, bool anim = true)
+    /// <param name="twins">Whether to capture twin tracks' notes too.</param>
+    public void CaptureNote(NoteCaptureFX fx = NoteCaptureFX.DestructCapture, bool twins = false, bool anim = true)
     {
         IsCaptured = true;
 
@@ -120,6 +125,9 @@ public class AmpNote : MonoBehaviour
         else FXCom.ResetFX(); // If it already exists, reset the effect
         FXCom.Note = this;
         FXCom.Effect = fx; // Set capture effect
+
+        if (twins && RhythmicGame.IsTunnelTrackDuplication) // Capture twin tracks' notes too
+            foreach (AmpTrack t in Track.TrackTwins) t.Measures[MeasureID].Notes[ID].CaptureNote(fx, anim: anim);
     }
 }
 

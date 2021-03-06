@@ -102,6 +102,8 @@ MonoBehaviour:
   NoteMeshRenderer: {fileID: 2734642669021029952}
   DotLightMeshRenderer: {fileID: 6331370741167696652}
   PS: {fileID: 8919151838760895493}
+  SharedNoteMaterial: {fileID: 0}
+  ID: 0
   Track: {fileID: 0}
   TrackID: 0
   MeasureID: 0

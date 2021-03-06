@@ -148,7 +148,6 @@ public class AmplitudeSongController : SongController
             if (AMP_NoteOnEvents == null)
                 throw new Exception("AMP_TRACK: Note on events are null for track " + songTracks[t]);
 
-            int counter = 0;
             List<KeyValuePair<int, MetaNote>> kvList = new List<KeyValuePair<int, MetaNote>>();
             for (int i = 0; i < AMP_NoteOnEvents.Count; i++)
             {
@@ -161,14 +160,14 @@ public class AmplitudeSongController : SongController
 
                 float zPos = StartDistance + TickToPos(note.AbsoluteTime);
                 int measureID = (int)note.AbsoluteTime / measureTicks;
-                string noteName = string.Format("CATCH_{0}::{1}_{2} ({3})", songTracks[t], measureID, laneType.ToString(), counter);
+                string noteName = string.Format("CATCH_{0}::{1}_{2} ({3})", songTracks[t], measureID, laneType.ToString(), i);
 
                 NoteType noteType = NoteType.Generic; // TODO: AMP note types for powerups?!
 
                 MetaNote metaNote = new MetaNote()
                 {
                     Name = noteName,
-                    ID = i,
+                    TotalID = i,
                     Type = noteType,
                     Lane = laneType,
                     MeasureID = measureID,
@@ -176,8 +175,6 @@ public class AmplitudeSongController : SongController
                 };
 
                 kvList.Add(new KeyValuePair<int, MetaNote>(measureID, metaNote));
-
-                counter++;
             }
 
             list.Add(kvList);
