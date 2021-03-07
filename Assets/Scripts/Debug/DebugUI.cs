@@ -7,7 +7,7 @@ using UnityEngine;
 
 public enum DebugUILevel
 {
-    None = 0,
+    None = 1,
     Framerate = 1 << 0,
     DebugLine = 1 << 1,
     ShortStats = 1 << 2,
@@ -21,7 +21,7 @@ public enum DebugUILevel
 }
 public enum ComponentDebugLevel
 {
-    None = 0,
+    None = 1,
     PlayerStats = 1 << 0,
     SongStats = 1 << 1,
     TracksStats = 1 << 2,

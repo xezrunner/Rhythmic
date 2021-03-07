@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum DebugComponentFlag
 {
-    Uninitialized = 0,
+    Uninitialized = 1,
     None = 1 << 0,
     DebugKeys = 1 << 1,
     DebugLogging = 1 << 2,
