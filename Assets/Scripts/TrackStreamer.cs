@@ -130,6 +130,7 @@ public class TrackStreamer : MonoBehaviour
     {
         if (trackID != -1) // stream measure!
         {
+            if (id > SongController.songLengthInMeasures) yield break;
             MetaMeasure meta = metaMeasures[trackID][id];
             AmpTrack track = TrackController.Tracks[trackID];
 

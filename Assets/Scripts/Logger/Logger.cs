@@ -73,7 +73,7 @@ public static partial class Logger
             default:
                 LogUnity(obj);
                 //return LogR($"Unsupported object passed to Logger | Name: {nameof(obj)}, Type: {obj.GetType()}");
-                return LogR($"{obj.ToString()}" + " (not explicitly supported!)".AddColor(.1f));
+                return LogR($"{obj}" + " (Logger: not explicitly supported!)".AddColor(.1f));
 
             // TODO: Vector2,3,4
             case string s: return Log(s, logType, logTarget);

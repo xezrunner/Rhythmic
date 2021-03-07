@@ -240,7 +240,7 @@ public partial class AmpTrack : MonoBehaviour
         AmpTrackSectionDestruct destruct = measure.gameObject.AddComponent<AmpTrackSectionDestruct>();
         destruct.Init(measure);
 
-        while (measure.IsCapturing)
+        while (measure.IsCapturing && measure.gameObject != null) // TODO: When capturing all tracks (thus from 0), it can get stuck waiting on already destroyed measures.
             yield return null;
 
         // TODO: Edge lights should be visible somehow after destruction!
