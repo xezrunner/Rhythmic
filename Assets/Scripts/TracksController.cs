@@ -461,10 +461,10 @@ public class TracksController : MonoBehaviour
         // Init capture process - wait for captures to finish before proceeding to next one
         for (int i = start; i < end; i++)
         {
-            if (i < track.Measures.Count)
+            if (i < track.Measures.Count && track.Measures[i])
                 yield return track.CaptureMeasure(track.Measures[i]);
             else // This measure doesn't yet exist - change meta measure to captured state in TrackStreamer!
-                TrackStreamer.metaMeasures[track.RealID][i].IsCaptured = true;
+                TrackStreamer.metaMeasures[track.ID][i].IsCaptured = true;
         }
 
         track.IsTrackCapturing = false;
