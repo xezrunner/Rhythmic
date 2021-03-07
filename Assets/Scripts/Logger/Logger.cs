@@ -14,7 +14,7 @@ using UnityEngine;
 
 public enum LogTarget
 {
-    Unity = 0, RhythmicConsole = 1 << 0, DebugLine = 1 << 1,
+    Unity = 1, RhythmicConsole = 1 << 0, DebugLine = 1 << 1,
     UnityAndConsole = (Unity | RhythmicConsole),
     Default = UnityAndConsole, All = (Unity | RhythmicConsole | DebugLine)
 }
@@ -72,7 +72,8 @@ public static partial class Logger
         {
             default:
                 LogUnity(obj);
-                return LogR($"Unsupported object passed to Logger | Name: {nameof(obj)}, Type: {obj.GetType()}");
+                //return LogR($"Unsupported object passed to Logger | Name: {nameof(obj)}, Type: {obj.GetType()}");
+                return LogR($"{obj.ToString()}" + " (not explicitly supported!)".AddColor(.1f));
 
             // TODO: Vector2,3,4
             case string s: return Log(s, logType, logTarget);
