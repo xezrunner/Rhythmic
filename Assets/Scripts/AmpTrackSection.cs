@@ -87,6 +87,7 @@ public class AmpTrackSection : MonoBehaviour
 
     /// ----- Functionality -----
 
+    public static Vector3[] og_verts;
     public static bool AllowDeformations = true; // TODO!
 
     void Awake() => Path = PathTools.Path;
@@ -101,10 +102,16 @@ public class AmpTrackSection : MonoBehaviour
             ModelRenderer.materials = new Material[0];
             ModelRenderer.material = GlobalEdgeLightMaterial;
         }
+
+        if (og_verts == null)
+        {
+            og_verts = new Vector3[ModelMesh.mesh.vertices.Length];
+            ModelMesh.mesh.vertices.CopyTo(og_verts, 0);
+        }
         // Deform the mesh!
         DeformMesh();
     }
 
     public void DeformMesh() => MeshDeformer.DeformMesh
-                                  (Path, ModelMesh.mesh, Position, Rotation, ogVerts: null, offset: null, RhythmicGame.TrackWidth, -1, Length, movePivotToStart: true); // TODO: unneccessary parameters
+                                  (Path, ModelMesh.mesh, Position, Rotation, ogVerts: og_verts, offset: null, RhythmicGame.TrackWidth, -1, Length, movePivotToStart: true); // TODO: unneccessary parameters
 }

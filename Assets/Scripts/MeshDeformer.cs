@@ -24,7 +24,15 @@ public static class MeshDeformer
     /// </param>
     public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, float angle = 0f, Vector3[] ogVerts = null, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = false)
     {
-        Vector3[] vertices = mesh.vertices;
+        //Vector3[] vertices = mesh.vertices;
+        // TEMP: Testing funky path contours
+        Vector3[] vertices = null;
+        if (ogVerts == null) vertices = mesh.vertices;
+        else
+        {
+            vertices = new Vector3[ogVerts.Length];
+            ogVerts.CopyTo(vertices, 0);
+        }
 
         // Pivot adjustment on Z axis
         float p_maxZ = movePivotToStart ? GetMaxAxisValue(vertices, Axis.Z) : 0;
@@ -81,7 +89,7 @@ public static class MeshDeformer
         float distance = meshVertex.z + position.z; // Vertex Z distance along path + desired Z offset
         Vector3 vertexXY = new Vector3(meshVertex.x, meshVertex.y, 0); // Vertex X and Y points (horizontal)
         Vector3 pointOnPath = PathTools.GetPositionOnPath(path, distance, position - tunnelCenter);
-        Quaternion pathRotation = PathTools.GetRotationOnPath(path, distance); // Rot on path at the distance
+        Quaternion pathRotation = PathTools.GetRotationOnPath(path, distance, new Vector3(0, 0, distance * 0.05f)); // Rot on path at the distance
 
         pathRotation = pathRotation * Quaternion.Euler(0, 0, angle); // Offset rotation
 

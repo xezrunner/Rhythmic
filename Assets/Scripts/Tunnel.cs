@@ -26,7 +26,7 @@ public class Tunnel : MonoBehaviour
 
     public Vector3 center; // the center points of the circle
 
-    void Awake() { Instance = this; }
+    void Awake() => Instance = this;
 
     public void Init(int count)
     {
@@ -43,18 +43,20 @@ public class Tunnel : MonoBehaviour
 
         center = new Vector2(0, 0);
     }
-    public Vector3[] GetTransformForTrackID(int id)
+
+    public Vector3[] GetTransformForTrackID(int id, float offsetAngle = 0f)
     {
         Vector3[] transform = new Vector3[2];
 
         float angle = RhythmicGame.IsTunnelMode ? id * -rotZ : 0f;
+
         float posX = radius * Mathf.Sin(angle * Mathf.Deg2Rad) + center.x;
         float posY = radius * Mathf.Cos(angle * Mathf.Deg2Rad); // This returns a position on the circle outline, thus the tunnel is perfectly centered.
 
         float x = (!RhythmicGame.IsTunnelMode) ? (-trackCount + 1) * (RhythmicGame.TrackWidth / 2) + (id * RhythmicGame.TrackWidth) : 0;
 
         transform[0] = new Vector3(posX + x, posY, 0); // Tunnel mode
-        transform[1].z = -angle;
+        transform[1].z = -angle + -offsetAngle;
 
         return transform;
     }
