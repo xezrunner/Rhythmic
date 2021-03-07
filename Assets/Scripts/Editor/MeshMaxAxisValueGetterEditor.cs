@@ -13,12 +13,12 @@ public class MeshMaxAxisValueGetterEditor : Editor
         if (mesh != null)
         {
             var verts = mesh.vertices;
-            float[] maxValues = MeshDeformer.GetMaxAxisValues(ref verts);
+            Vector3 maxValues = MeshDeformer.GetMaxAxisValues(ref verts);
 
             GUILayout.Label("Mesh max axis values: \n" +
-                            $"X: {maxValues[0]}\n" +
-                            $"Y: {maxValues[1]}\n" +
-                            $"Z: {maxValues[2]}");
+                            $"X: {maxValues.x}\n" +
+                            $"Y: {maxValues.y}\n" +
+                            $"Z: {maxValues.z}");
 
             GUILayout.BeginHorizontal();
 

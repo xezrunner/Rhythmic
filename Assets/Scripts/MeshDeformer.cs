@@ -149,14 +149,11 @@ public static class MeshDeformer
     /// <summary>
     /// Returns an array of 3 float values for all of a Vector3's components' max values.
     /// </summary>
-    public static float[] GetMaxAxisValues(ref Vector3[] vertices) // TODO: copying the vertices - this is baaad!
+    public static Vector3 GetMaxAxisValues(ref Vector3[] vertices) // TODO: copying the vertices - this is baaad!
     {
-        float[] result = new float[3];
-
-        for (int i = 0; i < 3; i++)
-            result[i] = GetMaxAxisValue(ref vertices, (Axis)i);
-
-        return result;
+        return new Vector3(GetMaxAxisValue(ref vertices, Axis.X),
+                           GetMaxAxisValue(ref vertices, Axis.Y),
+                           GetMaxAxisValue(ref vertices, Axis.Z));
     }
     //public static float[] GetMaxAxisValues(Mesh mesh) => GetMaxAxisValues(mesh.vertices);
 }
