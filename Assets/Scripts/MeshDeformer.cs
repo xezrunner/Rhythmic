@@ -35,7 +35,7 @@ public static class MeshDeformer
         }
 
         // Pivot adjustment on Z axis
-        float p_maxZ = movePivotToStart ? GetMaxAxisValue(vertices, Axis.Z) : 0;
+        float p_maxZ = movePivotToStart ? GetMaxAxisValue(ref vertices, Axis.Z) : 0;
 
         // XYZ adjustments
         bool isXYZAdjustment = (width + height + length != -3); // Whether at least one of the XYZ values is adjusted
@@ -43,9 +43,9 @@ public static class MeshDeformer
 
         if (isXYZAdjustment)
         {
-            if (width != -1) maxX = GetMaxAxisValue(vertices, Axis.X);
-            if (height != -1) maxY = GetMaxAxisValue(vertices, Axis.Y);
-            if (length != -1) maxZ = GetMaxAxisValue(vertices, Axis.Z);
+            if (width != -1) maxX = GetMaxAxisValue( ref vertices, Axis.X);
+            if (height != -1) maxY = GetMaxAxisValue(ref vertices, Axis.Y);
+            if (length != -1) maxZ = GetMaxAxisValue(ref vertices, Axis.Z);
         }
 
         // Deform mesh
@@ -131,7 +131,7 @@ public static class MeshDeformer
     /// Returns the maximum value of a Vector3 component.
     /// </summary>
     /// <param name="axis">The desired Vector3 component to get the maximum value of</param>
-    public static float GetMaxAxisValue(Vector3[] vertices, Axis axis)
+    public static float GetMaxAxisValue(ref Vector3[] vertices, Axis axis)
     {
         switch (axis)
         {
@@ -149,12 +149,12 @@ public static class MeshDeformer
     /// <summary>
     /// Returns an array of 3 float values for all of a Vector3's components' max values.
     /// </summary>
-    public static float[] GetMaxAxisValues(Vector3[] vertices) // TODO: copying the vertices - this is baaad!
+    public static float[] GetMaxAxisValues(ref Vector3[] vertices) // TODO: copying the vertices - this is baaad!
     {
         float[] result = new float[3];
 
         for (int i = 0; i < 3; i++)
-            result[i] = GetMaxAxisValue(vertices, (Axis)i);
+            result[i] = GetMaxAxisValue(ref vertices, (Axis)i);
 
         return result;
     }
