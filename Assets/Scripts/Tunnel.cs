@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 // This class is used to hold information and position/angle data for the tunnel.
 public class Tunnel : MonoBehaviour
@@ -44,7 +39,7 @@ public class Tunnel : MonoBehaviour
         center = new Vector2(0, 0);
     }
 
-    public Vector3[] GetTransformForTrackID(int id, float offsetAngle = 0f)
+    public Vector3[] GetTransformForTrackID(int id, float offsetAngle = 0f, bool inverse = false)
     {
         Vector3[] transform = new Vector3[2];
 

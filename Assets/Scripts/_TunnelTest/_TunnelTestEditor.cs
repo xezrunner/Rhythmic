@@ -13,8 +13,10 @@ class _TunnelTestEditor : Editor
 
         if (!Application.isPlaying) return;
 
+        EditorGUILayout.LabelField("Tools:", EditorStyles.boldLabel);
+
         if (GUILayout.Button("Refresh tunnel"))
-            main.Start();
+            main.InitTunnel();
 
         EditorGUILayout.Separator();
         EditorGUILayout.LabelField("Object tools: ", EditorStyles.boldLabel);
@@ -27,8 +29,7 @@ class _TunnelTestEditor : Editor
 
         EditorGUILayout.Separator();
         if (GUILayout.Button("Add 6 ID items"))
-            for (int i = 0; i < 6; i++)
-                main.AddObject(i);
+            main.Add6Objects();
 
         if (GUILayout.Button("Delete all"))
             main.RemoveAll();

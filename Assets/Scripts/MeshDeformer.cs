@@ -26,7 +26,7 @@ public static class MeshDeformer
     {
         //Vector3[] vertices = mesh.vertices;
         // TEMP: Testing funky path contours
-        Vector3[] vertices = null;
+        Vector3[] vertices;
         if (ogVerts == null) vertices = mesh.vertices;
         else
         {
