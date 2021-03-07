@@ -89,7 +89,7 @@ public static class MeshDeformer
         float distance = meshVertex.z + position.z; // Vertex Z distance along path + desired Z offset
         Vector3 vertexXY = new Vector3(meshVertex.x, meshVertex.y, 0); // Vertex X and Y points (horizontal)
         Vector3 pointOnPath = PathTools.GetPositionOnPath(path, distance, position - tunnelCenter);
-        Quaternion pathRotation = PathTools.GetRotationOnPath(path, distance, new Vector3(0, 0, distance * 0.05f)); // Rot on path at the distance
+        Quaternion pathRotation = PathTools.GetRotationOnPath(path, distance); // Rot on path at the distance
 
         pathRotation = pathRotation * Quaternion.Euler(0, 0, angle); // Offset rotation
 

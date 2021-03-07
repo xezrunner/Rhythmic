@@ -66,7 +66,7 @@ public class DebugUI : DebugComponent
 
     [Header("Debug Line")]
     public int MaxDebugLineCount = 4;
-    public static int DebugLine_LineTimeoutMs = 2300;
+    public static int DebugLine_LineTimeoutMs = 5000;
 
     void Awake()
     {

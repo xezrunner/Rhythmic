@@ -4,7 +4,9 @@ using PathCreation;
 public static class PathTools
 {
     public static VertexPath Path; // Global Path
+    public static WorldSystem WorldSystem { get { return WorldSystem.Instance; } }
 
+    // TODO: add overloads without 'path'
     public static Vector3 GetPositionOnPath(VertexPath path, float distance) => GetPositionOnPath(path, distance, Vector3.zero);
     public static Vector3 GetPositionOnPath(VertexPath path, float distance, Vector3 offset)
     {
@@ -53,5 +55,34 @@ public static class PathTools
         else if (distance > path.length) distance = path.length - 0.01f; // HACK!!!
 
         return path.GetRotationAtDistance(distance) * Quaternion.Euler(0, 0, 90) * Quaternion.Euler(offset);
+    }
+
+    // Key: [prev, next dist] | Value: values
+    public static Vector3[] GetFunkyContour(float distance)
+    {
+        if (!WorldSystem)
+        { Logger.LogMethodE("No WorldSystem!"); return null; }
+
+        // Find closest index to distance:
+        Vector3[] funkyContour = WorldSystem.FunkyContour;
+
+        if (funkyContour.Length < 2)
+        { Logger.LogMethodE("Funky contour count has to be greater than 2!"); return null; }
+
+        for (int i = 0; i < funkyContour.Length; i++)
+        {
+            Vector3 v_main = funkyContour[i];
+            Vector3 v_prev = i > 0 ? funkyContour[i - 1] : new Vector3(-1, -1, -1);
+            //Vector3 v_next = i < funkyContour.Length - 1 ? funkyContour[i + 1] : new Vector3(-1, -1);
+
+            if (i == 0 && v_main.x < distance) continue;
+            else if (i == funkyContour.Length - 1) return new Vector3[2] { v_main, v_main }; // TODO: return ([-1,-1], v_main) instead?
+
+            if (v_main.x >= distance && v_prev.x != -1)
+                return new Vector3[2] { v_prev, v_main };
+        }
+
+        Logger.LogMethodE("Failed!");
+        return null;
     }
 }

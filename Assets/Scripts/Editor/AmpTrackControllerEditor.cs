@@ -39,6 +39,5 @@ public class AmpTrackControllerEditor : Editor
 
         if (GUILayout.Button("Tracks[0].color = Color.red"))
             script.Tracks[0].Color = Color.red;
-
     }
 }
