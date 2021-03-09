@@ -43,7 +43,7 @@ public static class MeshDeformer
 
         if (isXYZAdjustment)
         {
-            if (width != -1) maxX = GetMaxAxisValue( ref vertices, Axis.X);
+            if (width != -1) maxX = GetMaxAxisValue(ref vertices, Axis.X);
             if (height != -1) maxY = GetMaxAxisValue(ref vertices, Axis.Y);
             if (length != -1) maxZ = GetMaxAxisValue(ref vertices, Axis.Z);
         }
@@ -88,7 +88,8 @@ public static class MeshDeformer
 
         float distance = meshVertex.z + position.z; // Vertex Z distance along path + desired Z offset
         Vector3 vertexXY = new Vector3(meshVertex.x, meshVertex.y, 0); // Vertex X and Y points (horizontal)
-        Vector3 pointOnPath = PathTools.GetPositionOnPath(path, distance, position - tunnelCenter);
+        // Vector3 pointOnPath = PathTools.GetPositionOnPath(path, distance, position - tunnelCenter); // non-emitting
+        Vector3 pointOnPath = PathTools.GetPositionOnPath(path, distance, new Vector3(position.x - (RhythmicGame.TrackWidth / 2), position.y,position.z) - tunnelCenter);
         Quaternion pathRotation = PathTools.GetRotationOnPath(path, distance); // Rot on path at the distance
 
         pathRotation = pathRotation * Quaternion.Euler(0, 0, angle); // Offset rotation
@@ -111,8 +112,11 @@ public static class MeshDeformer
     /// <param name="value">The value to lerp.</param>
     /// <param name="target">The target value you want to lerp to.</param>
     /// <param name="valueMax">Used to determine the fraction value t from <paramref name="value"/>.</param>
-    static float LerpAxis(ref float value, float target, float valueMax, bool split = true)
+    public static float LerpAxis(ref float value, float target, float valueMax, bool split = true, bool pivoted = false)
     {
+        if (pivoted)
+            valueMax *= 2;
+
         float t = Mathf.Abs(value / valueMax);
         float result;
 
@@ -122,6 +126,9 @@ public static class MeshDeformer
         // Since Mathf.Lerp()'s t parameter does not support negative numbers, we have to swap the targets
         // and use the absolute value as t.
         result = Mathf.Lerp(0, (value < 0f) ? -target : target, t);
+
+        if (t > 1)
+            Logger.LogMethodE($"t: {t}", null, null, LogTarget.DebugLine);
 
         value = result; // Change ref value to result
         return result;

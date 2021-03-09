@@ -112,6 +112,11 @@ public class AmpTrackSection : MonoBehaviour
         DeformMesh();
     }
 
-    public void DeformMesh() => MeshDeformer.DeformMesh
-                                  (Path, ModelMesh.mesh, Position, Rotation, ogVerts: og_verts, offset: null, RhythmicGame.TrackWidth, -1, Length, movePivotToStart: true); // TODO: unneccessary parameters
+    public void DeformMesh()
+    {
+        //MeshDeformer.DeformMesh
+        //   (Path, ModelMesh.mesh, Position, Rotation, ogVerts: og_verts, offset: null, RhythmicGame.TrackWidth, -1, Length, movePivotToStart: true);
+        MeshContourEmitter.DeformMesh
+           (Path, ModelMesh.mesh, Position, Rotation, ogVerts: og_verts, offset: null, RhythmicGame.TrackWidth, -1, Length, movePivotToStart: true);
+    }
 }
