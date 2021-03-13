@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using PathCreation;
-using System.Collections.Generic;
 
 public class MeshContourEmitter : MonoBehaviour
 {

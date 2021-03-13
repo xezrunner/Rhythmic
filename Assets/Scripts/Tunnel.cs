@@ -43,7 +43,7 @@ public class Tunnel : MonoBehaviour
     {
         Vector3[] transform = new Vector3[2];
 
-        float angle = RhythmicGame.IsTunnelMode ? id * -rotZ : 0f;
+        float angle = RhythmicGame.IsTunnelMode ? id * -rotZ : 0;
 
         float posX = radius * Mathf.Sin(angle * Mathf.Deg2Rad) + center.x;
         float posY = radius * Mathf.Cos(angle * Mathf.Deg2Rad); // This returns a position on the circle outline, thus the tunnel is perfectly centered.

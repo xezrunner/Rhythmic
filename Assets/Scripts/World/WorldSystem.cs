@@ -81,5 +81,11 @@ class WorldSystemEditor : Editor
                        "v0: " + $"dist: {v[0].x}, value: {v[0].y}, center: {v[0].z}\n".AddColor(Colors.Error) +
                        "v1: " + $"dist: {v[1].x}, value: {v[1].y}, center: {v[1].z}".AddColor(Colors.Error));
         }
+
+        if (GUILayout.Button("GetTrackGeo()"))
+        {
+            var tGeo = PathTools.GetTrackGeo(144f, TracksController.Instance.Tracks[1].Measures[0].Position, new Vector3());
+            Logger.Log($"GetTrackGeo(): pos: {tGeo.Position}, rot: {tGeo.Rotation}, funky: {tGeo.FunkyContour}");
+        }
     }
 }
