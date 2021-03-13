@@ -71,7 +71,7 @@
 		{
 			if (_Enabled == 0) 
 			{
-				discard; // TODO: revise!
+				discard; // TODO: revise! performance! (clip fully instead?)
 				return;
 			}
 
