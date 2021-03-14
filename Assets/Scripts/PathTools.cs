@@ -15,6 +15,15 @@ public static class PathTools
         float dist = distance; // distance on path, 0 or path.length if out of path
         bool outOfPath = false; // controls whether offsetting is required for exceeding the path
 
+        if (path == null)
+        {
+            return new Vector3(0, 0, dist) +
+                          Vector3.right * tunnelCenter.x + // Translate to offset
+                          Vector3.up * tunnelCenter.y +
+                          Vector3.right * offset.x +
+                          Vector3.up * offset.y;
+        }
+
         if (distance < 0) { dist = 0; outOfPath = true; }
         else if (distance > path.length)
         {
@@ -24,9 +33,14 @@ public static class PathTools
         }
 
         // Normals
+        /* Previous code - this has been optimized with potentially the exact same results.
         Vector3 normal = path.GetNormalAtDistance(dist);
         Vector3 localUp = Vector3.Cross(path.GetTangentAtDistance(dist), normal);
         Vector3 localRight = normal;
+        */
+
+        Vector3 localRight = path.GetNormalAtDistance(dist);
+        Vector3 localUp = Quaternion.Euler(0, 0, 90) * localRight;
 
         // The point on the path
         // In case of a negative distance, it's the very beginning of the path.
@@ -51,6 +65,9 @@ public static class PathTools
     public static Quaternion GetRotationOnPath(VertexPath path, float distance) => GetRotationOnPath(path, distance, Vector3.zero);
     public static Quaternion GetRotationOnPath(VertexPath path, float distance, Vector3 offset)
     {
+        if (path == null)
+            return Quaternion.identity * Quaternion.Euler(offset);
+
         if (distance < 0f) distance = 0; // In case of negative position, zero out the distance
         else if (distance > path.length) distance = path.length - 0.01f; // HACK!!!
 

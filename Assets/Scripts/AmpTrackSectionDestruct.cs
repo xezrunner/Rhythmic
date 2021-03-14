@@ -18,6 +18,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     AmpTrackSection Measure;
     AmpTrack Track;
     ClipManager ClipManager;
+    AmpTrackDestructFX DestructFX;
 
     public void Init(AmpTrackSection m)
     {
@@ -33,12 +34,28 @@ public class AmpTrackSectionDestruct : MonoBehaviour
 
         ClipManager = Track.ClipManager;
         ClipManager.inverse_plane = ClipPlane; // Assign inverse clip plane
+        DestructFX = m.DestructFX;
 
         Measure.IsCapturing = true;
 
         // Set fraction to current measure progress
         if (Mathf.FloorToInt(Clock.Instance.bar) == ID)
-            fraction = Mathf.Clamp(Clock.Instance.bar - ID - 0.08f, 0f, 1f);
+            fraction = Mathf.Clamp(Clock.Instance.bar - ID /*- 0.08f*/, 0f, 1f);
+
+        // Add destruct FX if non-existent:
+        // NOTE: it should be parented to the measure, as we get destroyed once the FX finishes!
+        if (!DestructFX)
+        {
+            // Load and add prefab, etc...
+        }
+
+        // Set up & start destruct FX:
+        if (DestructFX && !m.IsEmpty)
+        {
+            DestructFX.TrackColor = m.Track.Color;
+            DestructFX.gameObject.SetActive(true);
+            DestructFX.Play();
+        }
     }
 
     void Awake()
@@ -54,49 +71,70 @@ public class AmpTrackSectionDestruct : MonoBehaviour
 
     List<int> lastCapturedNotes = new List<int>();
 
+    Vector3 pathPos;
+    Quaternion pathRot;
+
     private void Update()
     {
+        float dist = 0f;
+
+        if (Measure.CaptureState != MeasureCaptureState.Captured)
+        {
+            // Calculate path distance based on fraction
+            dist = PositionOnPath.z + (Length * fraction);
+
+            // Update pos along path
+            pathPos = PathTools.GetPositionOnPath(Path, dist);
+            pathRot = PathTools.GetRotationOnPath(Path, dist);
+
+            // Don't update clipping if the measure was already captured!
+            // Do continue the rest of the capturing though, as we don't want to skip measures during capturing.
+            if (Measure.CaptureState != MeasureCaptureState.Captured)
+                Clip();
+        }
+
         if (fraction != 1f)
         {
             fraction = Mathf.MoveTowards(fraction, 1.0f, Track.captureAnimStep * Time.deltaTime);
 
             // Capture notes
             for (int i = 0; i < fraction * Measure.Notes.Count; i++)
+            {
                 if (!lastCapturedNotes.Contains(i))
                 {
                     Measure.Notes[i].CaptureNote();
                     lastCapturedNotes.Add(i);
                 }
+            }
 
+            // Update position for capture FX!
+            {
+                Vector3 normalRight = (Path != null) ? Path.GetNormalAtDistance(dist) : Vector3.right;
+                Vector3 normalUp = Quaternion.Euler(0, 0, 90) * normalRight;
+
+                Vector3 pos = pathPos + (normalRight * PositionOnPath.x)
+                                      + (normalUp * PositionOnPath.y);
+
+                DestructFX.transform.position = pos;
+                DestructFX.transform.rotation = pathRot;
+            }
         }
-        else // 1f, done
+        else // 1f, done!
         {
+            DestructFX.Stop();
             Measure.IsCapturing = false;
             Measure.IsCaptured = true;
             Destroy(this);
         }
-
-        // Don't update clipping if the measure was already captured!
-        // Do continue the rest of the capturing though, as we don't want to skip measures during capturing.
-        if (Measure.CaptureState != MeasureCaptureState.Captured)
-            Clip(fraction);
     }
 
-    public void Clip(float fraction = 0f)
+    public void Clip()
     {
-        Mathf.Clamp01(fraction); // Clamp between 0 and 1
-
-        // Calculate clip plane offset based on fraction
-        float dist = PositionOnPath.z + (Length * fraction);
-
         //if (fraction == 1f)
-        //    dist += 1f; // wtf?
+        //    dist += 1f; // TODO: wtf?
 
-        Vector3 planePos = PathTools.GetPositionOnPath(Path, dist);
-        Quaternion planeRot = PathTools.GetRotationOnPath(Path, dist, new Vector3(90, 0, 0));
-
-        ClipPlane.transform.position = planePos;
-        ClipPlane.transform.rotation = planeRot;
+        ClipPlane.transform.position = pathPos;
+        ClipPlane.transform.rotation = pathRot * Quaternion.Euler(new Vector3(90, 0, 0));
 
         ClipManager.Clip(); // update clipping
     }

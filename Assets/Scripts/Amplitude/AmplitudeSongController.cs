@@ -126,7 +126,7 @@ public class AmplitudeSongController : SongController
                 BG_CLICKSrc = src; // set as main BG_CLICK AudioSource
             }
             else
-                src.volume = counter == 0 ? 1f : 0f;
+                src.volume = 1f;
             // add to AudioSource list
             audioSrcList.Add(src);
 

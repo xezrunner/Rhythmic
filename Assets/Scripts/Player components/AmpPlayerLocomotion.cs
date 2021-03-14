@@ -1,5 +1,6 @@
 ﻿using PathCreation;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class AmpPlayerLocomotion : MonoBehaviour
 {
@@ -18,6 +19,11 @@ public class AmpPlayerLocomotion : MonoBehaviour
     public Transform Interpolatable;
     public Transform Interpolatable_TunnelRotation;
     public Transform NonInterpolatable;
+
+    Vector3 normalCameraPos;
+    Vector3 closeCameraPos;
+    Quaternion normalRotation;
+    Quaternion closeRotation;
 
     [Header("Contents")]
     public Transform CatcherVisuals;
@@ -47,7 +53,13 @@ public class AmpPlayerLocomotion : MonoBehaviour
 
         // Position player to tunnel
         transform.position = !RhythmicGame.IsTunnelMode ? Tunnel.center : new Vector3(Tunnel.center.x, Tunnel.center.y - Tunnel.radius);
-        MainCamera.transform.position = new Vector3(Tunnel.center.x, Tunnel.center.y + CameraElevation, -CameraPullback);
+
+        normalCameraPos = new Vector3(Tunnel.center.x, Tunnel.center.y + CameraElevation, -CameraPullback);
+        normalRotation = Quaternion.Euler(23.2f, 0, 0);
+        closeCameraPos = new Vector3(Tunnel.center.x, Tunnel.center.y + 2.2f, -3.8f);
+        closeRotation = Quaternion.Euler(13f, 0, 0);
+
+        MainCamera.transform.position = normalCameraPos;
         //MainCamera.transform.localPosition -= Tunnel.center;
         // Set catcher visuals to bottom of tunnel, offset by 0.01f (up)
         CatcherVisuals.position = new Vector3(0, 0.01f, 0);
@@ -108,6 +120,10 @@ public class AmpPlayerLocomotion : MonoBehaviour
     [Header("Testing properties")]
     public bool IsPlaying; // TEMP
 
+    static bool cameraClose = false;
+    Vector3 cam_posref;
+    Quaternion cam_rotref;
+
     public float LiveCaptDist;
     void Update()
     {
@@ -119,6 +135,15 @@ public class AmpPlayerLocomotion : MonoBehaviour
             {
                 Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songTimeScale);
                 DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
+            }
+
+            // Camera pullback:
+            {
+                if (Keyboard.current.nKey.wasPressedThisFrame || Gamepad.current.rightStickButton.wasPressedThisFrame)
+                    cameraClose = !cameraClose;
+
+                MainCamera.transform.localPosition = Vector3.SmoothDamp(MainCamera.transform.localPosition, cameraClose ? closeCameraPos : normalCameraPos, ref cam_posref, 0.2f);
+                MainCamera.transform.localRotation = QuaternionUtil.SmoothDamp(MainCamera.transform.localRotation, cameraClose ? closeRotation : normalRotation, ref cam_rotref, 0.2f);
             }
 
             Locomotion(DistanceTravelled, !SmoothEnabled);

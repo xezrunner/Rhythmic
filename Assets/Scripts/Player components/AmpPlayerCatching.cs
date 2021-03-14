@@ -73,16 +73,19 @@ public class AmpPlayerCatching : MonoBehaviour
         if (!SongController.IsPlaying) return;
         if (SongController.IsSongOver) return;
 
-        // TEMP
-        foreach (AmpTrack t in TracksController.MainTracks)
+        // TEMP | TODO: Move elsewhere? (partially?)
+        if (Clock.Fbar >= 4)
         {
-            if (t.IsTrackCaptured)
+            foreach (AmpTrack t in TracksController.MainTracks)
             {
-                SongController.audioSrcList[t.ID].volume = t.IsTrackFocused ? 1f : 0.4f;
-                continue;
+                if (t.IsTrackCaptured)
+                {
+                    SongController.audioSrcList[t.ID].volume = t.IsTrackFocused ? 1f : 0.4f;
+                    continue;
+                }
+                else if (t.IsTrackBeingPlayed) SongController.audioSrcList[t.ID].volume = 1f;
+                else SongController.audioSrcList[t.ID].volume = 0f;
             }
-            else if (t.IsTrackBeingPlayed) SongController.audioSrcList[t.ID].volume = 1f;
-            else SongController.audioSrcList[t.ID].volume = 0f;
         }
 
         if (lastIgnoreBar == Clock.Fbar) return; // avoid spamming

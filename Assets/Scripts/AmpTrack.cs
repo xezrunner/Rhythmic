@@ -2,6 +2,7 @@ using PathCreation;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public partial class AmpTrack : MonoBehaviour
@@ -95,9 +96,10 @@ public partial class AmpTrack : MonoBehaviour
         Color = Colors.ColorFromInstrument(Instrument);
 
         // TODO: EdgeLights colors!
-        LocalEdgeLightsMaterial.SetColor("_Emission", Color * 2.0f);
-        GlobalEdgeLightsMaterial.SetColor("_Emission", Color * 2.0f);
+        LocalEdgeLightsMaterial.SetColor("_Emission", Color * 1.15f);
+        GlobalEdgeLightsMaterial.SetColor("_Emission", Color * 1.45f);
         GlobalEdgeLightsMaterial.SetInteger("_Enabled", 0);
+        TrackMaterial_Active.SetInteger("_Enabled", 0);
 
         // Set up ClipManager for capture clipping
         ClipManager.AddMaterial(TrackMaterial);
@@ -228,8 +230,16 @@ public partial class AmpTrack : MonoBehaviour
             if (m) m.IsSequence = false;
         }
 
-        foreach (AmpTrackSection m in Sequences)
+        for (int i = 0; i < Sequences.Count; i++)
+        {
+            AmpTrackSection m = Sequences[i];
             if (m) m.IsSequence = true;
+
+            foreach (AmpNote n in m.Notes)
+                n.IsLastNote = false;
+            if (i == Sequences.Count - 1)
+                m.Notes.Last().IsLastNote = true;
+        }
     }
 
     // Measure capturing
