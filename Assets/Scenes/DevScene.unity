@@ -182,7 +182,7 @@ MonoBehaviour:
   SlopMs: 0
   SlopPos: 0
   beatHaptics: {x: 0.25, y: 0.8, z: 85}
-  StartDistanceAdjustmentEnabled: 1
+  StartDistanceAdjustmentEnabled: 0
   StartDistance: 0
   BG_CLICKSrc: {fileID: 0}
   audioSrcList: []

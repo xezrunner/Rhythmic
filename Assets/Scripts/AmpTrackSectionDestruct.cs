@@ -109,8 +109,9 @@ public class AmpTrackSectionDestruct : MonoBehaviour
 
             // Update position for capture FX!
             {
+                // TODO: PathTools.GetPositionOnPath() could provide out values so we don't need to get it here
                 Vector3 normalRight = (Path != null) ? Path.GetNormalAtDistance(dist) : Vector3.right;
-                Vector3 normalUp = Quaternion.Euler(0, 0, 90) * normalRight;
+                Vector3 normalUp = Vector3.Cross(Path.GetTangentAtDistance(dist), normalRight);
 
                 Vector3 pos = pathPos + (normalRight * PositionOnPath.x)
                                       + (normalUp * PositionOnPath.y);

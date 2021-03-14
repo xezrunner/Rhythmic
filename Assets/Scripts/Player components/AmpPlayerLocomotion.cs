@@ -54,12 +54,13 @@ public class AmpPlayerLocomotion : MonoBehaviour
         // Position player to tunnel
         transform.position = !RhythmicGame.IsTunnelMode ? Tunnel.center : new Vector3(Tunnel.center.x, Tunnel.center.y - Tunnel.radius);
 
-        normalCameraPos = new Vector3(Tunnel.center.x, Tunnel.center.y + CameraElevation, -CameraPullback);
+        MainCamera.transform.position = new Vector3(Tunnel.center.x, Tunnel.center.y + CameraElevation, -CameraPullback);
+
+        normalCameraPos = MainCamera.transform.localPosition;
         normalRotation = Quaternion.Euler(23.2f, 0, 0);
-        closeCameraPos = new Vector3(Tunnel.center.x, Tunnel.center.y + 2.2f, -3.8f);
+        closeCameraPos = normalCameraPos + (Vector3.down * 5f) + (Vector3.forward * 8.5f);
         closeRotation = Quaternion.Euler(13f, 0, 0);
 
-        MainCamera.transform.position = normalCameraPos;
         //MainCamera.transform.localPosition -= Tunnel.center;
         // Set catcher visuals to bottom of tunnel, offset by 0.01f (up)
         CatcherVisuals.position = new Vector3(0, 0.01f, 0);

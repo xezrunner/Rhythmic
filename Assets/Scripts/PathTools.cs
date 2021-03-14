@@ -33,14 +33,14 @@ public static class PathTools
         }
 
         // Normals
-        /* Previous code - this has been optimized with potentially the exact same results.
+        // Previous code - this has been optimized with potentially the exact same results.
         Vector3 normal = path.GetNormalAtDistance(dist);
         Vector3 localUp = Vector3.Cross(path.GetTangentAtDistance(dist), normal);
         Vector3 localRight = normal;
-        */
+        
 
-        Vector3 localRight = path.GetNormalAtDistance(dist);
-        Vector3 localUp = Quaternion.Euler(0, 0, 90) * localRight;
+        //Vector3 localRight = path.GetNormalAtDistance(dist);
+        //Vector3 localUp = Quaternion.Euler(0, 0, 90) * localRight;
 
         // The point on the path
         // In case of a negative distance, it's the very beginning of the path.
