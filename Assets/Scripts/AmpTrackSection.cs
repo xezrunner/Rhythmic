@@ -49,7 +49,12 @@ public class AmpTrackSection : MonoBehaviour
     public bool IsCaptured
     {
         get { return CaptureState > 0; }
-        set { CaptureState = !value ? MeasureCaptureState.None : MeasureCaptureState.Captured; }
+        set
+        {
+            CaptureState = !value ? MeasureCaptureState.None : MeasureCaptureState.Captured;
+            if (CaptureState > 0)
+                IsSequence = false; // TODO: revise?
+        }
     }
 
     bool _isEnabled = true;
@@ -124,7 +129,7 @@ public class AmpTrackSection : MonoBehaviour
         // Deform the mesh!
         DeformMesh();
         MeshDeformer.DeformMesh
-                                  (Path, SeekerMesh.mesh, Position, Rotation, ogVerts: og_vertsSeeker, offset:null, RhythmicGame.TrackWidth - 0.2f, -1, Length, movePivotToStart: true); // TODO: unneccessary parameters
+                                  (Path, SeekerMesh.mesh, Position, Rotation, ogVerts: og_vertsSeeker, offset: null, RhythmicGame.TrackWidth - 0.2f, -1, Length, movePivotToStart: true); // TODO: unneccessary parameters
         SeekerRenderer.material.color = Track.Color;
     }
 
