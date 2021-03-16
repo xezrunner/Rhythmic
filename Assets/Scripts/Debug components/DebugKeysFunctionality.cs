@@ -132,10 +132,6 @@ public partial class DebugKeys
         AmpPlayerLocomotion.Instance.DistanceTravelled += offset * SongController.posInSec;
         SongController.Instance.OffsetSong(offset);
         Clock.Instance.seconds += offset;
-        Clock.Instance.bar = SongController.SecToTick(Clock.Instance.seconds) / SongController.measureTicks;
-
-        for (int i = Clock.Instance.Fbar; i < Clock.Instance.Fbar + RhythmicGame.HorizonMeasures + 1; i++)
-            TrackStreamer.Instance.StreamMeasure(i, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
     }
     bool? prevSmooth;
     void HandleSongOffsetting()
@@ -143,8 +139,16 @@ public partial class DebugKeys
         if (!prevSmooth.HasValue) prevSmooth = AmpPlayerLocomotion.Instance.SmoothEnabled;
         AmpPlayerLocomotion.Instance.SmoothEnabled = false; // Disable smoothing in Locomotion
 
-        if (!Keyboard.current.ctrlKey.isPressed && Keyboard.current.numpad8Key.wasPressedThisFrame) // DOESN'T WORK FOR SOME REASON
+        if (Keyboard.current.numpad8Key.wasPressedThisFrame) // DOESN'T WORK FOR SOME REASON
+        {
             DEBUG_OffsetSong(SongController.TickToSec(SongController.measureTicks * 4));
+
+
+            Clock.Instance.bar = SongController.SecToTick(Clock.Instance.seconds) / SongController.measureTicks;
+
+            for (int i = Clock.Instance.Fbar; i < Clock.Instance.Fbar + RhythmicGame.HorizonMeasures + 1; i++)
+                TrackStreamer.Instance.StreamMeasure(i, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
+        }
         if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad9Key.isPressed)
             DEBUG_OffsetSong(1);
         else if (Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad9Key.isPressed)

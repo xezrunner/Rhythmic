@@ -10,14 +10,10 @@ public class Clock : MonoBehaviour
     public static Clock Instance;
     SongController SongController;
 
-    bool _isClockAvailable = true;
-    public bool IsClockAvailable { get { return _isClockAvailable; } }
-
     void Awake()
     {
         Instance = this;
         SongController = SongController.Instance;
-        if (!SongController || !SongController.IsEnabled) _isClockAvailable = false;
     }
 
     // Clocks
@@ -49,18 +45,16 @@ public class Clock : MonoBehaviour
     //public event EventHandler OnPlayerSlop;
 
     // Main clock loop
-    public void Update()
+    void Update()
     {
-        if (SongController.IsPlaying) // DEBUG_OffsetSong() needs to update clock even if the player isn't playing yet.
-        {
-            // Smoothly interpolate clock ticks
-            float step = 1 * SongController.songTimeScale * Time.unscaledDeltaTime;
+        if (!SongController.IsPlaying) return;
 
-            // TODO: we somehow want this to mvoe in sync with the songposition, while still being smooth.
+        // Smoothly interpolate clock ticks
+        float step = 1 * SongController.songTimeScale * Time.unscaledDeltaTime;
 
-            seconds = Mathf.MoveTowards(seconds, SongController.songLength, step); // Main clock value is seconds
-            //seconds = Mathf.MoveTowards(SongController.songPosition, SongController.songLength, step);
-        }
+        // TODO: we somehow want this to mvoe in sync with the songposition, while still being smooth.
+        //seconds = Mathf.MoveTowards(SongController.songPosition, SongController.songLength, step);
+        seconds = Mathf.MoveTowards(seconds, SongController.songLength, step); // Main clock value is seconds
 
         // Set tick, bar, beat and subbeat values based on seconds
         tick = SongController.tickInSec * seconds; // 1
@@ -70,15 +64,12 @@ public class Clock : MonoBehaviour
         zPos = SongController.posInTick * tick;
 
         // Invoke events if last integer values aren't the same as current (changed!)
-        if (SongController.IsPlaying)
-        {
 #if TICK_EVENTS
         if ((int)tick != lastTick) OnTick?.Invoke(this, (int)tick);
 #endif
-            if ((int)bar != lastBar) OnBar?.Invoke(this, (int)bar);
-            if ((int)beat != lastBeat) OnBeat?.Invoke(this, (int)beat);
-            if ((int)subbeat != lastSubbeat) OnSubbeat?.Invoke(this, (int)subbeat);
-        }
+        if ((int)bar != lastBar) OnBar?.Invoke(this, (int)bar);
+        if ((int)beat != lastBeat) OnBeat?.Invoke(this, (int)beat);
+        if ((int)subbeat != lastSubbeat) OnSubbeat?.Invoke(this, (int)subbeat);
 
         // Update last ticks
 #if TICK_EVENTS
