@@ -41,16 +41,17 @@ public class AmpTrackDestructFX : MonoBehaviour
         // Setup shard particles:
         for (int i = 0; i < 2; i++)
         {
-            ShardParticleRenderers[i].material.SetColor("_EmissionColor", TrackColor);
+            ShardParticleRenderers[i].material.SetColor("_EmissionColor", TrackColor * 1.5f);
             // TODO: Do we really need to set regular Color as well?
             ShardParticleRenderers[i].material.SetColor("_Color", TrackColor);
         }
     }
 
-    public void Play()
+    // TODO: set certain properties based on proximity, such as how many particles to draw in certain particles?
+    public void Play(bool proximity = true)
     {
         BaseParticles.Play();
-        SparkleParticles.Play();
+        if (proximity) SparkleParticles.Play();
         for (int i = 0; i < 2; i++)
             ShardParticles[i].Play();
     }

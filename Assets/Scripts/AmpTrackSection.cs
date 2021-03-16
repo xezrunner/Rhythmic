@@ -42,6 +42,7 @@ public class AmpTrackSection : MonoBehaviour
     public float Length = 32f; // meters
     public Vector3 Position; // meters
     public float Rotation; // angles
+    public Quaternion RotationQuat; // angles
 
     public bool IsEmpty;
     public bool IsCapturing;

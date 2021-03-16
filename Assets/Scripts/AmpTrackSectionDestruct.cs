@@ -7,6 +7,9 @@ using UnityEngine;
 
 public class AmpTrackSectionDestruct : MonoBehaviour
 {
+    Clock Clock { get { return Clock.Instance; } }
+    TracksController TracksController { get { return TracksController.Instance; } }
+
     VertexPath Path;
     GameObject ClipPlane;
 
@@ -14,6 +17,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     float Length = 32f;
     Vector3 PositionOnPath;
     float RotationOnPath; // Note: in Euler angles!
+    public Quaternion RotationQuat; // angles
 
     AmpTrackSection Measure;
     AmpTrack Track;
@@ -30,11 +34,11 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         ClipPlane = m.ClipPlane; // Get capture clipping plane from AmpTrackSection
         PositionOnPath = m.Position;
         RotationOnPath = m.Rotation;
+        RotationQuat = m.RotationQuat;
         Length = m.Length;
 
         ClipManager = Track.ClipManager;
         ClipManager.inverse_plane = ClipPlane; // Assign inverse clip plane
-        DestructFX = m.DestructFX;
 
         Measure.IsCapturing = true;
 
@@ -42,6 +46,8 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         if (Mathf.FloorToInt(Clock.Instance.bar) == ID)
             fraction = Mathf.Clamp(Clock.Instance.bar - ID /*- 0.08f*/, 0f, 1f);
 
+        //DestructFX = m.DestructFX;
+        DestructFX = m.Track.DestructFX;
         // Add destruct FX if non-existent:
         // NOTE: it should be parented to the measure, as we get destroyed once the FX finishes!
         if (!DestructFX)
@@ -52,9 +58,15 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         // Set up & start destruct FX:
         if (DestructFX && !m.IsEmpty)
         {
-            DestructFX.TrackColor = m.Track.Color;
-            DestructFX.gameObject.SetActive(true);
-            DestructFX.Play();
+            //DestructFX.gameObject.SetActive(true);
+
+            // If the distance between the current measure and the target measure is < than 3,
+            // we consider the effect 'proximity'.
+            // Some particles will not play when not in proximity to provide better framerate.
+            bool isProximity = (m.ID - Clock.Fbar < 3);
+            // Consider clone tracks as NOT proximity - do not play sparkles
+            bool isCloneTrack = (m.Track.RealID > TracksController.MainTracks.Length);
+            DestructFX.Play(!isCloneTrack && isProximity);
         }
     }
 
@@ -74,10 +86,9 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     Vector3 pathPos;
     Quaternion pathRot;
 
+    float dist = 0f;
     private void Update()
     {
-        float dist = 0f;
-
         if (Measure.CaptureState != MeasureCaptureState.Captured)
         {
             // Calculate path distance based on fraction
@@ -89,8 +100,8 @@ public class AmpTrackSectionDestruct : MonoBehaviour
 
             // Don't update clipping if the measure was already captured!
             // Do continue the rest of the capturing though, as we don't want to skip measures during capturing.
-            if (Measure.CaptureState != MeasureCaptureState.Captured)
-                Clip();
+            //if (Measure.CaptureState != MeasureCaptureState.Captured)
+            Clip();
         }
 
         if (fraction != 1f)
@@ -117,7 +128,8 @@ public class AmpTrackSectionDestruct : MonoBehaviour
                                       + (normalUp * PositionOnPath.y);
 
                 DestructFX.transform.position = pos;
-                DestructFX.transform.rotation = pathRot;
+                DestructFX.transform.rotation = pathRot * RotationQuat;
+                //Debug.DrawLine(pos, ((DestructFX.transform.rotation * Quaternion.Euler(0, 0, -90)) * pos) * 5f, Color.white, 2); // visualize up normal
             }
         }
         else // 1f, done!
@@ -131,8 +143,8 @@ public class AmpTrackSectionDestruct : MonoBehaviour
 
     public void Clip()
     {
-        //if (fraction == 1f)
-        //    dist += 1f; // TODO: wtf?
+        if (fraction == 1f)
+            dist += 1f; // TODO: wtf?
 
         ClipPlane.transform.position = pathPos;
         ClipPlane.transform.rotation = pathRot * Quaternion.Euler(new Vector3(90, 0, 0));

@@ -61,6 +61,7 @@ public partial class AmpTrack
             TunnelPos.x, // X is the track's horizontal position
             TunnelPos.y, meta.StartDistance); // Z is the distance at which the measure needs to be placed
         measure.Rotation = TunnelRot.z;
+        measure.RotationQuat = Quaternion.Euler(TunnelRot); // Used in AmpTrackDestructFX
 
         /// Add measure to measure list
         Measures.Add(measure);

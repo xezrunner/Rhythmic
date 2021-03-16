@@ -442,6 +442,7 @@ MonoBehaviour:
   Length: 32
   Position: {x: 0, y: 0, z: 0}
   Rotation: 0
+  RotationQuat: {x: 0, y: 0, z: 0, w: 0}
   IsEmpty: 0
   IsCapturing: 0
   CaptureState: 0
@@ -776,6 +777,11 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 34995c5dd965a2e4f81ff951c4f07dbf,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 34995c5dd965a2e4f81ff951c4f07dbf,
+        type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 34995c5dd965a2e4f81ff951c4f07dbf,

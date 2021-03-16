@@ -20,6 +20,9 @@ public partial class AmpTrack : MonoBehaviour
     [Header("Containers")]
     public Transform MeasureContainer;
 
+    [Header("Capture animation content refs")]
+    public AmpTrackDestructFX DestructFX;
+
     [Header("Global Edge Light")]
     public EdgeLights GlobalEdgeLights;
 
@@ -94,6 +97,7 @@ public partial class AmpTrack : MonoBehaviour
 
         // Color
         Color = Colors.ColorFromInstrument(Instrument);
+        DestructFX.TrackColor = Color;
 
         // TODO: EdgeLights colors!
         LocalEdgeLightsMaterial.SetColor("_Emission", Color * 1.15f);
