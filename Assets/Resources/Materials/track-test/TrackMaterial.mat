@@ -76,7 +76,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _PlaneEnabled: 1
-    - _Smoothness: 0.838
+    - _Smoothness: 0.81
     - _SmoothnessTextureChannel: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1

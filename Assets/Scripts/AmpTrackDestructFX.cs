@@ -1,10 +1,14 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 // Track destruction FX
 
 public class AmpTrackDestructFX : MonoBehaviour
 {
     FXProperties FXProps { get { return FXProperties.Instance; } }
+
+    public Light Light;
+    public GameObject LightObject;
 
     [Header("Base particles refs")]
     public GameObject BaseParticlesObject;
@@ -50,6 +54,8 @@ public class AmpTrackDestructFX : MonoBehaviour
 
     public void SetupColors()
     {
+        Light.color = TrackColor;
+
         // TODO: Do we really need to set regular _Color properties as well?
         // Sparkle particles
         SparkleParticlesRenderer.material.SetColor("_EmissionColor", TrackColor * FXProps.Destruct_SparkleGlow);
@@ -63,9 +69,23 @@ public class AmpTrackDestructFX : MonoBehaviour
         }
     }
 
+    IEnumerator AnimateLight(float from, float to)
+    {
+        float t = 0;
+        while (Light.intensity != to)
+        {
+            Light.intensity = Mathf.Lerp(from, to, t);
+            t += Time.deltaTime;
+            yield return null;
+        }
+    }
+
     // TODO: set certain properties based on proximity, such as how many particles to draw in certain particles?
     public void Play(bool proximity = true)
     {
+        //StartCoroutine(AnimateLight(0, 10));
+        Light.intensity = 7;
+
         BaseParticles.Play();
         if (proximity) SparkleParticles.Play();
         for (int i = 0; i < 2; i++)
@@ -74,6 +94,9 @@ public class AmpTrackDestructFX : MonoBehaviour
 
     public void Stop()
     {
+        //StartCoroutine(AnimateLight(10, 0));
+        Light.intensity = 0;
+
         BaseParticles.Stop();
         SparkleParticles.Stop();
         for (int i = 0; i < 2; i++)

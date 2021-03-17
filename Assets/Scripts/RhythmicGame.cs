@@ -133,7 +133,7 @@ public static class RhythmicGame
     public static bool DebugTrackCapturingEase = false;
 
     public static bool DebugPlayerCameraAnimEvents = false;
-    public static bool DebugPlayerTrackSwitchEvents = true;
+    public static bool DebugPlayerTrackSwitchEvents = false;
     public static bool DebugPlayerTrackSeekEvents = true;
 
     public static bool DebugCatchResultEvents = false;

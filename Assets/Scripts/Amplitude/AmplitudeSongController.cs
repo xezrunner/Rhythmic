@@ -187,9 +187,9 @@ public class AmplitudeSongController : SongController
         List<MeasureInfo> finalList = new List<MeasureInfo>();
         float prevTime = 0f;
 
-        if (songLengthInMeasures * measureLengthInzPos > GameObject.Find("Path").GetComponent<PathCreator>().path.length)
+        if (songLengthInMeasures * measureLengthInzPos > PathTools.Path.length)
         {
-            prevTime = GameObject.Find("Path").GetComponent<PathCreator>().path.length - songLengthInMeasures * measureLengthInzPos;
+            prevTime = PathTools.Path.length - songLengthInMeasures * measureLengthInzPos;
             Debug.LogFormat("Offsetting tracks: {0}", prevTime);
         }
 
