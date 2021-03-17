@@ -101,7 +101,7 @@ public partial class AmpTrack : MonoBehaviour
 
         // TODO: EdgeLights colors!
         LocalEdgeLightsMaterial.SetColor("_Emission", Color * 1.15f);
-        GlobalEdgeLightsMaterial.SetColor("_Emission", Color * 1.45f);
+        GlobalEdgeLightsMaterial.SetColor("_Emission", Color * 2.65f);
         GlobalEdgeLightsMaterial.SetInteger("_Enabled", 0);
         TrackMaterial_Active.SetInteger("_Enabled", 0);
 
@@ -313,11 +313,11 @@ public partial class AmpTrack : MonoBehaviour
         public static Color Invalid = new Color(255, 255, 255, Opacity);
         public static Color Empty = new Color(118, 118, 118, Opacity);
 
-        public static Color Drums = new Color(212, 93, 180, Opacity);
-        public static Color Bass = new Color(87, 159, 221, Opacity);
-        public static Color Synth = new Color(221, 219, 89, Opacity);
-        public static Color Guitar = new Color(255, 15, 20, Opacity);
-        public static Color Vocals = new Color(0, 255, 0, Opacity);
+        public static Color Drums = new Color(255, 61, 246, Opacity);
+        public static Color Bass = new Color(20, 99, 252, Opacity);
+        public static Color Synth = new Color(221, 255, 0, Opacity);
+        public static Color Guitar = new Color(213, 21, 11, Opacity);
+        public static Color Vocals = new Color(32, 202, 45, Opacity);
         public static Color Freestyle = new Color(110, 110, 110, Opacity);
 
         public static Material[] materialCache = new Material[6];

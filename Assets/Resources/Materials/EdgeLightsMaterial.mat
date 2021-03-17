@@ -92,12 +92,12 @@ Material:
     - _GlossyReflections: 0
     - _InversePlaneEnabled: 0
     - _LightingEnabled: 0
-    - _Metallic: 0.12
+    - _Metallic: 1
     - _Mode: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _PlaneEnabled: 1
-    - _Smoothness: 0
+    - _Smoothness: 1
     - _SmoothnessTextureChannel: 0
     - _SoftParticlesEnabled: 0
     - _SoftParticlesFarFadeDistance: 1

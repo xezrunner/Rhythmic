@@ -9,6 +9,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
 {
     Clock Clock { get { return Clock.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
+    FXProperties FXProps { get { return FXProperties.Instance; } }
 
     VertexPath Path;
     GameObject ClipPlane;
@@ -23,6 +24,17 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     AmpTrack Track;
     ClipManager ClipManager;
     AmpTrackDestructFX DestructFX;
+
+    // TODO TODO TODO:
+    // Move this to be on a Track rather than a Measure!
+
+    void Awake()
+    {
+        // If not initialized with a measure, get it!
+        if (!Measure)
+            Init(GetComponent<AmpTrackSection>());
+    }
+    void Start() { if (!Measure.IsCaptured & !Measure.IsCapturing) Clip(); } // Clip to start (0f)
 
     public void Init(AmpTrackSection m)
     {
@@ -56,7 +68,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         }
 
         // Set up & start destruct FX:
-        if (DestructFX && !m.IsEmpty)
+        if (DestructFX && (FXProps.Destruct_ForceEffects || !m.IsEmpty))
         {
             //DestructFX.gameObject.SetActive(true);
 
@@ -70,14 +82,6 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         }
     }
 
-    void Awake()
-    {
-        // If not initialized with a measure, get it!
-        if (!Measure)
-            Init(GetComponent<AmpTrackSection>());
-    }
-    void Start() { if (!Measure.IsCaptured & !Measure.IsCapturing) Clip(); } // Clip to start (0f)
-
     [Range(0, 1)]
     public float fraction;
 
@@ -89,48 +93,48 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     float dist = 0f;
     private void Update()
     {
-        if (Measure.CaptureState != MeasureCaptureState.Captured)
-        {
-            // Calculate path distance based on fraction
-            dist = PositionOnPath.z + (Length * fraction);
-
-            // Update pos along path
-            pathPos = PathTools.GetPositionOnPath(Path, dist);
-            pathRot = PathTools.GetRotationOnPath(Path, dist);
-
-            // Don't update clipping if the measure was already captured!
-            // Do continue the rest of the capturing though, as we don't want to skip measures during capturing.
-            //if (Measure.CaptureState != MeasureCaptureState.Captured)
-            Clip();
-        }
-
         if (fraction != 1f)
         {
-            fraction = Mathf.MoveTowards(fraction, 1.0f, Track.captureAnimStep * Time.deltaTime);
-
-            // Capture notes
-            for (int i = 0; i < fraction * Measure.Notes.Count; i++)
+            if (Measure.CaptureState != MeasureCaptureState.Captured)
             {
-                if (!lastCapturedNotes.Contains(i))
+                // Calculate path distance based on fraction
+                dist = PositionOnPath.z + (Length * fraction);
+
+                // Update pos along path
+                pathPos = PathTools.GetPositionOnPath(Path, dist);
+                pathRot = PathTools.GetRotationOnPath(Path, dist);
+
+                // Don't update clipping if the measure was already captured!
+                // Do continue the rest of the capturing though, as we don't want to skip measures during capturing.
+                //if (Measure.CaptureState != MeasureCaptureState.Captured)
+                Clip();
+
+                // Capture notes
+                for (int i = 0; i < fraction * Measure.Notes.Count; i++)
                 {
-                    Measure.Notes[i].CaptureNote();
-                    lastCapturedNotes.Add(i);
+                    if (!lastCapturedNotes.Contains(i))
+                    {
+                        Measure.Notes[i].CaptureNote();
+                        lastCapturedNotes.Add(i);
+                    }
+                }
+
+                // Update position for capture FX!
+                {
+                    // TODO: PathTools.GetPositionOnPath() could provide out values so we don't need to get it here
+                    Vector3 normalRight = (Path != null) ? Path.GetNormalAtDistance(dist) : Vector3.right;
+                    Vector3 normalUp = Vector3.Cross(Path.GetTangentAtDistance(dist), normalRight);
+
+                    Vector3 pos = pathPos + (normalRight * PositionOnPath.x)
+                                          + (normalUp * PositionOnPath.y);
+
+                    DestructFX.transform.position = pos;
+                    DestructFX.transform.rotation = pathRot * RotationQuat;
+                    //Debug.DrawLine(pos, ((DestructFX.transform.rotation * Quaternion.Euler(0, 0, -90)) * pos) * 5f, Color.white, 2); // visualize up normal
                 }
             }
 
-            // Update position for capture FX!
-            {
-                // TODO: PathTools.GetPositionOnPath() could provide out values so we don't need to get it here
-                Vector3 normalRight = (Path != null) ? Path.GetNormalAtDistance(dist) : Vector3.right;
-                Vector3 normalUp = Vector3.Cross(Path.GetTangentAtDistance(dist), normalRight);
-
-                Vector3 pos = pathPos + (normalRight * PositionOnPath.x)
-                                      + (normalUp * PositionOnPath.y);
-
-                DestructFX.transform.position = pos;
-                DestructFX.transform.rotation = pathRot * RotationQuat;
-                //Debug.DrawLine(pos, ((DestructFX.transform.rotation * Quaternion.Euler(0, 0, -90)) * pos) * 5f, Color.white, 2); // visualize up normal
-            }
+            fraction = Mathf.MoveTowards(fraction, 1.0f, Track.captureAnimStep * Time.deltaTime);
         }
         else // 1f, done!
         {
