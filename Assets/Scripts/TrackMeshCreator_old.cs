@@ -48,9 +48,11 @@ public class TrackMeshCreator_old : PathSceneTool
         EdgeLightsPrefab = (GameObject)Resources.Load("Prefabs/EdgeLights");
         EdgeLightsMaterial = (Material)Resources.Load("Materials/EdgeLightsMaterial");
     }
-    protected override void PathUpdated()
+
+    public static bool forceUpdate;
+    protected override void PathUpdated(bool force = false)
     {
-        if (TrackObjects != null && reactToPathChanges)
+        if (TrackObjects != null && (force ||reactToPathChanges))
         {
             int counter = 0;
             foreach (GameObject trackObj in TrackObjects)

@@ -33,7 +33,7 @@ public class PathSceneToolEditor : Editor
         {
             if (TryFindPathCreator())
             {
-                TriggerUpdate();
+                TriggerUpdate(true);
                 SceneView.RepaintAll();
             }
         }
@@ -41,11 +41,11 @@ public class PathSceneToolEditor : Editor
     }
 
 
-    void TriggerUpdate()
+    void TriggerUpdate(bool force = false)
     {
         if (pathTool.pathCreator != null)
         {
-            pathTool.TriggerUpdate();
+            pathTool.TriggerUpdate(force);
         }
     }
 

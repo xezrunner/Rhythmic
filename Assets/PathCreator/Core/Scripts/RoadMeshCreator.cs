@@ -23,7 +23,7 @@ public class RoadMeshCreator : PathSceneTool
     MeshRenderer meshRenderer;
     Mesh mesh;
 
-    protected override void PathUpdated()
+    protected override void PathUpdated(bool force = false)
     {
         if (pathCreator != null)
         {
