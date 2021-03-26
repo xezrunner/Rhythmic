@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 835594479}
   - component: {fileID: 835594481}
+  - component: {fileID: 1225588844699761905}
+  - component: {fileID: 1225588844699761906}
   - component: {fileID: 835594480}
   m_Layer: 13
   m_Name: WorldCamera
@@ -56,8 +58,8 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 10000
-  field of view: 66
+  far clip plane: 2383
+  field of view: 57.8
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -75,6 +77,58 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1225588844699761905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835594478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76854d6817200e341958f24b2f031e28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  distanceFog: 1
+  excludeFarPixels: 0
+  useRadialDistance: 0
+  heightFog: 1
+  height: -472.6
+  heightDensity: 11.1
+  startDistance: 586.5
+  maxDensity: 0.31
+  energyLoss: 0
+  fogTint: {r: 1, g: 1, b: 1, a: 1}
+  fogShader: {fileID: 4800000, guid: f796635016f0e5340b3c4cba03dbeb2f, type: 3}
+  setGlobalSettings: 1
+  fogColor: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 0}
+  fogMode: 2
+  fogDensity: 0.002
+  fogStart: 0
+  fogEnd: 460
+  fogRT: {fileID: 0}
+--- !u!114 &1225588844699761906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835594478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1ce05720998171408336a720488618c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _threshold: 0
+  _softKnee: 0.5
+  _radius: 7
+  _blurWeight: 1
+  _intensity: 1
+  _highQuality: 1
+  _antiFlicker: 1
+  _fadeRamp: {fileID: 2800000, guid: 97bdf876e6a129347832b86b204d260b, type: 3}
+  _blurTint: {r: 1, g: 1, b: 1, a: 1}
+  _shader: {fileID: 0}
 --- !u!114 &835594480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82,14 +136,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 835594478}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 54ead4c6190a7544b84f98038881bbd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   renderMode: 0
   kernelSize: 1
-  interpolation: 0.2
+  interpolation: 0.199
   downsample: 0
   iterations: 5
   gammaCorrection: 0
@@ -112,7 +166,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1117322938
 Transform:
   m_ObjectHideFlags: 0
@@ -121,7 +175,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1117322937}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -51.5}
+  m_LocalPosition: {x: 0, y: 65.2, z: -51.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8290928694047090807}
@@ -5372,7 +5426,7 @@ Camera:
   m_GameObject: {fileID: 1225588845251898412}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 4
+  m_ClearFlags: 3
   m_BackGroundColor: {r: 0.103773594, g: 0.103773594, b: 0.103773594, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
