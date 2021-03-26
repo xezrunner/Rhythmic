@@ -12,40 +12,24 @@ public struct RefDebugComInstance
     public object ObjectInstance;
 }
 
-public struct DebugComSelectionLine // Ambiguity with DebugLine
-{
-    public DebugComSelectionLine(int start, int end, object tag) { startIndex = start; endIndex = end; Tag = tag; Color = Color.white; SelectedColor = Colors.Application; }
-    public DebugComSelectionLine(int start, int end, object tag, Color color) { startIndex = start; endIndex = end; Tag = tag; Color = color; SelectedColor = Colors.Application; }
-    public DebugComSelectionLine(int start, int end, object tag, Color color, Color selectedColor) { startIndex = start; endIndex = end; Tag = tag; Color = color; SelectedColor = selectedColor; }
-
-    public int startIndex;
-    public int endIndex;
-    public object Tag;
-
-    public Color Color;
-    public Color SelectedColor;
-}
-
 public enum DebugComponentType { Component = 0, Prefab = 1 }
-public enum DebugComSelectionUpdateMode { Once = 0, ManualFlagging = 1, Always = 2 }
 public enum DebugComTextMode { Clear = 0, Additive = 1 }
 
 [AttributeUsage(AttributeTargets.Class)]
 public class DebugComponentAttribute : Attribute
 {
-    public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, string prefabPath, float updateMs = -1, DebugComSelectionUpdateMode selectionUpdateMode = DebugComSelectionUpdateMode.ManualFlagging)
-    { DebugFlag = debugFlag; ComponentType = comType; SelectionUpdateMode = selectionUpdateMode; TextMode = DebugComTextMode.Clear; UpdateFrequencyInMs = updateMs; PrefabPath = prefabPath; }
-    public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, float updateMs = -1, DebugComSelectionUpdateMode selectionUpdateMode = DebugComSelectionUpdateMode.ManualFlagging, string prefabPath = "")
-    { DebugFlag = debugFlag; ComponentType = comType; SelectionUpdateMode = selectionUpdateMode; TextMode = DebugComTextMode.Clear; UpdateFrequencyInMs = updateMs; PrefabPath = prefabPath; }
-    public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, float updateMs, DebugComTextMode textMode, DebugComSelectionUpdateMode selectionUpdateMode = DebugComSelectionUpdateMode.ManualFlagging, string prefabPath = "")
-    { DebugFlag = debugFlag; ComponentType = comType; SelectionUpdateMode = selectionUpdateMode; TextMode = textMode; UpdateFrequencyInMs = updateMs; PrefabPath = prefabPath; }
+    public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, string prefabPath, float updateMs = -1)
+    { DebugFlag = debugFlag; ComponentType = comType; TextMode = DebugComTextMode.Clear; UpdateFrequencyInMs = updateMs; PrefabPath = prefabPath; }
+    public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, float updateMs = -1, string prefabPath = "")
+    { DebugFlag = debugFlag; ComponentType = comType; TextMode = DebugComTextMode.Clear; UpdateFrequencyInMs = updateMs; PrefabPath = prefabPath; }
+    public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, float updateMs, DebugComTextMode textMode, string prefabPath = "")
+    { DebugFlag = debugFlag; ComponentType = comType; TextMode = textMode; UpdateFrequencyInMs = updateMs; PrefabPath = prefabPath; }
     /// <param name="additiveMaxLines">We'll assume you want Additive text mode.</param>
     public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, float updateMs, int additiveMaxLines, string prefabPath = "")
-    { DebugFlag = debugFlag; ComponentType = comType; SelectionUpdateMode = DebugComSelectionUpdateMode.ManualFlagging; TextMode = DebugComTextMode.Additive; AdditiveMaxLines = additiveMaxLines; UpdateFrequencyInMs = updateMs; PrefabPath = prefabPath; }
+    { DebugFlag = debugFlag; ComponentType = comType; TextMode = DebugComTextMode.Additive; AdditiveMaxLines = additiveMaxLines; UpdateFrequencyInMs = updateMs; PrefabPath = prefabPath; }
 
     public DebugComponentFlag DebugFlag;
     public DebugComponentType ComponentType;
-    public DebugComSelectionUpdateMode SelectionUpdateMode;
     public DebugComTextMode TextMode;
 
     public int AdditiveMaxLines = -1;
@@ -107,35 +91,9 @@ public class DebugComponent : MonoBehaviour
         if (Attribute.AdditiveMaxLines > 0)
             Text = Text.MaxLines(Attribute.AdditiveMaxLines);
 
-        // Add selection line:
-        if (isSelectable && SelectionLines.Where(i => i.Tag == selectionTag) != null) // TODO: performance!
-        {
-            if (SelectionUpdateMode == DebugComSelectionUpdateMode.Always || (SelectionUpdateMode < DebugComSelectionUpdateMode.Always && !selectionUpdated))
-            {
-                DebugComSelectionLine selectionLine = new DebugComSelectionLine(Text.Length - line.Length - linesToAdd, Text.Length, selectionTag);
-                SelectionLines.Add(selectionLine);
-            }
-        }
-
         return Text;
     }
     public string AddLine(string line = "", bool isSelectable = false) => AddLine(line, 1, isSelectable);
     public string AddLine(string line = "") => AddLine(line, false);
     public string AddLine() => AddLine("");
-
-    // Selection:
-    DebugComSelectionUpdateMode? _selectionUpdateMode;
-    public DebugComSelectionUpdateMode SelectionUpdateMode
-    {
-        get
-        {
-            if (!_selectionUpdateMode.HasValue)
-                _selectionUpdateMode = Attribute.SelectionUpdateMode;
-
-            return _selectionUpdateMode.Value;
-        }
-    }
-
-    bool selectionUpdated = false;
-    public List<DebugComSelectionLine> SelectionLines = new List<DebugComSelectionLine>();
 }

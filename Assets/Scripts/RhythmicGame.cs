@@ -124,7 +124,7 @@ public static class RhythmicGame
     public static bool AutoFindPathFallback = true; // Whether to attempt finding an object named 'Path' in case a world/song path was never specified.
 
     public static bool EnableTrackVisualClipping = true; // Controls all visual track clipping effects in the game.
-    public static bool DisableTrackLengthClipping = true; // Controls the horizon clipping effect
+    public static bool DisableTrackLengthClipping = false; // Controls the horizon clipping effect
 
     /* ----- DEBUG props ----- */
 
