@@ -7,12 +7,16 @@ public class DebugControllerEditor : Editor
     DebugController main;
     void Awake() => main = (DebugController)target;
 
+    DebugComponentFlag state;
+
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
 
         // State
-        main.State = (DebugComponentFlag)EditorGUILayout.EnumFlagsField("State: ", main.State);
+        state = main.State;
+        state = (DebugComponentFlag)EditorGUILayout.EnumFlagsField("State: ", state);
+        if (main.State != state) main.State = state;
 
         DrawDebugTests();
     }

@@ -18,6 +18,8 @@ public enum DebugComTextMode { Clear = 0, Additive = 1 }
 [AttributeUsage(AttributeTargets.Class)]
 public class DebugComponentAttribute : Attribute
 {
+    public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, bool _internal_nohandling)
+    { DebugFlag = debugFlag; ComponentType = comType; _Internal_NoHandleComponent = _internal_nohandling; }
     public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, string prefabPath, float updateMs = -1)
     { DebugFlag = debugFlag; ComponentType = comType; TextMode = DebugComTextMode.Clear; UpdateFrequencyInMs = updateMs; PrefabPath = prefabPath; }
     public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, float updateMs = -1, string prefabPath = "")
@@ -28,6 +30,7 @@ public class DebugComponentAttribute : Attribute
     public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, float updateMs, int additiveMaxLines, string prefabPath = "")
     { DebugFlag = debugFlag; ComponentType = comType; TextMode = DebugComTextMode.Additive; AdditiveMaxLines = additiveMaxLines; UpdateFrequencyInMs = updateMs; PrefabPath = prefabPath; }
 
+    public bool _Internal_NoHandleComponent;
     public DebugComponentFlag DebugFlag;
     public DebugComponentType ComponentType;
     public DebugComTextMode TextMode;
@@ -60,11 +63,10 @@ public class DebugComponent : MonoBehaviour
     public bool IsUIComponent = false;
 
     public virtual void UI_Main() { }
-
     // TODO: components should emit thier own individual texts.
     // This means that in case we want to have multiple components writing at once, DebugUI should be able to grab all of them.
     // For now, only one component can change the main DebugUI text.
-    public string Text { get; set; }
+    public string Text;
     public void ClearText() => Text = "";
 
     public string AddLine(string line = "", int linesToAdd = 1, bool isSelectable = false, object selectionTag = null)
@@ -80,12 +82,14 @@ public class DebugComponent : MonoBehaviour
 
         // TODO: we may want a Separator() / AddSeparator() function to add extra space? (although AddLine() would be just fine... hmm!)
         for (int i = 0; i < Mathf.Abs(linesToAdd); i++)
+        {
             if (linesToAdd > 0) Text += '\n';
             else
             {
                 Text = Text.Insert(Text.Length - line.Length, "\n");
                 Text += '\n'; // Add one newline at the end of the string regardless of going negative.
             }
+        }
 
         // Max line count:
         if (Attribute.AdditiveMaxLines > 0)

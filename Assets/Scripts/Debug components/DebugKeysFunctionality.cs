@@ -88,9 +88,9 @@ public partial class DebugKeys
 
         Logger.LogMethod(Camera.main.renderingPath.ToString(), "Debug");
     }
-    void DEBUG_SetFramerateLock(int framerate)
+    void DEBUG_SetFramerateLock(int framerate, bool vsync = false)
     {
-        RhythmicGame.SetFramerate(framerate, Input.GetKey(KeyCode.LeftShift) ? 1 : 0);
+        RhythmicGame.SetFramerate(framerate, vsync ? 1 : 0);
     }
     void DEBUG_SetPreferredResolution(Vector2 resolution)
     {

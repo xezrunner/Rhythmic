@@ -77,11 +77,15 @@ public partial class DebugKeys : DebugComponent
         }
 
         // FPS Lock
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(10);
-        else if (Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(60);
-        else if (Input.GetKeyDown(KeyCode.F2)) DEBUG_SetFramerateLock(120);
-        else if (Input.GetKeyDown(KeyCode.F3)) DEBUG_SetFramerateLock(200);
-        else if (Input.GetKeyDown(KeyCode.F4)) DEBUG_SetFramerateLock(0);
+        if (Keyboard.current.shiftKey.isPressed)
+        {
+            if (Keyboard.current.ctrlKey.isPressed && Keyboard.current.f1Key.wasPressedThisFrame) DEBUG_SetFramerateLock(10);
+            else if (Keyboard.current.f1Key.wasPressedThisFrame) DEBUG_SetFramerateLock(60);
+            else if (Keyboard.current.f2Key.wasPressedThisFrame) DEBUG_SetFramerateLock(120);
+            else if (Keyboard.current.f3Key.wasPressedThisFrame) DEBUG_SetFramerateLock(200);
+            else if (Keyboard.current.f4Key.wasPressedThisFrame) DEBUG_SetFramerateLock(0);
+            else if (Keyboard.current.f5Key.wasPressedThisFrame) DEBUG_SetFramerateLock(0, vsync: true);
+        }
 
         // Toggle tunnel mode
         if (Input.GetKeyDown(KeyCode.F))

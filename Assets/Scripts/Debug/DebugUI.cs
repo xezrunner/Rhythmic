@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public enum DebugUILevel
 {
@@ -45,11 +43,14 @@ public class DebugUI : DebugComponent
 
     [Header("Content references")]
     public TextMeshProUGUI framerateText;
-    public TextMeshProUGUI debugText;
     public TextMeshProUGUI debugLineText;
+    public TextMeshProUGUI debugText;
 
     public TextMeshProUGUI datetimeText;
     public TextMeshProUGUI resolutionVersionText;
+
+    public Image debugmenuArrow;
+    public TextMeshProUGUI debugmenuText;
 
     [Header("Properties")]
     public float SelfDebugOpacity = 0.8f;
@@ -81,7 +82,7 @@ public class DebugUI : DebugComponent
     {
         datetimeText.text = $"{DateTime.Now}";
         resolutionVersionText.text = $"{RhythmicGame.Resolution.x}x{RhythmicGame.Resolution.y} @ 75Hz\n" +
-                                     $"Build 20210314-05";
+                                     $"{Version.build_string}";
     }
 
     /// Interface switching
@@ -173,6 +174,10 @@ public class DebugUI : DebugComponent
     void HandleActiveComponentText(bool force = false)
     {
         if (!ActiveComponent) return;
+        if (ActiveComponent.Attribute._Internal_NoHandleComponent) return;
+
+        // Keep track of elapsed ms for update frequency (we are called from Update())
+        mainText_ElapsedTime += Time.unscaledDeltaTime * 1000;
 
         float updateFreq = ActiveComponent.Attribute.UpdateFrequencyInMs;
         if (force || updateFreq != -1)
@@ -261,6 +266,7 @@ public class DebugUI : DebugComponent
         { }
     }
 
+    float seconds_ElapsedTime;
     float debugLine_ElapsedTime;
     float mainText_ElapsedTime;
     float FPS_deltaTime;
@@ -275,13 +281,19 @@ public class DebugUI : DebugComponent
 
         HandleDebugLineTimeout();
 
-        // Keep track of elapsed ms for update frequency
-        mainText_ElapsedTime += Time.unscaledDeltaTime * 1000;
         HandleActiveComponentText(); // Get active component text!
 
         // Update self text manually if needed
         if (IsSelfDebug || AlwaysUpdate)
             UpdateMainDebugText();
+
+        // Update date & time info
+        seconds_ElapsedTime += Time.unscaledDeltaTime;
+        if (seconds_ElapsedTime >= 1)
+        {
+            datetimeText.text = $"{DateTime.Now}";
+            seconds_ElapsedTime = 0;
+        }
 
         // update framerate debug
         if (Time.timeScale == 0f)
