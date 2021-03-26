@@ -41,7 +41,7 @@ public class TracksController : MonoBehaviour
     public List<string> songTracks = new List<string>();
 
     // Clipping
-    ClipManager clipManager;
+    public ClipManager clipManager;
     GameObject lengthPlane;
 
     /// Functionality

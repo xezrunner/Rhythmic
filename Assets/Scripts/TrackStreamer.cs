@@ -80,6 +80,7 @@ public class TrackStreamer : MonoBehaviour
     public void DestroyBehind(bool immediate = false) => StartCoroutine(_DestroyBehind(immediate));
     IEnumerator _DestroyBehind(bool immediate = false)
     {
+        if (destroyCounter < 0) yield break;
         for (int t = 0; t < TrackController.Tracks.Length; t++)
         {
             var track = TrackController.Tracks[t];
@@ -94,7 +95,7 @@ public class TrackStreamer : MonoBehaviour
                 if (!immediate) yield return new WaitForSeconds(DestroyDelay);
             }
         }
-        destroyCounter++;
+        destroyCounter = Clock.Fbar - 1;
     }
 
     public void StreamNotes(int id, int trackID, AmpTrackSection measure) => StartCoroutine(_StreamNotes(id, trackID, measure, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Notes)));
@@ -138,7 +139,11 @@ public class TrackStreamer : MonoBehaviour
             {
                 // TODO: Not sure if this is needed:
                 //if (!RhythmicGame.StreamAllMeasuresOnStart && id > Clock.Fbar + RhythmicGame.HorizonMeasures) { Logger.LogMethodE($"Tried streaming measure {id.ToString().AddColor(Colors.Warning)}, which is beyond the horizon! ", this); yield break; }
-                if (id < track.Measures.Count && track.Measures[id] != null) { Logger.LogMethodE($"Tried streaming measure {id.ToString().AddColor(Colors.Warning)}, which already exists!", this); yield break; }
+                if (id < track.Measures.Count && track.Measures[id] != null)
+                {
+                    Logger.LogMethodE($"Tried streaming measure {id.ToString().AddColor(Colors.Warning)}, which already exists!", this);
+                    yield break;
+                }
             }
 
             // Create section!

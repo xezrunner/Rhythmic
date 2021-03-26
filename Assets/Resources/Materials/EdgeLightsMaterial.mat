@@ -92,12 +92,12 @@ Material:
     - _GlossyReflections: 0
     - _InversePlaneEnabled: 0
     - _LightingEnabled: 0
-    - _Metallic: 0
+    - _Metallic: 1
     - _Mode: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _PlaneEnabled: 1
-    - _Smoothness: 0
+    - _Smoothness: 1
     - _SmoothnessTextureChannel: 0
     - _SoftParticlesEnabled: 0
     - _SoftParticlesFarFadeDistance: 1
@@ -115,10 +115,10 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 0, g: 1, b: 0, a: 1}
+    - _Color: {r: 1, g: 0, b: 0.7593584, a: 1}
     - _ColorAddSubDiff: {r: -1, g: 1, b: 0, a: 0}
     - _CutoffColor: {r: 0, g: 0, b: 0, a: 0}
-    - _Emission: {r: 0, g: 2.5, b: 0, a: 2.5}
+    - _Emission: {r: 2.5, g: 0, b: 1.4363432, a: 2.5}
     - _EmissionColor: {r: 2.1666667, g: 2.147059, b: 0.87254906, a: 2.5}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _InversePlane: {r: 0, g: 0, b: 0, a: 0}

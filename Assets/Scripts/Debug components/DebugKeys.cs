@@ -68,10 +68,13 @@ public partial class DebugKeys : DebugComponent
             SongController.PlayPause();
 
         // Resolution
-        if (Input.GetKeyDown(KeyCode.F11) & Input.GetKey(KeyCode.LeftControl) & Input.GetKey(KeyCode.LeftShift))
-            DEBUG_SetPreferredResolution(new Vector2(1280, 720));
-        if (Input.GetKeyDown(KeyCode.F12) & Input.GetKey(KeyCode.LeftControl) & Input.GetKey(KeyCode.LeftShift))
-            DEBUG_SetPreferredResolution(new Vector2(1920, 1080));
+        if (!Application.isEditor)
+        {
+            if (Input.GetKeyDown(KeyCode.F11) & Input.GetKey(KeyCode.LeftControl) & Input.GetKey(KeyCode.LeftShift))
+                DEBUG_SetPreferredResolution(new Vector2(1280, 720));
+            if (Input.GetKeyDown(KeyCode.F12) & Input.GetKey(KeyCode.LeftControl) & Input.GetKey(KeyCode.LeftShift))
+                DEBUG_SetPreferredResolution(new Vector2(1920, 1080));
+        }
 
         // FPS Lock
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(10);

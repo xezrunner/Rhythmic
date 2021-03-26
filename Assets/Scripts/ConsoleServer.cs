@@ -61,6 +61,9 @@ public static class ConsoleServer
 
     public static void Write(string text, CLogType logType = CLogType.Info, string color = null)
     {
+        if (CServer == null)
+            return;
+
         byte[] textBytes = Encoding.ASCII.GetBytes(text);
         byte[] colorBytes = new byte[0];
 

@@ -9,8 +9,8 @@ public abstract class PathSceneTool : MonoBehaviour
     public PathCreator pathCreator;
     public VertexPath path { get { return pathCreator.path; } }
 
-    public void TriggerUpdate() => PathUpdated();
+    public void TriggerUpdate(bool force = false) => PathUpdated(force);
 
     protected virtual void OnDestroy() => onDestroyed?.Invoke();
-    protected abstract void PathUpdated();
+    protected abstract void PathUpdated(bool force = false);
 }

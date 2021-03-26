@@ -2,6 +2,7 @@ using PathCreation;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public partial class AmpTrack : MonoBehaviour
@@ -18,6 +19,9 @@ public partial class AmpTrack : MonoBehaviour
 
     [Header("Containers")]
     public Transform MeasureContainer;
+
+    [Header("Capture animation content refs")]
+    public AmpTrackDestructFX DestructFX;
 
     [Header("Global Edge Light")]
     public EdgeLights GlobalEdgeLights;
@@ -93,11 +97,15 @@ public partial class AmpTrack : MonoBehaviour
 
         // Color
         Color = Colors.ColorFromInstrument(Instrument);
+        DestructFX.TrackColor = Color;
+
+        StartCoroutine(WarmupDestructFX());
 
         // TODO: EdgeLights colors!
-        LocalEdgeLightsMaterial.SetColor("_Emission", Color * 2.0f);
-        GlobalEdgeLightsMaterial.SetColor("_Emission", Color * 2.0f);
+        LocalEdgeLightsMaterial.SetColor("_Emission", Color * 1.15f);
+        GlobalEdgeLightsMaterial.SetColor("_Emission", Color * 2.65f);
         GlobalEdgeLightsMaterial.SetInteger("_Enabled", 0);
+        TrackMaterial_Active.SetInteger("_Enabled", 0);
 
         // Set up ClipManager for capture clipping
         ClipManager.AddMaterial(TrackMaterial);
@@ -109,6 +117,13 @@ public partial class AmpTrack : MonoBehaviour
         if (IsCloneTrack)
             foreach (AmpTrack t in TrackTwins)
                 t.Sequences = TracksController.Tracks[ID].Sequences;
+    }
+
+    IEnumerator WarmupDestructFX()
+    {
+        DestructFX.Play();
+        yield return new WaitForSeconds(3);
+        DestructFX.Stop();
     }
 
     public List<AmpTrackSection> Measures = new List<AmpTrackSection>();
@@ -228,8 +243,16 @@ public partial class AmpTrack : MonoBehaviour
             if (m) m.IsSequence = false;
         }
 
-        foreach (AmpTrackSection m in Sequences)
+        for (int i = 0; i < Sequences.Count; i++)
+        {
+            AmpTrackSection m = Sequences[i];
             if (m) m.IsSequence = true;
+
+            foreach (AmpNote n in m.Notes)
+                n.IsLastNote = false;
+            if (i == Sequences.Count - 1)
+                m.Notes.Last().IsLastNote = true;
+        }
     }
 
     // Measure capturing
@@ -299,11 +322,11 @@ public partial class AmpTrack : MonoBehaviour
         public static Color Invalid = new Color(255, 255, 255, Opacity);
         public static Color Empty = new Color(118, 118, 118, Opacity);
 
-        public static Color Drums = new Color(212, 93, 180, Opacity);
-        public static Color Bass = new Color(87, 159, 221, Opacity);
-        public static Color Synth = new Color(221, 219, 89, Opacity);
-        public static Color Guitar = new Color(255, 15, 20, Opacity);
-        public static Color Vocals = new Color(0, 255, 0, Opacity);
+        public static Color Drums = new Color(255, 61, 246, Opacity);
+        public static Color Bass = new Color(20, 99, 252, Opacity);
+        public static Color Synth = new Color(221, 255, 0, Opacity);
+        public static Color Guitar = new Color(213, 21, 11, Opacity);
+        public static Color Vocals = new Color(32, 202, 45, Opacity);
         public static Color Freestyle = new Color(110, 110, 110, Opacity);
 
         public static Material[] materialCache = new Material[6];

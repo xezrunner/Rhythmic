@@ -48,6 +48,9 @@ public class DebugUI : DebugComponent
     public TextMeshProUGUI debugText;
     public TextMeshProUGUI debugLineText;
 
+    public TextMeshProUGUI datetimeText;
+    public TextMeshProUGUI resolutionVersionText;
+
     [Header("Properties")]
     public float SelfDebugOpacity = 0.8f;
 
@@ -73,6 +76,12 @@ public class DebugUI : DebugComponent
         Instance = this;
         Instances = new RefDebugComInstance(this, gameObject);
         IsDebugLineOn = _isDebugLineOn;
+    }
+    void Start()
+    {
+        datetimeText.text = $"{DateTime.Now}";
+        resolutionVersionText.text = $"{RhythmicGame.Resolution.x}x{RhythmicGame.Resolution.y} @ 75Hz\n" +
+                                     $"Build 20210314-05";
     }
 
     /// Interface switching

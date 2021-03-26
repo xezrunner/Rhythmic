@@ -49,7 +49,8 @@ public class GameStarter : MonoBehaviour
         Debug.LogFormat("GameStarter: Preferred resolution applied - {0}x{1}.", RhythmicGame.PreferredResolution.x, RhythmicGame.PreferredResolution.y);
 #endif
 
-        StartCoroutine(Load("DevScene"));
+        //StartCoroutine(Load("DevScene"));
+        StartCoroutine(Load("TestScene"));
     }
 
     IEnumerator Load(string levelName)

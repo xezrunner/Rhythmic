@@ -69,10 +69,10 @@ public static class RhythmicGame
     public static float AVCalibrationStepMs = 16.67f;
 
     // Gameplay props
-    public static float SlopMs = 100f; // 100f
+    public static float SlopMs = 300f; // 100f
     public static float DebounceWindowMs = 85f;
 
-    public static int HorizonMeasures = 5; // How many measures should we be able to see ahead of us
+    public static int HorizonMeasures = 6; // How many measures should we be able to see ahead of us
     public static float HorizonMeasuresOffset = 15f; // How many units to offset (backwards) from the horizon when clipping
 
     // --- Track streaming --- //
@@ -124,7 +124,7 @@ public static class RhythmicGame
     public static bool AutoFindPathFallback = true; // Whether to attempt finding an object named 'Path' in case a world/song path was never specified.
 
     public static bool EnableTrackVisualClipping = true; // Controls all visual track clipping effects in the game.
-    public static bool DisableTrackLengthClipping = false; // Controls the horizon clipping effect
+    public static bool DisableTrackLengthClipping = true; // Controls the horizon clipping effect
 
     /* ----- DEBUG props ----- */
 
@@ -133,7 +133,7 @@ public static class RhythmicGame
     public static bool DebugTrackCapturingEase = false;
 
     public static bool DebugPlayerCameraAnimEvents = false;
-    public static bool DebugPlayerTrackSwitchEvents = true;
+    public static bool DebugPlayerTrackSwitchEvents = false;
     public static bool DebugPlayerTrackSeekEvents = true;
 
     public static bool DebugCatchResultEvents = false;

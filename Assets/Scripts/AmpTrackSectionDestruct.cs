@@ -7,6 +7,10 @@ using UnityEngine;
 
 public class AmpTrackSectionDestruct : MonoBehaviour
 {
+    Clock Clock { get { return Clock.Instance; } }
+    TracksController TracksController { get { return TracksController.Instance; } }
+    FXProperties FXProps { get { return FXProperties.Instance; } }
+
     VertexPath Path;
     GameObject ClipPlane;
 
@@ -14,10 +18,23 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     float Length = 32f;
     Vector3 PositionOnPath;
     float RotationOnPath; // Note: in Euler angles!
+    public Quaternion RotationQuat; // angles
 
     AmpTrackSection Measure;
     AmpTrack Track;
     ClipManager ClipManager;
+    AmpTrackDestructFX DestructFX;
+
+    // TODO TODO TODO:
+    // Move this to be on a Track rather than a Measure!
+
+    void Awake()
+    {
+        // If not initialized with a measure, get it!
+        if (!Measure)
+            Init(GetComponent<AmpTrackSection>());
+    }
+    void Start() { if (!Measure.IsCaptured & !Measure.IsCapturing) Clip(); } // Clip to start (0f)
 
     public void Init(AmpTrackSection m)
     {
@@ -29,6 +46,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         ClipPlane = m.ClipPlane; // Get capture clipping plane from AmpTrackSection
         PositionOnPath = m.Position;
         RotationOnPath = m.Rotation;
+        RotationQuat = m.RotationQuat;
         Length = m.Length;
 
         ClipManager = Track.ClipManager;
@@ -38,65 +56,102 @@ public class AmpTrackSectionDestruct : MonoBehaviour
 
         // Set fraction to current measure progress
         if (Mathf.FloorToInt(Clock.Instance.bar) == ID)
-            fraction = Mathf.Clamp(Clock.Instance.bar - ID - 0.08f, 0f, 1f);
-    }
+            fraction = Mathf.Clamp(Clock.Instance.bar - ID /*- 0.08f*/, 0f, 1f);
 
-    void Awake()
-    {
-        // If not initialized with a measure, get it!
-        if (!Measure)
-            Init(GetComponent<AmpTrackSection>());
+        //DestructFX = m.DestructFX;
+        DestructFX = m.Track.DestructFX;
+        // Add destruct FX if non-existent:
+        // NOTE: it should be parented to the measure, as we get destroyed once the FX finishes!
+        if (!DestructFX)
+        {
+            // Load and add prefab, etc...
+        }
+
+        // Set up & start destruct FX:
+        if (DestructFX && (FXProps.Destruct_ForceEffects || !m.IsEmpty))
+        {
+            //DestructFX.gameObject.SetActive(true);
+
+            // If the distance between the current measure and the target measure is < than 3,
+            // we consider the effect 'proximity'.
+            // Some particles will not play when not in proximity to provide better framerate.
+            bool isProximity = (m.ID - Clock.Fbar < 3);
+            // Consider clone tracks as NOT proximity - do not play sparkles
+            bool isCloneTrack = (m.Track.RealID > TracksController.MainTracks.Length);
+            DestructFX.Play(!isCloneTrack && isProximity);
+        }
     }
-    void Start() { if (!Measure.IsCaptured & !Measure.IsCapturing) Clip(); } // Clip to start (0f)
 
     [Range(0, 1)]
     public float fraction;
 
     List<int> lastCapturedNotes = new List<int>();
 
+    Vector3 pathPos;
+    Quaternion pathRot;
+
+    float dist = 0f;
     private void Update()
     {
         if (fraction != 1f)
         {
-            fraction = Mathf.MoveTowards(fraction, 1.0f, Track.captureAnimStep * Time.deltaTime);
+            if (Measure.CaptureState != MeasureCaptureState.Captured)
+            {
+                // Calculate path distance based on fraction
+                dist = PositionOnPath.z + (Length * fraction);
 
-            // Capture notes
-            for (int i = 0; i < fraction * Measure.Notes.Count; i++)
-                if (!lastCapturedNotes.Contains(i))
+                // Update pos along path
+                pathPos = PathTools.GetPositionOnPath(Path, dist);
+                pathRot = PathTools.GetRotationOnPath(Path, dist);
+
+                // Don't update clipping if the measure was already captured!
+                // Do continue the rest of the capturing though, as we don't want to skip measures during capturing.
+                //if (Measure.CaptureState != MeasureCaptureState.Captured)
+                Clip();
+
+                // Capture notes
+                for (int i = 0; i < fraction * Measure.Notes.Count; i++)
                 {
-                    Measure.Notes[i].CaptureNote();
-                    lastCapturedNotes.Add(i);
+                    if (!lastCapturedNotes.Contains(i))
+                    {
+                        Measure.Notes[i].CaptureNote();
+                        lastCapturedNotes.Add(i);
+                    }
                 }
 
+                // Update position for capture FX!
+                {
+                    // TODO: PathTools.GetPositionOnPath() could provide out values so we don't need to get it here
+                    Vector3 normalRight = (Path != null) ? Path.GetNormalAtDistance(dist) : Vector3.right;
+                    Vector3 normalUp = Vector3.Cross(Path.GetTangentAtDistance(dist), normalRight);
+
+                    Vector3 pos = pathPos + (normalRight * PositionOnPath.x)
+                                          + (normalUp * PositionOnPath.y);
+
+                    DestructFX.transform.position = pos;
+                    DestructFX.transform.rotation = pathRot * RotationQuat;
+                    //Debug.DrawLine(pos, ((DestructFX.transform.rotation * Quaternion.Euler(0, 0, -90)) * pos) * 5f, Color.white, 2); // visualize up normal
+                }
+            }
+
+            fraction = Mathf.MoveTowards(fraction, 1.0f, Track.captureAnimStep * Time.deltaTime);
         }
-        else // 1f, done
+        else // 1f, done!
         {
+            DestructFX.Stop();
             Measure.IsCapturing = false;
             Measure.IsCaptured = true;
             Destroy(this);
         }
-
-        // Don't update clipping if the measure was already captured!
-        // Do continue the rest of the capturing though, as we don't want to skip measures during capturing.
-        if (Measure.CaptureState != MeasureCaptureState.Captured)
-            Clip(fraction);
     }
 
-    public void Clip(float fraction = 0f)
+    public void Clip()
     {
-        Mathf.Clamp01(fraction); // Clamp between 0 and 1
+        if (fraction == 1f)
+            dist += 1f; // TODO: wtf?
 
-        // Calculate clip plane offset based on fraction
-        float dist = PositionOnPath.z + (Length * fraction);
-
-        //if (fraction == 1f)
-        //    dist += 1f; // wtf?
-
-        Vector3 planePos = PathTools.GetPositionOnPath(Path, dist);
-        Quaternion planeRot = PathTools.GetRotationOnPath(Path, dist, new Vector3(90, 0, 0));
-
-        ClipPlane.transform.position = planePos;
-        ClipPlane.transform.rotation = planeRot;
+        ClipPlane.transform.position = pathPos;
+        ClipPlane.transform.rotation = pathRot * Quaternion.Euler(new Vector3(90, 0, 0));
 
         ClipManager.Clip(); // update clipping
     }

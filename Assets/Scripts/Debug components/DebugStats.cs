@@ -6,7 +6,7 @@ public enum StatsMode
     Default = Long
 }
 
-[DebugComponent(DebugComponentFlag.DebugStats, DebugComponentType.Component, 250)]
+[DebugComponent(DebugComponentFlag.DebugStats, DebugComponentType.Component, 30)]
 public class DebugStats : DebugComponent
 {
     public static RefDebugComInstance Instance;

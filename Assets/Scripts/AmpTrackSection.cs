@@ -17,12 +17,19 @@ public class AmpTrackSection : MonoBehaviour
     public MeshRenderer ModelRenderer;
     public MeshFilter ModelMesh; // Mesh of the model
 
+    public MeshRenderer SeekerRenderer;
+    public MeshFilter SeekerMesh; // Mesh of the model
+    public GameObject Seeker;
+
     public Material GlobalEdgeLightMaterial; // test
 
     public Transform NotesContainer;
 
     public ClipManager ClipManager;
     public GameObject ClipPlane;
+
+    [Header("Capture animation content refs")]
+    public AmpTrackDestructFX DestructFX;
 
     [Header("Variables")]
     public AmpTrack Track; // The track this measure belongs to
@@ -35,6 +42,7 @@ public class AmpTrackSection : MonoBehaviour
     public float Length = 32f; // meters
     public Vector3 Position; // meters
     public float Rotation; // angles
+    public Quaternion RotationQuat; // angles
 
     public bool IsEmpty;
     public bool IsCapturing;
@@ -42,7 +50,12 @@ public class AmpTrackSection : MonoBehaviour
     public bool IsCaptured
     {
         get { return CaptureState > 0; }
-        set { CaptureState = !value ? MeasureCaptureState.None : MeasureCaptureState.Captured; }
+        set
+        {
+            CaptureState = !value ? MeasureCaptureState.None : MeasureCaptureState.Captured;
+            if (CaptureState > 0)
+                IsSequence = false; // TODO: revise?
+        }
     }
 
     bool _isEnabled = true;
@@ -53,6 +66,7 @@ public class AmpTrackSection : MonoBehaviour
         {
             _isEnabled = value;
             Notes.ForEach(n => n.IsEnabled = false);
+            Seeker.SetActive(false);
             // TODO: Disable active surface! (IsFocused / IsSequence to false?)
         }
     }
@@ -67,6 +81,8 @@ public class AmpTrackSection : MonoBehaviour
 
             // Toggle edge light material
             GlobalEdgeLightMaterial.SetInteger("_Enabled", value ? 1 : 0); // TODO: Optimization?
+            if (!IsEmpty || !IsCaptured)
+                Seeker.SetActive(value ? (_isSequence ? true : false) : false);
         }
     }
 
@@ -88,6 +104,7 @@ public class AmpTrackSection : MonoBehaviour
     /// ----- Functionality -----
 
     public static Vector3[] og_verts;
+    public static Vector3[] og_vertsSeeker;
     public static bool AllowDeformations = true; // TODO!
 
     void Awake() => Path = PathTools.Path;
@@ -107,10 +124,17 @@ public class AmpTrackSection : MonoBehaviour
         {
             og_verts = new Vector3[ModelMesh.mesh.vertices.Length];
             ModelMesh.mesh.vertices.CopyTo(og_verts, 0);
+            og_vertsSeeker = new Vector3[SeekerMesh.mesh.vertices.Length];
+            SeekerMesh.mesh.vertices.CopyTo(og_vertsSeeker, 0);
         }
         // Deform the mesh!
         DeformMesh();
+
+        //MeshDeformer.DeformMesh
+        //                          (Path, SeekerMesh.mesh, Position, Rotation, ogVerts: og_vertsSeeker, offset: null, RhythmicGame.TrackWidth - 0.2f, -1, Length, movePivotToStart: true); // TODO: unneccessary parameters
+        //SeekerRenderer.material.color = Track.Color;
     }
+
 
     public void DeformMesh() => MeshDeformer.DeformMesh
                                   (Path, ModelMesh.mesh, Position, Rotation, ogVerts: og_verts, offset: null, RhythmicGame.TrackWidth, -1, Length, movePivotToStart: true); // TODO: unneccessary parameters

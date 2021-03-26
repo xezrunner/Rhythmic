@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -60,9 +61,16 @@ public partial class SongController : MonoBehaviour
     public virtual void Start()
     {
         // TODO: The loading sequence or RhythmicGame itself should manage the loading scene!
-        // It's possible that GameStarter might not even be needed, or we'll have a different loading mechanism once we'll have UI.
-        // For now, we use the SongController to manage the scenes during and after loading.
-        SceneManager.SetActiveScene(SceneManager.GetSceneByName("DevScene"));
+        // It's possible that GameStarter might not even be needed, or we'll have a different loading mechanism once we'll have UI / meta.
+        // For now, we set the active scene here after loading.
+        Scene? s = null;
+        for (int i = 0; i < SceneManager.sceneCount; i++)
+        {
+            s = SceneManager.GetSceneAt(i);
+            if (s.HasValue && s.Value.name.Contains("Scene")) break;
+        }
+        if (s.HasValue)
+            SceneManager.SetActiveScene(s.Value);
 
         // Create clock
         CreateClock();
