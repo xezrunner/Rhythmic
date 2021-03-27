@@ -176,7 +176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultSong: dreamer
-  IsEnabled: 0
+  IsEnabled: 1
   IsFake: 0
   IsPlaying: 0
   IsSongOver: 0

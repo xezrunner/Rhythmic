@@ -19,7 +19,7 @@ namespace DebugMenus
             AddEntry("Keep Player Between Loads", null, false);
             AddEntry("Worlds", null);
             AddEntry("Scenes", null);
-            AddEntry("Short Short Stats", null);
+            AddEntry("Short Short Stats", () => DebugUI.Instance.SwitchToComponent(typeof(DebugStats)));
             AddEntry("Short Stats", null);
             AddEntry("Quit game", null);
         }

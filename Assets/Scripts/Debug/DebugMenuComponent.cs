@@ -8,28 +8,38 @@ public struct DebugMenuEntry
     public DebugMenuEntry(string text = "")
     {
         Text = text; IsSelectable = false; Color = Colors.Unimportant;
-        ID = 0; Variable = null; Extra = null; HelpText = null; Function = null; IsEnabled = true;
+        ID = 0; Variable = null; Extra = null; HelpText = null; Function = null; IsEnabled = true; CloseMenuOnFunction = false;
     }
-    public DebugMenuEntry(string text = "", object variable = null, string extra = null, string helpText = null, Action function = null, bool isEnabled = true)
+    public DebugMenuEntry(string text = "", object variable = null, string extra = null, string helpText = null, Action function = null, bool closeMenuOnFunction = false, bool isEnabled = true)
     {
         ID = 0; Text = text; IsSelectable = true;
 
         Variable = (variable == null) ? null : new Ref<object>(() => variable, value => { variable = value; });
         Extra = extra; HelpText = helpText;
         Function = function;
+        CloseMenuOnFunction = closeMenuOnFunction;
 
         Color = Colors.Default;
         IsEnabled = isEnabled;
+    }
+
+    public void DoFunction() // TODO: naming!
+    {
+        if (CloseMenuOnFunction) DebugMenu.SetActive(false);
+        if (Function != null) Function();
     }
 
     public int ID; // -1 is invalid
     public string Text;
     public bool IsSelectable;
     public bool IsEnabled;
+
     public Ref<object> Variable;
     public string Extra;
     public string HelpText;
     public Action Function; // TODO: naming?
+    public bool CloseMenuOnFunction;
+
     public Color Color;
 }
 
@@ -55,8 +65,9 @@ public class DebugMenuComponent
 
     public string Name;
 
-    Dictionary<int, DebugMenuEntry> Entries;
+    public Dictionary<int, DebugMenuEntry> Entries;
     int entry_count = 0;
+    public int entry_index; // Current entry index - set by DebugMenu
 
     public static DebugMenuEntry MainMenuShortcut = new DebugMenuEntry("Main menu...", function: DebugMenu.MainMenu);
 
@@ -88,7 +99,7 @@ public class DebugMenuComponent
 
     public string Text; // Main text of the component
 
-    public string Main()
+    public string Main(int selectionIndex = -1)
     {
         if (Entries == null || Entries.Count < 1)
         { Logger.LogMethodE($"[{Name}] - Entries is null! This is bad!", this); }
@@ -96,8 +107,14 @@ public class DebugMenuComponent
         // Build string:
         string s = "";
 
+        // TODO: Variables, extras, help text, disabled text etc...
         foreach (KeyValuePair<int, DebugMenuEntry> entry in Entries)
-            s += entry.Value.Text + (entry.Key < entry_count - 1 ? "\n" : ""); // Add newline after each entry except last
+        {
+            string s_entry = entry.Value.Text + (entry.Key < entry_count - 1 ? "\n" : ""); // Add newline after each entry except last
+            if (selectionIndex == entry.Key && entry.Value.IsSelectable) // Add selection color if index matches and selectable
+                s_entry = s_entry.AddColor(Colors.DebugMenuSelection);
+            s += s_entry;
+        }
 
         return s;
     }

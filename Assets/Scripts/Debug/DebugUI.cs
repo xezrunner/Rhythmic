@@ -49,8 +49,8 @@ public class DebugUI : DebugComponent
     public TextMeshProUGUI datetimeText;
     public TextMeshProUGUI resolutionVersionText;
 
-    public Image debugmenuArrow;
     public TextMeshProUGUI debugmenuText;
+    public Image debugmenuArrow;
 
     [Header("Properties")]
     public float SelfDebugOpacity = 0.8f;

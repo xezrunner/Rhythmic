@@ -55,8 +55,8 @@ public partial class DebugKeys : DebugComponent
             DEBUG_ToggleRenderingPath();
 
         // Sequence & notes refreshing
-        if (Input.GetKeyDown(KeyCode.Z))
-            DEBUG_RefreshSequencesNotes(true);
+        //if (Input.GetKeyDown(KeyCode.Z))
+        //    DEBUG_RefreshSequencesNotes(true);
         if (Input.GetKeyDown(KeyCode.T))
             DEBUG_RefreshSequencesNotes(false);
 
