@@ -26,7 +26,7 @@ public struct DebugMenuEntry
         Color = Colors.Default;
         IsEnabled = true;
     }
-    public DebugMenuEntry(string text, Ref<object> variable, string extra = null, string helpText = null, bool closeMenuOnFunction = false, bool isEnabled = true)
+    public DebugMenuEntry(string text, Ref variable, string extra = null, string helpText = null, bool closeMenuOnFunction = false, bool isEnabled = true)
     {
         ID = 0; Text = text; IsSelectable = true;
 
@@ -43,7 +43,7 @@ public struct DebugMenuEntry
     {
         ID = 0; Text = text; IsSelectable = true;
 
-        Variable = new Ref<object>(() => variable(), (v) => { }); // Empty setter!
+        Variable = new Ref(() => variable(), (v) => { }); // Empty setter!
         Page = null;
         Extra = extra; HelpText = helpText;
         Function = null;
@@ -52,7 +52,7 @@ public struct DebugMenuEntry
         Color = Colors.Default;
         IsEnabled = isEnabled;
     }
-    public DebugMenuEntry(string text, Action function, Ref<object> variable, string extra = null, string helpText = null, bool closeMenuOnFunction = false, bool isEnabled = true)
+    public DebugMenuEntry(string text, Action function, Ref variable, string extra = null, string helpText = null, bool closeMenuOnFunction = false, bool isEnabled = true)
     {
         ID = 0; Text = text; IsSelectable = true;
 
@@ -69,7 +69,7 @@ public struct DebugMenuEntry
     {
         ID = 0; Text = text; IsSelectable = true;
 
-        Variable = new Ref<object>(() => variable(), (v) => { });
+        Variable = new Ref(() => variable(), (v) => { });
         Page = null;
         Extra = extra; HelpText = helpText;
         Function = function;
@@ -98,7 +98,7 @@ public struct DebugMenuEntry
     public bool IsEnabled;
 
     public Type Page;
-    public Ref<object> Variable;
+    public Ref Variable;
     public string Extra;
     public string HelpText;
     public Action Function; // TODO: naming?
@@ -197,67 +197,67 @@ public class DebugMenuComponent
 
             string var = "";
             if (variable != null && variable.GetType() == typeof(bool))
-                var = ((bool)variable ? "ON" : "OFF").AlignSpaces(s_entry.Length, var_align_max);
+                var = ((bool)variable ? "ON " : "OFF").AlignSpaces(s_entry.Length, var_align_max);
             else if (variable != null) var = variable.ToString().Substring(0, var_text_length).AlignSpaces(s_entry.Length, var_align_max);
             s_entry += var;
 
             string extra = "";
             if (entry.Extra != null && entry.Extra != "")
-                extra = entry.Extra.AlignSpaces(s_entry.Length, extra_align_max).AddColor(0.45f);
-            s_entry += extra;
+                extra = entry.Extra.AlignSpaces(s_entry.Length, extra_align_max).AddColor((selectionIndex == i && entry.IsSelectable) ? Colors.DebugMenuSelection : new Color(1, 1, 1, 0.45f));
+        s_entry += extra;
 
-            // Add selection color if index matches and selectable
-            s_entry = s_entry.AddColor((selectionIndex == i && entry.IsSelectable) ? Colors.DebugMenuSelection : entry.Color);
-            s_entry += (i < entry_count - 1 ? "\n" : ""); // Add newline after each entry except last
-            s += s_entry;
-        }
+        // Add selection color if index matches and selectable
+        s_entry = s_entry.AddColor((selectionIndex == i && entry.IsSelectable) ? Colors.DebugMenuSelection : entry.Color);
+        s_entry += (i < entry_count - 1 ? "\n" : ""); // Add newline after each entry except last
+        s += s_entry;
+    }
 
         return s;
     }
 
-    public void AddEntry(DebugMenuEntry entry, int? force_id = null)
-    {
-        int id = (force_id.HasValue) ? force_id.Value : entry_count;
+public void AddEntry(DebugMenuEntry entry, int? force_id = null)
+{
+    int id = (force_id.HasValue) ? force_id.Value : entry_count;
 
-        // TODO: Performance?!
-        //if (!Entries.ContainsValue(entry))
-        //{
-            entry.ID = id; // Assign ID automatically for each entry.
-            Entries.Add(id, entry);
-            entry_count++;
-        //}
-    }
-    public void AddEntry(string text = "", bool isSelectable = true) => AddEntry(new DebugMenuEntry(text, isSelectable)); // Separator
-    public void AddEntry(string text, Type page) => AddEntry(new DebugMenuEntry(text, page)); // Pages
-    public void AddEntry(string text, Ref<object> variable, string extra = null, string helpText = null, bool closeMenuOnFunction = false, bool isEnabled = true) =>
-        AddEntry(new DebugMenuEntry(text, variable, extra, helpText, closeMenuOnFunction, isEnabled));
-    public void AddEntry(string text, Func<object> variable, string extra = null, string helpText = null, bool closeMenuOnFunction = false, bool isEnabled = true) =>
-        AddEntry(new DebugMenuEntry(text, variable, extra, helpText, closeMenuOnFunction, isEnabled));
-    public void AddEntry(string text, Action function, string extra = null, string helpText = null, bool closeMenuOnFunction = false, bool isEnabled = true) =>
-        AddEntry(new DebugMenuEntry(text, function, extra, helpText, closeMenuOnFunction, isEnabled));
-    public void AddEntry(string text, Action function, Func<object> variable, string extra = null, string helpText = null, bool closeMenuOnFunction = false, bool isEnabled = true) =>
-        AddEntry(new DebugMenuEntry(text, function, variable, extra, helpText, closeMenuOnFunction, isEnabled));
+    // TODO: Performance?!
+    //if (!Entries.ContainsValue(entry))
+    //{
+    entry.ID = id; // Assign ID automatically for each entry.
+    Entries.Add(id, entry);
+    entry_count++;
+    //}
+}
+public void AddEntry(string text = "", bool isSelectable = true) => AddEntry(new DebugMenuEntry(text, isSelectable)); // Separator
+public void AddEntry(string text, Type page) => AddEntry(new DebugMenuEntry(text, page)); // Pages
+public void AddEntry(string text, Ref variable, string extra = null, string helpText = null, bool closeMenuOnFunction = false, bool isEnabled = true) =>
+    AddEntry(new DebugMenuEntry(text, variable, extra, helpText, closeMenuOnFunction, isEnabled));
+public void AddEntry(string text, Func<object> variable, string extra = null, string helpText = null, bool closeMenuOnFunction = false, bool isEnabled = true) =>
+    AddEntry(new DebugMenuEntry(text, variable, extra, helpText, closeMenuOnFunction, isEnabled));
+public void AddEntry(string text, Action function, string extra = null, string helpText = null, bool closeMenuOnFunction = false, bool isEnabled = true) =>
+    AddEntry(new DebugMenuEntry(text, function, extra, helpText, closeMenuOnFunction, isEnabled));
+public void AddEntry(string text, Action function, Func<object> variable, string extra = null, string helpText = null, bool closeMenuOnFunction = false, bool isEnabled = true) =>
+    AddEntry(new DebugMenuEntry(text, function, variable, extra, helpText, closeMenuOnFunction, isEnabled));
 
-    public string Text; // Main text of the component
+public string Text; // Main text of the component
 }
 
 /// <summary>This helps us hold references to variables.</summary>
-public class Ref<T>
+public class Ref
 {
-    Func<T> _get;
-    Action<T> _set;
+    Func<object> _get;
+    Action<object> _set;
 
-    public Ref(Func<T> get, Action<T> set)
+    public Ref(Func<object> get, Action<object> set)
     {
         _get = get;
         _set = set;
     }
-    public T Value
+    public object Value
     {
         get
         {
-            T result = _get();
-            if (result == null) Logger.LogMethodE("A Ref<T> had no value! This is bad!");
+            object result = _get();
+            if (result == null) Logger.LogMethodE("A Ref had no value! This is bad!", this);
 
             return _get();
         }

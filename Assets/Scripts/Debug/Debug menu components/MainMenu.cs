@@ -20,13 +20,13 @@ namespace DebugMenus
             //AddEntry("Give Max Health");
             //AddEntry("Give random powerup");
             AddEntry("Keep Player Between Loads", () => false);
-            AddEntry("Enable seeker frames", new Ref<object>(() => AmpTrackSection.SeekerEnabled, (v) => AmpTrackSection.SeekerEnabled = (bool)v));
-            AddEntry("Tunnel mode", new Ref<object>(() => RhythmicGame.IsTunnelMode, (v) => RhythmicGame.IsTunnelMode = (bool)v));
+            AddEntry("Tunnel mode", new Ref(() => RhythmicGame.IsTunnelMode, (v) => RhythmicGame.IsTunnelMode = (bool)v));
+            AddEntry("Enable seeker frames", new Ref(() => AmpTrackSection.SeekerEnabled, (v) => AmpTrackSection.SeekerEnabled = (bool)v));
             AddEntry("Songs...", typeof(SongsMenu));
             AddEntry("Worlds...", typeof(WorldsMenu));
             //AddEntry("Scenes...");
             AddEntry("Short Short Stats", () => ToggleStats(StatsMode.ShortShort), () => Stats.StatsMode == StatsMode.ShortShort);
-            AddEntry("Short Stats", () => ToggleStats(StatsMode.Short), () => Stats.StatsMode == StatsMode.Short, "This is some extra text.");
+            AddEntry("Short Stats", () => ToggleStats(StatsMode.Short), () => Stats.StatsMode == StatsMode.Short);
             AddEntry("Quit game", QuitGame);
         }
 
