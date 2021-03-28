@@ -187,7 +187,7 @@ public class AmplitudeSongController : SongController
         List<MeasureInfo> finalList = new List<MeasureInfo>();
         float prevTime = 0f;
 
-        if (songLengthInMeasures * measureLengthInzPos > PathTools.Path.length)
+        if (PathTools.Path != null && songLengthInMeasures * measureLengthInzPos > PathTools.Path.length)
         {
             prevTime = PathTools.Path.length - songLengthInMeasures * measureLengthInzPos;
             Debug.LogFormat("Offsetting tracks: {0}", prevTime);

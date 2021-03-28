@@ -137,7 +137,7 @@ public partial class DebugKeys : DebugComponent
             DEBUG_CaptureMeasureAmount(null, RhythmicGame.TrackCaptureLength);
 
         else if (Input.GetKeyDown(KeyCode.Keypad6)) // all!
-            DEBUG_CaptureMeasureAmount(null, SongController.Instance.songLengthInMeasures, 0);
+            DEBUG_CaptureMeasureAmount(null, SongController.Instance.songLengthInMeasures);
 
         // Track restoration (buggy!)
         if (Input.GetKeyDown(KeyCode.Keypad7))

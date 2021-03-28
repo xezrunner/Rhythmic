@@ -105,7 +105,7 @@ public partial class AmpTrack : MonoBehaviour
             foreach (AmpTrack t in TrackTwins)
                 t.Sequences = TracksController.Tracks[ID].Sequences;
 
-        //StartCoroutine(WarmupDestructFX());
+        StartCoroutine(WarmupDestructFX());
     }
 
     IEnumerator WarmupDestructFX()
@@ -113,6 +113,7 @@ public partial class AmpTrack : MonoBehaviour
         DestructFX.Play();
         yield return new WaitForSeconds(3);
         DestructFX.Stop();
+        DestructFX.gameObject.SetActive(true);
     }
 
     public List<AmpTrackSection> Measures = new List<AmpTrackSection>();
