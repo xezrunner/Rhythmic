@@ -130,12 +130,13 @@ public class DebugMenu : DebugComponent
 
         SwitchToComponent(instance);
     }
-    public void SwitchToComponent(DebugMenuComponent com = null)
+    public void SwitchToComponent(DebugMenuComponent com = null, bool addToHistory = true)
     {
         if (com == null) return;
 
         ActiveComponent = com;
         entry_index = com.entry_index; // Set this up early so that we keep previous positions through restarts
+        if (addToHistory) AddToNavigationHistory(com);
         Handle_ActiveComponent(entry_index);
 
         // Check whether we have entries
@@ -307,36 +308,42 @@ public class DebugMenu : DebugComponent
     public void AddToNavigationHistory(DebugMenuComponent com)
     {
         navigation_history.Add(ActiveComponent);
-        if (navigation_history.Count > 20)
-            navigation_history.RemoveRange(19, navigation_history.Count - 19);
+        if (navigation_history.Count > navigation_history_max)
+            navigation_history.RemoveAt(0);
     }
     public void NavigateHistory(int index)
     {
         if (index >= navigation_history.Count || index < 0)
         {
-            Logger.LogMethodW($"Boundary reached! | index: {index} - count: {navigation_history.Count}", this);
+            Logger.LogMethodW($"Boundary reached! | index: {index} - count: {navigation_history.Count}");
             return; // Return on boundaries
         }
 
-        ActiveComponent = navigation_history[index];
+        DebugMenuComponent com = navigation_history[index];
+        if (com != null)
+        {
+            SwitchToComponent(com, addToHistory: false);
+            navigation_index = index;
+        }
     }
     public void NavigateHistory(DebugMenuHistoryDir dir)
     {
+        int index = navigation_index;
         int prev_index = navigation_index;
         switch (dir)
         {
             case DebugMenuHistoryDir.Forwards:
-                NavigateHistory(++navigation_index);
+                NavigateHistory(++index);
                 break;
             case DebugMenuHistoryDir.Backwards:
-                NavigateHistory(--navigation_index);
+                NavigateHistory(--index);
                 break;
             case DebugMenuHistoryDir.MainMenu:
                 MainMenu();
                 break;
         }
         bool fail = (navigation_index == prev_index);
-        Logger.LogMethod($"Navigated {dir} to index {navigation_index}" + "(from {prev_index})".AddColor(0.45f) + (fail ? " FAIL!".AddColor(Colors.Error) : ""), this);
+        //Logger.LogMethod($"Navigated {dir} to index {navigation_index}" + "(from {prev_index})".AddColor(0.45f) + (fail ? " FAIL!".AddColor(Colors.Error) : ""), this);
     }
 
     // *****
