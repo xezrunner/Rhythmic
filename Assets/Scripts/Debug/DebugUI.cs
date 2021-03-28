@@ -41,6 +41,8 @@ public class DebugUI : DebugComponent
     public static DebugUI Instance;
     public static RefDebugComInstance Instances;
 
+    DebugStats DebugStats { get { return (DebugStats)DebugStats.Instance.Component; } }
+
     [Header("Content references")]
     public TextMeshProUGUI framerateText;
     public TextMeshProUGUI debugLineText;
@@ -81,8 +83,8 @@ public class DebugUI : DebugComponent
     void Start()
     {
         datetimeText.text = $"{DateTime.Now}";
-        resolutionVersionText.text = $"{RhythmicGame.Resolution.x}x{RhythmicGame.Resolution.y} @ 75Hz\n" +
-                                     $"{Version.build_string}";
+        resolutionVersionText.text = ($"{RhythmicGame.Resolution.x}x{RhythmicGame.Resolution.y} @ 75Hz\n" +
+                                     $"{Version.build_string}");
     }
 
     /// Interface switching
@@ -104,6 +106,8 @@ public class DebugUI : DebugComponent
         if (ActiveComponent == com) return;
         if (com == null)
         { Logger.LogWarning($"Component {com.GetType().Name} is not available!"); return; }
+        if (com.Attribute._Internal_NoHandleComponent)
+        { Logger.LogMethodW($"{com.GetType().Name} ".AddColor(Colors.Application) + $"is an internal component, which aren't handled as regular components. You shouldn't switch to internal components.", this); return; }
 
         //if (com.Attribute.DebugFlag != DebugComponentFlag.DebugUI || com.Attribute.DebugFlag != DebugComponentFlag.DebugInterfaces || com.Attribute.DebugFlag != DebugComponentFlag.DebugMenu)
         //{ Logger.LogMethod($"Component {com.Name} has the debug flag {com.Attribute.DebugFlag}, which isn't allowed in DebugUI.", this, CLogType.Error); return; }
@@ -171,6 +175,19 @@ public class DebugUI : DebugComponent
 
     /// Main debug text
 
+    // TODO: Stats should always be handled and written out.
+    // This may be a bit hacky and we might want to change this in the future.
+    // I was briefly thinking of having debugText be to the right of the stats text.
+    // (Would be at the same place as stats, if stats are set to None
+    // Perhaps even configurable?)
+    string Stats()
+    {
+        DebugStats stats_com = (DebugStats)DebugStats.Instance.Component;
+        if (!stats_com) return "";
+
+        stats_com.UI_Main();
+        return stats_com.Text;
+    }
     void HandleActiveComponentText(bool force = false)
     {
         if (!ActiveComponent) return;
@@ -196,20 +213,25 @@ public class DebugUI : DebugComponent
             if (ActiveComponent.Text == "")
                 Logger.LogMethod($"Component {ActiveComponent.Name.AddColor(Colors.Application)} is not an UI component.", CLogType.Warning, this);
             else
-                MainText = ActiveComponent.Text;
+            {
+                MainText += ActiveComponent.Text;
+                //UpdateMainDebugText(); // This happens every frame...
+            }
         }
     }
 
-    string _mainText;
-    public string MainText // This is the main debug UI text, not to be confused with DebugComponent.Text!
+    void UpdateMainDebugText()
     {
-        get { return _mainText; }
-        set
-        {
-            _mainText = value;
-            UpdateMainDebugText();
-        }
+        debugText.text = "";
+
+        string s = IsSelfDebug ? SelfDebug() : "";
+        if (!IsDebugPrintOn && ActiveComponent)
+            s += "DEBUG PRINT FREEZE\n\n";
+        s += Stats();
+
+        debugText.text = s + MainText;
     }
+    public string MainText; // This is the main debug UI text, not to be confused with DebugComponent.Text!
 
     string SelfDebug()
     {
@@ -221,16 +243,6 @@ public class DebugUI : DebugComponent
         s = s.AddColor(1, 1, 1, SelfDebugOpacity);
 
         return s;
-    }
-
-    void UpdateMainDebugText()
-    {
-        string s = IsSelfDebug ? SelfDebug() : "";
-
-        if (!IsDebugPrintOn && ActiveComponent)
-            s += "DEBUG PRINT FREEZE\n\n";
-
-        debugText.text = s + _mainText;
     }
 
     /// Debug main loop
@@ -280,12 +292,9 @@ public class DebugUI : DebugComponent
         // MAIN DEBUG LOOP:
 
         HandleDebugLineTimeout();
-
         HandleActiveComponentText(); // Get active component text!
 
-        // Update self text manually if needed
-        if (IsSelfDebug || AlwaysUpdate)
-            UpdateMainDebugText();
+        UpdateMainDebugText(); // TODO: performance?
 
         // Update date & time info
         seconds_ElapsedTime += Time.unscaledDeltaTime;

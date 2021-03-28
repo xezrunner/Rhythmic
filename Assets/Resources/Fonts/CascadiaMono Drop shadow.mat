@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: trebuc Drop shadow
+  m_Name: CascadiaMono Drop shadow
   m_Shader: {fileID: 4800000, guid: 68e6db2ebdc24f95958faec2be5558d6, type: 3}
   m_ShaderKeywords: UNDERLAY_ON
   m_LightmapFlags: 4
@@ -32,7 +32,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 6763317451365050276, guid: 9f79a4d9ac27a57459e7a978f43577fd,
+        m_Texture: {fileID: 278104422348529735, guid: cd0207607019c634780e9f0cdd43ba43,
           type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -102,5 +102,5 @@ Material:
     - _ReflectFaceColor: {r: 0, g: 0, b: 0, a: 1}
     - _ReflectOutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
-    - _UnderlayColor: {r: 0.13333334, g: 0.13333334, b: 0.13333334, a: 0.7607843}
+    - _UnderlayColor: {r: 0.13207549, g: 0.13207549, b: 0.13207549, a: 0.7607843}
   m_BuildTextureStacks: []

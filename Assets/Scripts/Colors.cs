@@ -69,7 +69,7 @@ public class Colors : MonoBehaviour
     }
 
     // TODO: brighten up some of these!
-    public static Color Default = Info;
+    public static Color Default = ConvertHexToColor("#f0f0f0");
     public static Color DebugMenuSelection = ConvertHexToColor("#ed5e62");
 
     public static Color Info = ConvertHexToColor("#f0f0f0");

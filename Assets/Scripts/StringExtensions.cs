@@ -31,4 +31,20 @@ public static class StringExtensions
         }
         return text;
     }
+
+    // Monoscape:
+    // Trebuchet MS: ~8.5
+    public static string Monoscape(this string text, float width = 9.5f) =>
+        $"<mspace={width}>{text}</mspace>";
+
+    // Align a text by number of spaces.
+    // Note! For best results, text should be monospace!
+    public static string AlignSpaces(this string text, int total_text_length, int amount)
+    {
+        int space_count = amount - total_text_length;
+        string s = "";
+        for (int i = 0; i < space_count; i++) s += ' ';
+
+        return s + text;
+    }
 }

@@ -15,6 +15,10 @@ public static class RhythmicGame
 {
     public static GameState GameState;
 
+    // TODO: World & loading systems!
+    public static string StartWorld = "DevScene";
+
+    // TODO: These should persist between loads!
     public static void SetFramerate(int fps, int vsync = 0)
     {
         QualitySettings.vSyncCount = vsync;
@@ -24,7 +28,7 @@ public static class RhythmicGame
     public static void SetTimescale(float speed)
     {
         Time.timeScale = speed;
-        SongController.Instance.SetSongSpeed(speed);
+        if (SongController.Instance) SongController.Instance.SetSongSpeed(speed);
     }
     public static void SetResolution(Vector2 resolution) { Screen.SetResolution((int)resolution.x, (int)resolution.y, FullScreenMode.FullScreenWindow); }
     public static void SetAVCalibrationOffset(float offsetMs) { AVCalibrationOffsetMs = offsetMs; /*Player.Instance.UpdateAVCalibrationOffset();*/ }

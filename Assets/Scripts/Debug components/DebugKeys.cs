@@ -77,14 +77,14 @@ public partial class DebugKeys : DebugComponent
         }
 
         // FPS Lock
-        if (Keyboard.current.shiftKey.isPressed)
+        if (Keyboard.current.shiftKey.isPressed && Keyboard.current.f5Key.wasPressedThisFrame) DEBUG_SetFramerateLock(0, vsync: true);
+        if (Keyboard.current.ctrlKey.isPressed)
         {
-            if (Keyboard.current.ctrlKey.isPressed && Keyboard.current.f1Key.wasPressedThisFrame) DEBUG_SetFramerateLock(10);
-            else if (Keyboard.current.f1Key.wasPressedThisFrame) DEBUG_SetFramerateLock(60);
+            //if (Keyboard.current.ctrlKey.isPressed && Keyboard.current.f1Key.wasPressedThisFrame) DEBUG_SetFramerateLock(10);
+            if (Keyboard.current.f1Key.wasPressedThisFrame) DEBUG_SetFramerateLock(60);
             else if (Keyboard.current.f2Key.wasPressedThisFrame) DEBUG_SetFramerateLock(120);
             else if (Keyboard.current.f3Key.wasPressedThisFrame) DEBUG_SetFramerateLock(200);
             else if (Keyboard.current.f4Key.wasPressedThisFrame) DEBUG_SetFramerateLock(0);
-            else if (Keyboard.current.f5Key.wasPressedThisFrame) DEBUG_SetFramerateLock(0, vsync: true);
         }
 
         // Toggle tunnel mode

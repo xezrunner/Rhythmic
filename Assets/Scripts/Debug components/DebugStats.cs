@@ -3,10 +3,10 @@
 public enum StatsMode
 {
     None = 0, ShortShort = 1, Short = 2, Long = 3,
-    Default = Long
+    Default = None
 }
 
-[DebugComponent(DebugComponentFlag.DebugStats, DebugComponentType.Component, 30)]
+[DebugComponent(DebugComponentFlag.DebugStats, DebugComponentType.Component, true, 30)]
 public class DebugStats : DebugComponent
 {
     public static RefDebugComInstance Instance;
@@ -24,6 +24,8 @@ public class DebugStats : DebugComponent
 
     public override void UI_Main()
     {
+        base.UI_Main();
+
         // SELF DEBUG:
         if (IsSelfDebug)
         {
@@ -32,6 +34,9 @@ public class DebugStats : DebugComponent
             AddLine($"Stats text length: {Text.Length}");
             AddLine($"Stats update frequency (ms): {Attribute.UpdateFrequencyInMs}", 2);
         }
+
+        // Stats mode
+        if (StatsMode == StatsMode.None) return;
 
         // SongController status (disabled):
         if (!SongController.IsEnabled) AddLine($"SongController Disabled");
@@ -44,7 +49,7 @@ public class DebugStats : DebugComponent
         if (!SongController.IsEnabled) return;
         if (!TracksController || !Clock || !AmpPlayerLocomotion)
         {
-            AddLine("\nMajor gameplay components are null!".AddColor(Colors.Error));
+            AddLine("\nMajor gameplay components are missing! G_LOGIC_MISSING 0x00000000".AddColor(Colors.Error));
             return;
         }
 

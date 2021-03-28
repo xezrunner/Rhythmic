@@ -9,11 +9,26 @@ EditorBuildSettings:
     path: Assets/Scenes/Loading.unity
     guid: 5c9079d846d06714eb4ec717307636ea
   - enabled: 1
+    path: Assets/Scenes/DevScene.unity
+    guid: 8f2dc687c9e69504dbe3c7d73cc2ae89
+  - enabled: 1
     path: Assets/Scenes/TestScene.unity
     guid: 5a36109a62847484e9026eaa745f25e9
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/DevScene_Sandbox.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Scenes/PathTestScene.unity
+    guid: 11ec8fa809c9f15478037283a5105263
+  - enabled: 1
+    path: Assets/Scenes/_Testing/TunnelTesting.unity
+    guid: 976b5bd082309b64ea655051cd956f29
+  - enabled: 1
+    path: Assets/Scenes/Example/ssms_example.unity
+    guid: 8a19da481e70e474aaf1466f76b459b7
+  - enabled: 1
+    path: Assets/Scenes/Skybox/ColorLightsBackground.unity
+    guid: f93624f34f89c8c459de9cf4efdc58dd
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 430e216ca7c9ff74e87a328d0d260bc0,
       type: 2}

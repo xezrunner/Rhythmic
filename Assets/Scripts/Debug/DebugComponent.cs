@@ -18,8 +18,8 @@ public enum DebugComTextMode { Clear = 0, Additive = 1 }
 [AttributeUsage(AttributeTargets.Class)]
 public class DebugComponentAttribute : Attribute
 {
-    public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, bool _internal_nohandling)
-    { DebugFlag = debugFlag; ComponentType = comType; _Internal_NoHandleComponent = _internal_nohandling; }
+    public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, bool _internal_nohandling, float updateMs = -1)
+    { DebugFlag = debugFlag; ComponentType = comType; _Internal_NoHandleComponent = _internal_nohandling; UpdateFrequencyInMs = updateMs; }
     public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, string prefabPath, float updateMs = -1)
     { DebugFlag = debugFlag; ComponentType = comType; TextMode = DebugComTextMode.Clear; UpdateFrequencyInMs = updateMs; PrefabPath = prefabPath; }
     public DebugComponentAttribute(DebugComponentFlag debugFlag, DebugComponentType comType, float updateMs = -1, string prefabPath = "")
@@ -62,7 +62,7 @@ public class DebugComponent : MonoBehaviour
     // Determines whether the component is an UI component based on whether it has called AddLine() at least once.
     public bool IsUIComponent = false;
 
-    public virtual void UI_Main() { }
+    public virtual void UI_Main() { ClearText(); }
     // TODO: components should emit thier own individual texts.
     // This means that in case we want to have multiple components writing at once, DebugUI should be able to grab all of them.
     // For now, only one component can change the main DebugUI text.
