@@ -15,6 +15,10 @@ public static class RhythmicGame
 {
     public static GameState GameState;
 
+    // TODO: World & loading systems!
+    public static string StartWorld = "DevScene";
+
+    // TODO: These should persist between loads!
     public static void SetFramerate(int fps, int vsync = 0)
     {
         QualitySettings.vSyncCount = vsync;
@@ -24,7 +28,7 @@ public static class RhythmicGame
     public static void SetTimescale(float speed)
     {
         Time.timeScale = speed;
-        SongController.Instance.SetSongSpeed(speed);
+        if (SongController.Instance) SongController.Instance.SetSongSpeed(speed);
     }
     public static void SetResolution(Vector2 resolution) { Screen.SetResolution((int)resolution.x, (int)resolution.y, FullScreenMode.FullScreenWindow); }
     public static void SetAVCalibrationOffset(float offsetMs) { AVCalibrationOffsetMs = offsetMs; /*Player.Instance.UpdateAVCalibrationOffset();*/ }
@@ -124,7 +128,7 @@ public static class RhythmicGame
     public static bool AutoFindPathFallback = true; // Whether to attempt finding an object named 'Path' in case a world/song path was never specified.
 
     public static bool EnableTrackVisualClipping = true; // Controls all visual track clipping effects in the game.
-    public static bool DisableTrackLengthClipping = true; // Controls the horizon clipping effect
+    public static bool DisableTrackLengthClipping = false; // Controls the horizon clipping effect
 
     /* ----- DEBUG props ----- */
 

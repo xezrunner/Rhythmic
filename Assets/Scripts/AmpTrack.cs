@@ -99,8 +99,6 @@ public partial class AmpTrack : MonoBehaviour
         Color = Colors.ColorFromInstrument(Instrument);
         DestructFX.TrackColor = Color;
 
-        StartCoroutine(WarmupDestructFX());
-
         // TODO: EdgeLights colors!
         LocalEdgeLightsMaterial.SetColor("_Emission", Color * 1.15f);
         GlobalEdgeLightsMaterial.SetColor("_Emission", Color * 2.65f);
@@ -117,6 +115,8 @@ public partial class AmpTrack : MonoBehaviour
         if (IsCloneTrack)
             foreach (AmpTrack t in TrackTwins)
                 t.Sequences = TracksController.Tracks[ID].Sequences;
+
+        //StartCoroutine(WarmupDestructFX());
     }
 
     IEnumerator WarmupDestructFX()

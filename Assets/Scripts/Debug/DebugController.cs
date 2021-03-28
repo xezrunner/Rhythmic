@@ -44,7 +44,10 @@ public partial class DebugController : MonoBehaviour
 
     void Awake()
     {
+        if (Instance != null)
+        { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(this);
         GameState.CreateGameState(); // Create GameState in case game was started abnormally
     }
     void Start()

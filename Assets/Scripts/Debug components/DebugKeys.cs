@@ -1,9 +1,15 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.InputSystem;
+using static DebugFunctionality;
 
 [DebugComponent(DebugComponentFlag.DebugKeys, DebugComponentType.Component)]
 public partial class DebugKeys : DebugComponent
 {
+    public static TracksController TracksController { get { return TracksController.Instance; } }
+    public static DebugUI DebugUI { get { return DebugUI.Instance; } }
+
+
     public static RefDebugComInstance Instance;
 
     public bool IsEnabled = true;
@@ -32,12 +38,19 @@ public partial class DebugKeys : DebugComponent
             if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.Alpha7)) // toggle debug line
                 DebugUI.IsDebugLineOn = !DebugUI.IsDebugLineOn;
             else if (Input.GetKeyDown(KeyCode.Alpha7)) // empty com
+            {
                 DebugUI.SwitchToComponent();
+                DebugStats stats = (DebugStats)DebugStats.Instance.Component;
+                stats.StatsMode = StatsMode.None;
+            }
 
             if (Input.GetKeyDown(KeyCode.Alpha8))
                 DebugUI.SwitchToComponent(typeof(SelectionComponentTest));
             if (Input.GetKeyDown(KeyCode.Alpha9))
-                DebugUI.SwitchToComponent(typeof(DebugStats));
+            {
+                DebugStats stats = (DebugStats)DebugStats.Instance.Component;
+                stats.StatsMode = StatsMode.Long;
+            }
         }
 
         // ConsoleServer test
@@ -55,8 +68,8 @@ public partial class DebugKeys : DebugComponent
             DEBUG_ToggleRenderingPath();
 
         // Sequence & notes refreshing
-        if (Input.GetKeyDown(KeyCode.Z))
-            DEBUG_RefreshSequencesNotes(true);
+        //if (Input.GetKeyDown(KeyCode.Z))
+        //    DEBUG_RefreshSequencesNotes(true);
         if (Input.GetKeyDown(KeyCode.T))
             DEBUG_RefreshSequencesNotes(false);
 
@@ -65,7 +78,7 @@ public partial class DebugKeys : DebugComponent
         if (Input.GetKeyDown(KeyCode.R))
             RhythmicGame.Restart();
         if (Input.GetKeyDown(KeyCode.Escape))
-            SongController.PlayPause();
+            SongController.Instance.PlayPause();
 
         // Resolution
         if (!Application.isEditor)
@@ -77,11 +90,15 @@ public partial class DebugKeys : DebugComponent
         }
 
         // FPS Lock
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(10);
-        else if (Input.GetKeyDown(KeyCode.F1)) DEBUG_SetFramerateLock(60);
-        else if (Input.GetKeyDown(KeyCode.F2)) DEBUG_SetFramerateLock(120);
-        else if (Input.GetKeyDown(KeyCode.F3)) DEBUG_SetFramerateLock(200);
-        else if (Input.GetKeyDown(KeyCode.F4)) DEBUG_SetFramerateLock(0);
+        if (Keyboard.current.shiftKey.isPressed && Keyboard.current.f5Key.wasPressedThisFrame) DEBUG_SetFramerateLock(0, vsync: true);
+        if (Keyboard.current.ctrlKey.isPressed)
+        {
+            //if (Keyboard.current.ctrlKey.isPressed && Keyboard.current.f1Key.wasPressedThisFrame) DEBUG_SetFramerateLock(10);
+            if (Keyboard.current.f1Key.wasPressedThisFrame) DEBUG_SetFramerateLock(60);
+            else if (Keyboard.current.f2Key.wasPressedThisFrame) DEBUG_SetFramerateLock(120);
+            else if (Keyboard.current.f3Key.wasPressedThisFrame) DEBUG_SetFramerateLock(200);
+            else if (Keyboard.current.f4Key.wasPressedThisFrame) DEBUG_SetFramerateLock(0);
+        }
 
         // Toggle tunnel mode
         if (Input.GetKeyDown(KeyCode.F))
@@ -120,7 +137,7 @@ public partial class DebugKeys : DebugComponent
             DEBUG_CaptureMeasureAmount(null, RhythmicGame.TrackCaptureLength);
 
         else if (Input.GetKeyDown(KeyCode.Keypad6)) // all!
-            DEBUG_CaptureMeasureAmount(null, SongController.songLengthInMeasures, 0);
+            DEBUG_CaptureMeasureAmount(null, SongController.Instance.songLengthInMeasures, 0);
 
         // Track restoration (buggy!)
         if (Input.GetKeyDown(KeyCode.Keypad7))
@@ -148,4 +165,21 @@ public partial class DebugKeys : DebugComponent
         if (Input.GetKeyDown(KeyCode.Keypad0)) // progressive slowmo test (tut)
             DoFailTest();
     }
+
+    public IEnumerator DoFailTest_Coroutine()
+    {
+        float elapsed_ms = 0f;
+        float ms = 50;
+
+        while (ms > 0)
+        {
+            RhythmicGame.SetTimescale(ms / 50);
+            elapsed_ms += Time.unscaledDeltaTime * 1000;
+            if (elapsed_ms > ms) { elapsed_ms = 0; ms -= 5; }
+
+            yield return null;
+        }
+    }
+
+    public void DoFailTest() => StartCoroutine(DoFailTest_Coroutine());
 }

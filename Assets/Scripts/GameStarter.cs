@@ -26,7 +26,7 @@ public class GameStarter : MonoBehaviour
 #if UNITY_ANDROID
         RhythmicGame.SetFramerate(60);
 #elif UNITY_STANDALONE
-        RhythmicGame.SetFramerate(200);
+        RhythmicGame.SetFramerate(200, 1);
 #endif
 
         GameState.CreateGameState();
@@ -36,11 +36,10 @@ public class GameStarter : MonoBehaviour
         ppv = ppfx.GetComponent<PostProcessVolume>();
         ppv.profile.TryGetSettings(out dofLayer);
     }
-
     // Start is called before the first frame update
-    async void Start()
+    void Start()
     {
-        await Task.Delay(100);
+        //await Task.Delay(100);
 
 #if UNITY_STANDALONE
         if (!SetResolutionOnce & Keyboard.current.leftCtrlKey.isPressed)
@@ -49,15 +48,15 @@ public class GameStarter : MonoBehaviour
         Debug.LogFormat("GameStarter: Preferred resolution applied - {0}x{1}.", RhythmicGame.PreferredResolution.x, RhythmicGame.PreferredResolution.y);
 #endif
 
-        //StartCoroutine(Load("DevScene"));
-        StartCoroutine(Load("TestScene"));
+        StartCoroutine(Load(RhythmicGame.StartWorld));
+        //StartCoroutine(Load("TestScene"));
     }
 
     IEnumerator Load(string levelName)
     {
         //AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Single);
         Application.backgroundLoadingPriority = ThreadPriority.Low;
-        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Additive);
+        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync("Scenes/" + levelName, LoadSceneMode.Additive);
 
         asyncOperation.allowSceneActivation = false;
 
