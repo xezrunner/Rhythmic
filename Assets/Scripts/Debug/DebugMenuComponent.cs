@@ -219,12 +219,13 @@ public class DebugMenuComponent
     {
         int id = (force_id.HasValue) ? force_id.Value : entry_count;
 
-        if (!Entries.ContainsValue(entry))
-        {
+        // TODO: Performance?!
+        //if (!Entries.ContainsValue(entry))
+        //{
             entry.ID = id; // Assign ID automatically for each entry.
             Entries.Add(id, entry);
             entry_count++;
-        }
+        //}
     }
     public void AddEntry(string text = "", bool isSelectable = true) => AddEntry(new DebugMenuEntry(text, isSelectable)); // Separator
     public void AddEntry(string text, Type page) => AddEntry(new DebugMenuEntry(text, page)); // Pages

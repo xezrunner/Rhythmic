@@ -118,7 +118,7 @@ public class DebugUI : DebugComponent
     public void SwitchToComponent() // Empty active component
     {
         ActiveComponent = null;
-        MainText = "";
+        MainText = ""; UpdateMainDebugText();
     }
 
     /// Debug line

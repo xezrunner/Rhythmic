@@ -1,4 +1,8 @@
-﻿namespace DebugMenus
+﻿using UnityEngine;
+using static DebugFunctionality;
+
+
+namespace DebugMenus
 {
     [DebugMenuComponent(false, updateMs: 250)]
     public class MainMenu : DebugMenuComponent
@@ -16,7 +20,7 @@
             AddEntry("Give Max Health");
             AddEntry("Give random powerup");
             AddEntry("Keep Player Between Loads", () => false);
-            //AddEntry("Tunnel mode", () => )
+            AddEntry("Tunnel mode", new Ref<object>(() => RhythmicGame.IsTunnelMode, (v) => RhythmicGame.IsTunnelMode = (bool)v));
             AddEntry("Songs...", typeof(SongsMenu));
             AddEntry("Worlds...", typeof(WorldsMenu));
             //AddEntry("Scenes...");
