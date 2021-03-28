@@ -314,7 +314,7 @@ public class DebugMenu : DebugComponent
             return; // Return on boundaries
         }
 
-        ActiveComponent = navigation_history[index].Value;
+        ActiveComponent = navigation_history[index];
     }
     public void NavigateHistory(DebugMenuHistoryDir dir)
     {
