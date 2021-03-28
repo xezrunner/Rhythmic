@@ -113,7 +113,7 @@ public static class DebugFunctionality
             start = Clock.Fbar;
 
         if (track == null)
-            TracksController.CaptureMeasureAmount(start, count, TracksController.Tracks);
+            TracksController.CaptureMeasureAmount(start, count, TracksController.MainTracks);
         else
             TracksController.CaptureMeasureAmount(start, count, track);
     }
