@@ -87,7 +87,7 @@ public class Catcher : MonoBehaviour
             float diffSec = SongController.PosToSec(diff); // seconds
             float diffMs = SongController.PosToMs(diff); // milliseconds
 
-            Debug.Log($"diff: {diff} | diffSec: {diffSec} | diffMs: {diffMs} | slopMs: {slopMs} :: speed: {speed}");
+            //Debug.Log($"diff: {diff} | diffSec: {diffSec} | diffMs: {diffMs} | slopMs: {slopMs} :: speed: {speed}");
 
 #if VISUALIZE_SLOP
             // DEBUG DRAW SLOP

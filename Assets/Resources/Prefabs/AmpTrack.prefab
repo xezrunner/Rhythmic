@@ -148,12 +148,8 @@ MonoBehaviour:
   MeasureContainer: {fileID: 267965190780180367}
   DestructFX: {fileID: 4962849655898940}
   GlobalEdgeLights: {fileID: 1055625016937415464}
-  TrackMaterial: {fileID: 2100000, guid: 71178a17f71500448933e07925ffcc97, type: 2}
-  TrackMaterial_Active: {fileID: 2100000, guid: 4fa0820b1a6baa845bd6925c4593bb05,
-    type: 2}
-  LocalEdgeLightsMaterial: {fileID: 2100000, guid: d0d842f23fdb8de46a5916074826f995,
-    type: 2}
-  GlobalEdgeLightsMaterial: {fileID: 2100000, guid: d0d842f23fdb8de46a5916074826f995,
+  Track_Bottom_Mat: {fileID: 2100000, guid: 396d3256a4e6d3e4ea2f79ff65856f04, type: 2}
+  Track_Bottom_Global_Mat: {fileID: 2100000, guid: 5d85cbed279b1d441a2bff4c13725ba3,
     type: 2}
   ID: -1
   RealID: -1

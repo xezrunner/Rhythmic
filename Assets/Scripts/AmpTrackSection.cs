@@ -17,11 +17,23 @@ public class AmpTrackSection : MonoBehaviour
     public MeshRenderer ModelRenderer;
     public MeshFilter ModelMesh; // Mesh of the model
 
+    public static bool _seekerEnabled = true;
+    public static bool SeekerEnabled
+    {
+        get { return _seekerEnabled; }
+        set
+        {
+            _seekerEnabled = value;
+            foreach (AmpTrack t in TracksController.Instance.Tracks)
+            {
+                foreach (AmpTrackSection m in t.Measures)
+                    if (m && m.SeekerRenderer) m.SeekerRenderer.enabled = value;
+            }
+        }
+    }
     public MeshRenderer SeekerRenderer;
     public MeshFilter SeekerMesh; // Mesh of the model
     public GameObject Seeker;
-
-    public Material GlobalEdgeLightMaterial; // test
 
     public Transform NotesContainer;
 
@@ -80,9 +92,9 @@ public class AmpTrackSection : MonoBehaviour
             _isFocused = value;
 
             // Toggle edge light material
-            GlobalEdgeLightMaterial.SetInteger("_Enabled", value ? 1 : 0); // TODO: Optimization?
+            Track.Track_Bottom_Global_Mat.SetInteger("_Enabled", value ? 1 : 0); // TODO: Optimization?
             if (!IsEmpty || !IsCaptured)
-                Seeker.SetActive(value ? (_isSequence ? true : false) : false);
+                Seeker.SetActive(value ? (_isSequence && !IsCaptured ? true : false) : false);
         }
     }
 
@@ -94,7 +106,7 @@ public class AmpTrackSection : MonoBehaviour
         {
             _isSequence = value;
             if (value) IsFocused = Track.IsTrackFocused;
-            //else IsFocused = false;
+            else if (Seeker) Seeker.SetActive(false);
         }
     }
 
@@ -113,12 +125,15 @@ public class AmpTrackSection : MonoBehaviour
         if (!ModelMesh || !ModelMesh.sharedMesh)
         { Debug.LogWarning($"AmpTrackSection [init]: measure {ID} does not have a Model!"); return; }
 
+        SeekerRenderer.enabled = SeekerEnabled;
+
         // Disable measure visuals when empty or captured
         if (IsEmpty || IsCaptured)
         {
             ModelRenderer.materials = new Material[0];
-            ModelRenderer.material = GlobalEdgeLightMaterial;
+            ModelRenderer.material = Track.Track_Bottom_Global_Mat;
         }
+
 
         if (og_verts == null)
         {
@@ -130,9 +145,9 @@ public class AmpTrackSection : MonoBehaviour
         // Deform the mesh!
         DeformMesh();
 
-        //MeshDeformer.DeformMesh
-        //                          (Path, SeekerMesh.mesh, Position, Rotation, ogVerts: og_vertsSeeker, offset: null, RhythmicGame.TrackWidth - 0.2f, -1, Length, movePivotToStart: true); // TODO: unneccessary parameters
-        //SeekerRenderer.material.color = Track.Color;
+        MeshDeformer.DeformMesh
+                                  (Path, SeekerMesh.mesh, Position, Rotation, ogVerts: og_vertsSeeker, offset: new Vector3(0, 0.018f, 0), RhythmicGame.TrackWidth + 0.05f, -1, Length, movePivotToStart: false); // TODO: unneccessary parameters
+        SeekerRenderer.material.color = Track.Color;
     }
 
 

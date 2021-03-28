@@ -141,7 +141,7 @@ public static class RhythmicGame
     public static bool DebugPlayerTrackSeekEvents = true;
 
     public static bool DebugCatchResultEvents = false;
-    public static bool DebugCatcherSlopEvents = true;
+    public static bool DebugCatcherSlopEvents = false;
     public static bool DebugTargetNoteRefreshEvents = false;
     public static bool DebugSequenceRefreshEvents = false;
 

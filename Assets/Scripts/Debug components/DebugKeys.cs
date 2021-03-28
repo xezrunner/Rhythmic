@@ -58,7 +58,7 @@ public partial class DebugKeys : DebugComponent
             ConsoleServer.Write("Hi!!!");
 
         // AMP songs debug
-        HandleSongSwitching();
+        //HandleSongSwitching(); // Now handled in Debug menu!
 
         // World stuff
         if (Gamepad.current != null && Gamepad.current.dpad.down.wasPressedThisFrame)

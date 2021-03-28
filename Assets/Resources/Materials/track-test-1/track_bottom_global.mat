@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: track_bottom_material
+  m_Name: track_bottom_global
   m_Shader: {fileID: 4800000, guid: 5800f3aa84ec8df40ac18ac3c6939b85, type: 3}
   m_ShaderKeywords: _GLOSSYREFLECTIONS_OFF _SPECULARHIGHLIGHTS_OFF
   m_LightmapFlags: 4
@@ -40,7 +40,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 7a6a23951fb2ed74d8e1b0ef93fe334a, type: 3}
+        m_Texture: {fileID: 2800000, guid: bbb37d5003612184cb4e2789abbd6346, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -57,9 +57,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AlbedoOpacity: 1
     - _BumpScale: 1
     - _BumpStrength: 1
-    - _Cutoff: 0
+    - _Cutoff: 0.01
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EmissionEnabled: 1
@@ -80,9 +81,9 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.06666667, g: 0.7490196, b: 0, a: 1}
     - _CutoffColor: {r: 0, g: 0, b: 0, a: 0}
-    - _Emission: {r: 0.1254902, g: 1.4980392, b: 0, a: 1}
+    - _Emission: {r: 0.18856181, g: 2.1185474, b: 0, a: 1}
     - _EmissionColor: {r: 0.765799, g: 0.0090094, b: 1.6937672, a: 1}
     - _InversePlane: {r: 0, g: 0, b: 0, a: 0}
     - _Plane: {r: 0, g: 0, b: 0, a: 0}

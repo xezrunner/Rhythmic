@@ -26,11 +26,9 @@ public partial class AmpTrack : MonoBehaviour
     [Header("Global Edge Light")]
     public EdgeLights GlobalEdgeLights;
 
-    [Header("Measure materials")]
-    public Material TrackMaterial;
-    public Material TrackMaterial_Active;
-    public Material LocalEdgeLightsMaterial;
-    public Material GlobalEdgeLightsMaterial;
+    [Header("Track materials")]
+    public Material Track_Bottom_Mat;
+    public Material Track_Bottom_Global_Mat;
 
     /// Declarations, global variables, properties, events ...
 
@@ -51,6 +49,7 @@ public partial class AmpTrack : MonoBehaviour
     public Vector3 TunnelPos;
     public Vector3 TunnelRot;
 
+    // TODO: Emission!
     Color _color = Colors.Bass;
     public Color Color
     {
@@ -58,7 +57,10 @@ public partial class AmpTrack : MonoBehaviour
         set
         {
             _color = value;
-            TrackMaterial_Active.color = value;
+            Track_Bottom_Mat.SetColor("_Color", value);
+            Track_Bottom_Mat.SetColor("_Emission", value * TracksController.LocalEmission);
+            Track_Bottom_Global_Mat.SetColor("_Color", value);
+            Track_Bottom_Global_Mat.SetColor("_Emission", value * TracksController.GlobalEmission);
         }
     }
 
@@ -79,10 +81,9 @@ public partial class AmpTrack : MonoBehaviour
         // Materials setup:
         // Instance the measure materials so they are shared for this particular track only.
         // This has to be done in Awake(), as the Color property (which changes a TrackMaterial_Active) is being set sooner than Start().
-        TrackMaterial = Instantiate(TrackMaterial);
-        TrackMaterial_Active = Instantiate(TrackMaterial_Active);
-        LocalEdgeLightsMaterial = Instantiate(LocalEdgeLightsMaterial);
-        GlobalEdgeLightsMaterial = Instantiate(GlobalEdgeLightsMaterial);
+        Track_Bottom_Mat = Instantiate(Track_Bottom_Mat);
+        Track_Bottom_Global_Mat = Instantiate(Track_Bottom_Global_Mat);
+        Track_Bottom_Global_Mat.SetInteger("_Enabled", 0); // Global should start off
     }
     void Start()
     {
@@ -90,28 +91,16 @@ public partial class AmpTrack : MonoBehaviour
         TunnelPos = TunnelTransform[0];
         TunnelRot = TunnelTransform[1];
 
-        // Global edge lights
-        //GlobalEdgeLights.Mesh = TrackMeshCreator.CreateMeshFromPathIndexes(0, 0.4f, TunnelPos, TunnelRot.z);
-        //GlobalEdgeLights.MeshRenderer.material = GlobalEdgeLightsMaterial; // Shared material
-        //if (ID == 0) GlobalEdgeLights.gameObject.SetActive(true);
-
         // Color
         Color = Colors.ColorFromInstrument(Instrument);
         DestructFX.TrackColor = Color;
 
-        // TODO: EdgeLights colors!
-        LocalEdgeLightsMaterial.SetColor("_Emission", Color * 1.15f);
-        GlobalEdgeLightsMaterial.SetColor("_Emission", Color * 2.65f);
-        GlobalEdgeLightsMaterial.SetInteger("_Enabled", 0);
-        TrackMaterial_Active.SetInteger("_Enabled", 0);
-
         // Set up ClipManager for capture clipping
-        ClipManager.AddMaterial(TrackMaterial);
-        ClipManager.AddMaterial(TrackMaterial_Active);
-        ClipManager.AddMaterial(LocalEdgeLightsMaterial);
+        ClipManager.AddMaterial(Track_Bottom_Mat);
         if (RhythmicGame.GlobalEdgeLightsCaptureClipping)
-            ClipManager.AddMaterial(GlobalEdgeLightsMaterial);
+            ClipManager.AddMaterial(Track_Bottom_Global_Mat);
 
+        // Clone tracks - set Sequences List references
         if (IsCloneTrack)
             foreach (AmpTrack t in TrackTwins)
                 t.Sequences = TracksController.Tracks[ID].Sequences;
@@ -137,7 +126,11 @@ public partial class AmpTrack : MonoBehaviour
     }
     public void ClearSequences()
     {
-        foreach (AmpTrack t in TrackTwins) t.Sequences.Clear();
+        foreach (AmpTrack t in TrackTwins)
+        {
+            t.Sequences.ForEach(s => s.IsSequence = false);
+            t.Sequences.Clear();
+        }
         Sequences.Clear();
     }
 
