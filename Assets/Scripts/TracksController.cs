@@ -281,12 +281,14 @@ public class TracksController : MonoBehaviour
             note.Color = Color.green;
             targetNotes[track.ID] = note;
 
+            /*
             { // debug log targetNotes:
                 string s = "targetNotes: ";
                 foreach (AmpNote n in targetNotes)
                     s += $"[{n.ID}{$"/{n.TrackID}".AddColor(.5f)}]  ";
                 Logger.Log(s);
             }
+            */
         }
 
         foreach (AmpTrack t in MainTracks)
@@ -457,6 +459,8 @@ public class TracksController : MonoBehaviour
 
             if (m.CaptureState != MeasureCaptureState.Captured)
                 m.CaptureState = MeasureCaptureState.Capturing;
+
+            m.IsSequence = false;
         }
 
         // Init capture process - wait for captures to finish before proceeding to next one

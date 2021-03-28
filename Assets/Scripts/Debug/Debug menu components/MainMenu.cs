@@ -17,9 +17,10 @@ namespace DebugMenus
             Instance = this;
 
             AddEntry("Player Menu...", typeof(PlayerMenu));
-            AddEntry("Give Max Health");
-            AddEntry("Give random powerup");
+            //AddEntry("Give Max Health");
+            //AddEntry("Give random powerup");
             AddEntry("Keep Player Between Loads", () => false);
+            AddEntry("Enable seeker frames", new Ref<object>(() => AmpTrackSection.SeekerEnabled, (v) => AmpTrackSection.SeekerEnabled = (bool)v));
             AddEntry("Tunnel mode", new Ref<object>(() => RhythmicGame.IsTunnelMode, (v) => RhythmicGame.IsTunnelMode = (bool)v));
             AddEntry("Songs...", typeof(SongsMenu));
             AddEntry("Worlds...", typeof(WorldsMenu));

@@ -126,7 +126,11 @@ public partial class AmpTrack : MonoBehaviour
     }
     public void ClearSequences()
     {
-        foreach (AmpTrack t in TrackTwins) t.Sequences.Clear();
+        foreach (AmpTrack t in TrackTwins)
+        {
+            t.Sequences.ForEach(s => s.IsSequence = false);
+            t.Sequences.Clear();
+        }
         Sequences.Clear();
     }
 

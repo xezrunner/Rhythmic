@@ -430,7 +430,6 @@ MonoBehaviour:
   SeekerRenderer: {fileID: 7991788451858119658}
   SeekerMesh: {fileID: 5263720640988483360}
   Seeker: {fileID: 8496169550478170687}
-  GlobalEdgeLightMaterial: {fileID: 0}
   NotesContainer: {fileID: 1052880242004629714}
   ClipManager: {fileID: 0}
   ClipPlane: {fileID: 29731176791887653}
@@ -782,18 +781,18 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 34995c5dd965a2e4f81ff951c4f07dbf,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 34995c5dd965a2e4f81ff951c4f07dbf,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 4fa0820b1a6baa845bd6925c4593bb05, type: 2}
+      objectReference: {fileID: 2100000, guid: 70684655b1eb23c4f9f9a131df5998a8, type: 2}
     - target: {fileID: -5754084199372789682, guid: 34995c5dd965a2e4f81ff951c4f07dbf,
         type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -1918417771691696694, guid: 598da71b857c4c74b91204cfa3aba17b,
+      objectReference: {fileID: 7669099175055760302, guid: 34995c5dd965a2e4f81ff951c4f07dbf,
         type: 3}
     - target: {fileID: 919132149155446097, guid: 34995c5dd965a2e4f81ff951c4f07dbf,
         type: 3}
