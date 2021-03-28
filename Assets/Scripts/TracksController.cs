@@ -33,6 +33,9 @@ public class TracksController : MonoBehaviour
     public AmpTrack CurrentTrack; // The track that the player is currently on
     public AmpTrackSection CurrentMeasure { get { return CurrentTrack.CurrentMeasure; } }
 
+    public float LocalEmission = 1f; // Local material
+    public float GlobalEmission = 1.5f; // Global material
+
     [Header("Variables")]
     public AmpTrack[] Tracks;
     public AmpTrack[] MainTracks;
@@ -108,10 +111,8 @@ public class TracksController : MonoBehaviour
 
         foreach (var t in Tracks)
         {
-            clipManager.AddMaterial(t.TrackMaterial);
-            clipManager.AddMaterial(t.TrackMaterial_Active);
-            clipManager.AddMaterial(t.LocalEdgeLightsMaterial);
-            clipManager.AddMaterial(t.GlobalEdgeLightsMaterial);
+            clipManager.AddMaterial(t.Track_Bottom_Mat);
+            clipManager.AddMaterial(t.Track_Bottom_Global_Mat);
         }
 
         // Instantiate a shared Note Material | (TODO: move somewhere else? Into AmpNote as static?)

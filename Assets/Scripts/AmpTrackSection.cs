@@ -21,8 +21,6 @@ public class AmpTrackSection : MonoBehaviour
     public MeshFilter SeekerMesh; // Mesh of the model
     public GameObject Seeker;
 
-    public Material GlobalEdgeLightMaterial; // test
-
     public Transform NotesContainer;
 
     public ClipManager ClipManager;
@@ -80,7 +78,7 @@ public class AmpTrackSection : MonoBehaviour
             _isFocused = value;
 
             // Toggle edge light material
-            GlobalEdgeLightMaterial.SetInteger("_Enabled", value ? 1 : 0); // TODO: Optimization?
+            Track.Track_Bottom_Global_Mat.SetInteger("_Enabled", value ? 1 : 0); // TODO: Optimization?
             if (!IsEmpty || !IsCaptured)
                 Seeker.SetActive(value ? (_isSequence ? true : false) : false);
         }
@@ -117,7 +115,7 @@ public class AmpTrackSection : MonoBehaviour
         if (IsEmpty || IsCaptured)
         {
             ModelRenderer.materials = new Material[0];
-            ModelRenderer.material = GlobalEdgeLightMaterial;
+            ModelRenderer.material = Track.Track_Bottom_Global_Mat;
         }
 
         if (og_verts == null)

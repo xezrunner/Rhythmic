@@ -1,7 +1,8 @@
-﻿Shader "ClippingPlane"{
+﻿Shader "ClippingPlane"
+{
 	//show values to edit in inspector
 	Properties{
-		_Color("Tint", Color) = (0, 0, 0, 1)
+		_Color("Color", Color) = (0, 0, 0, 1)
 		_Enabled("Enabled", Int) = 1
 		_MainTex("Base (RGB) Trans (A)", 2D) = "white" {}
 		_Cutoff("AlphaCutoff", Range(0,1)) = 0.5
@@ -21,14 +22,15 @@
 		_CutoffColor("Cutoff Color", Color) = (1,0,0,0)
 	}
 
-		SubShader{
+		SubShader
+		{
 			//the material is completely non-transparent and is rendered at the same time as the other opaque geometry
-			Tags{ "Queue" = "Transparent" "IgnoreProjector" = "True" "RenderType" = "Transparent"}
+			Tags{ "Queue" = "Transparent"  "RenderType" = "Transparent"}
 
 			// render faces regardless if they point towards the camera or away from it
 			//Lighting On
 			//ZTest Always
-			ZWrite Off
+			//ZWrite Off
 			//BlendOp Add
 			//Blend One Zero
 			//Cull Off

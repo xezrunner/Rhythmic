@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-// Factory class for generating measures and notes in an AmpTrack
+// Generating measures and notes in an AmpTrack
 
 public partial class AmpTrack
 {
@@ -42,19 +42,11 @@ public partial class AmpTrack
 
         // Assign materials
         // TODO: improve!
-        Material[] modelMaterials = new Material[3];
-        modelMaterials[0] = TrackMaterial;
-        modelMaterials[1] = LocalEdgeLightsMaterial;
-        modelMaterials[2] = GlobalEdgeLightsMaterial;
+        Material[] modelMaterials = new Material[2]
+            { Track_Bottom_Global_Mat, Track_Bottom_Mat };
         measure.ModelRenderer.materials = modelMaterials;
 
-        measure.GlobalEdgeLightMaterial = GlobalEdgeLightsMaterial;
-
-        //measure.ActiveSurfaceMeshRenderer.material = TrackMaterial_Active;
-
-        //measure.EdgeLights_Local.MeshRenderer.material = LocalEdgeLightsMaterial;
-
-        measure.EdgeLightsColor = Color;
+        //measure.EdgeLightsColor = Color;
 
         // TODO: possibly simplify position &/ rotation properties?
         measure.Position = new Vector3(
