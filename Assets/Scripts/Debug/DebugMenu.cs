@@ -84,11 +84,19 @@ public class DebugMenu : DebugComponent
         debugMenu.SwitchToComponent(typeof(DebugMenus.MainMenu));
 
         // TODO: Navigation history - 20 limit!
-        debugMenu.navigation_history.Clear(); // Clear navigation history
+        //debugMenu.navigation_history.Clear(); // Clear navigation history
     }
 
     // Component switching & handling:
     // TODO: Components need to have their roaming entry indexes for navigation purposes!
+    void Handle_ActiveComponent(int index = 0) // Prints the active menu's text
+    {
+        if (ActiveComponent == null)
+        { debugmenuText.text = ""; return; }
+
+        //if (_isActive)
+        debugmenuText.text = ActiveComponent.Main(index);
+    }
     public void SwitchToComponent(Type type)
     {
         DebugMenuComponent instance = null;
@@ -116,7 +124,7 @@ public class DebugMenu : DebugComponent
             if (!Instances.ContainsKey(type.Name)) Instances.Add(type.Name, com);
             instance = com;
 
-            Logger.LogMethodW($"Component {type.Name} did not exist, so we instanced one. (total: {Instances.Count})");
+            Logger.LogMethodW($"Component {type.Name} did not exist, so we instanced one. (total: {Instances.Count})", this);
         }
         //{ Logger.LogMethodW($"Cannot switch to component {type.Name} - not available!", this); return; }
 
@@ -124,29 +132,20 @@ public class DebugMenu : DebugComponent
     }
     public void SwitchToComponent(DebugMenuComponent com = null)
     {
-        if (com != null)
-        {
-            navigation_history.Add(new KeyValuePair<int, DebugMenuComponent>(entry_index, ActiveComponent));
-            ActiveComponent = com;
-        }
+        if (com == null) return;
+
+        ActiveComponent = com;
         entry_index = com.entry_index; // Set this up early so that we keep previous positions through restarts
         Handle_ActiveComponent(entry_index);
 
+        // Check whether we have entries
         if (ActiveComponent.Entries == null || ActiveComponent.Entries.Count == 0)
         {
-            Logger.LogMethodE($"{com.GetType().Name.AddColor(Colors.Application)} has no entries! This is bad!");
+            Logger.LogMethodE($"{com.GetType().Name.AddColor(Colors.Application)} has no entries! This is bad and should not happen!", this);
             return;
         }
 
         if (IsActive) Entry_Move(entry_index);
-    }
-    void Handle_ActiveComponent(int index = 0) // Prints the active menu's text
-    {
-        if (ActiveComponent == null)
-        { debugmenuText.text = ""; return; }
-
-        //if (_isActive)
-        debugmenuText.text = ActiveComponent.Main(index);
     }
 
     // Input processing | TODO TODO TODO: Wrapper for keyboard key down / pressed checking!
@@ -209,7 +208,6 @@ public class DebugMenu : DebugComponent
     }
 
     // ***** Navigation: *****
-
     void UpdateEntryColors(ref Dictionary<int, DebugMenuEntry> Entries, int target_index) => // TODO: is ref needed?
         Handle_ActiveComponent(target_index);
     // TODO: multiple targets?
@@ -301,11 +299,17 @@ public class DebugMenu : DebugComponent
         if (!result) { entry_index = prev_index; /* log !*/ return; } // Restore previous index if unsuccessful!
     }
 
-    // History navigation:
-    // Key: last entry index of com | Value: the com itself
+    // Navigation history:
+    int navigation_history_max = 20; // Hold a maximum of 20 components in the history
     int navigation_index = 0; // Navigation history index
-    List<KeyValuePair<int, DebugMenuComponent>> navigation_history = new List<KeyValuePair<int, DebugMenuComponent>>();
+    List<DebugMenuComponent> navigation_history = new List<DebugMenuComponent>();
 
+    public void AddToNavigationHistory(DebugMenuComponent com)
+    {
+        navigation_history.Add(ActiveComponent);
+        if (navigation_history.Count > 20)
+            navigation_history.RemoveRange(19, navigation_history.Count - 19);
+    }
     public void NavigateHistory(int index)
     {
         if (index >= navigation_history.Count || index < 0)
@@ -334,6 +338,8 @@ public class DebugMenu : DebugComponent
         bool fail = (navigation_index == prev_index);
         Logger.LogMethod($"Navigated {dir} to index {navigation_index}" + "(from {prev_index})".AddColor(0.45f) + (fail ? " FAIL!".AddColor(Colors.Error) : ""), this);
     }
+
+    // *****
 
     float update_ElapsedMs;
     void Update()
