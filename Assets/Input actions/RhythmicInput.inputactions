@@ -1,86 +1,94 @@
 {
-    "name": "RhythmicInput",
+    "name": "DebugMenuInput",
     "maps": [
         {
-            "name": "Player",
-            "id": "4856590d-3e48-4f02-86db-ed959db7fbfd",
+            "name": "Main",
+            "id": "601fcb54-3aed-4d4e-bc82-e2c98f5b44a5",
             "actions": [
                 {
-                    "name": "Track switch left",
-                    "type": "Value",
-                    "id": "e9039a6e-818e-48dc-a3da-de527f959336",
-                    "expectedControlType": "Axis",
-                    "processors": "",
-                    "interactions": ""
-                },
-                {
-                    "name": "Track switch right",
-                    "type": "Value",
-                    "id": "98d9ef35-3828-4a17-bf0a-af1d7232715f",
-                    "expectedControlType": "Axis",
-                    "processors": "",
-                    "interactions": ""
-                },
-                {
-                    "name": "Track switch left (force)",
-                    "type": "Value",
-                    "id": "b0727585-ed4b-4ffd-a114-077f594a2b8f",
-                    "expectedControlType": "Axis",
-                    "processors": "",
-                    "interactions": ""
-                },
-                {
-                    "name": "Track switch right (force)",
-                    "type": "Value",
-                    "id": "4801fe5b-c6ca-46fb-93ab-576671284d6b",
-                    "expectedControlType": "Axis",
-                    "processors": "",
-                    "interactions": ""
-                },
-                {
-                    "name": "Catch left",
-                    "type": "Value",
-                    "id": "0fe10360-4f2c-403c-bd7b-9c49d980ccaf",
-                    "expectedControlType": "Axis",
-                    "processors": "",
-                    "interactions": ""
-                },
-                {
-                    "name": "Catch center",
-                    "type": "Value",
-                    "id": "8bb13355-0258-4cb2-afd1-193dbd6d7859",
-                    "expectedControlType": "Axis",
-                    "processors": "",
-                    "interactions": ""
-                },
-                {
-                    "name": "Catch right",
-                    "type": "Value",
-                    "id": "b2e2166c-0b28-4f8a-82b4-c79c808cf77d",
-                    "expectedControlType": "Axis",
-                    "processors": "",
-                    "interactions": ""
-                },
-                {
-                    "name": "Deploy powerup",
+                    "name": "Open",
                     "type": "Button",
-                    "id": "98ba34b7-78c6-4dc3-9e98-a14c20ee72cf",
+                    "id": "c6ce1ef0-5d75-4b0b-be1b-bd8a5097ae4f",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
                 },
                 {
-                    "name": "Start song",
+                    "name": "Close",
                     "type": "Button",
-                    "id": "6e0da7f7-8dd5-4638-9f02-15c2424a654a",
+                    "id": "af982990-b08a-4d57-9129-674d9a176da9",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
                 },
                 {
-                    "name": "Restart",
+                    "name": "Show help",
                     "type": "Button",
-                    "id": "6292db2c-f96b-4780-8930-cf4cd36315e3",
+                    "id": "6fa6db86-ee01-4912-91dd-6d14590417ae",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Call main menu",
+                    "type": "Button",
+                    "id": "97f34ab3-e107-4feb-8ff1-b55f234617b3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Move up",
+                    "type": "Button",
+                    "id": "45ad7434-83d6-4856-aa5e-bfe1fe214ee4",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Move down",
+                    "type": "Button",
+                    "id": "0d6c6362-2329-424d-80ee-9dc403d8e64c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Entry function",
+                    "type": "Button",
+                    "id": "7aedda12-5e89-4b00-95fc-34fede01871d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Increase value",
+                    "type": "Button",
+                    "id": "6a6f57f2-f759-4a5f-98f6-2b6ea788efda",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Decrease value",
+                    "type": "Button",
+                    "id": "650451b0-4686-4146-83cd-1fad9cb4e271",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "History backwards",
+                    "type": "Button",
+                    "id": "84bdd239-9118-43a9-a538-2ef1d4330a31",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "History forwards",
+                    "type": "Button",
+                    "id": "352c688d-74da-4cb0-9499-39205626f0eb",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
@@ -89,298 +97,155 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "18d1744e-3d86-4e60-bb39-2f1f53fb553e",
-                    "path": "<Gamepad>/leftStick/left",
-                    "interactions": "Press(pressPoint=0.45)",
+                    "id": "38928534-a1e7-4e30-a648-f879c18688e3",
+                    "path": "<Keyboard>/f1",
+                    "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Track switch left",
+                    "groups": "Default",
+                    "action": "Open",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "68e16f1e-2d5a-4ca0-b6c5-b9052389d30f",
-                    "path": "<Keyboard>/a",
+                    "id": "4b8a510c-c153-4052-ac37-e55ed888a6bf",
+                    "path": "<Keyboard>/f2",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Track switch left",
+                    "groups": "Default",
+                    "action": "Close",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "0d63c315-5412-45b4-a8a6-778a7767f259",
-                    "path": "<Gamepad>/dpad/left",
-                    "interactions": "",
+                    "id": "1900fe57-6802-422e-87c8-90285b4391a5",
+                    "path": "<Keyboard>/f1",
+                    "interactions": "Hold(duration=1)",
                     "processors": "",
-                    "groups": "",
-                    "action": "Track switch left",
+                    "groups": "Default",
+                    "action": "Show help",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "9ee5b573-86c1-49b3-ab22-fcec05313aba",
-                    "path": "<Gamepad>/leftStick/right",
-                    "interactions": "Press(pressPoint=0.45)",
+                    "id": "1ea8cbe7-8ee1-42e4-8756-de60eba0dd7c",
+                    "path": "<Keyboard>/o",
+                    "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Track switch right",
+                    "groups": "Default",
+                    "action": "Move up",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "7a3067d5-b8e5-4758-9ed5-4686a0178cd3",
-                    "path": "<Keyboard>/d",
+                    "id": "9ec6b92b-9a3f-41b9-af07-df68dd469dfb",
+                    "path": "<Keyboard>/u",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Track switch right",
+                    "groups": "Default",
+                    "action": "Move down",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "9e6db5c8-ad69-4dda-835c-5c37fcf2b0c2",
-                    "path": "<Gamepad>/rightStick/right",
-                    "interactions": "Press(pressPoint=0.45)",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Track switch right (force)",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "3f9b9f84-c1e8-4079-8b37-eefa38fef643",
-                    "path": "<Gamepad>/rightStick/left",
-                    "interactions": "Press(pressPoint=0.45)",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Track switch left (force)",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "Button With One Modifier",
-                    "id": "571aecc3-3c48-4546-a619-3c2065c031df",
-                    "path": "ButtonWithOneModifier",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Track switch left (force)",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "modifier",
-                    "id": "b6761473-c522-41da-84de-bf563d2c6e10",
-                    "path": "<Keyboard>/shift",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Track switch left (force)",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "button",
-                    "id": "4103f390-b988-4130-9e91-f32d48a0f96a",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Track switch left (force)",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "Button With One Modifier",
-                    "id": "bc6cb141-4b05-4449-881b-385be404aa58",
-                    "path": "ButtonWithOneModifier",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Track switch right (force)",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "modifier",
-                    "id": "f6f6d8f8-57e0-4c7e-a911-253c01a5841d",
-                    "path": "<Keyboard>/shift",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Track switch right (force)",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "button",
-                    "id": "222f2139-ea1d-4d52-8101-45a18bdfed66",
-                    "path": "<Keyboard>/d",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Track switch right (force)",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "",
-                    "id": "b4da4964-2acf-45e1-98be-49615604c582",
-                    "path": "<Keyboard>/leftArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Catch left",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "4e071f62-8fe6-48c2-9cc9-240187772e8a",
-                    "path": "<Gamepad>/leftShoulder",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Catch left",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "c03317f1-ec10-4b9c-8c46-5326855c4b5a",
-                    "path": "<Gamepad>/buttonWest",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Catch left",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "d82813b2-609d-41ff-848d-5197b9b8ab01",
-                    "path": "<Keyboard>/upArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Catch center",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "2d44583e-fef2-4240-9951-2588edc985f1",
-                    "path": "<Gamepad>/rightShoulder",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Catch center",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "a702c606-163f-4266-8b49-e0fcac9d123d",
-                    "path": "<Gamepad>/buttonNorth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Catch center",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "232d781e-783b-4f96-a2e8-775ab686e314",
-                    "path": "<Keyboard>/rightArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Catch right",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "7f20068e-3325-49a1-8fbf-75ce33894524",
-                    "path": "<Gamepad>/rightTrigger",
-                    "interactions": "",
-                    "processors": "AxisDeadzone(min=0.001)",
-                    "groups": "",
-                    "action": "Catch right",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "8accea3a-4aed-4e03-b39a-1d4f2b0c94c5",
-                    "path": "<Gamepad>/buttonEast",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Catch right",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "8a700f1b-0b05-4a99-8f4d-b9b8e3872ac5",
-                    "path": "<Gamepad>/start",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Start song",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "9e51180c-3688-4707-acda-8d4d46f4de47",
+                    "id": "51c1ecca-3bd3-440f-b6c9-5adbc7bdea8a",
                     "path": "<Keyboard>/enter",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Start song",
+                    "groups": "Default",
+                    "action": "Entry function",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "1c56b313-0b3d-485e-ac03-40096617a990",
-                    "path": "<Gamepad>/buttonSouth",
+                    "id": "3b1ae171-44fc-4035-8514-29e0b1c0196c",
+                    "path": "<Keyboard>/y",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Deploy powerup",
+                    "groups": "Default",
+                    "action": "Entry function",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "93822c36-73b1-41c0-aadd-c28a0cf3564f",
-                    "path": "<Gamepad>/dpad/right",
+                    "id": "e88b09d1-1b0c-44d4-8196-4e1fbccc9374",
+                    "path": "<Keyboard>/2",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Track switch right",
+                    "groups": "Default",
+                    "action": "Increase value",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "d6515246-f157-4bc3-bb0d-18e3aadb202b",
-                    "path": "<Gamepad>/select",
+                    "id": "bed0865b-160d-438f-bfe9-2e1432e9e151",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default",
+                    "action": "Decrease value",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "Button With One Modifier",
+                    "id": "65e53d66-2808-43eb-84ce-42ac892ab384",
+                    "path": "ButtonWithOneModifier",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Restart",
+                    "action": "Call main menu",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "6905fc8c-f4e6-4e95-aea0-9148985ecf8c",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default",
+                    "action": "Call main menu",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "button",
+                    "id": "1e7e05fd-18fc-4217-bcbf-5ea464b9a0a4",
+                    "path": "<Keyboard>/f1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default",
+                    "action": "Call main menu",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "a7896fd5-be3a-4b93-aae6-35e2976d6dc7",
+                    "path": "<Keyboard>/pageUp",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default",
+                    "action": "History backwards",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "97d7789c-9fa6-4b4d-b532-3a3807528249",
+                    "path": "<Keyboard>/pageDown",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Default",
+                    "action": "History forwards",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -389,8 +254,8 @@
     ],
     "controlSchemes": [
         {
-            "name": "Keyboard&Mouse",
-            "bindingGroup": "Keyboard&Mouse",
+            "name": "Default",
+            "bindingGroup": "Default",
             "devices": [
                 {
                     "devicePath": "<Keyboard>",
@@ -398,52 +263,8 @@
                     "isOR": false
                 },
                 {
-                    "devicePath": "<Mouse>",
-                    "isOptional": false,
-                    "isOR": false
-                }
-            ]
-        },
-        {
-            "name": "Gamepad",
-            "bindingGroup": "Gamepad",
-            "devices": [
-                {
                     "devicePath": "<Gamepad>",
-                    "isOptional": false,
-                    "isOR": false
-                }
-            ]
-        },
-        {
-            "name": "Touch",
-            "bindingGroup": "Touch",
-            "devices": [
-                {
-                    "devicePath": "<Touchscreen>",
-                    "isOptional": false,
-                    "isOR": false
-                }
-            ]
-        },
-        {
-            "name": "Joystick",
-            "bindingGroup": "Joystick",
-            "devices": [
-                {
-                    "devicePath": "<Joystick>",
-                    "isOptional": false,
-                    "isOR": false
-                }
-            ]
-        },
-        {
-            "name": "XR",
-            "bindingGroup": "XR",
-            "devices": [
-                {
-                    "devicePath": "<XRController>",
-                    "isOptional": false,
+                    "isOptional": true,
                     "isOR": false
                 }
             ]

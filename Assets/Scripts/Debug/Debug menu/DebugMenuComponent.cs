@@ -130,7 +130,7 @@ public class DebugMenuComponentAttribute : Attribute
 
 public class DebugMenuComponent
 {
-    DebugMenu DebugMenu { get { return (DebugMenu)DebugMenu.Instance.Component; } }
+    DebugMenu DebugMenu { get { return (DebugMenu)DebugMenu.Instance; } }
 
     public DebugMenuComponentAttribute Attribute;
 

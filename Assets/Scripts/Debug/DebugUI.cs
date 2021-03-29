@@ -41,8 +41,6 @@ public class DebugUI : DebugComponent
     public static DebugUI Instance;
     public static RefDebugComInstance Instances;
 
-    DebugStats DebugStats { get { return (DebugStats)DebugStats.Instance.Component; } }
-
     [Header("Content references")]
     public TextMeshProUGUI framerateText;
     public TextMeshProUGUI debugLineText;

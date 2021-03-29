@@ -13,7 +13,7 @@ public enum DebugMenuHistoryDir { Backwards, Forwards, MainMenu = -1 }
 public enum DebugMenuEntryDir { Up, Home, Down, End }
 public enum DebugMenuVarDir { Decrease, Increase, Action }
 
-[DebugComponent(DebugComponentFlag.DebugMenu, DebugComponentType.Component, true)]
+[DebugComponent(DebugComponentFlag.DebugMenu, DebugComponentType.Prefab, true, -1, "Prefabs/Debug/DebugMenu")]
 public class DebugMenu : DebugComponent
 {
     DebugUI DebugUI;
@@ -21,16 +21,17 @@ public class DebugMenu : DebugComponent
     TextMeshProUGUI debugmenuText;
     public Image debugmenuArrow;
 
-    public static RefDebugComInstance Instance;
+    public static DebugMenu Instance;
+    public static RefDebugComInstance Instances;
 
-    Dictionary<string, DebugMenuComponent> Instances = new Dictionary<string, DebugMenuComponent>();
+    Dictionary<string, DebugMenuComponent> ComponentInstances = new Dictionary<string, DebugMenuComponent>();
     DebugMenuComponent ActiveComponent = null;
     DebugMenuEntry SelectedEntry;
 
     public bool IsActive;
     public static void SetActive(bool value) // TODO: static is hacky!
     {
-        DebugMenu debugMenu = (DebugMenu)Instance.Component;
+        DebugMenu debugMenu = (DebugMenu)Instance;
         if (!debugMenu) Logger.LogMethodW("Debug menu has no instance!", "DebugMenu");
 
         debugMenu._SetActive(value);
@@ -60,7 +61,8 @@ public class DebugMenu : DebugComponent
 
     void Awake()
     {
-        Instance = new RefDebugComInstance(this);
+        Instance = this;
+        Instances = new RefDebugComInstance(this, gameObject);
 
         DebugUI = DebugUI.Instance;
         debugmenuText = DebugUI.debugmenuText;
@@ -79,7 +81,7 @@ public class DebugMenu : DebugComponent
     // It can be switched to a different one, but there has to be one.
     public static void MainMenu()
     {
-        DebugMenu debugMenu = (DebugMenu)Instance.Component;
+        DebugMenu debugMenu = (DebugMenu)Instance;
         if (!debugMenu) Logger.LogMethodW("Debug menu has no instance!", "DebugMenu");
         debugMenu.SwitchToComponent(typeof(DebugMenus.MainMenu));
 
@@ -121,10 +123,10 @@ public class DebugMenu : DebugComponent
                 com.AddEntry(entry);
             }
 
-            if (!Instances.ContainsKey(type.Name)) Instances.Add(type.Name, com);
+            if (!ComponentInstances.ContainsKey(type.Name)) ComponentInstances.Add(type.Name, com);
             instance = com;
 
-            Logger.LogMethodW($"Component {type.Name} did not exist, so we instanced one. (total: {Instances.Count})", this);
+            Logger.LogMethodW($"Component {type.Name} did not exist, so we instanced one. (total: {ComponentInstances.Count})", this);
         }
         //{ Logger.LogMethodW($"Cannot switch to component {type.Name} - not available!", this); return; }
 
@@ -210,7 +212,7 @@ public class DebugMenu : DebugComponent
 
     // Functions, if assigned, will always be executed!
     // TODO: revise this?
-    void PerformSelectedAction(DebugMenuVarDir dir = DebugMenuVarDir.Action)
+    public void PerformSelectedAction(DebugMenuVarDir dir = DebugMenuVarDir.Action)
     {
         if ((int)dir < 3 && SelectedEntry.Variable != null)
         {

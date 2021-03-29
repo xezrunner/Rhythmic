@@ -98,7 +98,7 @@ public partial class DebugController : MonoBehaviour
             // Instance is null - create component!
             if (State.HasFlag(com_flag) && com_instance == null)
             {
-                // Component
+                // Component:
                 if (com_attr.ComponentType == DebugComponentType.Component)
                 {
                     GameObject parent_obj;
@@ -117,6 +117,7 @@ public partial class DebugController : MonoBehaviour
                     // Assign SelfParent if the component has its own container!
                     com_instance.SelfParent = (parent_obj != gameObject) ? parent_obj : null;
                 }
+                // Prefab:
                 else if (com_attr.ComponentType == DebugComponentType.Prefab)
                 {
                     GameObject com_prefab = (GameObject)Resources.Load(com_attr.PrefabPath);
