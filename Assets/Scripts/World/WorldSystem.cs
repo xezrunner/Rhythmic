@@ -55,7 +55,7 @@ public class WorldSystem : MonoBehaviour
         // TODO: Songs will also have the ability to have a path!
         if (RhythmicGame.AutoFindPathFallback && Path == null)
         {
-            if (PathCreator == null) Logger.LogError("World: Path was null -> PathCreator was null!");
+            if (PathCreator == null) Logger.LogWarning("World: Path was null -> PathCreator was null!");
             else if (PathCreator.path == null) Logger.LogError($"World: Path was null -> PathCreator [{PathCreator.name}.path] was null!");
             else Path = PathCreator.path;
         }

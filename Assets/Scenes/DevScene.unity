@@ -1474,7 +1474,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CurrentWorld: {fileID: 0}
   CurrentSkybox: {fileID: 0}
-  PathCreator: {fileID: 959839596}
+  PathCreator: {fileID: 0}
   IsPathEnabled: 1
   LightManager: {fileID: 0}
   WorldVisualQuality: 0

@@ -9,7 +9,7 @@
             base.Init();
             Instance = this;
 
-            AddEntry("Check back later!", false);
+            AddEntry("Enable player input", new Ref(() => AmpPlayerInputHandler.IsActive, (v) => AmpPlayerInputHandler.IsActive = (bool)v));
         }
 
         // Functionality:
