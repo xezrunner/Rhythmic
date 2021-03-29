@@ -150,11 +150,33 @@ public class DebugMenu : DebugComponent
     }
 
     // Input processing | TODO TODO TODO: Wrapper for keyboard key down / pressed checking! | TODO TODO TODO!!!: CONTROLLER INPUT!
+    float f1_held_ms = 0.0f;
+    float f1_held_threshold = 1000f; // 1 second
     void ProcessKeys()
     {
+        // Show debug menu help text | Hold F1
+        if (Keyboard.current.f1Key.isPressed)
+        {
+            f1_held_ms += Time.unscaledDeltaTime * 1000;
+            if (f1_held_ms > f1_held_threshold)
+            {
+                f1_held_ms = 0;
+                Logger.Log("[Help] Debug menu: \n".AddColor(Colors.Application) +
+                           "F1 - F2: ".AddColor(Colors.Network) + "Open / close the debug menu\n" +
+                           "[Shift] + F1: ".AddColor(Colors.Network) + "Go back to the main menu" +
+                           "U - O: ".AddColor(Colors.Network) + "Navigate up / down between entries\n" +
+                           "1 - 2: ".AddColor(Colors.Network) + "Decrease / increase / toggle entry value\n" +
+                           "Space - Y/Z: ".AddColor(Colors.Network) + "Activate entry function\n" +
+                           "Page up/down: ".AddColor(Colors.Network) + "Navigate backwards / forwards (up / down) in the page history");
+                return;
+            }
+        }
+
         // Enable & disable | F1: ON ; F2: OFF
         if (Keyboard.current.f1Key.wasPressedThisFrame)
         {
+            f1_held_ms = 0;
+
             if (Keyboard.current.ctrlKey.isPressed || Keyboard.current.altKey.isPressed) return;
             if (Keyboard.current.shiftKey.isPressed) { MainMenu(); return; }
 
