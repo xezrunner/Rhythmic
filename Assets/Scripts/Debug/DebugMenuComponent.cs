@@ -122,9 +122,9 @@ public class DebugMenuComponentAttribute : Attribute
         UpdateFrequencyInMs = updateMs;
         HasMainMenuShortcut = hasMainMenuShortcut;
     }
-    public DebugMenuComponentAttribute(bool hasMainMenuShortcut = true, float updateMs = -1) { HasMainMenuShortcut = hasMainMenuShortcut; UpdateFrequencyInMs = updateMs; }
+    public DebugMenuComponentAttribute(bool hasMainMenuShortcut = true, float updateMs = 250) { HasMainMenuShortcut = hasMainMenuShortcut; UpdateFrequencyInMs = updateMs; }
 
-    public float UpdateFrequencyInMs = -1; // -1: disabled | 0: every frame in Update()
+    public float UpdateFrequencyInMs = 250; // -1: disabled | 0: every frame in Update()
     public bool HasMainMenuShortcut = true;
 }
 
