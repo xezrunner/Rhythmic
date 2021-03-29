@@ -308,6 +308,7 @@ public class DebugMenu : DebugComponent
     public void AddToNavigationHistory(DebugMenuComponent com)
     {
         navigation_history.Add(ActiveComponent);
+        navigation_index = Mathf.Clamp(navigation_index + 1, 0, navigation_history_max); // Add 1, limit: <=20
         if (navigation_history.Count > navigation_history_max)
             navigation_history.RemoveAt(0);
     }
