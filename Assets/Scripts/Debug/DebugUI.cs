@@ -122,6 +122,8 @@ public class DebugUI : DebugComponent
     }
 
     /// Debug line
+    //  TODO: We may want individual entries in the debug line to have their own text component,
+    //  so that we can easily fade them out.
 
     int bananasCounter = -1;
 
@@ -164,6 +166,7 @@ public class DebugUI : DebugComponent
         if (debugLine_ElapsedTime > DebugLine_LineTimeoutMs)
         {
             debugLine_ElapsedTime = 0;
+
             string[] lines = debugLineText.text.Split('\n');
             string[] newLines = new string[lines.Length - 1];
             for (int i = 1; i < lines.Length; i++)
