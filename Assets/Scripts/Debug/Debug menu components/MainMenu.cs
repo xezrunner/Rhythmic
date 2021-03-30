@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using static DebugFunctionality;
-
-namespace DebugMenus
+﻿namespace DebugMenus
 {
     [DebugMenuComponent(false, updateMs: 250)]
     public class MainMenu : DebugMenuComponent
@@ -9,6 +6,8 @@ namespace DebugMenus
         public static MainMenu Instance;
 
         DebugStats Stats { get { return (DebugStats)DebugStats.Instance.Component; } }
+
+        float numberTest = 0.12344f;
 
         public override void Init()
         {
@@ -26,6 +25,7 @@ namespace DebugMenus
             //AddEntry("Scenes...");
             AddEntry("Short Short Stats", () => ToggleStats(StatsMode.ShortShort), () => Stats.StatsMode == StatsMode.ShortShort);
             AddEntry("Short Stats", () => ToggleStats(StatsMode.Short), () => Stats.StatsMode == StatsMode.Short);
+            AddEntry("Number variable test", new Ref(() => numberTest, (v) => numberTest = (float)v));
             AddEntry("Quit game", QuitGame);
         }
 

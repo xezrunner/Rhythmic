@@ -164,7 +164,7 @@ public partial class DebugMenu : DebugComponent
         if (IsActive) Entry_Move(entry_index);
     }
 
-    // Functions, if assigned, will always be executed! | TODO: revise this?
+    // Function calls, variable increment / decrement:
     public void PerformSelectedAction(DebugMenuVarDir dir = DebugMenuVarDir.Action)
     {
         if ((int)dir < 3 && SelectedEntry.Variable != null)
@@ -176,11 +176,12 @@ public partial class DebugMenu : DebugComponent
                 case int i: SelectedEntry.Variable.Value = (i + addition); break;
                 case float f: f++; SelectedEntry.Variable.Value = (f + addition); break;
                 case double d: d++; SelectedEntry.Variable.Value = (d + addition); break;
+                default: Logger.LogMethodE("Invalid object type " + $"{SelectedEntry.Variable.Value.GetType().Name}".AddColor(Colors.Network) + "!"); break;
             }
         }
 
         if (SelectedEntry.Page != null) { SwitchToComponent(SelectedEntry.Page); return; }
-        SelectedEntry.DoFunction();
+        SelectedEntry.DoFunction(); // Functions, if assigned, will always be executed! | TODO: revise this?
         if (ActiveComponent._GlobalEntryAction != null)
             ActiveComponent._GlobalEntryAction(SelectedEntry);
     }
