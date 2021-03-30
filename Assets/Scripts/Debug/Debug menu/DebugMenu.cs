@@ -329,6 +329,9 @@ public partial class DebugMenu : DebugComponent
     float update_ElapsedMs;
     void Update()
     {
+        ProcessKeys();
+        if (!IsActive) return;
+
         if (ActiveComponent != null && ActiveComponent.Attribute.UpdateFrequencyInMs != -1)
         {
             update_ElapsedMs += Time.unscaledDeltaTime * 1000;
@@ -336,6 +339,5 @@ public partial class DebugMenu : DebugComponent
                 Handle_ActiveComponent(entry_index);
         }
 
-        ProcessKeys();
     }
 }
