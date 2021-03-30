@@ -169,13 +169,13 @@ public partial class DebugMenu : DebugComponent
     {
         if ((int)dir < 3 && SelectedEntry.Variable != null)
         {
-            float addition = (Keyboard.current.altKey.isPressed ? 0.1f : 1f) * (dir == DebugMenuVarDir.Decrease ? -1 : 1);
+            float addition = (Keyboard.current.altKey.isPressed ? 0.1f : 1) * (dir == DebugMenuVarDir.Decrease ? -1 : 1);
             switch (SelectedEntry.Variable.Value)
             {
                 case bool b: SelectedEntry.Variable.Value = !b; break;
-                case int i: SelectedEntry.Variable.Value = (i + addition); break;
-                case float f: f++; SelectedEntry.Variable.Value = (f + addition); break;
-                case double d: d++; SelectedEntry.Variable.Value = (d + addition); break;
+                case int i: SelectedEntry.Variable.Value = (int)(i + addition); break;
+                case float f: SelectedEntry.Variable.Value = (float)(f + addition); break;
+                case double d: SelectedEntry.Variable.Value = (double)(d + addition); break;
                 default: Logger.LogMethodE("Invalid object type " + $"{SelectedEntry.Variable.Value.GetType().Name}".AddColor(Colors.Network) + "!"); break;
             }
         }

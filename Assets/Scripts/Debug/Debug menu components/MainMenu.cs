@@ -7,7 +7,8 @@
 
         DebugStats Stats { get { return (DebugStats)DebugStats.Instance.Component; } }
 
-        float numberTest = 0.12344f;
+        float f_numberTest = 0.12344f;
+        int i_numberTest = 4;
 
         public override void Init()
         {
@@ -25,7 +26,9 @@
             //AddEntry("Scenes...");
             AddEntry("Short Short Stats", () => ToggleStats(StatsMode.ShortShort), () => Stats.StatsMode == StatsMode.ShortShort);
             AddEntry("Short Stats", () => ToggleStats(StatsMode.Short), () => Stats.StatsMode == StatsMode.Short);
-            AddEntry("Number variable test", new Ref(() => numberTest, (v) => numberTest = (float)v));
+            AddEntry();
+            AddEntry("(float) Number variable test", new Ref(() => f_numberTest, (v) => f_numberTest = (float)v));
+            AddEntry("(int) Number variable test", new Ref(() => i_numberTest, (v) => i_numberTest = (int)v));
             AddEntry("Quit game", QuitGame);
         }
 
