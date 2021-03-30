@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -13,8 +12,8 @@ public enum DebugMenuHistoryDir { Backwards, Forwards, MainMenu = -1 }
 public enum DebugMenuEntryDir { Up, Home, Down, End }
 public enum DebugMenuVarDir { Decrease, Increase, Action }
 
-[DebugComponent(DebugComponentFlag.DebugMenu, DebugComponentType.Prefab, true, -1, "Prefabs/Debug/DebugMenu")]
-public class DebugMenu : DebugComponent
+[DebugComponent(DebugComponentFlag.DebugMenu, DebugComponentType.Component, true, -1)]
+public partial class DebugMenu : DebugComponent
 {
     DebugUI DebugUI;
 
@@ -44,6 +43,9 @@ public class DebugMenu : DebugComponent
         IsActive = value;
         debugmenuArrow.gameObject.SetActive(value);
         debugmenuText.gameObject.SetActive(value);
+
+        // Disable player input during debug menu
+        AmpPlayerInputHandler.IsActive = !value;
 
         if (IsActive) StartCoroutine(_Startup_EntryMoveCoroutine());
     }
@@ -89,8 +91,19 @@ public class DebugMenu : DebugComponent
         //debugMenu.navigation_history.Clear(); // Clear navigation history
     }
 
+    // Help text:
+    void LogHelp()
+    {
+        Logger.Log("[Help] " + "Debug menu: \n".AddColor(Colors.Application) +
+                   "F1 - F2: ".AddColor(Colors.Network) + "Open / close the debug menu\n" +
+                   "[Shift] + F1: ".AddColor(Colors.Network) + "Go back to the main menu\n" +
+                   "U - O: ".AddColor(Colors.Network) + "Navigate up / down between entries\n" +
+                   "1 - 2: ".AddColor(Colors.Network) + "Decrease / increase / toggle entry value\n" +
+                   "Space - Y/Z: ".AddColor(Colors.Network) + "Activate entry function\n" +
+                   "Page up/down: ".AddColor(Colors.Network) + "Navigate backwards / forwards (up / down) in the page history");
+    }
+
     // Component switching & handling:
-    // TODO: Components need to have their roaming entry indexes for navigation purposes!
     void Handle_ActiveComponent(int index = 0) // Prints the active menu's text
     {
         if (ActiveComponent == null)
@@ -151,67 +164,7 @@ public class DebugMenu : DebugComponent
         if (IsActive) Entry_Move(entry_index);
     }
 
-    // Input processing | TODO TODO TODO: Wrapper for keyboard key down / pressed checking! | TODO TODO TODO!!!: CONTROLLER INPUT!
-    float f1_held_ms = 0.0f;
-    float f1_held_threshold = 1000f; // 1 second
-    void ProcessKeys()
-    {
-        // Show debug menu help text | Hold F1
-        if (Keyboard.current.f1Key.isPressed)
-        {
-            f1_held_ms += Time.unscaledDeltaTime * 1000;
-            if (f1_held_ms > f1_held_threshold)
-            {
-                f1_held_ms = 0;
-                Logger.Log("[Help] Debug menu: \n".AddColor(Colors.Application) +
-                           "F1 - F2: ".AddColor(Colors.Network) + "Open / close the debug menu\n" +
-                           "[Shift] + F1: ".AddColor(Colors.Network) + "Go back to the main menu" +
-                           "U - O: ".AddColor(Colors.Network) + "Navigate up / down between entries\n" +
-                           "1 - 2: ".AddColor(Colors.Network) + "Decrease / increase / toggle entry value\n" +
-                           "Space - Y/Z: ".AddColor(Colors.Network) + "Activate entry function\n" +
-                           "Page up/down: ".AddColor(Colors.Network) + "Navigate backwards / forwards (up / down) in the page history");
-                return;
-            }
-        }
-
-        // Enable & disable | F1: ON ; F2: OFF
-        if (Keyboard.current.f1Key.wasPressedThisFrame)
-        {
-            f1_held_ms = 0;
-
-            if (Keyboard.current.ctrlKey.isPressed || Keyboard.current.altKey.isPressed) return;
-            if (Keyboard.current.shiftKey.isPressed) { MainMenu(); return; }
-
-            if (IsActive) Logger.Log("[Help] " + $"{SelectedEntry.Text}: ".AddColor(Colors.Application) +
-                          $"{(SelectedEntry.HelpText != null ? SelectedEntry.HelpText : "No help text for this entry.".AddColor(Colors.Unimportant))}");
-            else SetActive(true);
-        }
-        else if (Keyboard.current.f2Key.wasPressedThisFrame) SetActive(false);
-
-        if (!IsActive) return;
-
-        // Move through entries:
-        // U: Move down ; O: Move up
-        if (Keyboard.current.uKey.wasPressedThisFrame)
-            Entry_Move(DebugMenuEntryDir.Down);
-        else if (Keyboard.current.oKey.wasPressedThisFrame) Entry_Move(DebugMenuEntryDir.Up);
-        else if (Keyboard.current.homeKey.wasPressedThisFrame) Entry_Move(DebugMenuEntryDir.Home);
-        else if (Keyboard.current.endKey.wasPressedThisFrame) Entry_Move(DebugMenuEntryDir.End);
-
-        // Activate & manipulate entries:
-        // Space: enter ; 1-2: Change value of variable entries
-        if (Keyboard.current.spaceKey.wasPressedThisFrame || Keyboard.current.yKey.wasPressedThisFrame) // TODO: y / z? Perhaps both?
-            PerformSelectedAction(DebugMenuVarDir.Action);
-        else if (Keyboard.current.digit1Key.wasPressedThisFrame) PerformSelectedAction(DebugMenuVarDir.Decrease); // conflict with song changing in DebugKeys!
-        else if (Keyboard.current.digit2Key.wasPressedThisFrame) PerformSelectedAction(DebugMenuVarDir.Increase); // conflict with song changing in DebugKeys!
-
-        // History navigation | PgUp: backwards ; PgDn: forwards
-        if (Keyboard.current.pageUpKey.wasPressedThisFrame) NavigateHistory(DebugMenuHistoryDir.Backwards);
-        else if (Keyboard.current.pageDownKey.wasPressedThisFrame) NavigateHistory(DebugMenuHistoryDir.Forwards);
-    }
-
-    // Functions, if assigned, will always be executed!
-    // TODO: revise this?
+    // Functions, if assigned, will always be executed! | TODO: revise this?
     public void PerformSelectedAction(DebugMenuVarDir dir = DebugMenuVarDir.Action)
     {
         if ((int)dir < 3 && SelectedEntry.Variable != null)
@@ -371,8 +324,7 @@ public class DebugMenu : DebugComponent
         //Logger.LogMethod($"Navigated {dir} to index {navigation_index}" + "(from {prev_index})".AddColor(0.45f) + (fail ? " FAIL!".AddColor(Colors.Error) : ""), this);
     }
 
-    // *****
-
+    // Loop:
     float update_ElapsedMs;
     void Update()
     {

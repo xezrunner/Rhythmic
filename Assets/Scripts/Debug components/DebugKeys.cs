@@ -61,8 +61,8 @@ public partial class DebugKeys : DebugComponent
         //HandleSongSwitching(); // Now handled in Debug menu!
 
         // World stuff
-        if (Gamepad.current != null && Gamepad.current.dpad.down.wasPressedThisFrame)
-            DEBUG_DisableWorld();
+        //if (Gamepad.current != null && Gamepad.current.dpad.down.wasPressedThisFrame)
+        //    DEBUG_DisableWorld();
 
         if (Input.GetKeyDown(KeyCode.M))
             DEBUG_ToggleRenderingPath();

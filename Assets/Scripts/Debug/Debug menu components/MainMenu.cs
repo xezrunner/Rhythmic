@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using static DebugFunctionality;
 
-
 namespace DebugMenus
 {
     [DebugMenuComponent(false, updateMs: 250)]

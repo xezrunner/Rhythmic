@@ -22,6 +22,9 @@
             {
                 AddEntry("  - ColorLightsBackground", () => LoadWorld("Skybox/ColorLightsBackground"));
             }
+
+            AddEntry("Miscellaneous: ", false);
+
             AddEntry("PathTestScene", () => LoadWorld("PathTestScene"));
             AddEntry("_Testing/TunnelTesting", () => LoadWorld("_Testing/TunnelTesting"));
             AddEntry("Example/ssms_example", () => LoadWorld("Example/ssms_example"));
