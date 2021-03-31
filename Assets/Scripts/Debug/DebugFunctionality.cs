@@ -145,7 +145,7 @@ public static class DebugFunctionality
         }
         else if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad9Key.isPressed)
             DEBUG_OffsetSong(1);
-        else if (Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad9Key.isPressed)
+        else if ((Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad9Key.isPressed) || (AmpPlayerInputHandler.IsActive && Gamepad.current.dpad.up.isPressed))
             DEBUG_OffsetSong(0.05f);
         else if (Keyboard.current.leftShiftKey.isPressed && Keyboard.current.numpad9Key.isPressed)
             DEBUG_OffsetSong(2);
