@@ -280,7 +280,7 @@ public partial class DebugMenu : DebugComponent
 
     // Navigation history:
     int navigation_history_max = 20; // Hold a maximum of 20 components in the history
-    int navigation_index = 0; // Navigation history index
+    int navigation_index = -1; // Navigation history index
     List<DebugMenuComponent> navigation_history = new List<DebugMenuComponent>();
 
     public void AddToNavigationHistory(DebugMenuComponent com)
