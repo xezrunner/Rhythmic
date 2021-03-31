@@ -18,10 +18,10 @@ public partial class DebugMenu
     ButtonControl[] Increase_Buttons = { Keyboard.digit2Key, Gamepad.dpad.right };
 
     // TODO: Analog sticks?
-    ButtonControl[] NavigateUp_Buttons = { Keyboard.oKey, Gamepad.dpad.up };
-    ButtonControl[] NavigateDown_Buttons = { Keyboard.uKey, Gamepad.dpad.down };
+    ButtonControl[] NavigateUp_Buttons = { Keyboard.oKey, Gamepad.dpad.up, Gamepad.leftStick.up };
+    ButtonControl[] NavigateDown_Buttons = { Keyboard.uKey, Gamepad.dpad.down, Gamepad.leftStick.down };
 
-    ButtonControl[] HistoryBack_Buttons = { Keyboard.pageUpKey, Gamepad.rightTrigger };
+    ButtonControl[] HistoryBack_Buttons = { Keyboard.pageUpKey, Gamepad.buttonEast };
     ButtonControl[] HistoryForwards_Buttons = { Keyboard.pageDownKey, Gamepad.rightShoulder };
     #endregion
 
@@ -41,7 +41,7 @@ public partial class DebugMenu
         // Show help message for debug menu when key is held
         {
             // Check whether we're holding the Open keys
-            if (!f1_held && (IsPressed(Open_Key) || gamepad_ts_held_now))
+            if (!f1_held && (IsPressed(Open_Key)/* || gamepad_ts_held_now)*/))
                 f1_held_ms += Time.unscaledDeltaTime * 1000;
 
             // We held the keys successfully!  @Held
@@ -57,7 +57,7 @@ public partial class DebugMenu
             }
 
             // Reset held state once released
-            if ((WasReleased(Keyboard.f1Key) || !gamepad_ts_held_now) && f1_held) { f1_held = false; return; }
+            if ((WasReleased(Open_Key) || !gamepad_ts_held_now) && f1_held) { f1_held = false; return; }
         }
 
         // Gamepad  - Enable & disable
@@ -70,7 +70,7 @@ public partial class DebugMenu
             gamepad_ts_held = false;
 
         // Keyboard - Enable & disable | F1: ON ; F2: OFF
-        if (WasReleased(Keyboard.f1Key))
+        if (WasReleased(Open_Key))
         {
             if (IsPressed(Keyboard.ctrlKey) || IsPressed(Keyboard.altKey)) return;
             if (IsPressed(Keyboard.shiftKey)) { MainMenu(); return; }
@@ -79,7 +79,7 @@ public partial class DebugMenu
                           $"{(SelectedEntry.HelpText != null ? SelectedEntry.HelpText : "No help text for this entry.".AddColor(Colors.Unimportant))}");
             else SetActive(true);
         }
-        else if (WasPressed(Keyboard.f2Key)) SetActive(false);
+        else if (WasPressed(Close_Key)) SetActive(false);
 
         if (!IsActive) return;
         // Debug menu controls:
@@ -88,8 +88,8 @@ public partial class DebugMenu
         // U: Move down ; O: Move up
         if (WasPressed(NavigateUp_Buttons)) Entry_Move(DebugMenuEntryDir.Up);
         else if (WasPressed(NavigateDown_Buttons)) Entry_Move(DebugMenuEntryDir.Down);
-        else if (WasPressed(Keyboard.homeKey)) Entry_Move(DebugMenuEntryDir.Home);
-        else if (WasPressed(Keyboard.endKey)) Entry_Move(DebugMenuEntryDir.End);
+        else if (WasPressed(Keyboard.homeKey)) Entry_Move(DebugMenuEntryDir.Home); //  @Hardcode
+        else if (WasPressed(Keyboard.endKey)) Entry_Move(DebugMenuEntryDir.End);   //  @Hardcode
 
         // Activate & manipulate entries:
         // Space: enter ; 1-2: Change value of variable entries

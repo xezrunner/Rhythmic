@@ -14,7 +14,7 @@ public class LightManager : MonoBehaviour
 
     public List<LightGroup> LightGroups = new List<LightGroup>();
 
-    public static bool StartAllLightsFadedOut = true; // Whether all light should be set to faded out at start
+    public static bool StartAllLightsFadedOut = false; // Whether all light should be set to faded out at start
 
     void Awake()
     {
@@ -33,6 +33,9 @@ public class LightManager : MonoBehaviour
 
         if (StartAllLightsFadedOut)
             AnimateIntensities(LightGroups, 0, 0);
+
+        // TEMP:
+        AnimateIntensities(LightGroups, -1, 2, 0);
     }
     
     public LightGroup FindLightGroup(string name, int id = 0) => LightGroups.Where(i => i.Name == name && i.ID == id).FirstOrDefault();

@@ -1,4 +1,6 @@
-﻿namespace DebugMenus
+﻿using UnityEngine;
+
+namespace DebugMenus
 {
     [DebugMenuComponent(false, updateMs: 250)]
     public class MainMenu : DebugMenuComponent
@@ -26,9 +28,10 @@
             //AddEntry("Scenes...");
             AddEntry("Short Short Stats", () => ToggleStats(StatsMode.ShortShort), () => Stats.StatsMode == StatsMode.ShortShort);
             AddEntry("Short Stats", () => ToggleStats(StatsMode.Short), () => Stats.StatsMode == StatsMode.Short);
-            AddEntry();
-            AddEntry("(float) Number variable test", new Ref(() => f_numberTest, (v) => f_numberTest = (float)v));
-            AddEntry("(int) Number variable test", new Ref(() => i_numberTest, (v) => i_numberTest = (int)v));
+
+            //AddEntry();
+            //AddEntry("(float) Number variable test", new Ref(() => f_numberTest, (v) => f_numberTest = (float)v));
+            //AddEntry("(int) Number variable test", new Ref(() => i_numberTest, (v) => i_numberTest = (int)v));
             AddEntry("Quit game", QuitGame);
         }
 
