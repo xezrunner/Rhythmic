@@ -18,8 +18,6 @@ public class AmplitudeSongController : SongController
     MidiReader reader;
     public MoggSong moggSong { get; set; }
 
-    public List<MeasureInfo> songMeasures;
-
     // MIDI properties
     public float DeltaTicksPerQuarterNote { get { return IsEnabled ? reader.midi.DeltaTicksPerQuarterNote : 480; } } // 1 subbeat's length in MIDI ticks
     public float TunnelSpeedAccountation { get { return (songFudgeFactor == 0 ? 1f : songFudgeFactor); } } // tunnel scaling multiplication value
@@ -72,20 +70,11 @@ public class AmplitudeSongController : SongController
         //CreateTracksController_OLD();
         CreateAmpTrackController();
 
-        // Create measure list!
-        // TODO: eliminate!!!!!
-        songMeasures = CreateMeasureList();
-        CreateNoteList();
+        // Create note list!
+        CreateMetaNotes();
 
-        // TODO: move elsewhere
-        // Scale the catchers and CatcherController
-        /*
-        CatcherController.Instance.BoxCollider.size = new Vector3(CatcherController.Instance.BoxCollider.size.x, CatcherController.Instance.BoxCollider.size.y, CatcherController.Instance.BoxCollider.size.z / TunnelSpeedAccountation * 1.3f);
-        CatcherController.Instance.CatcherRadiusExtra = CatcherController.Instance.CatcherRadiusExtra / TunnelSpeedAccountation;
-        CatcherController.Instance.gameObject.SetActive(false);
-        */
-
-        Time.timeScale = 1f;
+        // TODO: We want to scale time based on song BPM & fudge factor, possibly?
+        //Time.timeScale = 1f;
 
         // Load song!
         // Assign clips to AudioSources
@@ -138,7 +127,7 @@ public class AmplitudeSongController : SongController
     private void Reader_OnNoteEvent(object sender, EventArgs e) { }
 
     // Create notes!
-    public override void CreateNoteList()
+    public override void CreateMetaNotes()
     {
         songNotes = new MetaNote[songTracks.Count, songLengthInMeasures][];
 
@@ -239,34 +228,5 @@ public class AmplitudeSongController : SongController
         }
         return list;
 #endif
-    }
-
-    List<MeasureInfo> CreateMeasureList()
-    {
-        List<MeasureInfo> finalList = new List<MeasureInfo>();
-        float prevTime = 0f;
-
-        if (PathTools.Path != null && songLengthInMeasures * measureLengthInzPos > PathTools.Path.length)
-        {
-            prevTime = PathTools.Path.length - songLengthInMeasures * measureLengthInzPos;
-            Debug.LogFormat("Offsetting tracks: {0}", prevTime);
-        }
-
-        for (int i = 0; i < songLengthInMeasures + 3; i++)
-        {
-            MeasureInfo measure = new MeasureInfo() { measureNum = i, startTimeInzPos = prevTime, endTimeInzPos = prevTime + measureLengthInzPos };
-            prevTime = prevTime + measureLengthInzPos;
-
-            finalList.Add(measure);
-        }
-
-        return finalList;
-    }
-
-    public class MeasureInfo
-    {
-        public int measureNum;
-        public float startTimeInzPos;
-        public float endTimeInzPos;
     }
 }

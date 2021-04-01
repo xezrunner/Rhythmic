@@ -97,7 +97,6 @@ public partial class AmpTrack
 public struct MetaMeasure
 {
     public int ID;
-    public AmpTrack.InstrumentType Instrument;
     public bool IsCaptured;
     public bool IsBossMeasure; // shouldn't capture this measure when capturing a track from another measure
     public float StartDistance;

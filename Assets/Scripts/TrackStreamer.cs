@@ -23,20 +23,37 @@ public class TrackStreamer : MonoBehaviour
 {
     public static TrackStreamer Instance;
 
-    SongController SongController { get { return SongController.Instance; } }
-    TracksController TrackController { get { return TracksController.Instance; } }
-    Clock Clock { get { return Clock.Instance; } }
+    SongController SongController;
+    TracksController TracksController;
+    Clock Clock;
 
     public float StreamDelay = 0.1f;
     public float DestroyDelay = 0f;
 
-    public List<Dictionary<int, MetaMeasure>> metaMeasures;
+    public MetaMeasure[,] metaMeasures;
+    void CreateMetaMeasures()
+    {
+        int m_count = SongController.songLengthInMeasures;
+        metaMeasures = new MetaMeasure[TracksController.MainTracks.Length, m_count];
+        for (int t = 0; t < TracksController.MainTracks.Length; t++)
+        {
+            for (int i = 0; i < m_count; i++)
+            {
+                MetaMeasure m = new MetaMeasure() { ID = i, StartDistance = SongController.MeasureToPos(i) };
+                metaMeasures[t, i] = m;
+            }
+        }
+    }
 
     void Awake()
     {
         Instance = this;
+        SongController = SongController.Instance;
+        TracksController = TracksController.Instance;
+        Clock = Clock.Instance;
+
         Clock.OnBar += Clock_OnBar;
-        metaMeasures = SongController.CreateMetaMeasureList();
+        CreateMetaMeasures();
     }
     void Start()
     {
@@ -81,9 +98,9 @@ public class TrackStreamer : MonoBehaviour
     IEnumerator _DestroyBehind(bool immediate = false)
     {
         if (destroyCounter < 0) yield break;
-        for (int t = 0; t < TrackController.Tracks.Length; t++)
+        for (int t = 0; t < TracksController.Tracks.Length; t++)
         {
-            var track = TrackController.Tracks[t];
+            var track = TracksController.Tracks[t];
             for (int i = 0; i < Clock.Fbar - 1; i++)
             {
                 var measure = track.Measures[i];
@@ -101,7 +118,7 @@ public class TrackStreamer : MonoBehaviour
     public void StreamNotes(int id, int trackID, AmpTrackSection measure) => StartCoroutine(_StreamNotes(id, trackID, measure, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Notes)));
     IEnumerator _StreamNotes(int id, int trackID, AmpTrackSection measure, bool immediate = false)
     {
-        AmpTrack track = TrackController.Tracks[trackID];
+        AmpTrack track = TracksController.Tracks[trackID];
 
         MetaNote[] measureNotes = SongController.songNotes[track.ID, id];
         if (measureNotes == null || measureNotes.Length == 0)
@@ -129,8 +146,8 @@ public class TrackStreamer : MonoBehaviour
         if (trackID != -1) // stream measure!
         {
             if (id > SongController.songLengthInMeasures) yield break;
-            MetaMeasure meta = metaMeasures[trackID][id];
-            AmpTrack track = TrackController.Tracks[trackID];
+            MetaMeasure meta = metaMeasures[trackID, id];
+            AmpTrack track = TracksController.Tracks[trackID];
 
             // Error checking:
             {
@@ -156,7 +173,7 @@ public class TrackStreamer : MonoBehaviour
         }
         else // Stream in the measure from all of the tracks!
         {
-            for (int i = 0; i < TrackController.Tracks.Length; i++)
+            for (int i = 0; i < TracksController.Tracks.Length; i++)
             {
                 StartCoroutine(_StreamMeasure(id, i));
                 if (!immediate && !RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks)) yield return new WaitForSeconds(StreamDelay);

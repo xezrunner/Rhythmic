@@ -276,7 +276,7 @@ public class TracksController : MonoBehaviour
             }
 
             if (!note)
-                Debug.LogError($"Tracks/RefreshTargetNotes({track.ID}): upcoming note was null!"); 
+                Debug.LogError($"Tracks/RefreshTargetNotes({track.ID}): upcoming note was null!");
 
             note.Color = Color.green;
             targetNotes[track.ID] = note;
@@ -469,11 +469,7 @@ public class TracksController : MonoBehaviour
             if (i < track.Measures.Count && track.Measures[i])
                 yield return track.CaptureMeasure(track.Measures[i]);
             else // This measure doesn't yet exist - change meta measure to captured state in TrackStreamer!
-            {
-                // TODO: WTF?
-                var a = TrackStreamer.metaMeasures[track.ID][i];
-                a.IsCaptured = true;
-            }
+                TrackStreamer.metaMeasures[track.ID, i].IsCaptured = true;
         }
 
         track.IsTrackCapturing = false;
