@@ -94,7 +94,7 @@ public partial class AmpTrack
 }
 
 // TODO: structs!
-public class MetaMeasure
+public struct MetaMeasure
 {
     public int ID;
     public AmpTrack.InstrumentType Instrument;
@@ -103,13 +103,14 @@ public class MetaMeasure
     public float StartDistance;
 }
 
-public class MetaNote
+public struct MetaNote
 {
     public string Name;
     public int TotalID;
-    public NoteType Type;
-    public LaneSide Lane;
+    public int TrackID;
     public int MeasureID;
     public float Distance;
+    public NoteType Type;
+    public LaneSide Lane;
     public bool IsCaptured;
 }

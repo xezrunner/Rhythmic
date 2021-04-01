@@ -103,20 +103,17 @@ public class TrackStreamer : MonoBehaviour
     {
         AmpTrack track = TrackController.Tracks[trackID];
 
-        var measureNotes = SongController.songNotes[track.ID].Where(i => i.Key == id);
-        int count = measureNotes.Count();
-        if (count == 0) measure.IsEmpty = true;
-        else
-        {
-            int i = 0;
-            foreach (KeyValuePair<int, MetaNote> kv in measureNotes)
-            {
-                kv.Value.IsCaptured = measure.IsCaptured; // foreshadowing
+        MetaNote[] measureNotes = SongController.songNotes[track.ID, id];
+        if (measureNotes == null || measureNotes.Length == 0)
+        { measure.IsEmpty = true; yield break; }
 
-                var note = track.CreateNote(kv.Value, measure, i, (i == count - 1));
-                i++;
-                if (!immediate) yield return new WaitForSeconds(StreamDelay);
-            }
+        for (int i = 0; i < measureNotes.Length; i++)
+        {
+            MetaNote meta_note = measureNotes[i];
+            meta_note.IsCaptured = measure.IsCaptured;
+
+            AmpNote note = track.CreateNote(meta_note, measure, i, (i == measureNotes.Length - 1));
+            if (!immediate) yield return new WaitForSeconds(StreamDelay);
         }
     }
 

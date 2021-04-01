@@ -53,7 +53,10 @@ public partial class SongController : MonoBehaviour
     public List<AudioSource> audioSrcList = new List<AudioSource>();
 
     public List<string> songTracks = new List<string>();
-    public List<List<KeyValuePair<int, MetaNote>>> songNotes = new List<List<KeyValuePair<int, MetaNote>>>();
+
+    //public List<List<KeyValuePair<int, MetaNote>>> songNotes = new List<List<KeyValuePair<int, MetaNote>>>();
+    //public List<MetaNote>[] songNotes;
+    public MetaNote[,][] songNotes;
 
     // INIT & LOADING
 
@@ -139,7 +142,7 @@ public partial class SongController : MonoBehaviour
 
         return list;
     }
-    public virtual List<List<KeyValuePair<int, MetaNote>>> CreateNoteList() { return new List<List<KeyValuePair<int, MetaNote>>>(); }
+    public virtual void CreateNoteList() { }
 
     public virtual void CreateAmpTrackController()
     {

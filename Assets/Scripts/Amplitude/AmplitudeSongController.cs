@@ -75,7 +75,7 @@ public class AmplitudeSongController : SongController
         // Create measure list!
         // TODO: eliminate!!!!!
         songMeasures = CreateMeasureList();
-        songNotes = CreateNoteList();
+        CreateNoteList();
 
         // TODO: move elsewhere
         // Scale the catchers and CatcherController
@@ -138,8 +138,66 @@ public class AmplitudeSongController : SongController
     private void Reader_OnNoteEvent(object sender, EventArgs e) { }
 
     // Create notes!
-    public override List<List<KeyValuePair<int, MetaNote>>> CreateNoteList()
+    public override void CreateNoteList()
     {
+        songNotes = new MetaNote[songTracks.Count, songLengthInMeasures][];
+
+        for (int t = 0; t < songTracks.Count; t++)
+        {
+            List<NoteOnEvent> AMP_NoteOnEvents = GetNoteOnEventsForTrack(t);
+            int count = (AMP_NoteOnEvents != null) ? AMP_NoteOnEvents.Count : 0;
+
+            if (count == 0)
+                Logger.LogMethodE("AMP_TRACK: Note on events are null for track " + songTracks[t], this);
+
+            //for (int i = 0; i < songLengthInMeasures; i++)
+            //    songNotes[t, i] = new MetaNote[count];
+
+            float prev_dist = 0.0f;
+            int prev_m = -1;
+
+            List<MetaNote> note_list = new List<MetaNote>();
+
+            // PASS: add notes to a note list:
+            for (int i = 0, m_note_id = 0; i < count; i++, m_note_id++)
+            {
+                NoteOnEvent note = AMP_NoteOnEvents[i];
+                LaneSide lane_side = AmplitudeGame.GetLaneTypeFromNoteNumber(note.NoteNumber);
+                if (lane_side == LaneSide.UNKNOWN) continue; // TODO: warn?
+                NoteType note_type = NoteType.Generic;
+
+                float dist = StartDistance + TickToPos(note.AbsoluteTime);
+                if (dist == prev_dist) { Logger.LogMethodW($"2 (or more) notes at the same distance! Ignoring! dist: {dist}", this); continue; }
+
+                int m = (int)note.AbsoluteTime / measureTicks; // TODO: note.AbsoluteTime is a long!
+                if (m != prev_m) prev_m = 0; // rollover!
+                prev_m = m;
+
+                string note_name = $"CATCH/{songTracks[t]}:{m} [{i}] ({lane_side})";
+
+                MetaNote meta_note = new MetaNote()
+                {
+                    Name = note_name,
+                    TotalID = i,
+                    TrackID = t,
+                    MeasureID = m,
+                    Distance = dist,
+                    Type = note_type,
+                    Lane = lane_side,
+                };
+
+                note_list.Add(meta_note);
+            }
+
+            // PASS: distribute notes to their own measure arrays:
+            int note_list_count = note_list.Count;
+            for (int i = 0; i < songLengthInMeasures; i++)
+                songNotes[t, i] = note_list.Where(n => n.MeasureID == i).ToArray();
+        }
+
+        Debug.DebugBreak();
+
+#if false
         List<List<KeyValuePair<int, MetaNote>>> list = new List<List<KeyValuePair<int, MetaNote>>>();
         for (int t = 0; t < songTracks.Count; t++)
         {
@@ -180,6 +238,7 @@ public class AmplitudeSongController : SongController
             list.Add(kvList);
         }
         return list;
+#endif
     }
 
     List<MeasureInfo> CreateMeasureList()
