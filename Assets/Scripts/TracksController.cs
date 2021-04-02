@@ -335,7 +335,7 @@ public class TracksController : MonoBehaviour
 
             track.ClearSequences();
 
-            for (int i = Clock.Fbar + measure_offset; i < SongController.songLengthInMeasures; i++)
+            for (int i = Clock.Fbar + measure_offset, total = 0; i < SongController.songLengthInMeasures; i++)
             {
                 if (track.Sequences.Count == RhythmicGame.SequenceAmount)
                     break;
@@ -353,8 +353,11 @@ public class TracksController : MonoBehaviour
                 }
                 AmpTrackSection measure = track.Measures[i];
                 if (measure.IsEmpty || measure.IsCaptured || !measure.IsEnabled) // Not eligible!
-                    continue;
+                    if (total >= 1) break;
+                    else continue;
+
                 track.AddSequence(measure);
+                ++total;
             }
         }
     }
