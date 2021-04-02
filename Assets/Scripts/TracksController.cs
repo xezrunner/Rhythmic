@@ -250,7 +250,7 @@ public class TracksController : MonoBehaviour
     public void SetTargetNote(int track_id, AmpNote note)
     {
         targetNotes[track_id] = note;
-        note.Color = Color.green; // TODO: TEMP!
+        //note.Color = Color.green; // TODO: TEMP!
     }
 
     [NonSerialized]

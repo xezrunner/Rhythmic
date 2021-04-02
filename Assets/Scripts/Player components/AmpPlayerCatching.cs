@@ -132,6 +132,7 @@ public class AmpPlayerCatching : MonoBehaviour
                     AmpNote note = result.note;
 
                     note.CaptureNote(NoteCaptureFX.CatcherCapture, true);
+
                     if (!note.Track.IsTrackBeingPlayed)
                     {
                         note.Track.SetIsTrackBeingPlayed(true);
