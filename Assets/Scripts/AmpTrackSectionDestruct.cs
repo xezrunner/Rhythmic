@@ -68,7 +68,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         }
 
         // Set up & start destruct FX:
-        if (DestructFX && (FXProps.Destruct_ForceEffects || !m.IsEmpty))
+        if (DestructFX && (FXProps.Destruct_ForceEffects || (Measure.CaptureState != MeasureCaptureState.Captured && !m.IsEmpty)))
         {
             //DestructFX.gameObject.SetActive(true);
 
@@ -114,7 +114,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
                 {
                     if (!lastCapturedNotes.Contains(i))
                     {
-                        Measure.Notes[i].CaptureNote();
+                        Measure.Notes[i].CaptureNote(NoteCaptureFX.DestructCapture);
                         lastCapturedNotes.Add(i);
                     }
                 }
