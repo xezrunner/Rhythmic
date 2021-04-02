@@ -70,17 +70,17 @@ public class AmpTrackSection : MonoBehaviour
         }
     }
 
-    bool _isEnabled = true;
-    public bool IsEnabled
+    public bool IsEnabled = true;
+    public void SetIsEnabled(bool value)
     {
-        get { return _isEnabled; }
-        set
-        {
-            _isEnabled = value;
-            Notes.ForEach(n => n.IsEnabled = false);
-            Seeker.SetActive(false);
-            // TODO: Disable active surface! (IsFocused / IsSequence to false?)
-        }
+        if (IsEnabled == value) return;
+        IsEnabled = value;
+        Notes.ForEach(n => n.IsEnabled = false);
+        Seeker.SetActive(false);
+        // TODO: Disable active surface! (IsFocused / IsSequence to false?)
+
+        foreach (AmpTrack t in Track.TrackTwins)
+            t.Measures[ID].SetIsEnabled(value);
     }
 
     bool _isFocused;

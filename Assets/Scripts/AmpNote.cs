@@ -117,10 +117,10 @@ public class AmpNote : MonoBehaviour
         PS_main.startColor = (DotLightColor * 2f);
     }
 
-#if false
+#if true
     private void Update()
     {
-        if (TracksController.Instance.targetNotes[TrackID] == this)
+        if (TracksController.Instance.targetNotes[Track.ID] == this)
         { TargetNoteIndicator.gameObject.SetActive(true); TargetNoteIndicator.text = $"{TotalID}@{Distance}m"; }
         else
             TargetNoteIndicator.gameObject.SetActive(false);

@@ -235,11 +235,11 @@ public class TracksController : MonoBehaviour
     public void DisableCurrentMeasures(bool current = false, int id = -1)
     {
         int measure = (id == -1) ? Clock.Fbar : id;
-        foreach (AmpTrack t in Tracks)
+        foreach (AmpTrack t in MainTracks)
         {
             if (!current && t.ID == CurrentTrack.ID) continue; // Ignore current track
-            t.Measures[measure].IsEnabled = false;
-            t.IsTrackBeingPlayed = false;
+            t.Measures[measure].SetIsEnabled(false);
+            t.SetIsTrackBeingPlayed(false);
         }
     }
 
@@ -337,6 +337,9 @@ public class TracksController : MonoBehaviour
 
             for (int i = Clock.Fbar + measure_offset; i < SongController.songLengthInMeasures; i++)
             {
+                if (track.Sequences.Count == RhythmicGame.SequenceAmount)
+                    break;
+
                 if (i >= track.Measures.Count) // META
                 {
                     MetaMeasure meta_measure = TrackStreamer.metaMeasures[t, i];
@@ -344,17 +347,22 @@ public class TracksController : MonoBehaviour
                     if (meta_notes.Length == 0 || meta_measure.IsCaptured)
                         continue;
                     for (int x = 0; x < RhythmicGame.SequenceAmount; x++)
-                        track.Sequence_Start_IDs[x] = i + x;
+                        track.SetSequenceStartIDs(x, i + x);
                     //Logger.LogMethod($"META: t: {t}, start_id: {i} - {i + RhythmicGame.SequenceAmount - 1}", this);
                     break;
                 }
                 AmpTrackSection measure = track.Measures[i];
                 if (measure.IsEmpty || measure.IsCaptured || !measure.IsEnabled) // Not eligible!
                     continue;
-                if (track.AddSequence(measure) == RhythmicGame.SequenceAmount)
-                    break;
+                track.AddSequence(measure);
             }
         }
+    }
+
+    public void RefreshAll(AmpTrack c_track = null)
+    {
+        RefreshSequences(c_track);
+        RefreshTargetNotes(c_track);
     }
 
     // TODO: global WaitForLoading or something

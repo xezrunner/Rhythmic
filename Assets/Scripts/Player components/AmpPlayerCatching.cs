@@ -135,26 +135,15 @@ public class AmpPlayerCatching : MonoBehaviour
                     if (!note.Track.IsTrackBeingPlayed)
                     {
                         note.Track.SetIsTrackBeingPlayed(true);
-                        TracksController.RefreshSequences(note.Track);
-                        TracksController.RefreshTargetNotes(note.Track);
+                        TracksController.RefreshAll(note.Track);
                     }
 
-                    if (note != note.Track.Sequences.Last().Notes.Last())
-                    {
-                        // Disable other measures
-                        TracksController.DisableCurrentMeasures(false, note.MeasureID);
-                        TracksController.IncrementTargetNote(note.Track);
-                        //TracksController.RefreshTargetNotes(TracksController.CurrentTrack);
-                    }
-                    else
-                    {
+                    if (note == note.Track.Sequences.Last().Notes.Last()) // Capture track if last note was captured
                         note.Track.CaptureMeasureAmount(Clock.Fbar, RhythmicGame.TrackCaptureLength);
-
-                        TracksController.lastRefreshUpcomingState = false; // TODO: do this in a better place?
-
-                        // TODO: refreshing refactor, individual track option?
-                        TracksController.RefreshSequences();
-                        TracksController.RefreshTargetNotes();
+                    else // Increment to next note, disable current measures
+                    {
+                        TracksController.IncrementTargetNote(note.Track);
+                        TracksController.DisableCurrentMeasures(false, note.MeasureID);
                     }
 
                     break;
@@ -163,13 +152,9 @@ public class AmpPlayerCatching : MonoBehaviour
             case CatchResultType.Ignore:
             case CatchResultType.Miss:
                 {
-                    TracksController.CurrentMeasure.IsEnabled = false; // TODO: unify with below?
+                    if (result.note) result.note.NoteMeshRenderer.material.color = Color.red; // TODO
                     TracksController.DisableCurrentMeasures(true);
-
-                    if (result.note) result.note.NoteMeshRenderer.material.color = Color.red;
-
-                    TracksController.RefreshSequences();
-                    TracksController.RefreshTargetNotes();
+                    TracksController.RefreshAll();
 
                     break;
                 }

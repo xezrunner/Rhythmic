@@ -147,7 +147,7 @@ public class TrackStreamer : MonoBehaviour
         if (trackID != -1) // stream measure!
         {
             if (id > SongController.songLengthInMeasures) yield break;
-            MetaMeasure meta = metaMeasures[trackID, id];
+            MetaMeasure meta = metaMeasures[trackID % TracksController.MainTracks.Length, id];
             AmpTrack track = TracksController.Tracks[trackID];
 
             // Error checking:
@@ -163,14 +163,14 @@ public class TrackStreamer : MonoBehaviour
 
             // Create section!
             AmpTrackSection measure = track.CreateMeasure(meta);
-            if (track.Sequence_Start_IDs.Contains(meta.ID)) // TODO: Performance!
+            if (track.Sequence_Start_IDs.Contains(meta.ID) && meta.ID >= track.Measures.Count) // TODO: Performance!
             {
-                Logger.LogMethod($"META: meta.ID: {meta.ID}, seq_start_ids: ", this);
-                string s = "";
-                for (int i = 0; i < track.Sequence_Start_IDs.Length; i++)
-                    s += track.Sequence_Start_IDs[i] + "; ";
-                Logger.LogMethod(s, this);
-                track.AddSequence(measure);
+                //Logger.LogMethod($"META: meta.ID: {meta.ID}, seq_start_ids: ", this);
+                //string s = "";
+                //for (int i = 0; i < track.Sequence_Start_IDs.Length; i++)
+                //    s += track.Sequence_Start_IDs[i] + "; ";
+                //Logger.LogMethod(s, this);
+                track.AddSequence(measure, false);
             }
 
             // Stream notes!
