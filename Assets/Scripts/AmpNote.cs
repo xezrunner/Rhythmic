@@ -21,6 +21,7 @@ public class AmpNote : MonoBehaviour
     public ParticleSystem.MainModule PS_main;
     public ParticleSystem PS;
 
+    public static bool DEBUG_ShowTargetNoteIndicators = false;
     public TextMeshProUGUI TargetNoteIndicator;
 
     /// Materials (TODO: revise)
@@ -122,6 +123,8 @@ public class AmpNote : MonoBehaviour
 #if true
     private void Update()
     {
+        if (!DEBUG_ShowTargetNoteIndicators) return;
+
         if (TracksController.Instance.targetNotes[Track.ID] == this)
         { TargetNoteIndicator.gameObject.SetActive(true); TargetNoteIndicator.text = $"{TotalID}@{Distance}m"; }
         else
