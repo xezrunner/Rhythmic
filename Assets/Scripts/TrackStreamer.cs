@@ -80,14 +80,11 @@ public class TrackStreamer : MonoBehaviour
         if (SongController.IsSongOver) return;
 
         if (RhythmicGame.StreamAllMeasuresOnStart) { }
-        //foreach (AmpTrack t in TracksController.Instance.Tracks)
-        //    t.Measures[Clock.Fbar + RhythmicGame.HorizonMeasures].gameObject.SetActive(true);
         else
             // Stream measures on every bar tick
             StreamMeasure(e + RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
 
-        // Delete measures behind us
-        // TODO: revise!
+        // Delete measures behind us | TODO: revise!
         if (e < 2) return;
         DestroyBehind(DestroyDelay == 0);
     }
@@ -129,7 +126,11 @@ public class TrackStreamer : MonoBehaviour
             MetaNote meta_note = measureNotes[i];
             meta_note.IsCaptured = measure.IsCaptured;
 
-            AmpNote note = track.CreateNote(meta_note, measure, i, (i == measureNotes.Length - 1));
+            AmpNote note = track.CreateNote(meta_note, measure, i, false);
+            // Target note from meta
+            if (meta_note.IsTargetNote && track.Sequence_Start_IDs[0] == meta_note.MeasureID)
+                TracksController.SetTargetNote(meta_note.TrackID, note);
+
             if (!immediate) yield return new WaitForSeconds(StreamDelay);
         }
     }
@@ -162,6 +163,15 @@ public class TrackStreamer : MonoBehaviour
 
             // Create section!
             AmpTrackSection measure = track.CreateMeasure(meta);
+            if (track.Sequence_Start_IDs.Contains(meta.ID)) // TODO: Performance!
+            {
+                Logger.LogMethod($"META: meta.ID: {meta.ID}, seq_start_ids: ", this);
+                string s = "";
+                for (int i = 0; i < track.Sequence_Start_IDs.Length; i++)
+                    s += track.Sequence_Start_IDs[i] + "; ";
+                Logger.LogMethod(s, this);
+                track.AddSequence(measure);
+            }
 
             // Stream notes!
             // Get all meta notes from the current measure

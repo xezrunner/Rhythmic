@@ -111,5 +111,7 @@ public struct MetaNote
     public float Distance;
     public NoteType Type;
     public LaneSide Lane;
+
     public bool IsCaptured;
+    public bool IsTargetNote;
 }

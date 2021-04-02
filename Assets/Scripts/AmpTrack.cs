@@ -119,11 +119,20 @@ public partial class AmpTrack : MonoBehaviour
     public List<AmpTrackSection> Measures = new List<AmpTrackSection>();
     public AmpTrackSection CurrentMeasure { get { return Measures[Clock.Fbar]; } }
 
+    public int[] Sequence_Start_IDs = new int[RhythmicGame.SequenceAmount];
     public List<AmpTrackSection> Sequences = new List<AmpTrackSection>();
-    public void AddSequence(AmpTrackSection measure)
+    public int AddSequence(AmpTrackSection measure)
     {
+        measure.IsSequence = true;
         foreach (AmpTrack t in TrackTwins) t.Sequences.Add(measure);
         Sequences.Add(measure);
+        return Sequences.Count;
+    }
+    public void RemoveSequence(AmpTrackSection measure, bool deactivate = false)
+    {
+        if (deactivate) measure.IsSequence = false;
+        foreach (AmpTrack t in TrackTwins) t.Sequences.Remove(measure);
+        Sequences.Remove(measure);
     }
     public void ClearSequences()
     {
@@ -132,6 +141,7 @@ public partial class AmpTrack : MonoBehaviour
             t.Sequences.ForEach(s => s.IsSequence = false);
             t.Sequences.Clear();
         }
+        Sequences.ForEach(s => s.IsSequence = false);
         Sequences.Clear();
     }
 
@@ -152,8 +162,8 @@ public partial class AmpTrack : MonoBehaviour
     public bool IsTrackBeingPlayed;
     public void SetIsTrackBeingPlayed(bool value)
     {
-        IsTrackBeingPlayed = value;
         foreach (AmpTrack t in TrackTwins) t.IsTrackBeingPlayed = value;
+        IsTrackBeingPlayed = value;
     }
 
     bool _isTrackFocused;

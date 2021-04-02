@@ -139,6 +139,9 @@ public partial class DebugKeys : DebugComponent
         else if (Input.GetKeyDown(KeyCode.Keypad6)) // all!
             DEBUG_CaptureMeasureAmount(null, SongController.Instance.songLengthInMeasures);
 
+        if (Keyboard.current.numpadMultiplyKey.wasPressedThisFrame)
+            TracksController.IncrementTargetNote(TracksController.CurrentTrack);
+
         // Track restoration (buggy!)
         if (Input.GetKeyDown(KeyCode.Keypad7))
             DEBUG_RestoreCapturedTracks();

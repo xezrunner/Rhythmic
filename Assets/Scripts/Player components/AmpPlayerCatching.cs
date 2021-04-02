@@ -54,7 +54,6 @@ public class AmpPlayerCatching : MonoBehaviour
             }
         }
     }
-
     private void Start()
     {
         if (!SongController.IsEnabled) return;
@@ -109,8 +108,9 @@ public class AmpPlayerCatching : MonoBehaviour
         if (!note) { Debug.LogWarning($"Catching/HandleSlop(): No note was passed!"); HandleResult(new CatchResult()); lastIgnoreBar = Clock.Fbar; return; }
 
         // If the distance is bigger than the note distance + slop distance, we have 'ignored' the note.
-        if (dist > note.Distance + SongController.SlopPos)
+        if (note.IsEnabled && dist > note.Distance + SongController.SlopPos)
         {
+            Logger.LogMethod($"dist: {dist}, note.Dist: {note.Distance}", this);
             HandleResult(new CatchResult(Catchers[(int)note.Lane], CatchResultType.Ignore, note));
             lastIgnoreBar = Clock.Fbar; // avoid slop check spam
 
@@ -132,13 +132,19 @@ public class AmpPlayerCatching : MonoBehaviour
                     AmpNote note = result.note;
 
                     note.CaptureNote(NoteCaptureFX.CatcherCapture, true);
-                    note.Track.SetIsTrackBeingPlayed(true);
+                    if (!note.Track.IsTrackBeingPlayed)
+                    {
+                        note.Track.SetIsTrackBeingPlayed(true);
+                        TracksController.RefreshSequences(note.Track);
+                        TracksController.RefreshTargetNotes(note.Track);
+                    }
 
-                    if (!note.IsLastNote)
+                    if (note != note.Track.Sequences.Last().Notes.Last())
                     {
                         // Disable other measures
-                        TracksController.DisableCurrentMeasures();
-                        TracksController.RefreshTargetNotes(TracksController.CurrentTrack);
+                        TracksController.DisableCurrentMeasures(false, note.MeasureID);
+                        TracksController.IncrementTargetNote(note.Track);
+                        //TracksController.RefreshTargetNotes(TracksController.CurrentTrack);
                     }
                     else
                     {

@@ -183,50 +183,5 @@ public class AmplitudeSongController : SongController
             for (int i = 0; i < songLengthInMeasures; i++)
                 songNotes[t, i] = note_list.Where(n => n.MeasureID == i).ToArray();
         }
-
-        Debug.DebugBreak();
-
-#if false
-        List<List<KeyValuePair<int, MetaNote>>> list = new List<List<KeyValuePair<int, MetaNote>>>();
-        for (int t = 0; t < songTracks.Count; t++)
-        {
-            var AMP_NoteOnEvents = GetNoteOnEventsForTrack(t);
-
-            if (AMP_NoteOnEvents == null)
-                throw new Exception("AMP_TRACK: Note on events are null for track " + songTracks[t]);
-
-            List<KeyValuePair<int, MetaNote>> kvList = new List<KeyValuePair<int, MetaNote>>();
-            for (int i = 0; i < AMP_NoteOnEvents.Count; i++)
-            {
-                NoteOnEvent note = AMP_NoteOnEvents[i];
-
-                // get lane type for note lane
-                LaneSide laneType = AmplitudeGame.GetLaneTypeFromNoteNumber(note.NoteNumber);
-                if (laneType == LaneSide.UNKNOWN)
-                    continue;
-
-                float zPos = StartDistance + TickToPos(note.AbsoluteTime);
-                int measureID = (int)note.AbsoluteTime / measureTicks;
-                string noteName = string.Format("CATCH_{0}::{1}_{2} ({3})", songTracks[t], measureID, laneType.ToString(), i);
-
-                NoteType noteType = NoteType.Generic; // TODO: AMP note types for powerups?!
-
-                MetaNote metaNote = new MetaNote()
-                {
-                    Name = noteName,
-                    TotalID = i,
-                    Type = noteType,
-                    Lane = laneType,
-                    MeasureID = measureID,
-                    Distance = zPos
-                };
-
-                kvList.Add(new KeyValuePair<int, MetaNote>(measureID, metaNote));
-            }
-
-            list.Add(kvList);
-        }
-        return list;
-#endif
     }
 }
