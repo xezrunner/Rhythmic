@@ -95,6 +95,16 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     {
         if (fraction != 1f)
         {
+            // Capture notes
+            for (int i = 0; i < fraction * Measure.Notes.Count; i++)
+            {
+                if (!lastCapturedNotes.Contains(i))
+                {
+                    Measure.Notes[i].CaptureNote(NoteCaptureFX.DestructCapture);
+                    lastCapturedNotes.Add(i);
+                }
+            }
+
             if (Measure.CaptureState != MeasureCaptureState.Captured)
             {
                 // Calculate path distance based on fraction
@@ -108,16 +118,6 @@ public class AmpTrackSectionDestruct : MonoBehaviour
                 // Do continue the rest of the capturing though, as we don't want to skip measures during capturing.
                 //if (Measure.CaptureState != MeasureCaptureState.Captured)
                 Clip();
-
-                // Capture notes
-                for (int i = 0; i < fraction * Measure.Notes.Count; i++)
-                {
-                    if (!lastCapturedNotes.Contains(i))
-                    {
-                        Measure.Notes[i].CaptureNote(NoteCaptureFX.DestructCapture);
-                        lastCapturedNotes.Add(i);
-                    }
-                }
 
                 // Update position for capture FX!
                 {
