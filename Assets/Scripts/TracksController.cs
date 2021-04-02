@@ -247,7 +247,6 @@ public class TracksController : MonoBehaviour
 
     // This is an array of upcoming notes that the player is supposed to catch
     public AmpNote[] targetNotes;
-
     public void SetTargetNote(int track_id, AmpNote note)
     {
         targetNotes[track_id] = note;
@@ -263,15 +262,6 @@ public class TracksController : MonoBehaviour
     /// <param name="c_track">Giving a track will skip forward a sequence amount of measures for the other tracks.</param>
     public void RefreshTargetNotes(AmpTrack c_track = null)
     {
-        // WE WANT TO DO THIS SEPARATELY IN SUCCESSFUL CATCHING!!!
-        /*
-        // If a track was specified, we want to find the next note in the given track.
-        if (c_track)
-            IncrementTargetNote(c_track);
-        */
-
-        int measure_offset = (c_track) ? RhythmicGame.SequenceAmount : 0;
-
         // Find notes:
         for (int t = 0; t < MainTracks_Count; t++)
         {
@@ -288,9 +278,7 @@ public class TracksController : MonoBehaviour
             {
                 // TODO: This doesn't work if the sequence length is large & horizon is short.
                 // We'll have to do some magic above as well!
-                int m_id = (false) ? FindNextMeasureID(track.Sequences[1].ID, track) : track.Sequences[0].ID;
-
-                SetTargetNote(t, track.Measures[m_id].Notes[0]);
+                SetTargetNote(t, track.Sequences[0].Notes[0]);
             }
         }
     }
@@ -330,26 +318,6 @@ public class TracksController : MonoBehaviour
                     if (!m.Notes[x].IsCaptured) SetTargetNote(i, m.Notes[x]);
             }
         }
-    }
-
-    int FindNextMeasureID(int from, AmpTrack track)
-    {
-        for (int i = from + 1; i < SongController.songLengthInMeasures; i++)
-        {
-            if (i >= track.Measures.Count)
-            {
-                MetaMeasure meta_measure = TrackStreamer.metaMeasures[track.ID, i];
-                MetaNote[] meta_notes = SongController.songNotes[track.ID, i];
-                if (meta_notes.Length == 0 || meta_measure.IsCaptured) // TODO: META IsEnabled
-                    continue;
-                return i;
-            }
-            AmpTrackSection measure = track.Measures[i];
-            if (measure.IsEmpty || measure.IsCaptured || !measure.IsEnabled) // Not eligible!
-                continue;
-            return i;
-        }
-        return -1;
     }
 
     /// <summary>
