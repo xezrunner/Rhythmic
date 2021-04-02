@@ -293,77 +293,7 @@ public class TracksController : MonoBehaviour
                 SetTargetNote(t, track.Measures[m_id].Notes[0]);
             }
         }
-
-        // ----------------- //
-
-#if false
-        if (track)
-        {
-            //Debug.Break();
-            //Debug.DebugBreak();
-
-            if (!lastRefreshUpcomingState)
-                RefreshSequences(track);
-
-            AmpNote note = null;
-
-            // Find next note to catch!
-            foreach (AmpTrackSection m in track.Sequences)
-            {
-                foreach (AmpNote n in m.Notes)
-                    if (!n.IsCaptured & n.IsEnabled)
-                    {
-                        note = n;
-                        break;
-                    }
-                if (note) break;
-            }
-
-            if (!note)
-                Debug.LogError($"Tracks/RefreshTargetNotes({track.ID}): upcoming note was null!");
-
-            note.Color = Color.green;
-            targetNotes[track.ID] = note;
-
-            /*
-            { // debug log targetNotes:
-                string s = "targetNotes: ";
-                foreach (AmpNote n in targetNotes)
-                    s += $"[{n.ID}{$"/{n.TrackID}".AddColor(.5f)}]  ";
-                Logger.Log(s);
-            }
-            */
-        }
-
-        foreach (AmpTrack t in MainTracks)
-        {
-            if (track && t.ID == track.ID) continue; // Ignore specified track
-            if (track && lastRefreshUpcomingState) break; // If we already refreshed, skip
-            if (t.Sequences.Count == 0) // No sequences were found in this track!
-            {
-                Debug.LogWarning($"Tracks/RefreshTargetNotes(): Track {t.TrackName} [{t.RealID}] has no sequences! No target notes for this track.");
-                targetNotes[t.ID] = null; // Set this track's targetNote to null for the time being
-                continue;
-            }
-
-            AmpNote note = t.Sequences[0].Notes[0];
-            if (!note) { Debug.LogError($"Tracks/RefreshTargetNotes({track == null}): couldn't find the first note for track {t.ID} sequence [0]"); Debug.Break(); System.Diagnostics.Debugger.Break(); }
-
-            note.Color = Color.green;
-            targetNotes[t.ID] = note;
-
-            if (RhythmicGame.DebugTargetNoteRefreshEvents)
-            {
-                string endMarker = (t.ID == 0 || t.ID == MainTracks.Length - 1) ? "  ******" : "";
-                Debug.Log($"RefreshTargetNotes(): Target note for {t.TrackName}: {note.name}" + endMarker);
-            }
-        }
-
-        if (track && !lastRefreshUpcomingState) lastRefreshUpcomingState = true;
-        else if (!track & lastRefreshUpcomingState) lastRefreshUpcomingState = false;
-#endif
     }
-
     /// <summary>Finds the next targetNote for a given track.</summary>
     public void IncrementTargetNote(AmpTrack track)
     {
@@ -422,8 +352,6 @@ public class TracksController : MonoBehaviour
         return -1;
     }
 
-    public int[] Sequence_LastTargetNoteID;
-
     /// <summary>
     /// Finds the next sequences in all tracks. <br/>
     /// Populates the Sequences list in AmpTracks with measures.
@@ -431,8 +359,6 @@ public class TracksController : MonoBehaviour
     public void RefreshSequences(AmpTrack c_track = null)
     {
         int measure_offset = (c_track) ? RhythmicGame.SequenceAmount : 0;
-
-        Sequence_LastTargetNoteID = new int[MainTracks.Length];
 
         for (int t = 0; t < MainTracks_Count; t++)
         {
@@ -461,54 +387,6 @@ public class TracksController : MonoBehaviour
                     break;
             }
         }
-
-#if false
-        int sequenceNum = RhythmicGame.SequenceAmount;
-        if (sequenceNum < 1) { Debug.LogError("Tracks: There cannot be less than 1 measures set as sequences!"); return; }
-
-        foreach (AmpTrack t in MainTracks)
-        {
-            if (track && t.ID == track.ID) continue;
-
-            t.Sequences.ForEach(t => t.IsSequence = false); // Make previous sequences inactive
-            t.Sequences.Clear();
-
-            int currentMeasure;
-            if (track) currentMeasure = track.Sequences.Last().ID + 1;
-            else if (t.IsTrackCaptured) currentMeasure = Clock.Fbar + RhythmicGame.TrackCaptureLength;
-            else currentMeasure = Clock.Fbar;
-
-            for (int i = currentMeasure; i < SongController.songLengthInMeasures; i++)
-            {
-                if (i >= t.Measures.Count) break;
-                if (t.Sequences.Count == sequenceNum) break;
-
-                if (t.Measures[i] == null) continue;
-                var m = t.Measures[i];
-
-                if (m.IsEmpty || m.IsCaptured || !m.IsEnabled) // Not eligible measures
-                    if (t.Sequences.Count > 0) break;
-                    else continue;
-
-                t.Sequences.Add(m);
-            }
-
-            t.UpdateSequenceStates();
-
-            if (RhythmicGame.DebugSequenceRefreshEvents)
-            {
-                if (t.Sequences.Count == 0) { Debug.LogWarning($"RefreshSequences(): Sequences for {t.TrackName}: null"); return; }
-
-                string seq_string = "";
-
-                foreach (var m in t.Sequences) seq_string += m.ID + ", ";
-                seq_string = seq_string.Substring(0, seq_string.Length - 2); // Remove final trailing ', '
-
-                string endMarker = (t.ID == 0 || t.ID == MainTracks.Length - 1) ? "  ******" : ""; // Mark final line
-                Debug.Log($"RefreshSequences(): Sequences for {t.TrackName}: {seq_string}" + endMarker);
-            }
-        }
-#endif
     }
 
     // TODO: global WaitForLoading or something
