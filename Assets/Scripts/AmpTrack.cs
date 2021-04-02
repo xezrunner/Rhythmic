@@ -139,17 +139,9 @@ public partial class AmpTrack : MonoBehaviour
         {
             foreach (AmpTrack t in TrackTwins)
             {
-                try
-                {
-                    AmpTrackSection twin_measure = t.Measures[measure.ID];
-                    twin_measure.IsSequence = true;
-                    t.Sequences.Add(twin_measure);
-                }
-                catch (Exception ex)
-                {
-                    Debug.Break();
-                    Debug.DebugBreak();
-                }
+                AmpTrackSection twin_measure = t.Measures[measure.ID];
+                twin_measure.IsSequence = true;
+                t.Sequences.Add(twin_measure);
             }
         }
         return Sequences.Count;
