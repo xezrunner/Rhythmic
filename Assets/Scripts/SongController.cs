@@ -53,7 +53,7 @@ public partial class SongController : MonoBehaviour
     public List<AudioSource> audioSrcList = new List<AudioSource>();
 
     public List<string> songTracks = new List<string>();
-    public List<List<KeyValuePair<int, MetaNote>>> songNotes = new List<List<KeyValuePair<int, MetaNote>>>();
+    public MetaNote[,][] songNotes;
 
     // INIT & LOADING
 
@@ -109,38 +109,7 @@ public partial class SongController : MonoBehaviour
             Debug.LogWarning("AMP_CTRL: TrackStreamer already exists!");
     }
 
-    // TODO: This is TrackStreamer's responsibility. Move there?
-    public List<Dictionary<int, MetaMeasure>> CreateMetaMeasureList()
-    {
-        List<Dictionary<int, MetaMeasure>> list = new List<Dictionary<int, MetaMeasure>>();
-
-        // Build metalist
-        // TODO: move to SongController (make it like songNotes)
-        for (int x = 0; x < RhythmicGame.TunnelTrackDuplicationNum; x++)
-        {
-            foreach (string track in songTracks)
-            {
-                var inst = AmpTrack.InstrumentFromString(track);
-                if (inst == AmpTrack.InstrumentType.FREESTYLE & !RhythmicGame.PlayableFreestyleTracks)
-                    continue;
-                else if (inst == AmpTrack.InstrumentType.bg_click)
-                    continue;
-
-                // create dictionary and metameasures
-                Dictionary<int, MetaMeasure> dict = new Dictionary<int, MetaMeasure>();
-                for (int i = 0; i < songLengthInMeasures + 1; i++)
-                {
-                    MetaMeasure metameasure = new MetaMeasure() { ID = i, Instrument = inst, StartDistance = MeasureToPos(i) }; // MEASUREPOS
-                    dict.Add(i, metameasure);
-                }
-                list.Add(dict);
-            }
-        }
-
-        return list;
-    }
-    public virtual List<List<KeyValuePair<int, MetaNote>>> CreateNoteList() { return new List<List<KeyValuePair<int, MetaNote>>>(); }
-
+    public virtual void CreateMetaNotes() { }
     public virtual void CreateAmpTrackController()
     {
         GameObject ctrlGameObject = new GameObject() { name = "AMP_TRACKS" };

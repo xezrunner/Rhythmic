@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 /// Note entity
@@ -20,6 +21,8 @@ public class AmpNote : MonoBehaviour
     public ParticleSystem.MainModule PS_main;
     public ParticleSystem PS;
 
+    public TextMeshProUGUI TargetNoteIndicator;
+
     /// Materials (TODO: revise)
     public Material SharedNoteMaterial;
 
@@ -34,10 +37,13 @@ public class AmpNote : MonoBehaviour
                 foreach (AmpTrack t in Track.TrackTwins)
                 {
                     var n = t.Measures[MeasureID].Notes[ID];
-                    if (n) n.NoteMeshRenderer.material.color = value;
+                    if (!n) return;
+                    n.NoteMeshRenderer.material.color = value;
+                    n.NoteMeshRenderer.material.SetFloat("_PlaneEnabled", 0);
                 }
 
             NoteMeshRenderer.material.color = value;
+            NoteMeshRenderer.material.SetFloat("_PlaneEnabled", 0);
         }
     }
 
@@ -110,6 +116,16 @@ public class AmpNote : MonoBehaviour
         PS_main = PS.main;
         PS_main.startColor = (DotLightColor * 2f);
     }
+
+#if true
+    private void Update()
+    {
+        if (TracksController.Instance.targetNotes[Track.ID] == this)
+        { TargetNoteIndicator.gameObject.SetActive(true); TargetNoteIndicator.text = $"{TotalID}@{Distance}m"; }
+        else
+            TargetNoteIndicator.gameObject.SetActive(false);
+    }
+#endif
 
     [SerializeField] AmpNoteFX FXCom;
 

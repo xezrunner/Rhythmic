@@ -54,7 +54,6 @@ public class AmpPlayerCatching : MonoBehaviour
             }
         }
     }
-
     private void Start()
     {
         if (!SongController.IsEnabled) return;
@@ -109,8 +108,9 @@ public class AmpPlayerCatching : MonoBehaviour
         if (!note) { Debug.LogWarning($"Catching/HandleSlop(): No note was passed!"); HandleResult(new CatchResult()); lastIgnoreBar = Clock.Fbar; return; }
 
         // If the distance is bigger than the note distance + slop distance, we have 'ignored' the note.
-        if (dist > note.Distance + SongController.SlopPos)
+        if (note.IsEnabled && dist > note.Distance + SongController.SlopPos)
         {
+            Logger.LogMethod($"dist: {dist}, note.Dist: {note.Distance}", this);
             HandleResult(new CatchResult(Catchers[(int)note.Lane], CatchResultType.Ignore, note));
             lastIgnoreBar = Clock.Fbar; // avoid slop check spam
 
@@ -132,23 +132,18 @@ public class AmpPlayerCatching : MonoBehaviour
                     AmpNote note = result.note;
 
                     note.CaptureNote(NoteCaptureFX.CatcherCapture, true);
-                    note.Track.SetIsTrackBeingPlayed(true);
-
-                    if (!note.IsLastNote)
+                    if (!note.Track.IsTrackBeingPlayed)
                     {
-                        // Disable other measures
-                        TracksController.DisableCurrentMeasures();
-                        TracksController.RefreshTargetNotes(TracksController.CurrentTrack);
+                        note.Track.SetIsTrackBeingPlayed(true);
+                        TracksController.RefreshAll(note.Track);
                     }
-                    else
-                    {
+
+                    if (note == note.Track.Sequences.Last().Notes.Last()) // Capture track if last note was captured
                         note.Track.CaptureMeasureAmount(Clock.Fbar, RhythmicGame.TrackCaptureLength);
-
-                        TracksController.lastRefreshUpcomingState = false; // TODO: do this in a better place?
-
-                        // TODO: refreshing refactor, individual track option?
-                        TracksController.RefreshSequences();
-                        TracksController.RefreshTargetNotes();
+                    else // Increment to next note, disable current measures
+                    {
+                        TracksController.IncrementTargetNote(note.Track);
+                        TracksController.DisableCurrentMeasures(false, note.MeasureID);
                     }
 
                     break;
@@ -157,13 +152,9 @@ public class AmpPlayerCatching : MonoBehaviour
             case CatchResultType.Ignore:
             case CatchResultType.Miss:
                 {
-                    TracksController.CurrentMeasure.IsEnabled = false; // TODO: unify with below?
+                    if (result.note) result.note.NoteMeshRenderer.material.color = Color.red; // TODO
                     TracksController.DisableCurrentMeasures(true);
-
-                    if (result.note) result.note.NoteMeshRenderer.material.color = Color.red;
-
-                    TracksController.RefreshSequences();
-                    TracksController.RefreshTargetNotes();
+                    TracksController.RefreshAll();
 
                     break;
                 }

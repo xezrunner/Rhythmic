@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using PathCreation;
 using System;
 using System.Collections;
@@ -101,11 +102,14 @@ public partial class AmpTrack : MonoBehaviour
             ClipManager.AddMaterial(Track_Bottom_Global_Mat);
 
         // Clone tracks - set Sequences List references
-        if (IsCloneTrack)
-            foreach (AmpTrack t in TrackTwins)
-                t.Sequences = TracksController.Tracks[ID].Sequences;
+        //if (IsCloneTrack)
+        //    foreach (AmpTrack t in TrackTwins)
+        //        t.Sequences = TracksController.Tracks[ID].Sequences;
 
         StartCoroutine(WarmupDestructFX());
+
+        for (int i = 0; i < RhythmicGame.SequenceAmount; i++)
+            Sequence_Start_IDs[i] = -1;
     }
 
     IEnumerator WarmupDestructFX()
@@ -119,11 +123,47 @@ public partial class AmpTrack : MonoBehaviour
     public List<AmpTrackSection> Measures = new List<AmpTrackSection>();
     public AmpTrackSection CurrentMeasure { get { return Measures[Clock.Fbar]; } }
 
-    public List<AmpTrackSection> Sequences = new List<AmpTrackSection>();
-    public void AddSequence(AmpTrackSection measure)
+    public int[] Sequence_Start_IDs = new int[RhythmicGame.SequenceAmount];
+    public void SetSequenceStartIDs(int x, int id)
     {
-        foreach (AmpTrack t in TrackTwins) t.Sequences.Add(measure);
+        Sequence_Start_IDs[x] = id;
+        foreach (AmpTrack t in TrackTwins)
+            t.Sequence_Start_IDs[x] = id;
+    }
+    public List<AmpTrackSection> Sequences = new List<AmpTrackSection>();
+    public int AddSequence(AmpTrackSection measure, bool twins = true) // Returns count of sequences
+    {
+        measure.IsSequence = true;
         Sequences.Add(measure);
+        if (twins)
+        {
+            foreach (AmpTrack t in TrackTwins)
+            {
+                try
+                {
+                    AmpTrackSection twin_measure = t.Measures[measure.ID];
+                    twin_measure.IsSequence = true;
+                    t.Sequences.Add(twin_measure);
+                }
+                catch (Exception ex)
+                {
+                    Debug.Break();
+                    Debug.DebugBreak();
+                }
+            }
+        }
+        return Sequences.Count;
+    }
+    public void RemoveSequence(AmpTrackSection measure, bool deactivate = false)
+    {
+        if (deactivate) measure.IsSequence = false;
+        Sequences.Remove(measure);
+        foreach (AmpTrack t in TrackTwins)
+        {
+            AmpTrackSection twin_measure = t.Measures[measure.ID];
+            if (deactivate) twin_measure.IsSequence = false;
+            t.Sequences.Remove(twin_measure);
+        }
     }
     public void ClearSequences()
     {
@@ -132,6 +172,7 @@ public partial class AmpTrack : MonoBehaviour
             t.Sequences.ForEach(s => s.IsSequence = false);
             t.Sequences.Clear();
         }
+        Sequences.ForEach(s => s.IsSequence = false);
         Sequences.Clear();
     }
 
@@ -152,8 +193,8 @@ public partial class AmpTrack : MonoBehaviour
     public bool IsTrackBeingPlayed;
     public void SetIsTrackBeingPlayed(bool value)
     {
-        IsTrackBeingPlayed = value;
         foreach (AmpTrack t in TrackTwins) t.IsTrackBeingPlayed = value;
+        IsTrackBeingPlayed = value;
     }
 
     bool _isTrackFocused;

@@ -39,6 +39,8 @@ public class TracksController : MonoBehaviour
     [Header("Variables")]
     public AmpTrack[] Tracks;
     public AmpTrack[] MainTracks;
+    int MainTracks_Count = 0;
+
     public AmpTrack[][] TrackSets;
     public AmpTrack[] CurrentTrackSet;
     public List<string> songTracks = new List<string>();
@@ -77,6 +79,7 @@ public class TracksController : MonoBehaviour
 
         // Create tracks!
         CreateTracks();
+        MainTracks_Count = MainTracks.Length;
 
         StartCoroutine(RefreshSequences_Init());
 
@@ -229,13 +232,14 @@ public class TracksController : MonoBehaviour
     public void SetTrackState(int id, bool state) => SetTrackState(Tracks[id], state);
     public void SetTrackState(AmpTrack track, bool state) => track.IsEnabled = state;
 
-    public void DisableCurrentMeasures(bool current = false)
+    public void DisableCurrentMeasures(bool current = false, int id = -1)
     {
-        foreach (AmpTrack t in Tracks)
+        int measure = (id == -1) ? Clock.Fbar : id;
+        foreach (AmpTrack t in MainTracks)
         {
             if (!current && t.ID == CurrentTrack.ID) continue; // Ignore current track
-            t.Measures[Clock.Fbar].IsEnabled = false;
-            t.IsTrackBeingPlayed = false;
+            t.Measures[measure].SetIsEnabled(false);
+            t.SetIsTrackBeingPlayed(false);
         }
     }
 
@@ -243,6 +247,11 @@ public class TracksController : MonoBehaviour
 
     // This is an array of upcoming notes that the player is supposed to catch
     public AmpNote[] targetNotes;
+    public void SetTargetNote(int track_id, AmpNote note)
+    {
+        targetNotes[track_id] = note;
+        note.Color = Color.green; // TODO: TEMP!
+    }
 
     [NonSerialized]
     public bool lastRefreshUpcomingState; // This is set to true when we've already found the upcoming notes for the other tracks.
@@ -250,126 +259,113 @@ public class TracksController : MonoBehaviour
     /// Finds the next notes that the player is supposed to catch. <br/>
     /// In case we're already playing a track, this will only update the current track's upcoming notes.
     /// </summary>
-    /// <param name="track">Giving a track will skip forward a sequence amount of measures for the other tracks.</param>
-    public void RefreshTargetNotes(AmpTrack track = null)
+    /// <param name="c_track">Giving a track will skip forward a sequence amount of measures for the other tracks.</param>
+    public void RefreshTargetNotes(AmpTrack c_track = null)
     {
-        if (track)
+        // Find notes:
+        for (int t = 0; t < MainTracks_Count; t++)
         {
-            //Debug.Break();
-            //Debug.DebugBreak();
+            AmpTrack track = MainTracks[t];
+            if (c_track && t == c_track.ID) continue; // Ignore current track
 
-            if (!lastRefreshUpcomingState)
-                RefreshSequences(track);
-
-            AmpNote note = null;
-
-            // Find next note to catch!
-            foreach (AmpTrackSection m in track.Sequences)
+            if (track.Sequences.Count == 0 /*|| track.Sequences[0].Notes.Count == 0*/) // META
             {
-                foreach (AmpNote n in m.Notes)
-                    if (!n.IsCaptured & n.IsEnabled)
-                    {
-                        note = n;
-                        break;
-                    }
-                if (note) break;
+                // It's probably far away and we don't have it streamed in yet.
+                // Mark as target note in the meta notes.
+                SongController.songNotes[t, track.Sequence_Start_IDs[0]][0].IsTargetNote = true;
             }
-
-            if (!note)
-                Debug.LogError($"Tracks/RefreshTargetNotes({track.ID}): upcoming note was null!"); 
-
-            note.Color = Color.green;
-            targetNotes[track.ID] = note;
-
-            /*
-            { // debug log targetNotes:
-                string s = "targetNotes: ";
-                foreach (AmpNote n in targetNotes)
-                    s += $"[{n.ID}{$"/{n.TrackID}".AddColor(.5f)}]  ";
-                Logger.Log(s);
+            else
+            {
+                // TODO: This doesn't work if the sequence length is large & horizon is short.
+                // We'll have to do some magic above as well!
+                SetTargetNote(t, track.Sequences[0].Notes[0]);
             }
-            */
         }
-
-        foreach (AmpTrack t in MainTracks)
+    }
+    /// <summary>Finds the next targetNote for a given track.</summary>
+    public void IncrementTargetNote(AmpTrack track)
+    {
+        int target_id = 0;
+        for (int i = 0; i < track.Sequences.Count; i++)
         {
-            if (track && t.ID == track.ID) continue; // Ignore specified track
-            if (track && lastRefreshUpcomingState) break; // If we already refreshed, skip
-            if (t.Sequences.Count == 0) // No sequences were found in this track!
+            AmpTrackSection m = track.Sequences[i];
+            AmpNote current_note = targetNotes[track.ID];
+            target_id = current_note.ID + 1;
+
+            if (target_id >= m.Notes.Count)
             {
-                Debug.LogWarning($"Tracks/RefreshTargetNotes(): Track {t.TrackName} [{t.RealID}] has no sequences! No target notes for this track.");
-                targetNotes[t.ID] = null; // Set this track's targetNote to null for the time being
-                continue;
+                target_id -= m.Notes.Count;
+                if (i + 1 < track.Sequences.Count) m = track.Sequences[++i];
+                else return;
+                track.RemoveSequence(track.Sequences[i - 1]); // Remove previous sequence so that it no longer counts
             }
 
-            AmpNote note = t.Sequences[0].Notes[0];
-            if (!note) { Debug.LogError($"Tracks/RefreshTargetNotes({track == null}): couldn't find the first note for track {t.ID} sequence [0]"); Debug.Break(); System.Diagnostics.Debugger.Break(); }
-
-            note.Color = Color.green;
-            targetNotes[t.ID] = note;
-
-            if (RhythmicGame.DebugTargetNoteRefreshEvents)
+            AmpNote target_note = m.Notes[target_id];
+            if (!target_note) Logger.LogMethodE($"target_note was null! - target_id: {target_id}", this);
+            else
             {
-                string endMarker = (t.ID == 0 || t.ID == MainTracks.Length - 1) ? "  ******" : "";
-                Debug.Log($"RefreshTargetNotes(): Target note for {t.TrackName}: {note.name}" + endMarker);
+                SetTargetNote(track.ID, target_note);
+                return;
             }
         }
 
-        if (track && !lastRefreshUpcomingState) lastRefreshUpcomingState = true;
-        else if (!track & lastRefreshUpcomingState) lastRefreshUpcomingState = false;
+        if (targetNotes[track.ID] == null) // TODO: this may be unnecessary
+        {
+            for (int i = 0; i < track.Sequences.Count; i++)
+            {
+                AmpTrackSection m = track.Sequences[i];
+                for (int x = 0; x < m.Notes.Count; x++)
+                    if (!m.Notes[x].IsCaptured) SetTargetNote(i, m.Notes[x]);
+            }
+        }
     }
 
     /// <summary>
     /// Finds the next sequences in all tracks. <br/>
     /// Populates the Sequences list in AmpTracks with measures.
     /// </summary>
-    public void RefreshSequences(AmpTrack track = null)
+    public void RefreshSequences(AmpTrack c_track = null)
     {
-        int sequenceNum = RhythmicGame.SequenceAmount;
-        if (sequenceNum < 1) { Debug.LogError("Tracks: There cannot be less than 1 measures set as sequences!"); return; }
+        int measure_offset = (c_track) ? RhythmicGame.SequenceAmount : 0;
 
-        foreach (AmpTrack t in MainTracks)
+        for (int t = 0; t < MainTracks_Count; t++)
         {
-            if (track && t.ID == track.ID) continue;
+            AmpTrack track = MainTracks[t];
+            if (c_track && t == c_track.ID) continue; // Ignore current track
 
-            t.Sequences.ForEach(t => t.IsSequence = false); // Make previous sequences inactive
-            t.Sequences.Clear();
+            track.ClearSequences();
 
-            int currentMeasure;
-            if (track) currentMeasure = track.Sequences.Last().ID + 1;
-            else if (t.IsTrackCaptured) currentMeasure = Clock.Fbar + RhythmicGame.TrackCaptureLength;
-            else currentMeasure = Clock.Fbar;
-
-            for (int i = currentMeasure; i < SongController.songLengthInMeasures; i++)
+            for (int i = Clock.Fbar + measure_offset, total = 0; i < SongController.songLengthInMeasures; i++)
             {
-                if (i >= t.Measures.Count) break;
-                if (t.Sequences.Count == sequenceNum) break;
+                if (track.Sequences.Count == RhythmicGame.SequenceAmount)
+                    break;
 
-                if (t.Measures[i] == null) continue;
-                var m = t.Measures[i];
-
-                if (m.IsEmpty || m.IsCaptured || !m.IsEnabled) // Not eligible measures
-                    if (t.Sequences.Count > 0) break;
+                if (i >= track.Measures.Count) // META
+                {
+                    MetaMeasure meta_measure = TrackStreamer.metaMeasures[t, i];
+                    MetaNote[] meta_notes = SongController.songNotes[t, i];
+                    if (meta_notes.Length == 0 || meta_measure.IsCaptured)
+                        continue;
+                    for (int x = 0; x < RhythmicGame.SequenceAmount; x++)
+                        track.SetSequenceStartIDs(x, i + x);
+                    //Logger.LogMethod($"META: t: {t}, start_id: {i} - {i + RhythmicGame.SequenceAmount - 1}", this);
+                    break;
+                }
+                AmpTrackSection measure = track.Measures[i];
+                if (measure.IsEmpty || measure.IsCaptured || !measure.IsEnabled) // Not eligible!
+                    if (total >= 1) break;
                     else continue;
 
-                t.Sequences.Add(m);
-            }
-
-            t.UpdateSequenceStates();
-
-            if (RhythmicGame.DebugSequenceRefreshEvents)
-            {
-                if (t.Sequences.Count == 0) { Debug.LogWarning($"RefreshSequences(): Sequences for {t.TrackName}: null"); return; }
-
-                string seq_string = "";
-
-                foreach (var m in t.Sequences) seq_string += m.ID + ", ";
-                seq_string = seq_string.Substring(0, seq_string.Length - 2); // Remove final trailing ', '
-
-                string endMarker = (t.ID == 0 || t.ID == MainTracks.Length - 1) ? "  ******" : ""; // Mark final line
-                Debug.Log($"RefreshSequences(): Sequences for {t.TrackName}: {seq_string}" + endMarker);
+                track.AddSequence(measure);
+                ++total;
             }
         }
+    }
+
+    public void RefreshAll(AmpTrack c_track = null)
+    {
+        RefreshSequences(c_track);
+        RefreshTargetNotes(c_track);
     }
 
     // TODO: global WaitForLoading or something
@@ -453,7 +449,11 @@ public class TracksController : MonoBehaviour
         // Immediately consider all measures as captured (isCaptured returns true even when capturing)
         for (int i = start; i < end; i++)
         {
-            if (i >= track.Measures.Count) continue;
+            if (i >= track.Measures.Count) // META!
+            {
+                TrackStreamer.metaMeasures[track.ID, i].IsCaptured = true;
+                continue;
+            }
             AmpTrackSection m = track.Measures[i];
             if (!m) continue;
 
@@ -463,13 +463,18 @@ public class TracksController : MonoBehaviour
             m.IsSequence = false;
         }
 
+        // Refresh sequences & target notes
+        RefreshSequences();
+        RefreshTargetNotes();
+
         // Init capture process - wait for captures to finish before proceeding to next one
         for (int i = start; i < end; i++)
         {
             if (i < track.Measures.Count && track.Measures[i])
                 yield return track.CaptureMeasure(track.Measures[i]);
-            else // This measure doesn't yet exist - change meta measure to captured state in TrackStreamer!
-                TrackStreamer.metaMeasures[track.ID][i].IsCaptured = true;
+            // META is now set above!
+            //else // This measure doesn't yet exist - change meta measure to captured /state /in TrackStreamer!
+            //    TrackStreamer.metaMeasures[track.ID, i].IsCaptured = true;
         }
 
         track.IsTrackCapturing = false;

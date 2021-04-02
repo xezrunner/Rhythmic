@@ -83,7 +83,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.08
-    - _PlaneEnabled: 1
+    - _PlaneEnabled: 0
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 1
     - _SoftParticlesEnabled: 0
