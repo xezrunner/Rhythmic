@@ -110,7 +110,6 @@ public class AmpPlayerCatching : MonoBehaviour
         // If the distance is bigger than the note distance + slop distance, we have 'ignored' the note.
         if (note.IsEnabled && dist > note.Distance + SongController.SlopPos)
         {
-            Logger.LogMethod($"dist: {dist}, note.Dist: {note.Distance}", this);
             HandleResult(new CatchResult(Catchers[(int)note.Lane], CatchResultType.Ignore, note));
             lastIgnoreBar = Clock.Fbar; // avoid slop check spam
 
@@ -132,6 +131,7 @@ public class AmpPlayerCatching : MonoBehaviour
                     AmpNote note = result.note;
 
                     note.CaptureNote(NoteCaptureFX.CatcherCapture, true);
+
                     if (!note.Track.IsTrackBeingPlayed)
                     {
                         note.Track.SetIsTrackBeingPlayed(true);

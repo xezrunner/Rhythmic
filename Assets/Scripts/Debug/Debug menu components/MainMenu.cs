@@ -9,9 +9,6 @@ namespace DebugMenus
 
         DebugStats Stats { get { return (DebugStats)DebugStats.Instance.Component; } }
 
-        float f_numberTest = 0.12344f;
-        int i_numberTest = 4;
-
         public override void Init()
         {
             base.Init();
@@ -23,15 +20,12 @@ namespace DebugMenus
             AddEntry("Keep Player Between Loads", () => false);
             AddEntry("Tunnel mode", new Ref(() => RhythmicGame.IsTunnelMode, (v) => RhythmicGame.IsTunnelMode = (bool)v));
             AddEntry("Enable seeker frames", new Ref(() => AmpTrackSection.SeekerEnabled, (v) => AmpTrackSection.SeekerEnabled = (bool)v));
+            AddEntry("Enable note target info", new Ref(() => AmpNote.DEBUG_ShowTargetNoteIndicators, (v) => AmpNote.DEBUG_ShowTargetNoteIndicators = (bool)v));
+            AddEntry("Show slop debug events", new Ref(() => RhythmicGame.DebugCatcherSlopEvents, (v) => RhythmicGame.DebugCatcherSlopEvents = (bool)v));
             AddEntry("Songs...", typeof(SongsMenu));
             AddEntry("Worlds...", typeof(WorldsMenu));
-            //AddEntry("Scenes...");
             AddEntry("Short Short Stats", () => ToggleStats(StatsMode.ShortShort), () => Stats.StatsMode == StatsMode.ShortShort);
             AddEntry("Short Stats", () => ToggleStats(StatsMode.Short), () => Stats.StatsMode == StatsMode.Short);
-
-            //AddEntry();
-            //AddEntry("(float) Number variable test", new Ref(() => f_numberTest, (v) => f_numberTest = (float)v));
-            //AddEntry("(int) Number variable test", new Ref(() => i_numberTest, (v) => i_numberTest = (int)v));
             AddEntry("Quit game", QuitGame);
         }
 

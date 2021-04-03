@@ -21,6 +21,7 @@ public class AmpNote : MonoBehaviour
     public ParticleSystem.MainModule PS_main;
     public ParticleSystem PS;
 
+    public static bool DEBUG_ShowTargetNoteIndicators = false;
     public TextMeshProUGUI TargetNoteIndicator;
 
     /// Materials (TODO: revise)
@@ -100,6 +101,8 @@ public class AmpNote : MonoBehaviour
         }
     }
 
+    public GameObject BlastFX;
+
     void Start()
     {
         if (SharedNoteMaterial)
@@ -120,6 +123,8 @@ public class AmpNote : MonoBehaviour
 #if true
     private void Update()
     {
+        if (!DEBUG_ShowTargetNoteIndicators) return;
+
         if (TracksController.Instance.targetNotes[Track.ID] == this)
         { TargetNoteIndicator.gameObject.SetActive(true); TargetNoteIndicator.text = $"{TotalID}@{Distance}m"; }
         else
@@ -141,6 +146,8 @@ public class AmpNote : MonoBehaviour
         else FXCom.ResetFX(); // If it already exists, reset the effect
         FXCom.Note = this;
         FXCom.Effect = fx; // Set capture effect
+
+        if (fx == NoteCaptureFX.CatcherCapture) BlastFX.SetActive(true);
 
         if (twins && RhythmicGame.IsTunnelTrackDuplication) // Capture twin tracks' notes too
             foreach (AmpTrack t in Track.TrackTwins) t.Measures[MeasureID].Notes[ID].CaptureNote(fx, anim: anim);
