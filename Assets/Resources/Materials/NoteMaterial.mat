@@ -72,7 +72,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0
     - _DstBlend: 0
-    - _EmissionEnabled: 0
+    - _EmissionEnabled: 1
     - _Enabled: 1
     - _FlipbookMode: 0
     - _GlossMapScale: 0.63
@@ -99,7 +99,7 @@ Material:
     - _Color: {r: 0.759434, g: 0.8508029, b: 1, a: 1}
     - _ColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _CutoffColor: {r: 1, g: 1, b: 1, a: 0}
-    - _Emission: {r: 0, g: 0, b: 0, a: 1}
+    - _Emission: {r: 0.25, g: 0.25, b: 0.25, a: 1}
     - _EmissionColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _InversePlane: {r: 0, g: 0, b: 0, a: 0}
     - _Plane: {r: -0.50264704, g: 0.70571464, b: 0.49931228, a: -622.39594}
