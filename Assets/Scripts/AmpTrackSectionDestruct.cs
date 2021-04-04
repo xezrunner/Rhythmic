@@ -91,7 +91,6 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     Quaternion pathRot;
 
     float dist = 0f;
-    bool finished = false;
     private void Update()
     {
         // Capture notes | TODO: optimize/improve?!
