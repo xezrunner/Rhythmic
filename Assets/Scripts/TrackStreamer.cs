@@ -163,13 +163,15 @@ public class TrackStreamer : MonoBehaviour
 
             // Create section!
             AmpTrackSection measure = track.CreateMeasure(meta);
-            if (track.Sequence_Start_IDs.Contains(meta.ID) && meta.ID >= track.Measures.Count) // TODO: Performance!
+            if (track.Sequence_Start_IDs.Contains(meta.ID) && meta.ID >= track.Measures[track.Measures.Count - 1].ID) // TODO: Performance!
             {
-                //Logger.LogMethod($"META: meta.ID: {meta.ID}, seq_start_ids: ", this);
-                //string s = "";
-                //for (int i = 0; i < track.Sequence_Start_IDs.Length; i++)
-                //    s += track.Sequence_Start_IDs[i] + "; ";
-                //Logger.LogMethod(s, this);
+#if false
+                Logger.LogMethod($"META: meta.ID: {meta.ID}, seq_start_ids: ", this);
+                string s = "";
+                for (int i = 0; i < track.Sequence_Start_IDs.Length; i++)
+                    s += track.Sequence_Start_IDs[i] + "; ";
+                Logger.LogMethod(s, this);
+#endif
                 track.AddSequence(measure, false);
             }
 
