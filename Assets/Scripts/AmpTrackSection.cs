@@ -66,8 +66,17 @@ public class AmpTrackSection : MonoBehaviour
         {
             CaptureState = !value ? MeasureCaptureState.None : MeasureCaptureState.Captured;
             if (CaptureState > 0)
+            {
                 IsSequence = false; // TODO: revise?
+                SetEmptyMaterials();
+            }
         }
+    }
+
+    void SetEmptyMaterials()
+    {
+        ModelRenderer.materials = new Material[0];
+        ModelRenderer.material = Track.Track_Bottom_Global_Mat;
     }
 
     public bool IsEnabled = true;
@@ -129,11 +138,9 @@ public class AmpTrackSection : MonoBehaviour
 
         // Disable measure visuals when empty or captured
         if (IsEmpty || IsCaptured)
-        {
-            ModelRenderer.materials = new Material[0];
-            ModelRenderer.material = Track.Track_Bottom_Global_Mat;
-        }
+            SetEmptyMaterials();
 
+        // TODO: optimizations below:
 
         if (og_verts == null)
         {
@@ -149,7 +156,6 @@ public class AmpTrackSection : MonoBehaviour
                                   (Path, SeekerMesh.mesh, Position, Rotation, ogVerts: og_vertsSeeker, offset: new Vector3(0, 0.018f, 0), RhythmicGame.TrackWidth + 0.05f, -1, Length, movePivotToStart: false); // TODO: unneccessary parameters
         SeekerRenderer.material.color = Track.Color;
     }
-
 
     public void DeformMesh() => MeshDeformer.DeformMesh
                                   (Path, ModelMesh.mesh, Position, Rotation, ogVerts: og_verts, offset: null, RhythmicGame.TrackWidth, -1, Length, movePivotToStart: true); // TODO: unneccessary parameters

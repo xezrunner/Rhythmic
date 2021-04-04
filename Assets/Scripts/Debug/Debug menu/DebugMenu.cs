@@ -139,7 +139,7 @@ public partial class DebugMenu : DebugComponent
             if (!ComponentInstances.ContainsKey(type.Name)) ComponentInstances.Add(type.Name, com);
             instance = com;
 
-            Logger.LogMethodW($"Component {type.Name} did not exist, so we instanced one. (total: {ComponentInstances.Count})", this);
+            Logger.LogMethod($"Component {type.Name} did not exist, so we instanced one. (total: {ComponentInstances.Count})", this);
         }
         //{ Logger.LogMethodW($"Cannot switch to component {type.Name} - not available!", this); return; }
 
