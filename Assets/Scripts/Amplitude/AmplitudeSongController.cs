@@ -137,7 +137,7 @@ public class AmplitudeSongController : SongController
             int count = (AMP_NoteOnEvents != null) ? AMP_NoteOnEvents.Count : 0;
 
             if (count == 0)
-                Logger.LogMethodE("AMP_TRACK: Note on events are null for track " + songTracks[t], this);
+                Logger.LogMethodW("Note events are null for track " + songTracks[t], this);
 
             //for (int i = 0; i < songLengthInMeasures; i++)
             //    songNotes[t, i] = new MetaNote[count];

@@ -67,7 +67,11 @@ public partial class DebugController : MonoBehaviour
 
         // Automatically activate DebugStats (TODO: should make DebugStats an additive component)
         // TODO: DebugStats shouldn't auto-activate based on whether the flag is present. (prop: AutoShowDebugStats?)
-        if (RhythmicGame.AutoLoadDebugStats) DebugUI.SwitchToComponent(typeof(DebugStats));
+        if (RhythmicGame.AutoLoadDebugStats)
+        {
+            //DebugUI.SwitchToComponent(typeof(DebugStats)); // DebugStats is now an internal, persistent component of its own.
+            DebugStats._Instance.StatsMode = StatsMode.DefaultAutoLoad;
+        }
     }
 
     // TODO: ActiveComponents list?

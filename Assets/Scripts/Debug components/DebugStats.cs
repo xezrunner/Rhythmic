@@ -3,14 +3,19 @@
 public enum StatsMode
 {
     None = 0, ShortShort = 1, Short = 2, Long = 3,
-    Default = None
+    Default = None, DefaultAutoLoad = Short
 }
 
 [DebugComponent(DebugComponentFlag.DebugStats, DebugComponentType.Component, true, 30)]
 public class DebugStats : DebugComponent
 {
+    public static DebugStats _Instance;
     public static RefDebugComInstance Instance;
-    void Awake() => Instance = new RefDebugComInstance(this);
+    void Awake()
+    {
+        _Instance = this;
+        Instance = new RefDebugComInstance(this);
+    }
 
     Clock Clock { get { return Clock.Instance; } }
     WorldSystem WorldSystem { get { return WorldSystem.Instance; } }
@@ -106,7 +111,7 @@ public class DebugStats : DebugComponent
             {
                 s += $"{t.TrackName}: ".AddColor(t.Color) + "[";
                 foreach (AmpTrackSection m in t.Sequences)
-                     s += $" {m.ID}";
+                    s += $" {m.ID}";
                 s += " ]  ";
             }
             AddLine(s);
