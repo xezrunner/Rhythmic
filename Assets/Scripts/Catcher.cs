@@ -67,6 +67,7 @@ public class Catcher : MonoBehaviour
     {
         // Handle empty catch
         AmpTrackSection currentMeasure = TracksController.CurrentTrack.CurrentMeasure;
+        if (!currentMeasure) return new CatchResult();
         if (currentMeasure.IsEmpty || currentMeasure.IsCaptured)
             return new CatchResult(this, CatchResultType.Empty, null);
 

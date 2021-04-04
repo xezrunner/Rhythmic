@@ -72,7 +72,7 @@ public static class RhythmicGame
 
     // Debug system
     public static DebugComponentFlag DebugControllerFlags = DebugComponentFlag.Uninitialized;
-    public static bool AutoLoadDebugStats = true;
+    public static bool AutoLoadDebugStats = false;
 
     // A/V calibration props | milliseconds
     public static float AVCalibrationOffsetMs = 0f;

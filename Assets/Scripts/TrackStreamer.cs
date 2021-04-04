@@ -149,7 +149,7 @@ public class TrackStreamer : MonoBehaviour
         IsStreaming = true;
         if (trackID != -1) // stream measure!
         {
-            if (id > SongController.songLengthInMeasures) yield break;
+            if (id >= SongController.songLengthInMeasures) { IsStreaming = false; yield break; }
             MetaMeasure meta = metaMeasures[trackID % TracksController.MainTracks.Length, id];
             AmpTrack track = TracksController.Tracks[trackID];
 
@@ -160,6 +160,7 @@ public class TrackStreamer : MonoBehaviour
                 if (id < track.Measures.Count && track.Measures[id] != null)
                 {
                     Logger.LogMethodE($"Tried streaming measure {id.ToString().AddColor(Colors.Warning)}, which already exists!", this);
+                    IsStreaming = false;
                     yield break;
                 }
             }

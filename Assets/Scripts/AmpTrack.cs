@@ -58,7 +58,7 @@ public partial class AmpTrack : MonoBehaviour
         set
         {
             _color = value;
-            Track_Bottom_Mat.SetColor("_Color", value);
+            Track_Bottom_Mat.SetColor("_Color", /*value*/ Color.black);
             Track_Bottom_Mat.SetColor("_Emission", value * TracksController.LocalEmission);
             Track_Bottom_Global_Mat.SetColor("_Color", value);
             Track_Bottom_Global_Mat.SetColor("_Emission", value * TracksController.GlobalEmission);
@@ -121,7 +121,7 @@ public partial class AmpTrack : MonoBehaviour
     }
 
     public List<AmpTrackSection> Measures = new List<AmpTrackSection>();
-    public AmpTrackSection CurrentMeasure { get { return Measures[Clock.Fbar]; } }
+    public AmpTrackSection CurrentMeasure { get { if (Clock.Fbar < Measures.Count) return Measures[Clock.Fbar]; else return null; } }
 
     public int[] Sequence_Start_IDs = new int[RhythmicGame.SequenceAmount];
     public void SetSequenceStartIDs(int x, int id)
