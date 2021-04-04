@@ -58,7 +58,6 @@ public class AmpTrackSectionDestruct : MonoBehaviour
         if (Mathf.FloorToInt(Clock.Instance.bar) == ID)
             fraction = Mathf.Clamp(Clock.Instance.bar - ID /*- 0.08f*/, 0f, 1f);
 
-        //DestructFX = m.DestructFX;
         DestructFX = m.Track.DestructFX;
         // Add destruct FX if non-existent:
         // NOTE: it should be parented to the measure, as we get destroyed once the FX finishes!

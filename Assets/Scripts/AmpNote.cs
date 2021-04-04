@@ -101,8 +101,6 @@ public class AmpNote : MonoBehaviour
         }
     }
 
-    public GameObject BlastFX;
-
     void Start()
     {
         if (SharedNoteMaterial)
@@ -142,12 +140,12 @@ public class AmpNote : MonoBehaviour
         if (!anim) return;
 
         if (!FXCom) // Add capture effect provider component
+        {
             FXCom = gameObject.AddComponent<AmpNoteFX>();
+            FXCom.Note = this;
+        }
         else FXCom.ResetFX(); // If it already exists, reset the effect
-        FXCom.Note = this;
-        FXCom.Effect = fx; // Set capture effect
-
-        if (fx == NoteCaptureFX.CatcherCapture) BlastFX.SetActive(true);
+        FXCom.Play(fx); // Set capture effect
 
         if (twins && RhythmicGame.IsTunnelTrackDuplication) // Capture twin tracks' notes too
             foreach (AmpTrack t in Track.TrackTwins) t.Measures[MeasureID].Notes[ID].CaptureNote(fx, anim: anim);
