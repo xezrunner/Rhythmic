@@ -84,6 +84,7 @@ public class DebugStats : DebugComponent
             AddLine($"Tracks: {trackNames}{trackCount}");
         }
         // Target notes:
+        if (StatsMode > StatsMode.ShortShort)
         {
             string s = "Target notes: ";
             for (int i = 0; i < TracksController.targetNotes.Length; i++)
@@ -93,7 +94,20 @@ public class DebugStats : DebugComponent
                 if (!n | !t) s += "null ";
                 else
                     s += $"{t.TrackName}: ".AddColor(t.Color) +
-                     $"[{n.ID} " + $"{n.TotalID}]  ".AddColor(.42f);
+                     $"[ {n.ID} " + $"{n.TotalID} ]  ".AddColor(.42f);
+            }
+            AddLine(s);
+        }
+        // Track sequences:
+        if (StatsMode > StatsMode.ShortShort)
+        {
+            string s = "Track sequences: ";
+            foreach (AmpTrack t in TracksController.MainTracks)
+            {
+                s += $"{t.TrackName}: ".AddColor(t.Color) + "[";
+                foreach (AmpTrackSection m in t.Sequences)
+                     s += $" {m.ID}";
+                s += " ]  ";
             }
             AddLine(s);
         }
