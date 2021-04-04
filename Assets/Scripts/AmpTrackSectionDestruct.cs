@@ -98,7 +98,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
             if (fraction > 1f) break;
             if (lastCapturedNotes.Contains(i)) continue;
 
-            Measure.Notes[i].CaptureNote(NoteCaptureFX.DestructCapture);
+            Measure.Notes[i].CaptureNote(Measure.CaptureState != MeasureCaptureState.Captured ? NoteCaptureFX.DestructCapture : NoteCaptureFX.DotLightEffect);
             lastCapturedNotes.Add(i);
         }
 

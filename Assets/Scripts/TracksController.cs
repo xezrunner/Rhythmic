@@ -119,7 +119,7 @@ public class TracksController : MonoBehaviour
         }
 
         // Instantiate a shared Note Material | (TODO: move somewhere else? Into AmpNote as static?)
-        SharedNoteMaterial = Instantiate((Material)Resources.Load("Materials/NoteMaterial"));
+        SharedNoteMaterial = Instantiate((Material)Resources.Load("Materials/note-test/note_material"));
 
         clipManager.AddMaterial(SharedNoteMaterial);
 
@@ -457,6 +457,7 @@ public class TracksController : MonoBehaviour
         // Immediately consider all measures as captured (isCaptured returns true even when capturing)
         for (int i = start; i < end; i++)
         {
+            if (i >= SongController.songLengthInMeasures) continue;
             if (i >= track.Measures.Count) // META!
             {
                 TrackStreamer.metaMeasures[track.ID, i].IsCaptured = true;
@@ -478,6 +479,7 @@ public class TracksController : MonoBehaviour
         // Init capture process - wait for captures to finish before proceeding to next one
         for (int i = start; i < end; i++)
         {
+            if (i >= SongController.songLengthInMeasures) continue;
             if (i < track.Measures.Count && track.Measures[i])
                 yield return track.CaptureMeasure(track.Measures[i]);
             // META is now set above!

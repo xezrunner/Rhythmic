@@ -66,7 +66,7 @@ public class DebugStats : DebugComponent
 
         // Locomotion stats:
         {
-            AddLine($"Locomotion dist: {AmpPlayerLocomotion.DistanceTravelled}");
+            AddLine($"Locomotion dist: {AmpPlayerLocomotion.DistanceTravelled.ToString("0.000")}" + $"/{(SongController.measureLengthInzPos * SongController.songLengthInMeasures).ToString("0.000")}".AddColor(.65f));
             AddLine($"Locomotion pos: {AmpPlayerLocomotion.transform.position}");
             AddLine($"Locomotion rot: [non-interp: {AmpPlayerLocomotion.NonInterpolatable.rotation.eulerAngles}]  " +
                                     //$"[interp: {AmpPlayerLocomotion.Interpolatable.rotation.eulerAngles}]");
