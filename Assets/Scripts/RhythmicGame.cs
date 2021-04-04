@@ -24,7 +24,13 @@ public static class RhythmicGame
         QualitySettings.vSyncCount = vsync;
         Application.targetFrameRate = fps;
     }
-    public static void Restart() { SetTimescale(1f); /*Player.Instance.IsPlaying = false; SongController.Instance.IsPlaying = false;*/ SceneManager.LoadScene("Loading", LoadSceneMode.Single); }
+    public static void Restart()
+    {
+        SetTimescale(1f);
+        SceneManager.CreateScene("temp");
+        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
+        SceneManager.LoadScene("Loading", LoadSceneMode.Single);
+    }
     public static void SetTimescale(float speed)
     {
         Time.timeScale = speed;

@@ -268,10 +268,16 @@ public class TracksController : MonoBehaviour
             AmpTrack track = MainTracks[t];
             if (c_track && t == c_track.ID) continue; // Ignore current track
 
-            if (track.Sequences.Count == 0 /*|| track.Sequences[0].Notes.Count == 0*/) // META
+            if (track.Sequences.Count == 0 || track.Sequences[0].Notes.Count == 0) // No sequences or no notes in them - META
             {
                 // It's probably far away and we don't have it streamed in yet.
                 // Mark as target note in the meta notes.
+
+                // TODO: better checks here!
+                if ((track.Sequence_Start_IDs[0] == -1) ||
+                    (SongController.songNotes[t, track.Sequence_Start_IDs[0]] == null) ||
+                    (SongController.songNotes[t, track.Sequence_Start_IDs[0]].Length == 0)) continue;
+
                 SongController.songNotes[t, track.Sequence_Start_IDs[0]][0].IsTargetNote = true;
             }
             else
@@ -344,8 +350,9 @@ public class TracksController : MonoBehaviour
                 {
                     MetaMeasure meta_measure = TrackStreamer.metaMeasures[t, i];
                     MetaNote[] meta_notes = SongController.songNotes[t, i];
-                    if (meta_notes.Length == 0 || meta_measure.IsCaptured)
+                    if (meta_notes == null || meta_notes.Length == 0 || meta_measure.IsCaptured)
                         continue;
+
                     for (int x = 0; x < RhythmicGame.SequenceAmount; x++)
                         track.SetSequenceStartIDs(x, i + x);
                     //Logger.LogMethod($"META: t: {t}, start_id: {i} - {i + RhythmicGame.SequenceAmount - 1}", this);
@@ -372,7 +379,8 @@ public class TracksController : MonoBehaviour
     [NonSerialized] public bool IsLoaded;
     IEnumerator RefreshSequences_Init()
     {
-        while (Tracks[Tracks.Length - 1].Measures.Count < RhythmicGame.HorizonMeasures)
+        //while (Tracks[Tracks.Length - 1].Measures.Count < RhythmicGame.HorizonMeasures)
+        while (!TrackStreamer || TrackStreamer.IsStreaming) // Wait for streaming to finish
             yield return null;
 
         IsLoaded = true;

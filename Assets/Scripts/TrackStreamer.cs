@@ -30,6 +30,8 @@ public class TrackStreamer : MonoBehaviour
     public float StreamDelay = 0.1f;
     public float DestroyDelay = 0f;
 
+    public bool IsStreaming = true;
+
     public MetaMeasure[,] metaMeasures;
     void CreateMetaMeasures()
     {
@@ -144,6 +146,7 @@ public class TrackStreamer : MonoBehaviour
     public void StreamMeasure(int id, int trackID = -1, bool immediate = false) => StartCoroutine(_StreamMeasure(id, trackID, immediate));
     IEnumerator _StreamMeasure(int id, int trackID = -1, bool immediate = false)
     {
+        IsStreaming = true;
         if (trackID != -1) // stream measure!
         {
             if (id > SongController.songLengthInMeasures) yield break;
@@ -191,6 +194,7 @@ public class TrackStreamer : MonoBehaviour
                 if (!immediate && !RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks)) yield return new WaitForSeconds(StreamDelay);
             }
         }
+        IsStreaming = false;
     }
 
     /// <summary>
