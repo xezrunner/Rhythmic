@@ -50,8 +50,9 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
         int bar_to_check = Clock.Fbar + 1;
         string debug_s = "";
 
-        // Get how many MainTracks are captured
+        // Edge-cases:
         {
+            // Check how many tracks are captured:
             int captured_count = 0;
             for (int i = 0; i < tracks_count; i++)
             {
@@ -60,25 +61,24 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
                 if (m.IsCaptured || m.IsEmpty /*|| !m.IsEnabled*/) ++captured_count;
             }
 
-            Debug.Log($"captured_count: {captured_count}");
-
             if (captured_count == tracks_count) return target_id; // If all tracks are captured, return the target_id.
-            else if (captured_count == tracks_count - 1) // If we have only one track remaining, find the one with the closest start sequence
+            else if (captured_count == tracks_count - 1) // If we have only one track remaining, find the one with the closest start sequence:
             {
-                int target = -1;
-                int t_id = 0;
+                int target = -1, t_id = 0;
                 for (int i = target_id; ; i += i_dir)
                 {
                     if (i <= -1 || i >= tracks_count) break;
 
                     AmpTrack t = TracksController.Tracks[i]; if (!t) continue;
                     if (t.Sequences.Count == 0) continue;
-                    AmpTrackSection m = t.Sequences[0];
+                    AmpTrackSection m = t.Sequences[0]; if (!m) continue;
+
+                    // Check the distance:
                     if (target == -1 || m.ID < target) { target = m.ID; t_id = i; }
                 }
                 if (target != -1)
                 {
-                    Logger.Log($"Seeking: Returning {t_id}.");
+                    if (RhythmicGame.DebugPlayerTrackSeekEvents) Logger.Log($"Seeking: from one track - track with closest seq: {t_id}");
                     return t_id;
                 }
             }
@@ -93,18 +93,18 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
             AmpTrack t = TracksController.Tracks[t_id]; if (!t) continue;
             {
                 if (t.Sequences.Count == 0) continue; // No sequences in given track - ignore!
-                if (t.Measures.Count < bar_to_check) continue; // There are less measures than the current clock bar - ignore!
+                if (t.Measures.Count < bar_to_check) continue; // There are less measures than the bar we are trying to check on - ignore!
 
                 AmpTrackSection m = t.Measures[bar_to_check]; if (!m) continue;
                 if (!m.IsEmpty && !m.IsCaptured && m.IsEnabled)
                 {
-                    Logger.LogMethod(debug_s + $":: (skipped {i}) | landed at {t_id} (SUCCESS)".AddColor(Colors.Network));
+                    if (RhythmicGame.DebugPlayerTrackSeekEvents) Logger.LogMethod(debug_s + $":: (skipped {i}) | landed at {t_id} (SUCCESS)".AddColor(Colors.Network));
                     return t_id;
                 }
             }
         }
 
-        Logger.Log("Seeking: " + debug_s + $":: staying at {current_id} (FAILURE)".AddColor(Colors.Error));
+        if (RhythmicGame.DebugPlayerTrackSeekEvents) Logger.Log("Seeking: " + debug_s + $":: staying at {current_id} (FAILURE)".AddColor(Colors.Error));
         return current_id;
     }
 
