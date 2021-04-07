@@ -1,7 +1,5 @@
-﻿//#define ALWAYS_UPDATE
-#undef ALWAYS_UPDATE
-
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,9 +12,10 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
 
     [Header("Common")]
     public AmpPlayer Player;
-    public Tunnel Tunnel { get { return Tunnel.Instance; } }
-    public SongController SongController { get { return SongController.Instance; } }
-    public TracksController TracksController { get { return TracksController.Instance; } }
+    Clock Clock { get { return Clock.Instance; } }
+    Tunnel Tunnel { get { return Tunnel.Instance; } }
+    SongController SongController { get { return SongController.Instance; } }
+    TracksController TracksController { get { return TracksController.Instance; } }
     public AmpPlayerLocomotion Locomotion;
 
     [Header("Properties")]
@@ -33,12 +32,39 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
 
     void Awake() => Instance = this;
     void Start() => StartCoroutine(WaitForStart());  // Automatically switch to a start track ID, once we are loaded
+    // TODO: proper loading waiting!
     IEnumerator WaitForStart()
     {
         if (!SongController.IsEnabled) yield break;
 
-        while (!TracksController.IsLoaded) yield return null;
+        while (!TracksController || !TracksController.IsLoaded) yield return null;
         SwitchToTrack(StartTrackID, true);
+    }
+
+    public int Seek_FindTrackID(int current_id, int target_id, HDirection direction)
+    {
+        int tracks_count = TracksController.Tracks_Count;
+        int i_dir = (direction == HDirection.Left) ? -1 : 1;
+
+        for (int i = target_id; ; i += i_dir)
+        {
+            if (i <= -1 || i >= tracks_count) break;
+
+            if (RhythmicGame.DebugPlayerTrackSeekEvents) Logger.LogMethod($"i: {i} - from: {current_id}");
+
+            // ----- Seeking checks: ----- //
+            AmpTrack t = TracksController.Tracks[i]; if (!t) continue;
+            {
+                if (t.Sequences.Count == 0) continue; // No sequences in given track - ignore!
+                if (t.Measures.Count < Clock.Fbar + 1) continue; // There are less measures than the current clock bar - ignore!
+
+                AmpTrackSection m = t.Measures[Clock.Fbar + 1]; if (!m) continue;
+                if (!m.IsEmpty && !m.IsCaptured && m.IsEnabled) return i;
+            }
+        }
+
+        // If we fail, just go to the target location.
+        return target_id;
     }
 
     /// <summary>
@@ -54,19 +80,38 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
         if (RhythmicGame.DebugPlayerTrackSwitchEvents)
             Debug.LogFormat("Track switching: Switching towards direction: {0} | Force mode: {1}", direction.ToString(), force.ToString());
 
-        int id = TracksController.CurrentRealTrackID;
+        int current_id = TracksController.CurrentRealTrackID;
+        int target_id = TracksController.CurrentRealTrackID;
 
-        if (force > 0) // Forceful
+        // Move target_id towards / to target:
+        if (!RhythmicGame.IsTunnelMode)
+            target_id = Mathf.Clamp(target_id + (direction == HDirection.Left ? -1 : 1), 0, TracksController.Tracks_Count - 1);
+        else // Tunnel mode - rollover!
+        {
+            target_id += (direction == HDirection.Left) ? -1 : 1;
+            if (target_id == TracksController.Tracks_Count) target_id = 0;
+            else if (target_id == -1) target_id = TracksController.Tracks_Count - 1;
+        }
+
+        if (RhythmicGame.TrackSeekingEnabled)
+            target_id = Seek_FindTrackID(current_id, target_id, direction);
+
+#if false
+        if (force > 0) // Forceful switch
         {
             // Handle edges, roll over in Tunnel mode or when wrapping!
             if (!RhythmicGame.IsTunnelMode) // Regular mode
-                id = Mathf.Clamp(id + (direction == HDirection.Left ? -1 : 1), 0, TracksController.Tracks.Length - 1);
+                target_id = Mathf.Clamp(target_id + (direction == HDirection.Left ? -1 : 1), 0, TracksController.Tracks_Count - 1);
             else // Tunnel mode
             {
-                id += (direction == HDirection.Left) ? -1 : 1;
-                if (id == TracksController.Tracks.Length) id = 0;
-                else if (id == -1) id = TracksController.Tracks.Length - 1;
+                target_id += (direction == HDirection.Left) ? -1 : 1;
+                if (target_id == TracksController.Tracks_Count) target_id = 0;
+                else if (target_id == -1) target_id = TracksController.Tracks_Count - 1;
             }
+        }
+        else if (RhythmicGame.TrackSeekingEnabled) // Track seeking
+        {
+            // tba ...
         }
         else
         {
@@ -74,13 +119,10 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
             SwitchTowardsDirection(direction, true);
             return;
         }
-        //else if (RhythmicGame.TrackSeekingEnabled) // Track seeking
-        //{
-        //    // to be added
-        //}
+#endif
 
         // Switch to the destination track!
-        SwitchToTrack(id);
+        SwitchToTrack(target_id);
     }
     public void SwitchTowardsDirection(HDirection direction, bool force) => SwitchTowardsDirection(direction, force ? TrackSwitchForce.IgnoreSeeking : TrackSwitchForce.None);
 
@@ -160,12 +202,6 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
 
     private void Update() // TODO: LateUpdate?
     {
-        // TEMP (?)
-#if ALWAYS_UPDATE
-        if (!SongController.IsPlaying || !Locomotion.IsPlaying) // TEMP?: update while not playing for testing purposes
-            Locomotion.Locomotion(Locomotion.DistanceTravelled);
-#endif
-
         if (!SongController.IsPlaying && !Locomotion.IsPlaying) return;
 
         Locomotion.PositionOffset = Vector3.SmoothDamp(Locomotion.PositionOffset, targetPos, ref pos_vel, 1f, 100f, PositionEasingStrength * Time.deltaTime);

@@ -37,9 +37,10 @@ public class TracksController : MonoBehaviour
     public float GlobalEmission = 1.5f; // Global material
 
     [Header("Variables")]
-    public AmpTrack[] Tracks;
     public AmpTrack[] MainTracks;
-    int MainTracks_Count = 0;
+    public AmpTrack[] Tracks;
+    public int MainTracks_Count = 0;
+    public int Tracks_Count = 0;
 
     public AmpTrack[][] TrackSets;
     public AmpTrack[] CurrentTrackSet;
@@ -79,6 +80,7 @@ public class TracksController : MonoBehaviour
 
         // Create tracks!
         CreateTracks();
+        Tracks_Count = Tracks.Length;
         MainTracks_Count = MainTracks.Length;
 
         StartCoroutine(RefreshSequences_Init());

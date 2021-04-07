@@ -1,17 +1,10 @@
 ﻿using NAudio.Midi;
-using PathCreation;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
 
 public class AmplitudeSongController : SongController
 {
@@ -84,7 +77,7 @@ public class AmplitudeSongController : SongController
 
     // This loads in the audio clips for the songs.
     // This is temporary, while we do not have MOGG loading.
-    // TODO: FMOD implementation
+    // TODO: FMOD implementation?
     IEnumerator LoadSongClips()
     {
         int counter = 0;

@@ -97,7 +97,7 @@ public class TrackStreamer : MonoBehaviour
     IEnumerator _DestroyBehind(bool immediate = false)
     {
         if (destroyCounter < 0) yield break;
-        for (int t = 0; t < TracksController.Tracks.Length; t++)
+        for (int t = 0; t < TracksController.Tracks_Count; t++)
         {
             var track = TracksController.Tracks[t];
             for (int i = 0; i < Clock.Fbar - 1; i++)
@@ -189,7 +189,7 @@ public class TrackStreamer : MonoBehaviour
         }
         else // Stream in the measure from all of the tracks!
         {
-            for (int i = 0; i < TracksController.Tracks.Length; i++)
+            for (int i = 0; i < TracksController.Tracks_Count; i++)
             {
                 StartCoroutine(_StreamMeasure(id, i));
                 if (!immediate && !RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks)) yield return new WaitForSeconds(StreamDelay);
