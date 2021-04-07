@@ -43,33 +43,72 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
 
     public int Seek_FindTrackID(int current_id, int target_id, HDirection direction)
     {
+        if (Clock.Fbar < SongController.songCountIn) return target_id; // COUNTIN: do not do seeking at countin!
+
         int tracks_count = TracksController.Tracks_Count;
         int i_dir = (direction == HDirection.Left) ? -1 : 1;
+        int bar_to_check = Clock.Fbar + 1;
+        string debug_s = "";
 
-        for (int i = target_id; ; i += i_dir)
+        // Get how many MainTracks are captured
         {
-            if (i <= -1 || i >= tracks_count) break;
-
-            if (RhythmicGame.DebugPlayerTrackSeekEvents) Logger.LogMethod($"i: {i} - from: {current_id}");
-
-            // ----- Seeking checks: ----- //
-            AmpTrack t = TracksController.Tracks[i]; if (!t) continue;
+            int captured_count = 0;
+            for (int i = 0; i < tracks_count; i++)
             {
-                if (t.Sequences.Count == 0) continue; // No sequences in given track - ignore!
-                if (t.Measures.Count < Clock.Fbar + 1) continue; // There are less measures than the current clock bar - ignore!
+                AmpTrack t = TracksController.Tracks[i]; if (!t) continue;
+                AmpTrackSection m = t.Measures[bar_to_check];
+                if (m.IsCaptured || m.IsEmpty /*|| !m.IsEnabled*/) ++captured_count;
+            }
 
-                AmpTrackSection m = t.Measures[Clock.Fbar + 1]; if (!m) continue;
-                if (!m.IsEmpty && !m.IsCaptured && m.IsEnabled) return i;
+            Debug.Log($"captured_count: {captured_count}");
+
+            if (captured_count == tracks_count) return target_id; // If all tracks are captured, return the target_id.
+            else if (captured_count == tracks_count - 1) // If we have only one track remaining, find the one with the closest start sequence
+            {
+                int target = -1;
+                int t_id = 0;
+                for (int i = target_id; ; i += i_dir)
+                {
+                    if (i <= -1 || i >= tracks_count) break;
+
+                    AmpTrack t = TracksController.Tracks[i]; if (!t) continue;
+                    if (t.Sequences.Count == 0) continue;
+                    AmpTrackSection m = t.Sequences[0];
+                    if (target == -1 || m.ID < target) { target = m.ID; t_id = i; }
+                }
+                if (target != -1)
+                {
+                    Logger.Log($"Seeking: Returning {t_id}.");
+                    return t_id;
+                }
             }
         }
 
-        // If we fail, just go to the target location.
-        return target_id;
+        if (RhythmicGame.DebugPlayerTrackSeekEvents) debug_s += $"Starting at: {target_id}" + $" from: {current_id} ".AddColor(Colors.Unimportant);
+        for (int t_id = target_id, i = 0; ; t_id += i_dir, i += i_dir)
+        {
+            if (t_id <= -1 || t_id >= tracks_count) break;
+
+            // ----- Seeking checks: ----- //
+            AmpTrack t = TracksController.Tracks[t_id]; if (!t) continue;
+            {
+                if (t.Sequences.Count == 0) continue; // No sequences in given track - ignore!
+                if (t.Measures.Count < bar_to_check) continue; // There are less measures than the current clock bar - ignore!
+
+                AmpTrackSection m = t.Measures[bar_to_check]; if (!m) continue;
+                if (!m.IsEmpty && !m.IsCaptured && m.IsEnabled)
+                {
+                    Logger.LogMethod(debug_s + $":: (skipped {i}) | landed at {t_id} (SUCCESS)".AddColor(Colors.Network));
+                    return t_id;
+                }
+            }
+        }
+
+        Logger.Log("Seeking: " + debug_s + $":: staying at {current_id} (FAILURE)".AddColor(Colors.Error));
+        return current_id;
     }
 
-    /// <summary>
-    /// Calls SwitchToTrack() towards the direction specified.
-    /// </summary>
+    /// <summary>Calls SwitchToTrack() towards the direction specified.</summary>
     /// <param name="direction">The direction of the switching</param>
     /// <param name="force">Whether to force the track switching. Force will switch to miscellaneous and disabled tracks as well.</param>
     public void SwitchTowardsDirection(HDirection direction, TrackSwitchForce force = TrackSwitchForce.None)
