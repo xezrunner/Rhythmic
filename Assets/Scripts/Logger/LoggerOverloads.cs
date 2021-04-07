@@ -36,14 +36,14 @@ public partial class Logger
     /// <param name="objToType">Pass in 'this' to print out origin class name before the text.</param>
     // TODO: Warning: When we want to specify LogTarget, it will see it as an object and call the method with objToType param instead!
     // That is very erroneous and wrong!!!
-    public static string LogMethod(string text = "", CLogType logType, object objToType = null, [CallerMemberName] string methodName = null, LogTarget logTarget = LogTarget.All) => Log(text, objToType, true, logType, logTarget, methodName);
-    public static string LogMethod(string text = "", CLogType logType, object objToType = null, [CallerMemberName] string methodName = "") => Log(text, objToType, true, logType, CurrentLogTarget, methodName);
+    public static string LogMethod(string text, CLogType logType, LogTarget logTarget, object objToType = null, [CallerMemberName] string methodName = null) => Log(text, objToType, true, logType, logTarget, methodName);
+    public static string LogMethod(string text, CLogType logType, object objToType = null, [CallerMemberName] string methodName = "") => Log(text, objToType, true, logType, CurrentLogTarget, methodName);
     public static string LogMethod(string text = "", object objToType = null, [CallerMemberName] string methodName = "") => Log(text, objToType, true, CLogType.Info, CurrentLogTarget, methodName);
     // TODO: is logTarget even a neccessary param in these? You could just call Log() with the method params that has LogTarget anyway...
     // Warning:
-    public static string LogMethodW(string text = "", object objToType = null, [CallerMemberName] string methodName = null, LogTarget logTarget = LogTarget.All) => LogMethod(text, CLogType.Warning, objToType, methodName, logTarget);
+    public static string LogMethodW(string text = "", object objToType = null, [CallerMemberName] string methodName = null, LogTarget logTarget = LogTarget.All) => LogMethod(text, CLogType.Warning, logTarget, objToType, methodName);
     //public static string LogMethodW(string text = "", object objToType = null, [CallerMemberName] string methodName = null) => LogMethod(text, CLogType.Warning, CurrentLogTarget, objToType, methodName);
     // Error:
-    public static string LogMethodE(string text = "", object objToType = null, [CallerMemberName] string methodName = null, LogTarget logTarget = LogTarget.All) => LogMethod(text, CLogType.Error, objToType, methodName, logTarget);
+    public static string LogMethodE(string text = "", object objToType = null, [CallerMemberName] string methodName = null, LogTarget logTarget = LogTarget.All) => LogMethod(text, CLogType.Error, logTarget, objToType, methodName);
     //public static string LogMethodE(string text = "", object objToType = null, [CallerMemberName] string methodName = null) => LogMethod(text, CLogType.Error, CurrentLogTarget, objToType, methodName);
 }

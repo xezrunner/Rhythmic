@@ -131,7 +131,7 @@ public class DebugUI : DebugComponent
     {
         // TODO!!!: Flags bit hacks don't seem to work here when in editor & not playing!
         if (Instance) Instance._AddToDebugLine(text, color);
-        else Logger.LogMethod($"DebugUI has no global instance!    -    {text}", CLogType.Warning, logTarget: LogTarget.UnityAndConsole, "DebugUI");
+        else Logger.LogMethodW($"DebugUI has no global instance!    -    {text}", null, "DebugUI", LogTarget.UnityAndConsole);
     }
     public static void AddToDebugLine(string text, CLogType logType) => AddToDebugLine(text, Colors.GetColorForCLogType(logType));
     void _AddToDebugLine(string text, Color? color = null)
