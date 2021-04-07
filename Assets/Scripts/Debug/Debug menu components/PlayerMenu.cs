@@ -9,7 +9,8 @@
             base.Init();
             Instance = this;
 
-            AddEntry("Enable player input", new Ref(() => AmpPlayerInputHandler.IsActive, (v) => AmpPlayerInputHandler.IsActive = (bool)v));
+            AddEntry("Enable player input (global)", new Ref(() => AmpPlayerInputHandler.IsActive, (v) => AmpPlayerInputHandler.IsActive = (bool)v));
+            AddEntry("Enable track seeking", new Ref(() => RhythmicGame.TrackSeekingEnabled, (v) => RhythmicGame.TrackSeekingEnabled = (bool)v));
         }
 
         // Functionality:

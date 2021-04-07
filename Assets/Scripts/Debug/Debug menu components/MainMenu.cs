@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace DebugMenus
+﻿namespace DebugMenus
 {
     [DebugMenuComponent(false, updateMs: 250)]
     public class MainMenu : DebugMenuComponent
@@ -15,17 +13,22 @@ namespace DebugMenus
             Instance = this;
 
             AddEntry("Player Menu...", typeof(PlayerMenu));
+            AddEntry("Debug events...", typeof(DebugEventsMenu));
             //AddEntry("Give Max Health");
             //AddEntry("Give random powerup");
             AddEntry("Keep Player Between Loads", () => false);
             AddEntry("Tunnel mode", new Ref(() => RhythmicGame.IsTunnelMode, (v) => RhythmicGame.IsTunnelMode = (bool)v));
-            AddEntry("Enable seeker frames", new Ref(() => AmpTrackSection.SeekerEnabled, (v) => AmpTrackSection.SeekerEnabled = (bool)v));
-            AddEntry("Enable note target info", new Ref(() => AmpNote.DEBUG_ShowTargetNoteIndicators, (v) => AmpNote.DEBUG_ShowTargetNoteIndicators = (bool)v));
-            AddEntry("Show slop debug events", new Ref(() => RhythmicGame.DebugCatcherSlopEvents, (v) => RhythmicGame.DebugCatcherSlopEvents = (bool)v));
+            AddEntry("Enable seeker frames", new Ref(() => AmpTrackSection.SeekerEnabled, (v) => AmpTrackSection.SeekerEnabled = (bool)v), "T_EXTRA: Move to own subsection!");
+            AddEntry("Enable note target info", new Ref(() => AmpNote.DEBUG_ShowTargetNoteIndicators, (v) => AmpNote.DEBUG_ShowTargetNoteIndicators = (bool)v), "T_EXTRA: Move to own subsection!");
             AddEntry("Songs...", typeof(SongsMenu));
             AddEntry("Worlds...", typeof(WorldsMenu));
             AddEntry("Short Short Stats", () => ToggleStats(StatsMode.ShortShort), () => Stats.StatsMode == StatsMode.ShortShort);
             AddEntry("Short Stats", () => ToggleStats(StatsMode.Short), () => Stats.StatsMode == StatsMode.Short);
+            AddEntry("Long Stats", () => ToggleStats(StatsMode.Long), () => Stats.StatsMode == StatsMode.Long);
+
+            AddEntry("Sound Menu...", false);
+            AddEntry("Visuals Menu...", false);
+
             AddEntry("Quit game", QuitGame);
         }
 
@@ -42,7 +45,7 @@ namespace DebugMenus
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #else
-            Application.Quit();
+            UnityEngine.Application.Quit();
 #endif
         }
     }
