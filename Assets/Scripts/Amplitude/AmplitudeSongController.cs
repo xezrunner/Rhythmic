@@ -177,7 +177,11 @@ public class AmplitudeSongController : SongController
             // PASS: distribute notes to their own measure arrays:
             int note_list_count = note_list.Count;
             for (int i = 0; i < songLengthInMeasures; i++)
-                songNotes[t, i] = note_list.Where(n => n.MeasureID == i).ToArray();
+            {
+                var measure_notes = note_list.Where(n => n.MeasureID == i).ToArray();
+                songNotes[t, i] = measure_notes;
+                TrackStreamer.Instance.metaMeasures[t, i].IsEmpty = measure_notes.Length == 0;
+            }
         }
     }
 }

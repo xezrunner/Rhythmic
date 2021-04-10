@@ -101,11 +101,6 @@ public partial class AmpTrack : MonoBehaviour
         if (RhythmicGame.GlobalEdgeLightsCaptureClipping)
             ClipManager.AddMaterial(Track_Bottom_Global_Mat);
 
-        // Clone tracks - set Sequences List references
-        //if (IsCloneTrack)
-        //    foreach (AmpTrack t in TrackTwins)
-        //        t.Sequences = TracksController.Tracks[ID].Sequences;
-
         StartCoroutine(WarmupDestructFX());
 
         for (int i = 0; i < RhythmicGame.SequenceAmount; i++)

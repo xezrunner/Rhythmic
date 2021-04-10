@@ -1,12 +1,19 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 // Generating measures and notes in an AmpTrack
+
+public enum Track_Cap_Type { Bottom_Wrap, Top_Bevel }
 
 public partial class AmpTrack
 {
     [Header("Prefabs")]
     public GameObject TrackSectionPrefab;
     public GameObject NotePrefab;
+
+    public GameObject[] Object_BottomWrap;
+    public GameObject[] Object_TopBevel;
+    public List<TrackModelCap> Wraps_Pool = new List<TrackModelCap>();
 
     public static AmpTrack CreateTrack(int ID, string name, InstrumentType instrument, int realID, bool isCloneTrack, int trackSetID)
     {
@@ -26,6 +33,7 @@ public partial class AmpTrack
 
         return com;
     }
+
     public AmpTrackSection CreateMeasure(MetaMeasure meta)
     {
         /// Create object
@@ -59,6 +67,20 @@ public partial class AmpTrack
         Measures.Add(measure);
         return measure;
     }
+    public TrackModelCap Cap_Instantiate(AmpTrackSection parent, Track_Cap_Type cap_type, bool rot_180 = false)
+    {
+        int i = (!rot_180) ? 0 : 1;
+        GameObject go = Instantiate(cap_type == Track_Cap_Type.Bottom_Wrap ? Object_BottomWrap[i] : Object_TopBevel[i]);
+        go.transform.parent = parent.transform;
+        TrackModelCap com = go.AddComponent<TrackModelCap>();
+        com.MeshFilter = go.GetComponent<MeshFilter>();
+        com.MeshRenderer = go.GetComponent<MeshRenderer>();
+
+        com.MeshRenderer.material = Track_Bottom_Mat;
+
+        return com;
+    }
+
     public AmpNote CreateNote(MetaNote meta, AmpTrackSection measure = null, int id = 0, bool lastNote = false)
     {
         /// Create object
@@ -98,6 +120,7 @@ public struct MetaMeasure
 {
     public int ID;
     public bool IsCaptured;
+    public bool IsEmpty;
     public bool IsBossMeasure; // shouldn't capture this measure when capturing a track from another measure
     public float StartDistance;
 }

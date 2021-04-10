@@ -65,11 +65,11 @@ Material:
     - _UpVectorYaw: 0
     m_Colors:
     - _Color: {r: 0.24688502, g: 0.3927771, b: 0.7169812, a: 1}
-    - _Color1: {r: 0.10969206, g: 0.24626942, b: 0.2735849, a: 0}
-    - _Color2: {r: 0.005606976, g: 0.046403263, b: 0.13207549, a: 1}
+    - _Color1: {r: 1, g: 0.9398438, b: 0, a: 0}
+    - _Color2: {r: 0.3490566, g: 0.045378458, b: 0, a: 1}
     - _GroundColor: {r: 0.369, g: 0.349, b: 0.341, a: 1}
     - _Rotation: {r: 1, g: 0.09, b: 0, a: 0}
     - _SkyTint: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _Tint: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
-    - _UpVector: {r: 0.27, g: -0.13, b: 0, a: 0}
+    - _UpVector: {r: 0.27, g: -0.13, b: -0.15, a: 0}
   m_BuildTextureStacks: []

@@ -163,6 +163,7 @@ MonoBehaviour:
   TunnelRot: {x: 0, y: 0, z: 0}
   zRot: 0
   Measures: []
+  Sequence_Start_IDs: 0000000000000000
   Sequences: []
   IsTrackBeingPlayed: 0
   HideEmptyMeasures: 1
@@ -170,6 +171,13 @@ MonoBehaviour:
     type: 3}
   NotePrefab: {fileID: 2734642669021029953, guid: 3f970f0ab4d3ea14eb4c43f4d9e6cc81,
     type: 3}
+  Object_BottomWrap:
+  - {fileID: 919132149155446097, guid: 4403b3044f4920f4ab69186f3c1a0616, type: 3}
+  - {fileID: 919132149155446097, guid: 5367cef2db54fe848a2649763e7b930f, type: 3}
+  Object_TopBevel:
+  - {fileID: 919132149155446097, guid: 3a134b8bb41dbb34db057aa5656e3c37, type: 3}
+  - {fileID: 919132149155446097, guid: 7c9cdcf94719be7478c19fbb1d972203, type: 3}
+  Wraps_Pool: []
 --- !u!114 &6333198545005376503
 MonoBehaviour:
   m_ObjectHideFlags: 0
