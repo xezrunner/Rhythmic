@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -102,6 +103,7 @@ public class AmplitudeSongController : SongController
             AudioClip clip_result = null;
             using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(path, AudioType.OGGVORBIS))
             {
+                ((DownloadHandlerAudioClip)www.downloadHandler).streamAudio = true;
                 yield return www.SendWebRequest();
 
                 if (www.result == UnityWebRequest.Result.ConnectionError)
@@ -109,7 +111,6 @@ public class AmplitudeSongController : SongController
                     Logger.LogMethodW("Failed to load audioclip: " + path);
                     audioSrcList.Add(gameObject.AddComponent<AudioSource>());
                     counter++;
-                    continue;
                 }
                 else
                     clip_result = DownloadHandlerAudioClip.GetContent(www);
