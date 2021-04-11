@@ -16,7 +16,7 @@ public class DebugControllerEditor : Editor
         // State
         state = main.State;
         state = (DebugComponentFlag)EditorGUILayout.EnumFlagsField("State: ", state);
-        if (main.State != state) main.State = state;
+        if (Application.isPlaying && main.State != state) main.State = state;
 
         DrawDebugTests();
     }
