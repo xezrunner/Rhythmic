@@ -26,7 +26,7 @@
             AddEntry("Short Stats", () => ToggleStats(StatsMode.Short), () => Stats.StatsMode == StatsMode.Short);
             AddEntry("Long Stats", () => ToggleStats(StatsMode.Long), () => Stats.StatsMode == StatsMode.Long);
 
-            AddEntry("Sound Menu...", false);
+            AddEntry("Audio Menu...", typeof(AudioMenu));
             AddEntry("Visuals Menu...", false);
 
             AddEntry("Quit game", QuitGame);
