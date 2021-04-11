@@ -222,7 +222,6 @@ MonoBehaviour:
   IsDebugUIOn: 1
   IsDebugPrintOn: 1
   _isDebugLineOn: 1
-  MaxDebugLineCount: 4
   MainText: 
 --- !u!1 &1567093100595264259
 GameObject:
@@ -912,15 +911,14 @@ MonoBehaviour:
   m_text: 'Framerate: '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9f79a4d9ac27a57459e7a978f43577fd, type: 2}
-  m_sharedMaterial: {fileID: 679547314381960593, guid: 9f79a4d9ac27a57459e7a978f43577fd,
-    type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: e7b7a4626f538e3478d8fb39d3855c32, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 1694498815
-  m_fontColor: {r: 1, g: 1, b: 1, a: 0.39215687}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

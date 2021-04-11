@@ -133,6 +133,7 @@ public static class DebugFunctionality
     {
         if (!prevSmooth.HasValue) prevSmooth = AmpPlayerLocomotion.Instance.SmoothEnabled;
         AmpPlayerLocomotion.Instance.SmoothEnabled = false; // Disable smoothing in Locomotion
+        if (SongController.IsPlaying) SongController.TogglePause();
 
         if (!Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad8Key.wasPressedThisFrame) // DOESN'T WORK FOR SOME REASON
         {

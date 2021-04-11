@@ -69,6 +69,7 @@ public static class RhythmicGame
     public static bool IsLoading = true;
     public static Vector2 Resolution { get { return new Vector2(Screen.currentResolution.width, Screen.currentResolution.height); } }
     public static Vector2 PreferredResolution = new Vector2(1920, 1080);
+    public static int LowestFramerate = 60; // 30
 
     // Debug system
     public static DebugComponentFlag DebugControllerFlags = DebugComponentFlag.Uninitialized;
