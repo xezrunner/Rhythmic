@@ -68,8 +68,8 @@ public class AmplitudeSongController : SongController
         // Create note list!
         CreateMetaNotes();
 
-        // TODO: We want to scale time based on song BPM & fudge factor, possibly?
-        //Time.timeScale = 1f;
+        // TODO: We want to scale time based on song BPM & fudge factor | custom song_delta_time?
+        Time.timeScale = 1f / songFudgeFactor;
 
         // Load song!
         // Assign clips to AudioSources
@@ -103,7 +103,7 @@ public class AmplitudeSongController : SongController
             AudioClip clip_result = null;
             using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(path, AudioType.OGGVORBIS))
             {
-                ((DownloadHandlerAudioClip)www.downloadHandler).streamAudio = true;
+                if (RhythmicGame.AllowSongStreaming) ((DownloadHandlerAudioClip)www.downloadHandler).streamAudio = true;
                 yield return www.SendWebRequest();
 
                 if (www.result == UnityWebRequest.Result.ConnectionError)

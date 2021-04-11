@@ -87,6 +87,7 @@ public static class RhythmicGame
     public static float HorizonMeasuresOffset = 15f; // How many units to offset (backwards) from the horizon when clipping
 
     // --- Track streaming --- //
+    public static bool AllowSongStreaming = true;
     public static bool StreamAllMeasuresOnStart = false;
     public static bool FastStreaming = false;
     static FastStreamingLevel _fastStreamingLevel = FastStreamingLevel.MeasuresAndNotes;
