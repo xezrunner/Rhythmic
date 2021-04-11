@@ -19,10 +19,11 @@ public static class AmplitudeGame
         {
 #if UNITY_STANDALONE
             string dataPath;
-            if (Directory.Exists(@$"{Application.dataPath}\amp_songs"))
-                dataPath = Application.dataPath + @"/amp_songs";
-            else
-                dataPath = @"H:/Unity projects/Rhythmic/Assets/amp_songs";
+            dataPath = @"H:/HMXAMPLITUDE/Extractions/amplitude_ps4_extraction/ps4/songs";
+            //if (Directory.Exists(@$"{Application.dataPath}\amp_songs"))
+            //    dataPath = Application.dataPath + @"/amp_songs";
+            //else
+            //    dataPath = @"H:/Unity projects/Rhythmic/Assets/amp_songs";
 #elif UNITY_ANDROID
             string dataPath = Application.persistentDataPath;
 #endif

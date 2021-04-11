@@ -142,7 +142,7 @@ public class MidiReader : MonoBehaviour
             string code = midi.Events[i][0].ToString().Trim(); // The first command on a track is meta info about the track
             code = code.Substring("0 SequenceTrackName ".Length + (code.Contains("CATCH") ? 3 : 0));
             string[] tokens = code.Split(':');
-            if (tokens[0] == "?") continue;
+            if (tokens[0] != "CATCH" && tokens[0] != "BG_CLICK") continue;
 
             // "0 SequenceTrackName T1 CATCH:D:Drums"
             string midi_Tcode = (code.Contains("CATCH") ? $"T{i} " : "") + string.Join("_", tokens);

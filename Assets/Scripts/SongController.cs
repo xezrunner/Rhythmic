@@ -83,7 +83,7 @@ public partial class SongController : MonoBehaviour
 
         // TODO: Loading the song should not be based on what property is set!
         // LoadSong() should be called by the UI or loading mechanism!
-        LoadSong(songName == null ? defaultSong : songName); // load default song in case the prop is empty, for testing purposes only!
+        LoadSong((songName == null || songName == "") ? defaultSong : songName); // load default song in case the prop is empty, for testing purposes only!
 
         // Set / calculate slop ms and pos props
         //SlopMs = RhythmicGame.SlopMs / songFudgeFactor * (1f + 0.8f); // TODO: incorrect?

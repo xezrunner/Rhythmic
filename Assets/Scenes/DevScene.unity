@@ -39,7 +39,7 @@ RenderSettings:
   m_ReflectionIntensity: 0.031
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.045995727, g: 0.055774763, b: 0.05769811, a: 0.031}
+  m_IndirectSpecularColor: {r: 0.0021659778, g: 0.009109879, b: 0.01636933, a: 0.031}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -175,7 +175,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f0fbf93bdfe97d41a7159ea35bedf1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultSong: dreamer
+  defaultSong: 
   IsEnabled: 1
   IsFake: 0
   IsPlaying: 0
@@ -190,6 +190,7 @@ MonoBehaviour:
   StartDistance: 0
   BG_CLICKSrc: {fileID: 0}
   audioSrcList: []
+  midi_songTracks: []
   songTracks: []
 --- !u!4 &22153599
 Transform:

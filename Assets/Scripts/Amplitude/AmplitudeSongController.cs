@@ -26,7 +26,7 @@ public class AmplitudeSongController : SongController
         string songPath = AmplitudeGame.AMP_GetSongFilePath(songName, AmplitudeGame.AMP_FileExtension.moggsong);
         if (!File.Exists(songPath))
         {
-            Debug.LogErrorFormat("AMP_SONGCTRL: Song {0} does not exist at path: {1}", songName, songPath);
+            Logger.LogFormatE("AMP_SONGCTRL: Song {0} does not exist at path: {1}", songName, songPath);
             IsEnabled = false; return;
         }
 
@@ -44,6 +44,7 @@ public class AmplitudeSongController : SongController
             midi_songTracks = reader.midi_songTracks;
         }
 
+
         // Load MoggSong!
         {
             moggSong = gameObject.AddComponent<MoggSong>();
@@ -56,8 +57,6 @@ public class AmplitudeSongController : SongController
             songLength = TickToSec(measureTicks * songLengthInMeasures);
             songLengthInzPos = TickToPos(measureTicks * songLengthInMeasures);
         }
-
-        // *** PROPS LOADED *** //
 
         CalculateTimeUnits();
 

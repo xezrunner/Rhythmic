@@ -199,7 +199,7 @@ public partial class AmpTrack : MonoBehaviour
             foreach (AmpTrackSection m in Measures)
                 if (m) m.IsFocused = value;
 
-            UpdateSequenceStates();
+            //UpdateSequenceStates(); // TODO: is this needed?
         }
     }
     public void SetIsTrackFocused(int realID)
