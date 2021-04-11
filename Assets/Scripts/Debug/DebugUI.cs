@@ -83,7 +83,8 @@ public class DebugUI : DebugComponent
         datetimeText.text = $"{DateTime.Now}";
         resolutionVersionText.text = ($"{RhythmicGame.Resolution.x}x{RhythmicGame.Resolution.y} @ 75Hz\n" +
                                      $"{Version.build_string}" +
-                                     (Debug.isDebugBuild ? " DEBUG".AddColor(Colors.Error) : null));
+                                     (Debug.isDebugBuild ? " DEBUG".AddColor(Colors.Error) : null) +
+                                     (System.Diagnostics.Debugger.IsAttached ? " , ATTACHED".AddColor(Colors.Error) : null));
     }
 
     /// Interface switching
