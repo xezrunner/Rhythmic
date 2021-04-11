@@ -19,6 +19,7 @@ public class MidiReader : MonoBehaviour
     public int ticks;
     public int offset;
 
+    public List<string> midi_songTracks = new List<string>();
     public List<string> songTracks = new List<string>();
 
     public string songName = "tut0";
@@ -139,10 +140,17 @@ public class MidiReader : MonoBehaviour
         for (int i = 0; i < midi.Tracks; i++)
         {
             string code = midi.Events[i][0].ToString().Trim(); // The first command on a track is meta info about the track
+            code = code.Substring("0 SequenceTrackName ".Length + (code.Contains("CATCH") ? 3 : 0));
+            string[] tokens = code.Split(':');
+            if (tokens[0] == "?") continue;
+
+            // "0 SequenceTrackName T1 CATCH:D:Drums"
+            string midi_Tcode = (code.Contains("CATCH") ? $"T{i} " : "") + string.Join("_", tokens);
+            midi_songTracks.Add(midi_Tcode);
 
             if (code.Contains("CATCH"))
             {
-                string[] tokens = code.Substring(code.IndexOf("CATCH")).Split(':'); // CATCH:T:NAME
+                tokens = code.Substring(code.IndexOf("CATCH")).Split(':'); // CATCH:T:NAME
 
                 int identicalCounter = 0;
                 foreach (string track in songTracks)

@@ -52,6 +52,7 @@ public partial class SongController : MonoBehaviour
     public AudioSource BG_CLICKSrc; // The BG_CLICK AudioSource
     public List<AudioSource> audioSrcList = new List<AudioSource>();
 
+    public List<string> midi_songTracks = new List<string>();
     public List<string> songTracks = new List<string>();
     public MetaNote[,][] songNotes;
 
