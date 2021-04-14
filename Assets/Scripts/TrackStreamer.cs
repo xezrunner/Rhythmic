@@ -41,7 +41,7 @@ public class TrackStreamer : MonoBehaviour
         {
             for (int i = 0; i < m_count; i++)
             {
-                MetaMeasure m = new MetaMeasure() { ID = i, StartDistance = SongController.MeasureToPos(i) };
+                MetaMeasure m = new MetaMeasure() { ID = i, StartDistance = SongController.MeasureToPos(i), IsEmpty = (SongController.songNotes[t, i].Length == 0) };
                 metaMeasures[t, i] = m;
             }
         }
@@ -66,7 +66,8 @@ public class TrackStreamer : MonoBehaviour
         measure_recycle_count = new int[TracksController.Tracks_Count]; for (int i = 0; i < TracksController.Tracks_Count; ++i) measure_recycle_count[i] = -1;
         measure_recycle_counter = new int[TracksController.Tracks_Count];
 
-        destroyed_notes = new AmpNote[10000]; // TODO!!! Total note count of song!!
+        destroyed_notes = new AmpNote[SongController.total_note_count * RhythmicGame.TunnelTrackDuplicationNum]; // TODO!!! Total note count of song!!
+        Logger.Log($"TrackStreamer: Allocated {SongController.total_note_count * RhythmicGame.TunnelTrackDuplicationNum} entries for recyclable notes.");
 
         // Stream in the horizon!
         //StreamMeasureRange(0, RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreaming);
@@ -88,6 +89,7 @@ public class TrackStreamer : MonoBehaviour
     }
 
     /// Recycling
+    // TODO: Assign a pool of measures</notes> to start off with? (* countin)
     int[] measure_recycle_count, measure_recycle_counter;
     public AmpTrackSection[][] destroyed_measures;
     public AmpTrackSection GetDestroyedMeasure(int track_id)
@@ -148,8 +150,8 @@ public class TrackStreamer : MonoBehaviour
         AmpTrack track = TracksController.Tracks[trackID];
 
         MetaNote[] measureNotes = SongController.songNotes[track.ID, id];
-        if (measureNotes == null || measureNotes.Length == 0)
-        { measure.IsEmpty = true; yield break; }
+        //if (measureNotes == null || measureNotes.Length == 0)
+        //{ measure.IsEmpty = true; yield break; }
 
         for (int i = 0; i < measureNotes.Length; i++)
         {

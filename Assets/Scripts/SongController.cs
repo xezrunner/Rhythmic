@@ -96,7 +96,7 @@ public partial class SongController : MonoBehaviour
         Debug.Log($"SlopMs: {SlopMs} | SlopPos: {SlopPos}");
     }
 
-    // Track streamer
+    // Track  
     [NonSerialized] public TrackStreamer trackStreamer;
 
     public void CreateTrackStreamer()
@@ -110,6 +110,7 @@ public partial class SongController : MonoBehaviour
             Debug.LogWarning("AMP_CTRL: TrackStreamer already exists!");
     }
 
+    public int total_note_count;
     public virtual void CreateMetaNotes() { }
     public virtual void CreateAmpTrackController()
     {

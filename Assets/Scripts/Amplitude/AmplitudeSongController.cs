@@ -61,12 +61,12 @@ public class AmplitudeSongController : SongController
 
         CalculateTimeUnits();
 
-        // Create Tracks controller!
-        //CreateTracksController_OLD();
+        // Create note list! - NOTE: this has to happen first, as measures' IsEmpty var is evaluated by the streamer.
+        CreateMetaNotes();
+
+        // Create Tracks controller & Track Streamer!
         CreateAmpTrackController();
 
-        // Create note list!
-        CreateMetaNotes();
 
         // TODO: We want to scale time based on song BPM & fudge factor | custom song_delta_time?
         Time.timeScale = 1f / songFudgeFactor;
@@ -207,7 +207,7 @@ public class AmplitudeSongController : SongController
             }
 
             // PASS: distribute notes to their own measure arrays:
-            int note_list_count = note_list.Count;
+            total_note_count += note_list.Count;
             for (int i = 0; i < songLengthInMeasures; i++)
                 songNotes[t, i] = note_list.Where(n => n.MeasureID == i).ToArray();
         }

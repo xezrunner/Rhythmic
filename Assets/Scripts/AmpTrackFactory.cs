@@ -32,18 +32,19 @@ public partial class AmpTrack
     {
         AmpTrackSection measure = TrackStreamer.GetDestroyedMeasure(RealID);
         GameObject obj = measure ? measure.gameObject : null;
-        if (!measure)
+        if (!measure) // If we didn't get a recycle-able measure back, create a new one!
         {
             obj = Instantiate(TrackSectionPrefab);
-            obj.transform.parent = MeasureContainer;
             measure = obj.GetComponent<AmpTrackSection>();
         }
+        obj.transform.parent = MeasureContainer;
 
         // Configure component
         measure.Track = this;
         measure.ID = meta.ID;
         measure.Instrument = Instrument;
         measure.Length = SongController.measureLengthInzPos;
+        measure.IsEmpty = meta.IsEmpty;
         measure.IsCaptured = meta.IsCaptured;
 
         // Assign materials | TODO: improve!
@@ -111,6 +112,7 @@ public partial class AmpTrack
 public struct MetaMeasure
 {
     public int ID;
+    public bool IsEmpty;
     public bool IsCaptured;
     public bool IsBossMeasure; // shouldn't capture this measure when capturing a track from another measure
     public float StartDistance;
