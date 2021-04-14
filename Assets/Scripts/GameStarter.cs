@@ -48,6 +48,9 @@ public class GameStarter : MonoBehaviour
         Debug.LogFormat("GameStarter: Preferred resolution applied - {0}x{1}.", RhythmicGame.PreferredResolution.x, RhythmicGame.PreferredResolution.y);
 #endif
 
+        // Hide cursor
+        Cursor.visible = false;
+
         StartCoroutine(Load(RhythmicGame.StartWorld));
         //StartCoroutine(Load("TestScene"));
     }

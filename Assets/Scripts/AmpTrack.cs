@@ -31,6 +31,8 @@ public partial class AmpTrack : MonoBehaviour
     public Material Track_Bottom_Mat;
     public Material Track_Bottom_Global_Mat;
 
+    public Material NoteDotLightMaterial;
+
     /// Declarations, global variables, properties, events ...
 
     public VertexPath Path;
@@ -39,7 +41,6 @@ public partial class AmpTrack : MonoBehaviour
     [Header("Properties & variables")]
     public int ID = -1; // Song track ID (in case of TUNNEL DUPLICATION, it's still the original song track ID!)
     public int RealID = -1; // The individual ID of each track. (in case of TUNNEL DUPLICATION, it's its own particular ID!)
-    public int SetID = 0; // TUNNEL DUPLICATION: which track set does this track belong to?
     public string TrackName = ""; // Instrument name of the track. Object name *should* be the same.
 
     public bool IsCloneTrack; // Whether this track is cloned in Tunnel mode.
@@ -85,6 +86,7 @@ public partial class AmpTrack : MonoBehaviour
         Track_Bottom_Mat = Instantiate(Track_Bottom_Mat);
         Track_Bottom_Global_Mat = Instantiate(Track_Bottom_Global_Mat);
         Track_Bottom_Global_Mat.SetInteger("_Enabled", 0); // Global should start off
+        NoteDotLightMaterial = Instantiate(NoteDotLightMaterial);
     }
     void Start()
     {
@@ -95,6 +97,9 @@ public partial class AmpTrack : MonoBehaviour
         // Color
         Color = Colors.ColorFromInstrument(Instrument);
         DestructFX.TrackColor = Color;
+
+        NoteDotLightMaterial.color = Color;
+        NoteDotLightMaterial.SetColor("_EmissionColor", Color * 1.0f);
 
         // Set up ClipManager for capture clipping
         ClipManager.AddMaterial(Track_Bottom_Mat);
@@ -199,7 +204,7 @@ public partial class AmpTrack : MonoBehaviour
             foreach (AmpTrackSection m in Measures)
                 if (m) m.IsFocused = value;
 
-            UpdateSequenceStates();
+            //UpdateSequenceStates(); // TODO: is this needed?
         }
     }
     public void SetIsTrackFocused(int realID)

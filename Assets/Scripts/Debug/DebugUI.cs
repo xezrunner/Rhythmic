@@ -82,7 +82,9 @@ public class DebugUI : DebugComponent
     {
         datetimeText.text = $"{DateTime.Now}";
         resolutionVersionText.text = ($"{RhythmicGame.Resolution.x}x{RhythmicGame.Resolution.y} @ 75Hz\n" +
-                                     $"{Version.build_string}");
+                                     $"{Version.build_string}" +
+                                     (Debug.isDebugBuild ? " DEBUG".AddColor(Colors.Error) : null) +
+                                     (System.Diagnostics.Debugger.IsAttached ? " , ATTACHED".AddColor(Colors.Error) : null));
     }
 
     /// Interface switching
@@ -309,7 +311,21 @@ public class DebugUI : DebugComponent
         if (Time.timeScale == 0f)
             return;
         FPS_deltaTime += (Time.unscaledDeltaTime - FPS_deltaTime) * 0.1f;
-        float fps = 1.0f / FPS_deltaTime;
-        framerateText.text = string.Format("Framerate: {0} FPS", Mathf.Ceil(fps).ToString());
+        int fps = Mathf.CeilToInt(1.0f / FPS_deltaTime);
+        framerateText.text = "Framerate: " + $"{fps} FPS".AddColor(GetFPSColor(fps));
+    }
+
+    Color GetFPSColor(float fps)
+    {
+        switch (fps) // NOTE: order matters here!
+        {
+            default: return Colors.Unimportant;
+            case var _ when fps < RhythmicGame.LowestFramerate:
+                return Colors.Error;
+            case var _ when fps < (float)Screen.currentResolution.refreshRate:
+                return Colors.Warning;
+            case var _ when fps < Application.targetFrameRate:
+                return Colors.Info;
+        }
     }
 }

@@ -4,7 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class AmplitudeSongController : SongController
 {
@@ -25,7 +27,7 @@ public class AmplitudeSongController : SongController
         string songPath = AmplitudeGame.AMP_GetSongFilePath(songName, AmplitudeGame.AMP_FileExtension.moggsong);
         if (!File.Exists(songPath))
         {
-            Debug.LogErrorFormat("AMP_SONGCTRL: Song {0} does not exist at path: {1}", songName, songPath);
+            Logger.LogFormatE("AMP_SONGCTRL: Song {0} does not exist at path: {1}", songName, songPath);
             IsEnabled = false; return;
         }
 
@@ -40,7 +42,9 @@ public class AmplitudeSongController : SongController
             // set props gathered from reader
             songBpm = reader.bpm;
             songTracks = reader.songTracks;
+            midi_songTracks = reader.midi_songTracks;
         }
+
 
         // Load MoggSong!
         {
@@ -55,19 +59,17 @@ public class AmplitudeSongController : SongController
             songLengthInzPos = TickToPos(measureTicks * songLengthInMeasures);
         }
 
-        // *** PROPS LOADED *** //
-
         CalculateTimeUnits();
 
-        // Create Tracks controller!
-        //CreateTracksController_OLD();
-        CreateAmpTrackController();
-
-        // Create note list!
+        // Create note list! - NOTE: this has to happen first, as measures' IsEmpty var is evaluated by the streamer.
         CreateMetaNotes();
 
-        // TODO: We want to scale time based on song BPM & fudge factor, possibly?
-        //Time.timeScale = 1f;
+        // Create Tracks controller & Track Streamer!
+        CreateAmpTrackController();
+
+
+        // TODO: We want to scale time based on song BPM & fudge factor | custom song_delta_time?
+        Time.timeScale = 1f / songFudgeFactor;
 
         // Load song!
         // Assign clips to AudioSources
@@ -81,25 +83,55 @@ public class AmplitudeSongController : SongController
     IEnumerator LoadSongClips()
     {
         int counter = 0;
+
         foreach (string track in songTracks)
         {
-            string path = string.Format("Songs/{0}/{1}", songName, track);
+            if (counter > songTracks.Count) yield break;
+            //string path = string.Format("Songs/{0}/{1}", songName, track);
+            //string path = string.Format(@"file://{0}//{1}//audio//{2}.ogg", AmplitudeGame.song_ogg_path, songName, midi_songTracks[counter]); // OGG hardcoded
+            string path = Path.Combine(AmplitudeGame.song_ogg_path, songName, "audio", midi_songTracks[counter] + ".ogg");
+            //Logger.LogMethod("path: " + path);
 
-            ResourceRequest resourceRequest = Resources.LoadAsync<AudioClip>(path);
-            //Debug.LogFormat("AMP_CTRL: Loading track {0}...", track);
-
-            while (!resourceRequest.isDone)
-                yield return 0;
-
-            if (resourceRequest.asset == null)
+            if (!File.Exists(path)) // TODO: errors shouldn't be handled in a copy-paste way!
             {
-                Logger.LogWarning($"AMP_SONGCTRL: Track {track} doesn't have audio clip - ignoring");
+                Logger.LogMethodW("File not found: " + path);
                 audioSrcList.Add(gameObject.AddComponent<AudioSource>());
+                counter++;
                 continue;
             }
 
+            AudioClip clip_result = null;
+            using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(path, AudioType.OGGVORBIS))
+            {
+                if (RhythmicGame.AllowSongStreaming) ((DownloadHandlerAudioClip)www.downloadHandler).streamAudio = true;
+                yield return www.SendWebRequest();
+
+                if (www.result == UnityWebRequest.Result.ConnectionError)
+                {
+                    Logger.LogMethodW("Failed to load audioclip: " + path);
+                    audioSrcList.Add(gameObject.AddComponent<AudioSource>());
+                    counter++;
+                }
+                else
+                    clip_result = DownloadHandlerAudioClip.GetContent(www);
+            }
+
+            //ResourceRequest resourceRequest = Resources.LoadAsync<AudioClip>(path);
+            //Debug.LogFormat("AMP_CTRL: Loading track {0}...", track);
+
+            //while (!resourceRequest.isDone)
+            //    yield return 0;
+
+            //if (resourceRequest.asset == null)
+            //{
+            //    Logger.LogWarning($"AMP_SONGCTRL: Track {track} doesn't have audio clip - ignoring");
+            //    audioSrcList.Add(gameObject.AddComponent<AudioSource>());
+            //    continue;
+            //}
+
             AudioSource src = gameObject.AddComponent<AudioSource>(); // create AudioSource
-            src.clip = resourceRequest.asset as AudioClip;
+            //src.clip = resourceRequest.asset as AudioClip;
+            src.clip = clip_result;
 
             if (track == "bg_click")
             {
@@ -175,7 +207,7 @@ public class AmplitudeSongController : SongController
             }
 
             // PASS: distribute notes to their own measure arrays:
-            int note_list_count = note_list.Count;
+            total_note_count += note_list.Count;
             for (int i = 0; i < songLengthInMeasures; i++)
                 songNotes[t, i] = note_list.Where(n => n.MeasureID == i).ToArray();
         }

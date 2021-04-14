@@ -20,7 +20,7 @@ public class FXProperties : MonoBehaviour
     // TODO: decide effect properties when not in proximity
     public DestructFXPolicy Destruct_Policy = DestructFXPolicy.Proximity;
     public bool Destruct_ForceEffects = false; // TEST: force effects even when we shouldn't play them
-    public float Destruct_ProximityDistanceBar = 5; // TODO: time units?
+    public float Destruct_ProximityDistanceBar = 8; // TODO: time units?
 
     public float Destruct_ShardGlow = 2.6f;
     public float Destruct_SparkleGlow = 2.4f;

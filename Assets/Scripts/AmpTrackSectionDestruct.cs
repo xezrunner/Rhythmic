@@ -76,7 +76,7 @@ public class AmpTrackSectionDestruct : MonoBehaviour
             // Some particles will not play when not in proximity to provide better framerate.
             bool isProximity = (m.ID - Clock.Fbar < FXProps.Destruct_ProximityDistanceBar);
             // Consider clone tracks as NOT proximity - do not play sparkles
-            bool isCloneTrack = (m.Track.RealID > TracksController.MainTracks.Length);
+            bool isCloneTrack = (m.Track.TrackSetID != TracksController.CurrentTrackSetID);
             DestructFX.Play(!isCloneTrack && isProximity);
         }
     }

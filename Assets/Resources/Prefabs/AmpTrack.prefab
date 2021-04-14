@@ -151,9 +151,10 @@ MonoBehaviour:
   Track_Bottom_Mat: {fileID: 2100000, guid: 396d3256a4e6d3e4ea2f79ff65856f04, type: 2}
   Track_Bottom_Global_Mat: {fileID: 2100000, guid: 5d85cbed279b1d441a2bff4c13725ba3,
     type: 2}
+  NoteDotLightMaterial: {fileID: 2100000, guid: df6cb909897b73b438cdf02e97ef3c29,
+    type: 2}
   ID: -1
   RealID: -1
-  SetID: 0
   TrackName: 
   IsCloneTrack: 0
   TrackSetID: 0
@@ -163,6 +164,7 @@ MonoBehaviour:
   TunnelRot: {x: 0, y: 0, z: 0}
   zRot: 0
   Measures: []
+  Sequence_Start_IDs: 0000000000000000
   Sequences: []
   IsTrackBeingPlayed: 0
   HideEmptyMeasures: 1
@@ -226,10 +228,29 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 52603323865431373}
     m_Modifications:
+    - target: {fileID: 1970835333, guid: 7bdc523f1632d9e47a30b5012965dcd8, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 55354805278779988, guid: 7bdc523f1632d9e47a30b5012965dcd8,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 1059292714624701768, guid: 7bdc523f1632d9e47a30b5012965dcd8,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 1225166059968476284, guid: 7bdc523f1632d9e47a30b5012965dcd8,
         type: 3}
       propertyPath: m_Name
       value: AmpTrackDestructFX
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225166059968476284, guid: 7bdc523f1632d9e47a30b5012965dcd8,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 1225166059968476284, guid: 7bdc523f1632d9e47a30b5012965dcd8,
         type: 3}
@@ -290,6 +311,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7070128535298799524, guid: 7bdc523f1632d9e47a30b5012965dcd8,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8027110744617730694, guid: 7bdc523f1632d9e47a30b5012965dcd8,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7bdc523f1632d9e47a30b5012965dcd8, type: 3}

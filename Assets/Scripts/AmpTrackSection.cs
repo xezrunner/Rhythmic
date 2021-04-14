@@ -57,7 +57,16 @@ public class AmpTrackSection : MonoBehaviour
     public Quaternion RotationQuat; // angles
 
     public bool IsEmpty;
-    public bool IsCapturing;
+    bool _IsCapturing;
+    public bool IsCapturing
+    {
+        get { return _IsCapturing; }
+        set
+        {
+            _IsCapturing = value;
+            if (value && (!IsEmpty && CaptureState != MeasureCaptureState.Captured)) SetTrackMaterials(add_global: true);
+        }
+    }
     public MeasureCaptureState CaptureState = MeasureCaptureState.None;
     public bool IsCaptured
     {
@@ -70,13 +79,29 @@ public class AmpTrackSection : MonoBehaviour
                 IsSequence = false; // TODO: revise?
                 SetEmptyMaterials();
             }
+            else
+                SetTrackMaterials();
         }
     }
 
-    void SetEmptyMaterials()
+    public void SetEmptyMaterials()
     {
         ModelRenderer.materials = new Material[0];
         ModelRenderer.material = Track.Track_Bottom_Global_Mat;
+    }
+    public void SetTrackMaterials(bool add_global = false)
+    {
+        if (add_global)
+        {
+            Material[] modelMaterials = new Material[2]
+            { Track.Track_Bottom_Global_Mat, Track.Track_Bottom_Mat };
+            ModelRenderer.materials = modelMaterials;
+        }
+        else
+        {
+            ModelRenderer.materials = new Material[0];
+            ModelRenderer.material = Track.Track_Bottom_Mat;
+        }
     }
 
     public bool IsEnabled = true;
@@ -101,7 +126,7 @@ public class AmpTrackSection : MonoBehaviour
             _isFocused = value;
 
             // Toggle edge light material
-            Track.Track_Bottom_Global_Mat.SetInteger("_Enabled", value ? 1 : 0); // TODO: Optimization?
+            if (Track) Track.Track_Bottom_Global_Mat.SetInteger("_Enabled", value ? 1 : 0); // TODO: Optimization?
             if (!IsEmpty || !IsCaptured)
                 Seeker.SetActive(value ? (_isSequence && !IsCaptured ? true : false) : false);
         }
@@ -129,8 +154,19 @@ public class AmpTrackSection : MonoBehaviour
     public static bool AllowDeformations = true; // TODO!
 
     void Awake() => Path = PathTools.Path;
-    void Start()
+
+    public void ResetComponent()
     {
+        IsEnabled = true;
+        IsEmpty = false;
+        IsSequence = false;
+        IsCapturing = false;
+        CaptureState = MeasureCaptureState.None;
+        Notes.Clear();
+    }
+    public void Start()
+    {
+        // TODO: optimizations below:
         if (!ModelMesh || !ModelMesh.sharedMesh)
         { Debug.LogWarning($"AmpTrackSection [init]: measure {ID} does not have a Model!"); return; }
 
@@ -139,8 +175,8 @@ public class AmpTrackSection : MonoBehaviour
         // Disable measure visuals when empty or captured
         if (IsEmpty || IsCaptured)
             SetEmptyMaterials();
-
-        // TODO: optimizations below:
+        else
+            SetTrackMaterials();
 
         if (og_verts == null)
         {
@@ -154,7 +190,7 @@ public class AmpTrackSection : MonoBehaviour
 
         MeshDeformer.DeformMesh
                                   (Path, SeekerMesh.mesh, Position, Rotation, ogVerts: og_vertsSeeker, offset: new Vector3(0, 0.018f, 0), RhythmicGame.TrackWidth + 0.05f, -1, Length, movePivotToStart: false); // TODO: unneccessary parameters
-        SeekerRenderer.material.color = Track.Color;
+        //SeekerRenderer.material.color = Track.Color;
     }
 
     public void DeformMesh() => MeshDeformer.DeformMesh

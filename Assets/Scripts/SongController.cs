@@ -52,6 +52,7 @@ public partial class SongController : MonoBehaviour
     public AudioSource BG_CLICKSrc; // The BG_CLICK AudioSource
     public List<AudioSource> audioSrcList = new List<AudioSource>();
 
+    public List<string> midi_songTracks = new List<string>();
     public List<string> songTracks = new List<string>();
     public MetaNote[,][] songNotes;
 
@@ -82,7 +83,7 @@ public partial class SongController : MonoBehaviour
 
         // TODO: Loading the song should not be based on what property is set!
         // LoadSong() should be called by the UI or loading mechanism!
-        LoadSong(songName == null ? defaultSong : songName); // load default song in case the prop is empty, for testing purposes only!
+        LoadSong((songName == null || songName == "") ? defaultSong : songName); // load default song in case the prop is empty, for testing purposes only!
 
         // Set / calculate slop ms and pos props
         //SlopMs = RhythmicGame.SlopMs / songFudgeFactor * (1f + 0.8f); // TODO: incorrect?
@@ -95,7 +96,7 @@ public partial class SongController : MonoBehaviour
         Debug.Log($"SlopMs: {SlopMs} | SlopPos: {SlopPos}");
     }
 
-    // Track streamer
+    // Track  
     [NonSerialized] public TrackStreamer trackStreamer;
 
     public void CreateTrackStreamer()
@@ -109,6 +110,7 @@ public partial class SongController : MonoBehaviour
             Debug.LogWarning("AMP_CTRL: TrackStreamer already exists!");
     }
 
+    public int total_note_count;
     public virtual void CreateMetaNotes() { }
     public virtual void CreateAmpTrackController()
     {

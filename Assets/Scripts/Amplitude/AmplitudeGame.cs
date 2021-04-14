@@ -11,25 +11,28 @@ public static class AmplitudeGame
     //public static string AMP_songFolder = string.Format("{0}//amp_songs", Application.dataPath);
     public enum AMP_FileExtension { mid, mogg, moggsong }
 
+    public static string song_ogg_path = "H:\\HMXAMPLITUDE\\Extractions\\ps4_songs";
+
     public static string AMP_songFolder
     {
         get
         {
 #if UNITY_STANDALONE
             string dataPath;
-            if (Directory.Exists($"{Application.dataPath}//amp_songs"))
-                dataPath = Application.dataPath;
-            else
-                dataPath = @"H:\Unity projects\Rhythmic\Assets";
+            dataPath = @"H:/HMXAMPLITUDE/Extractions/amplitude_ps4_extraction/ps4/songs";
+            //if (Directory.Exists(@$"{Application.dataPath}\amp_songs"))
+            //    dataPath = Application.dataPath + @"/amp_songs";
+            //else
+            //    dataPath = @"H:/Unity projects/Rhythmic/Assets/amp_songs";
 #elif UNITY_ANDROID
             string dataPath = Application.persistentDataPath;
 #endif
-            return string.Format("{0}//amp_songs", dataPath);
+            return string.Format("{0}", dataPath);
         }
     }
     public static string AMP_GetSongFilePath(string songName, AMP_FileExtension extension)
     {
-        return string.Format("{0}/{1}/{1}.{2}", AMP_songFolder, songName, extension);
+        return string.Format(@"{0}\{1}\{1}.{2}", AMP_songFolder, songName, extension);
     }
 
     // This list contains the note numbers that correspond to each lane, for each difficulty level

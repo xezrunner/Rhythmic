@@ -172,6 +172,7 @@ public partial class DebugMenu : DebugComponent
             float addition = (Keyboard.current.altKey.isPressed ? 0.1f : 1) * (dir == DebugMenuVarDir.Decrease ? -1 : 1);
             switch (SelectedEntry.Variable.Value)
             {
+                case Enum e: SelectedEntry.Variable.Value = (RhythmicGame.GameDifficulty)e + (int)addition; break;
                 case bool b: SelectedEntry.Variable.Value = !b; break;
                 case int i: SelectedEntry.Variable.Value = (int)(i + addition); break;
                 case float f: SelectedEntry.Variable.Value = (float)(f + addition); break;

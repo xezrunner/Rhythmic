@@ -51,8 +51,10 @@ public class AmpNote : MonoBehaviour
     Color _dotLightColor = Color.white;
     public Color DotLightColor
     {
+        // TODO: We'll need an optimized way to handle dot light colors for either:
+        // a, individual notes, or, more likely: b, individual *tracks*
         get { return _dotLightColor; }
-        set { _dotLightColor = value; DotLightMeshRenderer.material.color = value; }
+        set { _dotLightColor = value; /*DotLightMeshRenderer.sharedMaterial.color = value;*/ }
     }
 
     float _dotLightGlowIntensity = 1f;
@@ -98,10 +100,17 @@ public class AmpNote : MonoBehaviour
 
             DotLight.SetActive(value);
             NoteMeshRenderer.enabled = !value;
+            // TODO: destruct_hit!!!
         }
     }
 
-    void Start()
+    public void ResetComponent()
+    {
+        IsLastNote = false;
+        IsEnabled = true;
+        IsCaptured = false;
+    }
+    public void Start()
     {
         if (SharedNoteMaterial)
             NoteMeshRenderer.material = SharedNoteMaterial;
@@ -110,8 +119,8 @@ public class AmpNote : MonoBehaviour
         // TODO: cleanup!
         //DotLight.SetActive(false);
         DotLight.transform.localPosition = Vector3.zero;
-        DotLightColor = AmpTrack.Colors.ColorFromInstrument(TracksController.Instance.Tracks[TrackID].Instrument);
-        DotLightGlowIntensity = 1f;
+        //DotLightColor = AmpTrack.Colors.ColorFromInstrument(TracksController.Instance.Tracks[TrackID].Instrument);
+        //DotLightGlowIntensity = 1f;
 
         // Set particle system color to match dotlight!
         PS_main = PS.main;

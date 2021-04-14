@@ -69,6 +69,7 @@ public static class RhythmicGame
     public static bool IsLoading = true;
     public static Vector2 Resolution { get { return new Vector2(Screen.currentResolution.width, Screen.currentResolution.height); } }
     public static Vector2 PreferredResolution = new Vector2(1920, 1080);
+    public static int LowestFramerate = 60; // 30
 
     // Debug system
     public static DebugComponentFlag DebugControllerFlags = DebugComponentFlag.Uninitialized;
@@ -86,6 +87,7 @@ public static class RhythmicGame
     public static float HorizonMeasuresOffset = 15f; // How many units to offset (backwards) from the horizon when clipping
 
     // --- Track streaming --- //
+    public static bool AllowSongStreaming = true;
     public static bool StreamAllMeasuresOnStart = false;
     public static bool FastStreaming = false;
     static FastStreamingLevel _fastStreamingLevel = FastStreamingLevel.MeasuresAndNotes;
@@ -144,7 +146,7 @@ public static class RhythmicGame
 
     public static bool DebugPlayerCameraAnimEvents = false;
     public static bool DebugPlayerTrackSwitchEvents = false;
-    public static bool DebugPlayerTrackSeekEvents = true;
+    public static bool DebugPlayerTrackSeekEvents = false;
 
     public static bool DebugCatchResultEvents = false;
     public static bool DebugCatcherSlopEvents = false;
