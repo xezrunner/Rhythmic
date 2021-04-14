@@ -83,7 +83,7 @@ public partial class DebugMenu : DebugComponent
     // It can be switched to a different one, but there has to be one.
     public static void MainMenu()
     {
-        DebugMenu debugMenu = (DebugMenu)Instance;
+        DebugMenu debugMenu = Instance;
         if (!debugMenu) Logger.LogMethodW("Debug menu has no instance!", "DebugMenu");
         debugMenu.SwitchToComponent(typeof(DebugMenus.MainMenu));
 
@@ -210,7 +210,7 @@ public partial class DebugMenu : DebugComponent
         DebugMenuEntry? entry = null;
         if (!boundary) entry = Entries.ElementAt(index).Value;
 
-        if ((boundary || !entry.HasValue || !entry.Value.IsSelectable) && prev_index != -1)
+        if (boundary || (!entry.HasValue || !entry.Value.IsSelectable) /* && prev_index != -1*/)
         {
             success = false;
 
@@ -220,11 +220,23 @@ public partial class DebugMenu : DebugComponent
             if (entry_count <= 0) { Logger.LogMethodE("entry_count is 0!", this); return false; }
 
             int addition = (index < prev_index ? -1 : 1);
-            if (index <= 0) index = entry_count - 1;
-            else if (index >= entry_count) index = 0;
+            if (index < 0) index = entry_count - 1;
+            else if (index > entry_count) index = 0;
+            bool rollover = false;
 
             for (int i = index; i <= entry_count; i += addition)
             {
+                if (i >= entry_count && !rollover)
+                {
+                    i = 0;
+                    rollover = true;
+                }
+                else if (i < 0 && !rollover)
+                {
+                    i = entry_count - 1;
+                    rollover = true;
+                }
+
                 DebugMenuEntry e = Entries.ElementAt(i).Value;
                 if (e.IsSelectable)
                 {

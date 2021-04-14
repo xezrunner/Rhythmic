@@ -145,19 +145,18 @@ public class DebugMenuComponent
     public virtual void Init()
     {
         /* This has to be overriden in each component to add lines.
-         * You have to keep the base.Init() function when overriding!
-         */
+         * You have to keep the base.Init() function when overriding! */
 
         // In case you did not need an Attribute, we'll add a default for you.
         var attr = (DebugMenuComponentAttribute)System.Attribute.GetCustomAttribute(GetType(), typeof(DebugMenuComponentAttribute));
         if (attr == null) attr = new DebugMenuComponentAttribute();
         Attribute = attr;
 
-        if (Entries == null) Entries = new Dictionary<int, DebugMenuEntry>();
-
         // Add 'Main menu...' shortcut if required (-1 is Main menu)
         if (Attribute.HasMainMenuShortcut && (Entries.Count == 0 /*|| Entries.ElementAt(0).Value.ID != -1 <- probably not be needed*/))
             AddEntry(MainMenuShortcut, -1);
+
+        if (Entries == null) Entries = new Dictionary<int, DebugMenuEntry>();
     }
     public void _Base_Init() => Init();
 

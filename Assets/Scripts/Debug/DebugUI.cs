@@ -84,7 +84,7 @@ public class DebugUI : DebugComponent
         resolutionVersionText.text = ($"{RhythmicGame.Resolution.x}x{RhythmicGame.Resolution.y} @ 75Hz\n" +
                                      $"{Version.build_string}" +
                                      (Debug.isDebugBuild ? " DEBUG".AddColor(Colors.Error) : null) +
-                                     (System.Diagnostics.Debugger.IsAttached ? " , ATTACHED".AddColor(Colors.Error) : null));
+                                     (System.Diagnostics.Debugger.IsAttached ? ", ATTACHED".AddColor(Colors.Application) : null));
     }
 
     /// Interface switching
