@@ -155,7 +155,6 @@ MonoBehaviour:
     type: 2}
   ID: -1
   RealID: -1
-  SetID: 0
   TrackName: 
   IsCloneTrack: 0
   TrackSetID: 0
@@ -229,10 +228,29 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 52603323865431373}
     m_Modifications:
+    - target: {fileID: 1970835333, guid: 7bdc523f1632d9e47a30b5012965dcd8, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 55354805278779988, guid: 7bdc523f1632d9e47a30b5012965dcd8,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 1059292714624701768, guid: 7bdc523f1632d9e47a30b5012965dcd8,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 1225166059968476284, guid: 7bdc523f1632d9e47a30b5012965dcd8,
         type: 3}
       propertyPath: m_Name
       value: AmpTrackDestructFX
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225166059968476284, guid: 7bdc523f1632d9e47a30b5012965dcd8,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 1225166059968476284, guid: 7bdc523f1632d9e47a30b5012965dcd8,
         type: 3}
@@ -293,6 +311,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7070128535298799524, guid: 7bdc523f1632d9e47a30b5012965dcd8,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8027110744617730694, guid: 7bdc523f1632d9e47a30b5012965dcd8,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7bdc523f1632d9e47a30b5012965dcd8, type: 3}

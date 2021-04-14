@@ -160,7 +160,7 @@ MonoBehaviour:
   Note_DotLightAnimStep: 1
   Destruct_Policy: 0
   Destruct_ForceEffects: 0
-  Destruct_ProximityDistanceBar: 3
+  Destruct_ProximityDistanceBar: 8
   Destruct_ShardGlow: 3
   Destruct_SparkleGlow: 1.5
 --- !u!114 &22153598
@@ -222,7 +222,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &131413949
 Transform:
   m_ObjectHideFlags: 0
@@ -1231,7 +1231,7 @@ Animation:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1010288847}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Animation: {fileID: 7400000, guid: 50ad4d0da7539904da12f59dcc72e27f, type: 2}
   m_Animations:
@@ -2410,6 +2410,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 835594478, guid: 092cc62a45da22949af241be520f22ee, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 835594480, guid: 092cc62a45da22949af241be520f22ee, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -2496,6 +2500,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588845251898407, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_ClearFlags
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 092cc62a45da22949af241be520f22ee, type: 3}
