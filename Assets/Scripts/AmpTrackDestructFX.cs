@@ -28,6 +28,7 @@ public class AmpTrackDestructFX : MonoBehaviour
     public Color TrackColor;
 
     [Header("Common")]
+    public bool IsPlaying;
     public DestructFXPolicy Policy;
 
     private void Awake()
@@ -83,10 +84,13 @@ public class AmpTrackDestructFX : MonoBehaviour
     // TODO: set certain properties based on proximity, such as how many particles to draw in certain particles?
     public void Play(bool proximity = true)
     {
+        if (!proximity || IsPlaying) return;
+
+        IsPlaying = true;
+
         //StartCoroutine(AnimateLight(0, 10));
         Light.intensity = 7;
 
-        if (!proximity) return;
 
         SparkleParticles.Play();
         BaseParticles.Play();
@@ -103,5 +107,7 @@ public class AmpTrackDestructFX : MonoBehaviour
         SparkleParticles.Stop();
         for (int i = 0; i < 2; i++)
             ShardParticles[i].Stop();
+
+        IsPlaying = false;
     }
 }

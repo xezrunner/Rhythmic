@@ -89,8 +89,10 @@ public partial class AmpTrack
         obj.name = meta.Name;
         note.ID = id;
         note.TotalID = meta.TotalID;
-        note.SharedNoteMaterial = TracksController.SharedNoteMaterial;
         note.Track = this;
+        note.SharedNoteMaterial = TracksController.SharedNoteMaterial;
+        note.DotLightMeshRenderer.material = NoteDotLightMaterial;
+        note.DotLightColor = Color;
         note.TrackID = RealID;
         note.MeasureID = meta.MeasureID;
         note.Lane = meta.Lane;

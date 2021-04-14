@@ -86,7 +86,7 @@ public partial class AmpTrack : MonoBehaviour
         Track_Bottom_Mat = Instantiate(Track_Bottom_Mat);
         Track_Bottom_Global_Mat = Instantiate(Track_Bottom_Global_Mat);
         Track_Bottom_Global_Mat.SetInteger("_Enabled", 0); // Global should start off
-        NoteDotLightMaterial = Instantiate(NoteDotLightMaterial); NoteDotLightMaterial.color = Color;
+        NoteDotLightMaterial = Instantiate(NoteDotLightMaterial);
     }
     void Start()
     {
@@ -97,6 +97,9 @@ public partial class AmpTrack : MonoBehaviour
         // Color
         Color = Colors.ColorFromInstrument(Instrument);
         DestructFX.TrackColor = Color;
+
+        NoteDotLightMaterial.color = Color;
+        NoteDotLightMaterial.SetColor("_EmissionColor", Color * 1.0f);
 
         // Set up ClipManager for capture clipping
         ClipManager.AddMaterial(Track_Bottom_Mat);

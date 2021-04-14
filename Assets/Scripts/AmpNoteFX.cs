@@ -77,9 +77,12 @@ public class AmpNoteFX : MonoBehaviour
 
         if (fraction >= 1f)
         {
-            if (DestroyOnCompletion) Destroy(this);
+            // Restore shared material to reduce constant draw calls due to different meshes
+            Note.DotLightMeshRenderer.material = Note.Track.NoteDotLightMaterial;
+
             IsPlaying = false;
             fraction = 0;
+            if (DestroyOnCompletion) Destroy(this);
             return;
         }
 
