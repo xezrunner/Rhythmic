@@ -18,7 +18,7 @@ public class AmpPlayerInputHandler : MonoBehaviour
     {
         get
         {
-            if (Instance == null) Logger.LogMethodW("requested (get), but instance is null!", "AmpPlayerInputHandler");
+            //if (Instance == null) Logger.LogMethodW("requested (get), but instance is null!", "AmpPlayerInputHandler");
             return _isActive;
         }
         set
