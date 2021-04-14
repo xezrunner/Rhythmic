@@ -46,13 +46,10 @@ public partial class AmpTrack
         measure.Length = SongController.measureLengthInzPos;
         measure.IsCaptured = meta.IsCaptured;
 
-        // Assign materials
-        // TODO: improve!
-        Material[] modelMaterials = new Material[2]
-            { Track_Bottom_Global_Mat, Track_Bottom_Mat };
-        measure.ModelRenderer.materials = modelMaterials;
-
-        //measure.EdgeLightsColor = Color;
+        // Assign materials | TODO: improve!
+        //Material[] modelMaterials = new Material[2]
+        //    { Track_Bottom_Global_Mat, Track_Bottom_Mat };
+        //measure.ModelRenderer.materials = modelMaterials;
 
         // TODO: possibly simplify position &/ rotation properties?
         measure.Position = new Vector3(

@@ -57,7 +57,16 @@ public class AmpTrackSection : MonoBehaviour
     public Quaternion RotationQuat; // angles
 
     public bool IsEmpty;
-    public bool IsCapturing;
+    bool _IsCapturing;
+    public bool IsCapturing
+    {
+        get { return _IsCapturing; }
+        set
+        {
+            _IsCapturing = value;
+            if (value && (!IsEmpty && CaptureState != MeasureCaptureState.Captured)) SetTrackMaterials(add_global: true);
+        }
+    }
     public MeasureCaptureState CaptureState = MeasureCaptureState.None;
     public bool IsCaptured
     {
@@ -80,11 +89,19 @@ public class AmpTrackSection : MonoBehaviour
         ModelRenderer.materials = new Material[0];
         ModelRenderer.material = Track.Track_Bottom_Global_Mat;
     }
-    public void SetTrackMaterials()
+    public void SetTrackMaterials(bool add_global = false)
     {
-        Material[] modelMaterials = new Material[2]
+        if (add_global)
+        {
+            Material[] modelMaterials = new Material[2]
             { Track.Track_Bottom_Global_Mat, Track.Track_Bottom_Mat };
-        ModelRenderer.materials = modelMaterials;
+            ModelRenderer.materials = modelMaterials;
+        }
+        else
+        {
+            ModelRenderer.materials = new Material[0];
+            ModelRenderer.material = Track.Track_Bottom_Mat;
+        }
     }
 
     public bool IsEnabled = true;
@@ -143,6 +160,7 @@ public class AmpTrackSection : MonoBehaviour
         IsEnabled = true;
         IsEmpty = false;
         IsSequence = false;
+        IsCapturing = false;
         CaptureState = MeasureCaptureState.None;
         Notes.Clear();
     }
@@ -157,6 +175,8 @@ public class AmpTrackSection : MonoBehaviour
         // Disable measure visuals when empty or captured
         if (IsEmpty || IsCaptured)
             SetEmptyMaterials();
+        else
+            SetTrackMaterials();
 
         if (og_verts == null)
         {

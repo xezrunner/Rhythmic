@@ -28,17 +28,17 @@
 			Tags{ "Queue" = "Transparent"  "RenderType" = "Transparent" "ForceNoShadowCasting" = "True"}
 
 			// render faces regardless if they point towards the camera or away from it
-			//Lighting On
+			//Lighting Off
 			//ZTest Equal
 			//ZWrite Off
 			//BlendOp Add
 			//Blend One Zero
 			//Cull Off
 
-			Pass {
-				ZWrite On
-				ColorMask 0
-			}
+			//Pass {
+			//	ZWrite On
+			//	ColorMask 0
+			//}
 
 			//UsePass "Transparent/Diffuse/FORWARD"
 
