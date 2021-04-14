@@ -202,7 +202,7 @@ public partial class DebugMenu : DebugComponent
         if (Entries == null || Entries.Count == 0)
         {
             Logger.LogMethodW($"Entries are null or empty!", this);
-            success = false; return false;
+            return false;
         }
 
         bool boundary = (index < 0 || index >= Entries.Count);
@@ -216,15 +216,15 @@ public partial class DebugMenu : DebugComponent
 
             // Find next selectable item
             int entry_count = Entries.Count;
-            bool rollover = false; int addition = (index < prev_index ? -1 : 1);
-            if (index < 0) index = entry_count - 1;
+
+            if (entry_count <= 0) { Logger.LogMethodE("entry_count is 0!", this); return false; }
+
+            int addition = (index < prev_index ? -1 : 1);
+            if (index <= 0) index = entry_count - 1;
+            else if (index >= entry_count) index = 0;
 
             for (int i = index; i <= entry_count; i += addition)
             {
-                if (i >= entry_count)
-                    if (!rollover) { i = 0; rollover = true; }
-                    else break;
-
                 DebugMenuEntry e = Entries.ElementAt(i).Value;
                 if (e.IsSelectable)
                 {

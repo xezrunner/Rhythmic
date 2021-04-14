@@ -12,6 +12,10 @@
             base.Init();
             Instance = this;
 
+            AddEntry();
+            AddEntry("Init console", () => DebugConsole.Init());
+            AddEntry("Shutdown console", () => DebugConsole.Shutdown());
+
             AddEntry("Restart game (debug)", () => RhythmicGame.Restart());
             AddEntry("Songs...", typeof(SongsMenu));
 

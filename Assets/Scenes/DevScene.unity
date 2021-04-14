@@ -175,7 +175,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f0fbf93bdfe97d41a7159ea35bedf1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultSong: allthetime
+  defaultSong: 
   IsEnabled: 1
   IsFake: 0
   IsPlaying: 0
@@ -192,6 +192,7 @@ MonoBehaviour:
   audioSrcList: []
   midi_songTracks: []
   songTracks: []
+  total_note_count: 0
 --- !u!4 &22153599
 Transform:
   m_ObjectHideFlags: 0
