@@ -13,6 +13,7 @@
             Instance = this;
 
             AddEntry("Restart game (debug)", () => RhythmicGame.Restart());
+            AddEntry("Songs...", typeof(SongsMenu));
 
             AddEntry("Player Menu...", typeof(PlayerMenu));
             AddEntry("Debug events...", typeof(DebugEventsMenu));
@@ -22,7 +23,6 @@
             //AddEntry("Give random powerup");
 
             AddEntry("Keep Player Between Loads", () => false);
-            AddEntry("Songs...", typeof(SongsMenu));
             AddEntry("Worlds...", typeof(WorldsMenu));
             AddEntry("Tunnel mode", new Ref(() => RhythmicGame.IsTunnelMode, (v) => RhythmicGame.IsTunnelMode = (bool)v));
             AddEntry("Short Short Stats", () => ToggleStats(StatsMode.ShortShort), () => Stats.StatsMode == StatsMode.ShortShort);

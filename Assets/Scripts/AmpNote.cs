@@ -52,7 +52,7 @@ public class AmpNote : MonoBehaviour
     public Color DotLightColor
     {
         get { return _dotLightColor; }
-        set { _dotLightColor = value; DotLightMeshRenderer.material.color = value; }
+        set { _dotLightColor = value; DotLightMeshRenderer.sharedMaterial.color = value; }
     }
 
     float _dotLightGlowIntensity = 1f;
@@ -98,10 +98,17 @@ public class AmpNote : MonoBehaviour
 
             DotLight.SetActive(value);
             NoteMeshRenderer.enabled = !value;
+            // TODO: destruct_hit!!!
         }
     }
 
-    void Start()
+    public void ResetComponent()
+    {
+        IsLastNote = false;
+        IsEnabled = true;
+        IsCaptured = false;
+    }
+    public void Start()
     {
         if (SharedNoteMaterial)
             NoteMeshRenderer.material = SharedNoteMaterial;

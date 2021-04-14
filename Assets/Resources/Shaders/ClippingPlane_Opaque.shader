@@ -1,4 +1,4 @@
-﻿Shader "ClippingPlane"
+﻿Shader "ClippingPlane_Opaque"
 {
 	//show values to edit in inspector
 	Properties{
@@ -25,11 +25,11 @@
 		SubShader
 		{
 			//the material is completely non-transparent and is rendered at the same time as the other opaque geometry
-			Tags{ "Queue" = "Transparent"  "RenderType" = "Transparent" "ForceNoShadowCasting" = "True"}
+			Tags{ "Queue" = "Geometry"  "RenderType" = "Opaque" "ForceNoShadowCasting" = "True"}
 
 			// render faces regardless if they point towards the camera or away from it
 			//Lighting On
-			//ZTest Equal
+			//ZTest GreaterThan
 			//ZWrite Off
 			//BlendOp Add
 			//Blend One Zero
@@ -51,8 +51,7 @@
 			//vertex:vert makes the shader use vert as a vertex shader function
 
 			#pragma target 3.0
-			#pragma surface surf Standard alpha
-
+			#pragma surface surf Standard
 
 			int _Enabled;
 			fixed4 _Color;
@@ -82,6 +81,18 @@
 				float3 worldPos;
 				float facing : VFACE;
 			};
+
+			/*
+			struct SurfaceOutput
+			{
+			    fixed3 Albedo;  // diffuse color
+			    fixed3 Normal;  // tangent space normal, if written
+			    fixed3 Emission;
+			    half Specular;  // specular power in 0..1 range
+			    fixed Gloss;    // specular intensity
+			    fixed Alpha;    // alpha for transparencies
+			};
+			*/
 
 			//the surface shader function which sets parameters the lighting function then uses
 			void surf(Input i, inout SurfaceOutputStandard o)
@@ -130,9 +141,9 @@
 				//o.Normal = lerp(float3(0.5, 0.5, 1), normal, _BumpStrength); // REMOVEME: This used to offset the normal map texture.
 
 				o.Alpha = col.a;
-				o.Metallic = _Metallic * facing;
-				o.Metallic *= col.a;
-				o.Smoothness = _Smoothness * facing;
+				//o.Metallic = _Metallic * facing;
+				//o.Metallic *= col.a;
+				//o.Smoothness = _Smoothness * facing;
 			}
 			ENDCG
 		}

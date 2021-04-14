@@ -86,8 +86,10 @@ public class AmpTrackDestructFX : MonoBehaviour
         //StartCoroutine(AnimateLight(0, 10));
         Light.intensity = 7;
 
+        if (!proximity) return;
+
+        SparkleParticles.Play();
         BaseParticles.Play();
-        if (proximity) SparkleParticles.Play();
         for (int i = 0; i < 2; i++)
             ShardParticles[i].Play();
     }

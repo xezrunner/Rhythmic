@@ -44,6 +44,7 @@ public class TracksController : MonoBehaviour
 
     public AmpTrack[][] TrackSets;
     public AmpTrack[] CurrentTrackSet;
+    public int CurrentTrackSetID;
     public List<string> songTracks = new List<string>();
 
     // Clipping
@@ -168,6 +169,7 @@ public class TracksController : MonoBehaviour
         //Debug.LogFormat("TRACKS <event>: Track switched from {0} to {1}", e[0], e[1]);
         AmpTrack target = Tracks[e[1]];
         CurrentTrackSet = TrackSets[target.TrackSetID];
+        CurrentTrackSetID = target.TrackSetID;
     }
 
     /// Tracks
@@ -405,6 +407,7 @@ public class TracksController : MonoBehaviour
         CurrentTrack = track;
         CurrentTrackID = track.ID;
         CurrentRealTrackID = track.RealID;
+        CurrentTrackSetID = track.TrackSetID;
 
         // Handle focus states
         foreach (AmpTrack t in MainTracks)

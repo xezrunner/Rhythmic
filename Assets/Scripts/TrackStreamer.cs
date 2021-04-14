@@ -59,23 +59,19 @@ public class TrackStreamer : MonoBehaviour
     }
     void Start()
     {
+        // ---- initialize recycle arrays -----
+        destroyed_measures = new AmpTrackSection[TracksController.Tracks_Count][];
+        for (int i = 0; i < TracksController.Tracks_Count; ++i) destroyed_measures[i] = new AmpTrackSection[SongController.songLengthInMeasures];
+
+        measure_recycle_count = new int[TracksController.Tracks_Count]; for (int i = 0; i < TracksController.Tracks_Count; ++i) measure_recycle_count[i] = -1;
+        measure_recycle_counter = new int[TracksController.Tracks_Count];
+
+        destroyed_notes = new AmpNote[10000]; // TODO!!! Total note count of song!!
+
         // Stream in the horizon!
         //StreamMeasureRange(0, RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreaming);
         StreamMeasureRange(0, RhythmicGame.StreamAllMeasuresOnStart ? SongController.songLengthInMeasures : RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
     }
-
-    /// ***** ----- DEBUG TEST ----- *****
-#if false
-    int wowCounter = 0;
-    void LateUpdate()
-    {
-        if (Keyboard.current.iKey.wasPressedThisFrame)
-        {
-            StreamMeasure((int)SongController.Clock.bar + RhythmicGame.HorizonMeasures + wowCounter);
-            wowCounter++;
-        }
-    }
-#endif
 
     private void Clock_OnBar(object sender, int e)
     {
@@ -91,20 +87,52 @@ public class TrackStreamer : MonoBehaviour
         DestroyBehind(DestroyDelay == 0);
     }
 
-    int destroyCounter = 0; // Keep track of the last destroyed ID
+    /// Recycling
+    int[] measure_recycle_count, measure_recycle_counter;
+    public AmpTrackSection[][] destroyed_measures;
+    public AmpTrackSection GetDestroyedMeasure(int track_id)
+    {
+        if (destroyed_measures[track_id][measure_recycle_counter[track_id]] != null)
+        {
+            AmpTrackSection m = destroyed_measures[track_id][measure_recycle_counter[track_id]];
+            destroyed_measures[track_id][measure_recycle_counter[track_id]++] = null;
+            return m;
+        }
+        else return null;
+    }
 
+    int note_recycle_count = -1, note_recycle_counter = 0;
+    public AmpNote[] destroyed_notes;
+    public AmpNote GetDestroyedNote()
+    {
+        if (destroyed_notes[note_recycle_counter] != null)
+        {
+            AmpNote m = destroyed_notes[note_recycle_counter];
+            destroyed_notes[note_recycle_counter++] = null;
+            return m;
+        }
+        else return null;
+    }
+
+    int destroyCounter = 0; // Keep track of the last destroyed ID
     public void DestroyBehind(bool immediate = false) => StartCoroutine(_DestroyBehind(immediate));
     IEnumerator _DestroyBehind(bool immediate = false)
     {
         if (destroyCounter < 0) yield break;
-        for (int t = 0; t < TracksController.Tracks_Count; t++)
+        for (int t = 0; t < TracksController.Tracks_Count; ++t)
         {
-            var track = TracksController.Tracks[t];
-            for (int i = 0; i < Clock.Fbar - 1; i++)
+            AmpTrack track = TracksController.Tracks[t];
+            for (int i = 0; i < Clock.Fbar - 1; ++i)
             {
                 var measure = track.Measures[i];
                 if (!measure) continue;
-                Destroy(measure.gameObject);
+
+                //Destroy(measure.gameObject);
+                destroyed_measures[t][++measure_recycle_count[t]] = measure;
+
+                // Recycle notes as well:
+                measure.Notes.ForEach(n => { n.ResetComponent(); destroyed_notes[++note_recycle_count] = n; });
+                measure.ResetComponent();
 
                 track.Measures[destroyCounter] = null;
 

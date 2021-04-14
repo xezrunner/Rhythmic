@@ -4,6 +4,8 @@
 
 public partial class AmpTrack
 {
+    TrackStreamer TrackStreamer { get { return TrackStreamer.Instance; } }
+
     [Header("Prefabs")]
     public GameObject TrackSectionPrefab;
     public GameObject NotePrefab;
@@ -28,12 +30,16 @@ public partial class AmpTrack
     }
     public AmpTrackSection CreateMeasure(MetaMeasure meta)
     {
-        /// Create object
-        var obj = Instantiate(TrackSectionPrefab);
-        obj.transform.parent = MeasureContainer;
+        AmpTrackSection measure = TrackStreamer.GetDestroyedMeasure(RealID);
+        GameObject obj = measure ? measure.gameObject : null;
+        if (!measure)
+        {
+            obj = Instantiate(TrackSectionPrefab);
+            obj.transform.parent = MeasureContainer;
+            measure = obj.GetComponent<AmpTrackSection>();
+        }
 
-        /// Configure component
-        AmpTrackSection measure = obj.GetComponent<AmpTrackSection>();
+        // Configure component
         measure.Track = this;
         measure.ID = meta.ID;
         measure.Instrument = Instrument;
@@ -55,15 +61,22 @@ public partial class AmpTrack
         measure.Rotation = TunnelRot.z;
         measure.RotationQuat = Quaternion.Euler(TunnelRot); // Used in AmpTrackDestructFX
 
+        measure.Start();
+
         /// Add measure to measure list
         Measures.Add(measure);
         return measure;
     }
     public AmpNote CreateNote(MetaNote meta, AmpTrackSection measure = null, int id = 0, bool lastNote = false)
     {
-        /// Create object
-        var obj = Instantiate(NotePrefab);
-        if (measure) obj.transform.parent = measure.NotesContainer;
+        AmpNote note = TrackStreamer.GetDestroyedNote();
+        GameObject obj = note ? note.gameObject : null;
+        if (!note)
+        {
+            obj = Instantiate(NotePrefab);
+            if (measure) obj.transform.parent = measure.NotesContainer;
+            note = obj.GetComponent<AmpNote>();
+        }
 
         Vector3 offset = TunnelPos - Tunnel.center;
         obj.transform.position = PathTools.GetPositionOnPath(Path, meta.Distance, offset);
@@ -73,10 +86,10 @@ public partial class AmpTrack
         Vector3 laneOffset = localRight * GetLocalXPosFromLaneType(meta.Lane);
 
         obj.transform.Translate(laneOffset, Space.World); // Translate to lane
+        obj.transform.Translate(obj.transform.up * 0.05f, Space.Self);
 
         // set up
         obj.name = meta.Name;
-        AmpNote note = obj.GetComponent<AmpNote>();
         note.ID = id;
         note.TotalID = meta.TotalID;
         note.SharedNoteMaterial = TracksController.SharedNoteMaterial;
@@ -87,6 +100,8 @@ public partial class AmpTrack
         note.Distance = meta.Distance;
         note.IsCaptured = meta.IsCaptured;
         note.IsLastNote = lastNote;
+
+        note.Start();
 
         measure.Notes.Add(note);
         return note;

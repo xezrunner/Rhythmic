@@ -90,7 +90,7 @@ public class AmplitudeSongController : SongController
             //string path = string.Format("Songs/{0}/{1}", songName, track);
             //string path = string.Format(@"file://{0}//{1}//audio//{2}.ogg", AmplitudeGame.song_ogg_path, songName, midi_songTracks[counter]); // OGG hardcoded
             string path = Path.Combine(AmplitudeGame.song_ogg_path, songName, "audio", midi_songTracks[counter] + ".ogg");
-            Logger.LogMethod("path: " + path);
+            //Logger.LogMethod("path: " + path);
 
             if (!File.Exists(path)) // TODO: errors shouldn't be handled in a copy-paste way!
             {

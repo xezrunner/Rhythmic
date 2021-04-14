@@ -44,7 +44,11 @@ public class AmpNoteFX : MonoBehaviour
         if (fx.HasFlag(NoteCaptureFX._CatcherEffect))
             if (BlastFX_Animator) BlastFX_Animator.gameObject.SetActive(true); // TODO: temp! This keeps on playing, don't know how to reset it etc...
         if (fx.HasFlag(NoteCaptureFX._DestructEffect))
-            if (DestructHit_Particles) DestructHit_Particles.Play();
+            if (DestructHit_Particles)
+            {
+                DestructHit_Particles.gameObject.SetActive(true);
+                DestructHit_Particles.Play();
+            }
     }
 
     void Update()
@@ -64,9 +68,12 @@ public class AmpNoteFX : MonoBehaviour
         }
 
         // TEMP: have blast move with catcher!
-        float offset = (Note.Lane == LaneSide.Center) ? 0f : (Note.Lane == LaneSide.Left ? -1.18f : 1.18f);
-        Vector3 normal = (WorldSystem.Instance.Path != null) ? (WorldSystem.Instance.Path.GetNormalAtDistance(Mathf.Clamp(AmpPlayerLocomotion.Instance.DistanceTravelled, -10000, WorldSystem.Instance.Path.length - 0.001f))) : Vector3.right;
-        BlastFX_Animator.transform.position = AmpPlayer.Instance.transform.position + (normal * offset);
+        if (BlastFX_Animator)
+        {
+            float offset = (Note.Lane == LaneSide.Center) ? 0f : (Note.Lane == LaneSide.Left ? -1.18f : 1.18f);
+            Vector3 normal = (WorldSystem.Instance.Path != null) ? (WorldSystem.Instance.Path.GetNormalAtDistance(Mathf.Clamp(AmpPlayerLocomotion.Instance.DistanceTravelled, -10000, WorldSystem.Instance.Path.length - 0.001f))) : Vector3.right;
+            BlastFX_Animator.transform.position = AmpPlayer.Instance.transform.position + (normal * offset);
+        }
 
         if (fraction >= 1f)
         {

@@ -4,8 +4,8 @@ using UnityEngine;
 
 public enum DebugComponentFlag
 {
+    None = 0,
     Uninitialized = 1,
-    None = 1 << 0,
     DebugKeys = 1 << 1,
     DebugLogging = 1 << 2,
 
@@ -34,7 +34,7 @@ public partial class DebugController : MonoBehaviour
     public Transform UICanvas;
 
     [Header("Properties")]
-    [NonSerialized /*TEMP*/] public DebugComponentFlag DefaultState = DebugComponentFlag.Default;
+    [NonSerialized] public DebugComponentFlag DefaultState = DebugComponentFlag.Default; //DebugComponentFlag.DebugLogging | DebugComponentFlag.DebugUI | DebugComponentFlag.DebugMenu | DebugComponentFlag.DebugStats;
     DebugComponentFlag _State = DebugComponentFlag.Uninitialized;
     public DebugComponentFlag State
     {
