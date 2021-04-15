@@ -66,7 +66,6 @@ public class DebugConsole : DebugComponent
 
         is_animating = true;
     }
-
     void UPDATE_HandleAnimation()
     {
         if (!is_animating) return;
@@ -81,6 +80,7 @@ public class DebugConsole : DebugComponent
         else is_animating = false;
     }
 
+    // TODO: Ability to change console size
     public float GetHeightForSizeState(ConsoleSizeState size_state)
     {
         switch (size_state)
@@ -98,7 +98,6 @@ public class DebugConsole : DebugComponent
             Open();
         else Close();
     }
-
     public void Open(bool anim = true, ConsoleSizeState size_state = ConsoleSizeState.Default)
     {
         State = ConsoleState.Open;
@@ -119,6 +118,36 @@ public class DebugConsole : DebugComponent
         Animate(target_height, anim);
     }
 
+    // Input field
+    string prev_text = "";
+    public void OnInputChanged()
+    {
+        // Make [Escape] not revert the input field
+        if (!WasPressed(Keyboard.escapeKey)) prev_text = Input_Field.text;
+
+        // Autocomplete?
+
+        Logger.Log(IsOpen);
+    }
+    public void OnInputEditingEnd()
+    {
+        // Make [Escape] not revert the input field
+        if (WasPressed(Keyboard.escapeKey)) Input_Field.text = prev_text;
+    }
+
+    void FocusInputField()
+    {
+        //Input_Field.Select();
+        Input_Field.ActivateInputField();
+    }
+    void UnFocusInputField()
+    {
+        // This calls the OnSubmit() and releated events.
+        // In this case, we do not use that event, but it's good to know for future reference.
+        Input_Field.DeactivateInputField();
+    }
+
+    // Writing to the console
     public void Write(string text, params object[] args)
     {
         string s = "";
@@ -143,35 +172,7 @@ public class DebugConsole : DebugComponent
     }
     public void Log(string text, params object[] args) => Write(text + '\n', args);
 
-    string prev_text = "";
-    public void OnInputChanged()
-    {
-        // Make [Escape] not revert the input field
-        if (!WasPressed(Keyboard.escapeKey)) prev_text = Input_Field.text;
-
-        // Autocomplete?
-
-        Logger.Log(IsOpen);
-    }
-
-    public void OnInputEditingEnd()
-    {
-        // Make [Escape] not revert the input field
-        if (WasPressed(Keyboard.escapeKey)) Input_Field.text = prev_text;
-    }
-
-    void FocusInputField()
-    {
-        //Input_Field.Select();
-        Input_Field.ActivateInputField();
-    }
-    void UnFocusInputField()
-    {
-        // This calls the OnSubmit() and releated events.
-        // In this case, we do not use that event, but it's good to know for future reference.
-        Input_Field.DeactivateInputField();
-    }
-
+    // Console interaction
     public void Submit()
     {
         string s = Input_Field.text;
@@ -180,6 +181,10 @@ public class DebugConsole : DebugComponent
 
         Input_Field.text = "";
         FocusInputField();
+    }
+    public void ProcessCommand(string command, params string[] args)
+    {
+
     }
 
     void Update()
