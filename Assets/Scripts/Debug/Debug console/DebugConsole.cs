@@ -179,6 +179,7 @@ public class DebugConsole : DebugComponent
         // Process commands...
 
         Input_Field.text = "";
+        FocusInputField();
     }
 
     void Update()
