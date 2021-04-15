@@ -31,7 +31,7 @@ public partial class DebugController : MonoBehaviour
     public static DebugController Instance;
 
     [Header("Content references")]
-    public Transform UICanvas;
+    public RectTransform UICanvas;
 
     [Header("Properties")]
     [NonSerialized] public DebugComponentFlag DefaultState = DebugComponentFlag.Default; //DebugComponentFlag.DebugLogging | DebugComponentFlag.DebugUI | DebugComponentFlag.DebugMenu | DebugComponentFlag.DebugStats;
@@ -122,7 +122,7 @@ public partial class DebugController : MonoBehaviour
                     com_instance.SelfParent = (parent_obj != gameObject) ? parent_obj : null;
                 }
                 // Prefab:
-                else if (com_attr.ComponentType == DebugComponentType.Prefab)
+                else if (com_attr.ComponentType == DebugComponentType.Prefab || com_attr.ComponentType == DebugComponentType.Prefab_UI)
                 {
                     GameObject com_prefab = (GameObject)Resources.Load(com_attr.PrefabPath);
 
@@ -130,7 +130,8 @@ public partial class DebugController : MonoBehaviour
                     com_obj.name = com_type.Name;
 
                     // Special case: DebugUI goes under UICanvas!
-                    Transform parent = (com_type == typeof(DebugUI)) ? UICanvas.transform : transform;
+                    Transform parent = (com_attr.ComponentType == DebugComponentType.Prefab_UI) ? UICanvas.transform 
+                                       : transform;
                     com_obj.transform.SetParent(parent, false); // If attaching to UICanvas, the param worldPositionStays needs to be false.
                 }
             }

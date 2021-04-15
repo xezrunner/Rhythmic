@@ -25,8 +25,9 @@ public partial class DebugController
             return new List<MetaDebugComponent>()
             {
                 new MetaDebugComponent(typeof(DebugUI), DebugUI.Instance),
-                new MetaDebugComponent(typeof(DebugKeys), DebugKeys.Instance.Component),
+                //new MetaDebugComponent(typeof(DebugKeys), DebugKeys.Instance.Component),
                 new MetaDebugComponent(typeof(DebugMenu), DebugMenu.Instance),
+                new MetaDebugComponent(typeof(DebugConsole), DebugConsole.Instance),
                 new MetaDebugComponent(typeof(DebugStats), DebugStats.Instance.Component),
                 new MetaDebugComponent(typeof(SelectionComponentTest), SelectionComponentTest.Instance.Component)
             };

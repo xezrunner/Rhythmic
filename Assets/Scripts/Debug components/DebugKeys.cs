@@ -9,7 +9,6 @@ public partial class DebugKeys : DebugComponent
     public static TracksController TracksController { get { return TracksController.Instance; } }
     public static DebugUI DebugUI { get { return DebugUI.Instance; } }
 
-
     public static RefDebugComInstance Instance;
 
     public bool IsEnabled = true;
