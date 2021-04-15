@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -10,7 +12,7 @@ public enum ConsoleSizeState { Default, Compact, Full }
 public enum ConsoleState { Closed, Open }
 
 [DebugComponent(DebugComponentFlag.DebugMenu, DebugComponentType.Prefab_UI, true, -1, "Prefabs/Debug/DebugConsole")]
-public class DebugConsole : DebugComponent
+public partial class DebugConsole : DebugComponent
 {
     DebugController DebugController { get { return DebugController.Instance; } }
 
@@ -48,6 +50,8 @@ public class DebugConsole : DebugComponent
         Logger.LogMethod($"Main canvas height: {UI_Canvas_Height}", this, null);
         target_height = GetHeightForSizeState(ConsoleSizeState.Compact);
         Close(false);
+
+        RegisterCommonCommands();
     }
 
     // Animation: | TODO: smoothness, cancellability, fade out DebugUI?
@@ -126,8 +130,6 @@ public class DebugConsole : DebugComponent
         if (!WasPressed(Keyboard.escapeKey)) prev_text = Input_Field.text;
 
         // Autocomplete?
-
-        Logger.Log(IsOpen);
     }
     public void OnInputEditingEnd()
     {
@@ -171,20 +173,42 @@ public class DebugConsole : DebugComponent
         UI_Text.text += s;
     }
     public void Log(string text, params object[] args) => Write(text + '\n', args);
+    // Inconvenient arguments
+    public void _LogMethod(string text, object type = null, [CallerMemberName] string methodName = null, params object[] args) => Write(type + "/" + methodName + ": " + text, args);
 
-    // Console interaction
+    // Console interaction & command processing
     public void Submit()
     {
-        string s = Input_Field.text;
-        Log("User input: %", s);
+        string s = Input_Field.text; Log(s);
+        string command = s;
+        string[] tokens = new string[0];
+
+        if (s.Contains(' ')) // We have args!
+        {
+            int command_index = s.IndexOf(' ');
+            command = s.Substring(0, command_index);
+            ++command_index; // Move index to after the space
+
+            // Get args:
+            s = s.Substring(command_index, s.Length - command_index);
+            tokens = s.Split(' ');
+        }
+
         // Process commands...
+        ProcessCommand(command, tokens);
 
         Input_Field.text = "";
         FocusInputField();
     }
     public void ProcessCommand(string command, params string[] args)
     {
-
+        // Find the command and call it with the args:
+        for (int i = 0; i < Commands_Count; ++i)
+        {
+            ConsoleCommand c = Commands[i];
+            if (c.Command == command)
+                c.Action(args);
+        }
     }
 
     void Update()

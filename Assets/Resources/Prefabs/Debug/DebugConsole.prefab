@@ -581,7 +581,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.009433985, g: 0.009433985, b: 0.009433985, a: 0.627451}
+  m_Color: {r: 0.028301895, g: 0.028301895, b: 0.028301895, a: 0.88235295}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
@@ -617,3 +617,4 @@ MonoBehaviour:
   UI_RectTrans: {fileID: 9131247770892321296}
   UI_Text: {fileID: 6608785831490051634}
   Input_Field: {fileID: 8071321244332053071}
+  Commands_Count: 0
