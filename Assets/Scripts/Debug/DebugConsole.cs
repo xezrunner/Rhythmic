@@ -27,7 +27,7 @@ public class DebugConsole : DebugComponent
     [NonSerialized] public ConsoleSizeState SizeState = ConsoleSizeState.Compact;
 
     float UI_Canvas_Height { get { return DebugController.UICanvas.rect.height; } } // TODO: Performance!
-    [NonSerialized] public float Vertical_Padding = 4f;
+    [NonSerialized] public float Vertical_Padding = 0f;
     [NonSerialized] public float Compact_Height = 300f;
 
     [NonSerialized] public float Animation_Speed = 1f;
@@ -51,28 +51,34 @@ public class DebugConsole : DebugComponent
     }
 
     // Animation: | TODO: smoothness, cancellability, fade out DebugUI?
+    bool is_animating;
+    float anim_t;
     float current_pos, target_pos;
     float current_height, target_height;
-    public void Animate(float target, bool anim = true) => StartCoroutine(_Animate(target, anim));
-    IEnumerator _Animate(float target, bool anim = true)
+    public void Animate(float target, bool anim = true)
     {
         IsOpen = (State == ConsoleState.Open);
+
+        anim_t = (anim) ? 0.0f : 1.0f;
+
         target_pos = (State == ConsoleState.Closed) ? target : -Vertical_Padding;
         target_height = target - Vertical_Padding * 2f;
 
-        float t = (anim ? 0.0f : 1.0f);
+        is_animating = true;
+    }
 
-        do
-        {
-            current_pos = Mathf.Lerp(current_pos, target_pos, t);
-            current_height = Mathf.Lerp(current_height, target_height, t);
+    void UPDATE_HandleAnimation()
+    {
+        if (!is_animating) return;
 
-            UI_RectTrans.anchoredPosition = new Vector3(UI_RectTrans.anchoredPosition.x, current_pos);
-            UI_RectTrans.sizeDelta = new Vector3(UI_RectTrans.sizeDelta.x, current_height);
+        current_pos = Mathf.Lerp(current_pos, target_pos, anim_t);
+        current_height = Mathf.Lerp(current_height, target_height, anim_t);
 
-            t += Time.unscaledDeltaTime * Animation_Speed;
-            yield return null;
-        } while (t < 1.0f);
+        UI_RectTrans.anchoredPosition = new Vector3(UI_RectTrans.anchoredPosition.x, current_pos);
+        UI_RectTrans.sizeDelta = new Vector3(UI_RectTrans.sizeDelta.x, current_height);
+
+        if (anim_t < 1.0) anim_t += Time.unscaledDeltaTime * Animation_Speed;
+        else is_animating = false;
     }
 
     public float GetHeightForSizeState(ConsoleSizeState size_state)
@@ -99,18 +105,16 @@ public class DebugConsole : DebugComponent
         if (size_state != ConsoleSizeState.Default) target_height = GetHeightForSizeState(size_state);
 
         AmpPlayerInputHandler.IsActive = false;
-        EventSystem.current.SetSelectedGameObject(Input_Field.gameObject);
-        Input_Field.ActivateInputField();
+        FocusInputField();
 
         Animate(target_height, anim);
     }
     public void Close(bool anim = true)
     {
         State = ConsoleState.Closed;
-        AmpPlayerInputHandler.IsActive = true;
 
-        EventSystem.current.SetSelectedGameObject(null);
-        Input_Field.DeactivateInputField();
+        AmpPlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
+        UnFocusInputField();
 
         Animate(target_height, anim);
     }
@@ -139,12 +143,36 @@ public class DebugConsole : DebugComponent
     }
     public void Log(string text, params object[] args) => Write(text + '\n', args);
 
+    string prev_text = "";
     public void OnInputChanged()
     {
+        // Make [Escape] not revert the input field
+        if (!WasPressed(Keyboard.escapeKey)) prev_text = Input_Field.text;
+
         // Autocomplete?
+
+        Logger.Log(IsOpen);
     }
 
-    public void OnSubmit()
+    public void OnInputEditingEnd()
+    {
+        // Make [Escape] not revert the input field
+        if (WasPressed(Keyboard.escapeKey)) Input_Field.text = prev_text;
+    }
+
+    void FocusInputField()
+    {
+        //Input_Field.Select();
+        Input_Field.ActivateInputField();
+    }
+    void UnFocusInputField()
+    {
+        // This calls the OnSubmit() and releated events.
+        // In this case, we do not use that event, but it's good to know for future reference.
+        Input_Field.DeactivateInputField();
+    }
+
+    public void Submit()
     {
         string s = Input_Field.text;
         Log("User input: %", s);
@@ -155,7 +183,16 @@ public class DebugConsole : DebugComponent
 
     void Update()
     {
-        if (WasPressed(Keyboard.digit0Key, Keyboard.backquoteKey))
-            Toggle();
+        if (is_animating) UPDATE_HandleAnimation();
+
+        if (!IsOpen && WasPressed(Keyboard.digit0Key, Keyboard.backquoteKey))
+            Open();
+        else if (IsOpen && WasPressed(Keyboard.escapeKey))
+            Close();
+
+        if (!IsOpen) return;
+
+        if (WasPressed(Keyboard.enterKey, Keyboard.numpadEnterKey))
+            Submit();
     }
 }
