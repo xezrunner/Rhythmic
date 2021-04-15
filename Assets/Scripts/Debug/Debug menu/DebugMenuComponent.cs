@@ -152,11 +152,12 @@ public class DebugMenuComponent
         if (attr == null) attr = new DebugMenuComponentAttribute();
         Attribute = attr;
 
+        if (Entries == null) Entries = new Dictionary<int, DebugMenuEntry>();
+
         // Add 'Main menu...' shortcut if required (-1 is Main menu)
         if (Attribute.HasMainMenuShortcut && (Entries.Count == 0 /*|| Entries.ElementAt(0).Value.ID != -1 <- probably not be needed*/))
             AddEntry(MainMenuShortcut, -1);
 
-        if (Entries == null) Entries = new Dictionary<int, DebugMenuEntry>();
     }
     public void _Base_Init() => Init();
 
