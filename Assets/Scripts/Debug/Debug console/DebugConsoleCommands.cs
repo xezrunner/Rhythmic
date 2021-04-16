@@ -20,9 +20,9 @@ public partial class DebugConsole
     // Other classes are free to register console commands at any point by using RegisterCommand().
     void RegisterCommonCommands()
     {
-        _RegisterCommand("test", test);
+        _RegisterCommand("test", test); // temp!
         _RegisterCommand("song", LoadSong);
-        _RegisterCommand("test", test);
+        _RegisterCommand("world", LoadWorld);
     }
 
     public List<ConsoleCommand> Commands = new List<ConsoleCommand>();
@@ -33,7 +33,7 @@ public partial class DebugConsole
     public static void RegisterCommand(string command, Action<string[]> action) => Instance?._RegisterCommand(command, action);
     void _RegisterCommand(string command, Action<string[]> action)
     {
-        if (Register_CheckForExistingCommands)
+        if (Register_CheckForExistingCommands) // TODO: Performance, especially in non-debug builds (?)
             for (int i = 0; i < Commands_Count; ++i)
                 if (Commands[i].Command == command) { Logger.LogMethodW($"Command {command.AddColor(Colors.Application)} was already registered! Ignoring current attempt..."); return; }
 
@@ -54,10 +54,15 @@ public partial class DebugConsole
         _Log("got the following args: %".TM(this), s);
     }
 
-    /// Songs:
+    /// Songs & worlds:
     void LoadSong(string[] args)
     {
         if (args.Length == 0) DebugConsole.Log("usage: ".TM() + "song ".AddColor(Colors.Application) + "<song name>".AddColor(Colors.Unimportant));
         else SongsMenu.LoadSong(args[0]);
+    }
+    void LoadWorld(string[] args)
+    {
+        if (args.Length == 0) DebugConsole.Log("usage: ".TM() + "world ".AddColor(Colors.Application) + "<full world path>".AddColor(Colors.Unimportant));
+        else WorldsMenu.LoadWorld(args[0]);
     }
 }

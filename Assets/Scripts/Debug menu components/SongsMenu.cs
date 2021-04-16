@@ -35,7 +35,7 @@ namespace DebugMenus
 
         public static void LoadSong(string song)
         {
-            DebugMenu.Instance?._SetActive(false);
+            DebugMenu.SetActive(false);
             SongController.songName = song;
             RhythmicGame.Restart();
         }
