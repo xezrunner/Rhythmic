@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 
 namespace DebugMenus
 {
@@ -32,9 +33,9 @@ namespace DebugMenus
 
         // Functionality:
 
-        void LoadSong(string song)
+        public static void LoadSong(string song)
         {
-            DebugMenu_Close();
+            DebugMenu.Instance?._SetActive(false);
             SongController.songName = song;
             RhythmicGame.Restart();
         }

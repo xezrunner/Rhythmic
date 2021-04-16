@@ -96,6 +96,7 @@ public partial class DebugConsole : DebugComponent
         }
     }
 
+    // TODO: Static commands, global control/automation (?)
     public void Toggle()
     {
         if (State == ConsoleState.Closed)
@@ -150,7 +151,10 @@ public partial class DebugConsole : DebugComponent
     }
 
     // Writing to the console
-    public void Write(string text, params object[] args)
+    public static void Write(string text, params object[] args) => Instance?._Write(text, args);
+    public static void Log(string text, params object[] args) => Instance?._Log(text, args);
+
+    void _Write(string text, params object[] args)
     {
         string s = "";
 
@@ -172,14 +176,14 @@ public partial class DebugConsole : DebugComponent
 
         UI_Text.text += s;
     }
-    public void Log(string text, params object[] args) => Write(text + '\n', args);
+    void _Log(string text, params object[] args) => _Write(text + '\n', args);
     // Inconvenient arguments
-    public void _LogMethod(string text, object type = null, [CallerMemberName] string methodName = null, params object[] args) => Write(type + "/" + methodName + ": " + text, args);
+    public void _LogMethod(string text, object type = null, [CallerMemberName] string methodName = null, params object[] args) => _Write(type + "/" + methodName + ": " + text, args);
 
     // Console interaction & command processing
     public void Submit()
     {
-        string s = Input_Field.text; Log(s);
+        string s = Input_Field.text; _Log(s);
         string command = s;
         string[] tokens = new string[0];
 
