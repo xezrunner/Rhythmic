@@ -49,7 +49,7 @@ public partial class DebugConsole : DebugComponent
 
         Logger.LogMethod($"Main canvas height: {UI_Canvas_Height}", this, null);
         target_height = GetHeightForSizeState(ConsoleSizeState.Compact);
-        Close(false);
+        _Close(false);
 
         RegisterCommonCommands();
     }
@@ -100,10 +100,13 @@ public partial class DebugConsole : DebugComponent
     public void Toggle()
     {
         if (State == ConsoleState.Closed)
-            Open();
-        else Close();
+            _Open();
+        else _Close();
     }
-    public void Open(bool anim = true, ConsoleSizeState size_state = ConsoleSizeState.Default)
+
+    public static void Open(bool anim = true, ConsoleSizeState size_state = ConsoleSizeState.Default) => Instance?._Open();
+    public static void Close(bool anim = true) => Instance?._Close();
+    void _Open(bool anim = true, ConsoleSizeState size_state = ConsoleSizeState.Default)
     {
         State = ConsoleState.Open;
         if (size_state != ConsoleSizeState.Default) target_height = GetHeightForSizeState(size_state);
@@ -113,7 +116,7 @@ public partial class DebugConsole : DebugComponent
 
         Animate(target_height, anim);
     }
-    public void Close(bool anim = true)
+    void _Close(bool anim = true)
     {
         State = ConsoleState.Closed;
 
@@ -220,9 +223,9 @@ public partial class DebugConsole : DebugComponent
         if (is_animating) UPDATE_HandleAnimation();
 
         if (!IsOpen && WasPressed(Keyboard.digit0Key, Keyboard.backquoteKey))
-            Open();
+            _Open();
         else if (IsOpen && WasPressed(Keyboard.escapeKey))
-            Close();
+            _Close();
 
         if (!IsOpen) return;
 

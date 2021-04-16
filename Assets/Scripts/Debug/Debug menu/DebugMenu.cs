@@ -17,8 +17,8 @@ public partial class DebugMenu : DebugComponent
 {
     DebugUI DebugUI;
 
-    TextMeshProUGUI debugmenuText;
-    public Image debugmenuArrow;
+    TextMeshProUGUI UI_Text;
+    public Image UI_Arrow;
 
     public static DebugMenu Instance;
     public static RefDebugComInstance Instances;
@@ -28,9 +28,10 @@ public partial class DebugMenu : DebugComponent
     DebugMenuEntry SelectedEntry;
 
     public bool IsActive;
+    public static bool DebugMenuClosesConsole = true; // HACK: some debug console commands may use debug menu functionality. We want to close console when requesting to close the debug menu too.
     public static void SetActive(bool value) // TODO: static is hacky!
     {
-        DebugMenu debugMenu = (DebugMenu)Instance;
+        DebugMenu debugMenu = Instance;
         if (!debugMenu) Logger.LogMethodW("Debug menu has no instance!", "DebugMenu");
 
         debugMenu._SetActive(value);
@@ -41,21 +42,25 @@ public partial class DebugMenu : DebugComponent
         // Also invincibility, pausing (controllable)
 
         IsActive = value;
-        debugmenuArrow.gameObject.SetActive(value);
-        debugmenuText.gameObject.SetActive(value);
+        UI_Arrow.gameObject.SetActive(value);
+        UI_Text.gameObject.SetActive(value);
 
         // Disable player input during debug menu
         AmpPlayerInputHandler.IsActive = !value;
 
-        if (IsActive) StartCoroutine(_Startup_EntryMoveCoroutine());
+        // Close debug menu
+        if (!value && DebugMenuClosesConsole) DebugConsole.Close();
+
+        if (IsActive) StartCoroutine(EntryMoveCoroutine());
     }
 
     // TODO: This hack is required as TMP apparently has no line count when the component has just started.
     // This also fixes the wrong cursor position bug when starting at index 0.
-    IEnumerator _Startup_EntryMoveCoroutine()
+    // We might want to only do this at startup?
+    IEnumerator EntryMoveCoroutine()
     {
         // Wait for the line count to populate before moving to the last known position.
-        while (debugmenuText.textInfo.lineCount == 0)
+        while (UI_Text.textInfo.lineCount == 0)
             yield return null;
 
         Entry_Move(ActiveComponent.entry_index);
@@ -67,8 +72,8 @@ public partial class DebugMenu : DebugComponent
         Instances = new RefDebugComInstance(this, gameObject);
 
         DebugUI = DebugUI.Instance;
-        debugmenuText = DebugUI.debugmenuText;
-        debugmenuArrow = DebugUI.debugmenuArrow;
+        UI_Text = DebugUI.debugmenuText;
+        UI_Arrow = DebugUI.debugmenuArrow;
     }
     void Start()
     {
@@ -107,10 +112,10 @@ public partial class DebugMenu : DebugComponent
     void Handle_ActiveComponent(int index = 0) // Prints the active menu's text
     {
         if (ActiveComponent == null)
-        { debugmenuText.text = ""; return; }
+        { UI_Text.text = ""; return; }
 
         //if (_isActive)
-        debugmenuText.text = ActiveComponent.Main(index);
+        UI_Text.text = ActiveComponent.Main(index);
     }
     public void SwitchToComponent(Type type)
     {
@@ -252,12 +257,12 @@ public partial class DebugMenu : DebugComponent
         // Get the left-top position of the line
         //int line_index = debugmenuText.textInfo.lineInfo[index].firstCharacterIndex;
         TMP_LineInfo line = new TMP_LineInfo();
-        line = debugmenuText.textInfo.lineInfo[index];
+        line = UI_Text.textInfo.lineInfo[index];
         float line_height = (line.lineHeight * index + (line.lineHeight / 2));
-        Vector3 line_worldPos = debugmenuText.transform.TransformPoint(new Vector3(0, -line_height, 0));
+        Vector3 line_worldPos = UI_Text.transform.TransformPoint(new Vector3(0, -line_height, 0));
 
         Vector3 arrow_pos = line_worldPos + (Vector3.left * 25f); /* Left padding */
-        debugmenuArrow.transform.position = arrow_pos;
+        UI_Arrow.transform.position = arrow_pos;
 
         UpdateEntryColors(ref Entries, index);
 
