@@ -184,6 +184,7 @@ public partial class DebugConsole : DebugComponent
     public void _LogMethod(string text, object type = null, [CallerMemberName] string methodName = null, params object[] args) => _Write(type + "/" + methodName + ": " + text, args);
 
     // Console interaction & command processing
+    public static bool Process_ReturnOnFoundCommand = true;
     public void Submit()
     {
         string s = Input_Field.text; _Log(s);
@@ -209,19 +210,21 @@ public partial class DebugConsole : DebugComponent
     }
     public void ProcessCommand(string command, params string[] args)
     {
+        bool found = false;
+
         // Find the command and call it with the args:
         for (int i = 0; i < Commands_Count; ++i)
         {
             ConsoleCommand c = Commands[i];
             if (c.Command == command)
             {
+                found = true;
                 c.Action(args); // Invoke command action!
-                return;
+                if (Process_ReturnOnFoundCommand) return;
             }
         }
 
-        // We didn't find the command.
-        _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
+        if (!found) _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
     }
 
     void Update()
