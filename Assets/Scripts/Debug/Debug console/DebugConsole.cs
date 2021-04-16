@@ -214,8 +214,14 @@ public partial class DebugConsole : DebugComponent
         {
             ConsoleCommand c = Commands[i];
             if (c.Command == command)
-                c.Action(args);
+            {
+                c.Action(args); // Invoke command action!
+                return;
+            }
         }
+
+        // We didn't find the command.
+        _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
     }
 
     void Update()
