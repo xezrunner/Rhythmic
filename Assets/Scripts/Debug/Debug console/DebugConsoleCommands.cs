@@ -62,7 +62,7 @@ public partial class DebugConsole
     }
     void LoadWorld(string[] args)
     {
-        if (args.Length == 0) DebugConsole.Log("usage: ".TM() + "world ".AddColor(Colors.Application) + "<full world path>".AddColor(Colors.Unimportant));
+        if (args.Length == 0) DebugConsole.Log("usage: ".TM() + "world ".AddColor(Colors.Application) + "<relative world path, starting from Scenes/>".AddColor(Colors.Unimportant));
         else WorldsMenu.LoadWorld(args[0]);
     }
 }
