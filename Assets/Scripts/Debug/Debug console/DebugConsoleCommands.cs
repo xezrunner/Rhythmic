@@ -31,15 +31,17 @@ public partial class DebugConsole
     void RegisterCommonCommands()
     {
         _RegisterCommand("test", test); // temp!
+
         _RegisterCommand("song", LoadSong);
         _RegisterCommand("world", LoadWorld);
-        _RegisterCommand("close", close);
+
+
     }
 
     public List<ConsoleCommand> Commands = new List<ConsoleCommand>();
     public int Commands_Count = 0;
 
-    // NOTE: If you don't check for existing commands, depending on Process_ReturnOnFoundCommand, you may run multiple commands at once!
+    // NOTE: If you don't check for existing commands, depending on ReturnOnFoundCommand, you may run multiple commands at once!
     public static bool Register_CheckForExistingCommands = true;
     public static void RegisterCommand(string command, Action<string[]> action) => Instance?._RegisterCommand(command, action);
     void _RegisterCommand(string command, Action<string[]> action)
@@ -74,20 +76,15 @@ public partial class DebugConsole
         _Log("got the following args: %".TM(this), s);
     }
 
-    public void close()
-    {
-        UnfocusInputField();
-    }
-
     /// Songs & worlds:
     void LoadSong(string[] args)
     {
-        if (args.Length == 0) DebugConsole.Log("usage: ".TM() + "song ".AddColor(Colors.Application) + "<song name>".AddColor(Colors.Unimportant));
+        if (args.Length == 0) Log("usage: ".TM() + "song ".AddColor(Colors.Application) + "<song name>".AddColor(Colors.Unimportant));
         else SongsMenu.LoadSong(args[0]);
     }
     void LoadWorld(string[] args)
     {
-        if (args.Length == 0) DebugConsole.Log("usage: ".TM() + "world ".AddColor(Colors.Application) + "<relative world path, starting from Scenes/>".AddColor(Colors.Unimportant));
+        if (args.Length == 0) Log("usage: ".TM() + "world ".AddColor(Colors.Application) + "<relative world path, starting from Scenes/>".AddColor(Colors.Unimportant));
         else WorldsMenu.LoadWorld(args[0]);
     }
 }

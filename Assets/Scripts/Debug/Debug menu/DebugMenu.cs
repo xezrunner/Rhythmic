@@ -49,7 +49,7 @@ public partial class DebugMenu : DebugComponent
         AmpPlayerInputHandler.IsActive = !value;
 
         // Close debug menu
-        if (!value && DebugMenuClosesConsole) DebugConsole.Close();
+        if (!value && DebugMenuClosesConsole) DebugConsole.Close(); // TODO!!: This does not work for some reason. We seemingly can't unfocus during Scene loading or in some other cases.
 
         if (IsActive) StartCoroutine(EntryMoveCoroutine());
     }

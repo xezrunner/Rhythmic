@@ -128,6 +128,12 @@ public partial class DebugConsole : DebugComponent
     string prev_text = "";
     public void OnInputChanged()
     {
+        if (!IsOpen) // HACK: Since unfocusing the console doesn't seem to want to work, we do this instead.
+        {
+            Input_Field.text = prev_text;
+            return;
+        }
+
         // Make [Escape] not revert the input field
         if (!WasPressed(Keyboard.escapeKey)) prev_text = Input_Field.text;
 
@@ -150,6 +156,7 @@ public partial class DebugConsole : DebugComponent
     {
         // This calls the OnSubmit() and releated events.
         // In this case, we do not use that event, but it's good to know for future reference.
+        EventSystem.current.SetSelectedGameObject(null); // Unnecessary?
         Input_Field.DeactivateInputField();
         AmpPlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
     }
@@ -185,7 +192,7 @@ public partial class DebugConsole : DebugComponent
     public void _LogMethod(string text, object type = null, [CallerMemberName] string methodName = null, params object[] args) => _Write(type + "/" + methodName + ": " + text, args);
 
     // Console interaction & command processing
-    public static bool Process_ReturnOnFoundCommand = true;
+    public static bool ReturnOnFoundCommand = true;
     public void Submit()
     {
         string s = Input_Field.text; _Log(s);
@@ -201,6 +208,14 @@ public partial class DebugConsole : DebugComponent
             // Get args:
             s = s.Substring(command_index, s.Length - command_index);
             tokens = s.Split(' ');
+
+            // Spaces shouldn't count as args
+            int space_counter = 0;
+            for (int i = 0; i < tokens.Length; ++i)
+                if (tokens[i] == " " || tokens[i] == "")
+                { tokens[i] = null; ++space_counter; }
+
+            if (space_counter == tokens.Length) tokens = new string[0];
         }
 
         Input_Field.text = "";
@@ -222,7 +237,7 @@ public partial class DebugConsole : DebugComponent
             {
                 found = true;
                 c.Invoke(args); // Invoke command action!
-                if (Process_ReturnOnFoundCommand) return;
+                if (ReturnOnFoundCommand) return;
             }
         }
 
