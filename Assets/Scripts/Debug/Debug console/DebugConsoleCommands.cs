@@ -8,10 +8,20 @@ using System.Collections.Generic;
 // parameters given in the console (separated by spaces).
 public struct ConsoleCommand
 {
-    public ConsoleCommand(string command, Action<string[]> action) { Command = command; Action = action; }
+    public ConsoleCommand(string command, Action action) { Command = command; Action_Empty = action; Action_Param = null; is_action_empty = true; }
+    public ConsoleCommand(string command, Action<string[]> action) { Command = command; Action_Param = action; Action_Empty = null; is_action_empty = false; }
 
     public string Command;
-    public Action<string[]> Action;
+
+    public bool is_action_empty; // HACK!
+    public Action Action_Empty;
+    public Action<string[]> Action_Param;
+
+    public void Invoke(params string[] args)
+    {
+        if (is_action_empty) Action_Empty();
+        else Action_Param(args);
+    }
 }
 
 public partial class DebugConsole
@@ -23,6 +33,7 @@ public partial class DebugConsole
         _RegisterCommand("test", test); // temp!
         _RegisterCommand("song", LoadSong);
         _RegisterCommand("world", LoadWorld);
+        _RegisterCommand("close", close);
     }
 
     public List<ConsoleCommand> Commands = new List<ConsoleCommand>();
@@ -32,6 +43,15 @@ public partial class DebugConsole
     public static bool Register_CheckForExistingCommands = true;
     public static void RegisterCommand(string command, Action<string[]> action) => Instance?._RegisterCommand(command, action);
     void _RegisterCommand(string command, Action<string[]> action)
+    {
+        if (Register_CheckForExistingCommands) // TODO: Performance, especially in non-debug builds (?)
+            for (int i = 0; i < Commands_Count; ++i)
+                if (Commands[i].Command == command) { Logger.LogMethodW($"Command {command.AddColor(Colors.Application)} was already registered! Ignoring current attempt..."); return; }
+
+        ConsoleCommand c = new ConsoleCommand(command, action);
+        Commands.Add(c); ++Commands_Count;
+    }
+    void _RegisterCommand(string command, Action action)
     {
         if (Register_CheckForExistingCommands) // TODO: Performance, especially in non-debug builds (?)
             for (int i = 0; i < Commands_Count; ++i)
@@ -52,6 +72,11 @@ public partial class DebugConsole
         string s = "";
         for (int i = 0; i < a.Length; ++i) s += a[i] + ' ';
         _Log("got the following args: %".TM(this), s);
+    }
+
+    public void close()
+    {
+        UnfocusInputField();
     }
 
     /// Songs & worlds:

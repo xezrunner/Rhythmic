@@ -219,7 +219,7 @@ public partial class DebugConsole : DebugComponent
             if (c.Command == command)
             {
                 found = true;
-                c.Action(args); // Invoke command action!
+                c.Invoke(args); // Invoke command action!
                 if (Process_ReturnOnFoundCommand) return;
             }
         }
