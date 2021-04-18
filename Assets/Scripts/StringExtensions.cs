@@ -80,7 +80,7 @@ public static class StringExtensions
         else if (type == null && (methodName != null && methodName != ""))
             return text.M(color, methodName);
         else if (type != null && (methodName != null && methodName != ""))
-            return $"{T("", type, false)}/{methodName}():".AddColor(color) + text;
+            return $"{T("", type, false)}/{methodName}(): ".AddColor(color) + text;
         else
         { Logger.LogMethodE("WTF", "StringExts", "TypeMethod"); return text; }
     }
