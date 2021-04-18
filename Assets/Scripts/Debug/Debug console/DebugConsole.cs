@@ -236,7 +236,15 @@ public partial class DebugConsole : DebugComponent
             if (c.Command == command)
             {
                 found = true;
-                c.Invoke(args); // Invoke command action!
+
+                // TODO: add function name?
+                bool is_exclusive_help = (args.Contains("--help") || (!c.is_action_empty && args.Length == 0));
+
+                if (is_exclusive_help || args.Length == 0)
+                    //Log($"{c.Command.AddColor(Colors.Application)}: {c.HelpText}".AddColor(Colors.Unimportant));
+                    Log($"{c.HelpText}".AddColor(Colors.Unimportant));
+
+                if (!is_exclusive_help) c.Invoke(args); // Invoke command action!
                 if (ReturnOnFoundCommand) return;
             }
         }
