@@ -20,8 +20,13 @@ public struct ConsoleCommand
 
     public void Invoke(params string[] args)
     {
-        if (is_action_empty) Action_Empty();
-        else Action_Param(args);
+        try
+        {
+            if (is_action_empty) Action_Empty();
+            else Action_Param(args);
+        }
+        catch (Exception ex)
+        { DebugConsole.Log("Failed to execute command: " + "%".AddColor(Colors.Error), ex.Message); }
     }
 }
 
