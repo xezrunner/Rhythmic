@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public enum DebugComponentFlag
 {
@@ -32,6 +33,7 @@ public partial class DebugController : MonoBehaviour
 
     [Header("Content references")]
     public RectTransform UICanvas;
+    public EventSystem Event_System;
 
     [Header("Properties")]
     [NonSerialized] public DebugComponentFlag DefaultState = DebugComponentFlag.Default; //DebugComponentFlag.DebugLogging | DebugComponentFlag.DebugUI | DebugComponentFlag.DebugMenu | DebugComponentFlag.DebugStats;
@@ -48,6 +50,7 @@ public partial class DebugController : MonoBehaviour
         { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(this);
+        Event_System.gameObject.SetActive(true);
         GameState.CreateGameState(); // Create GameState in case game was started abnormally
     }
     void Start()
