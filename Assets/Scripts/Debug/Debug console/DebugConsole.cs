@@ -111,17 +111,15 @@ public partial class DebugConsole : DebugComponent
         State = ConsoleState.Open;
         if (size_state != ConsoleSizeState.Default) target_height = GetHeightForSizeState(size_state);
 
-        AmpPlayerInputHandler.IsActive = false;
         FocusInputField();
 
         Animate(target_height, anim);
     }
     void _Close(bool anim = true)
     {
-        State = ConsoleState.Closed;
+        UnfocusInputField();
 
-        AmpPlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
-        UnFocusInputField();
+        State = ConsoleState.Closed;
 
         Animate(target_height, anim);
     }
@@ -145,12 +143,15 @@ public partial class DebugConsole : DebugComponent
     {
         //Input_Field.Select();
         Input_Field.ActivateInputField();
+        AmpPlayerInputHandler.IsActive = false;
     }
-    void UnFocusInputField()
+    // TODO: Cannot unfocus input fields manually! This is bad! Figure out why!!
+    void UnfocusInputField()
     {
         // This calls the OnSubmit() and releated events.
         // In this case, we do not use that event, but it's good to know for future reference.
         Input_Field.DeactivateInputField();
+        AmpPlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
     }
 
     // Writing to the console
@@ -202,11 +203,12 @@ public partial class DebugConsole : DebugComponent
             tokens = s.Split(' ');
         }
 
+        Input_Field.text = "";
+        FocusInputField();
+
         // Process commands...
         ProcessCommand(command, tokens);
 
-        Input_Field.text = "";
-        FocusInputField();
     }
     public void ProcessCommand(string command, params string[] args)
     {
