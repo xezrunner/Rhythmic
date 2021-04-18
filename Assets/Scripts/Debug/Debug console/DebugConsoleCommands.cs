@@ -90,4 +90,7 @@ public partial class DebugConsole
     /// Songs & worlds:
     void LoadSong(string[] args) => SongsMenu.LoadSong(args[0]);
     void LoadWorld(string[] args) => WorldsMenu.LoadWorld(args[0]);
+
+    /// Track switching
+    void SwitchToTrack(string[] args) => AmpPlayerTrackSwitching.Instance.SwitchToTrack(int.Parse(args[0]));
 }
