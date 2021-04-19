@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Runtime.CompilerServices;
+using UnityEngine;
 
 public static class StringExtensions
 {
@@ -46,5 +47,41 @@ public static class StringExtensions
         for (int i = 0; i < space_count; i++) s += ' ';
 
         return s + text;
+    }
+
+    /// Not sure about the naming for these... the shorter ones seem more convenient.
+    // TODO: Default colors
+    ///
+
+    //public static string Type(this string text, object type = null)
+    public static string T(this string text, object type = null, bool standalone = true) => T(text, Colors.Unimportant, type, standalone);
+    public static string T(this string text, Color color, object type = null, bool standalone = true)
+    {
+        if (type != null)
+            return $"{type.GetType().Name}{(standalone ? ": " : "")}".AddColor(color) + text;
+        else return text;
+    }
+
+    //public static string Method(this string text, [CallerMemberName] string methodName = null)
+    public static string M(this string text, [CallerMemberName] string methodName = null) => M(text, Colors.Application, methodName);
+    public static string M(this string text, Color color, [CallerMemberName] string methodName = null)
+    {
+        if (methodName != null)
+            return $"{methodName}(): ".AddColor(color) + text;
+        else return text;
+    }
+
+    //public static string TypeMethod(this string text, object type = null, [CallerMemberName] string methodName = null)
+    public static string TM(this string text, object type = null, [CallerMemberName] string methodName = null) => TM(text, Colors.Application, type, methodName);
+    public static string TM(this string text, Color color, object type = null, [CallerMemberName] string methodName = null)
+    {
+        if (type != null && (methodName == null || methodName == ""))
+            return text.T(color, type);
+        else if (type == null && (methodName != null && methodName != ""))
+            return text.M(color, methodName);
+        else if (type != null && (methodName != null && methodName != ""))
+            return $"{T("", type, false)}/{methodName}(): ".AddColor(color) + text;
+        else
+        { Logger.LogMethodE("WTF", "StringExts", "TypeMethod"); return text; }
     }
 }

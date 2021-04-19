@@ -35,7 +35,7 @@ public enum ComponentDebugLevel
     Lighting = (PlayerStats | LightingStats)
 }
 
-[DebugComponent(DebugComponentFlag.DebugUI, DebugComponentType.Prefab, "Prefabs/Debug/DebugUI")]
+[DebugComponent(DebugComponentFlag.DebugUI, DebugComponentType.Prefab_UI, true, -1, "Prefabs/Debug/DebugUI")]
 public class DebugUI : DebugComponent
 {
     public static DebugUI Instance;
@@ -84,7 +84,7 @@ public class DebugUI : DebugComponent
         resolutionVersionText.text = ($"{RhythmicGame.Resolution.x}x{RhythmicGame.Resolution.y} @ 75Hz\n" +
                                      $"{Version.build_string}" +
                                      (Debug.isDebugBuild ? " DEBUG".AddColor(Colors.Error) : null) +
-                                     (System.Diagnostics.Debugger.IsAttached ? " , ATTACHED".AddColor(Colors.Error) : null));
+                                     (System.Diagnostics.Debugger.IsAttached ? ", ATTACHED".AddColor(Colors.Application) : null));
     }
 
     /// Interface switching
@@ -264,8 +264,8 @@ public class DebugUI : DebugComponent
 
         // ----- DEBUG LOOP ----- //
 
-        if (Input.GetKeyDown(KeyCode.L))
-            AddToDebugLine($"bananas! {bananasCounter++}");
+        //if (Input.GetKeyDown(KeyCode.L))
+        //    AddToDebugLine($"bananas! {bananasCounter++}");
 
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F3)) // freeze printing
         {

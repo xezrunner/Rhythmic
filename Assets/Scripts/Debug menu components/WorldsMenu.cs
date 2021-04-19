@@ -32,7 +32,7 @@
 
         // Functionality:
 
-        void LoadWorld(string world)
+        public static void LoadWorld(string world)
         {
             DebugMenu.SetActive(false);
             RhythmicGame.StartWorld = world;

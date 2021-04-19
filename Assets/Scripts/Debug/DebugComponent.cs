@@ -12,7 +12,8 @@ public struct RefDebugComInstance
     public object ObjectInstance;
 }
 
-public enum DebugComponentType { Component = 0, Prefab = 1 }
+// Prefabs that include UI elements (and aren't handled by DebugUI) should use Prefab_UI to go under the shared debug UI canvas.
+public enum DebugComponentType { Component = 0, Prefab = 1, Prefab_UI = 2 }
 public enum DebugComTextMode { Clear = 0, Additive = 1 }
 
 [AttributeUsage(AttributeTargets.Class)]
