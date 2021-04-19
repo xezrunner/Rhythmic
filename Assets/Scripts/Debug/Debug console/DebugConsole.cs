@@ -200,6 +200,8 @@ public partial class DebugConsole : DebugComponent
             foreach (ConsoleCommand c in results)
             {
                 string command = c.Command;
+                if (command == Text) continue; // Do not include the actual whole command, but do include similar other ones!
+
                 int index_of_found = command.IndexOf(Text);
                 int end_index = index_of_found + Text.Length;
                 int end_length = command.Length - (index_of_found + Text.Length);
