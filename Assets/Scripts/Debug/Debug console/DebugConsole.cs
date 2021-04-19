@@ -153,11 +153,20 @@ public partial class DebugConsole : DebugComponent
         if (!WasPressed(Keyboard.escapeKey)) Text = Input_Field.text;
 
         // Autocomplete:
+        if (!autocomplete_enabled) return;
+
         Autocomplete_WriteEntries(); // Empty out the autocomplete text
         autocomplete_elapsed_since_req = 0f; // Reset autocomplete delay timer
         autocomplete_requested = (Text != "") ? true : false; // Request autocomplete
     }
+    public void OnInputEditingEnd()
+    {
+        // Make [Escape] not revert the input field
+        if (WasPressed(Keyboard.escapeKey)) Input_Field.text = Text;
+    }
 
+    // Autocomplete:
+    bool autocomplete_enabled = true;
     float autocomplete_padding_x = 6f;
     void Autocomplete_WriteEntries(params string[] args)
     {
@@ -208,12 +217,6 @@ public partial class DebugConsole : DebugComponent
             autocomplete_requested = false;
             autocomplete_elapsed_since_req = 0f;
         }
-    }
-
-    public void OnInputEditingEnd()
-    {
-        // Make [Escape] not revert the input field
-        if (WasPressed(Keyboard.escapeKey)) Input_Field.text = Text;
     }
 
     void FocusInputField()
@@ -276,6 +279,33 @@ public partial class DebugConsole : DebugComponent
 
     // Console interaction & command processing
     public static bool ReturnOnFoundCommand = true;
+    public void ProcessCommand(string command, params string[] args)
+    {
+        bool found = false;
+
+        // Find the command and call it with the args:
+        for (int i = 0; i < Commands_Count; ++i)
+        {
+            ConsoleCommand c = Commands[i];
+            if (c.Command == command)
+            {
+                found = true;
+
+                // TODO: add function name?
+                bool is_exclusive_help = (args.Contains("--help") || (!c.is_action_empty && args.Length == 0));
+                if (is_exclusive_help && command.StartsWith("set_")) is_exclusive_help = false; // TEMP / HACK!
+
+                if (is_exclusive_help || args.Length == 0)
+                    //Log($"{c.Command.AddColor(Colors.Application)}: {c.HelpText}".AddColor(Colors.Unimportant));
+                    Log($"{c.HelpText}".AddColor(Colors.Unimportant));
+
+                if (!is_exclusive_help) c.Invoke(args); // Invoke command action!
+                if (ReturnOnFoundCommand) return;
+            }
+        }
+
+        if (!found) _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
+    }
     public void Submit()
     {
         string s = Input_Field.text; _Log(s);
@@ -307,32 +337,6 @@ public partial class DebugConsole : DebugComponent
         // Process commands...
         ProcessCommand(command, tokens);
 
-    }
-    public void ProcessCommand(string command, params string[] args)
-    {
-        bool found = false;
-
-        // Find the command and call it with the args:
-        for (int i = 0; i < Commands_Count; ++i)
-        {
-            ConsoleCommand c = Commands[i];
-            if (c.Command == command)
-            {
-                found = true;
-
-                // TODO: add function name?
-                bool is_exclusive_help = (args.Contains("--help") || (!c.is_action_empty && args.Length == 0));
-
-                if (is_exclusive_help || args.Length == 0)
-                    //Log($"{c.Command.AddColor(Colors.Application)}: {c.HelpText}".AddColor(Colors.Unimportant));
-                    Log($"{c.HelpText}".AddColor(Colors.Unimportant));
-
-                if (!is_exclusive_help) c.Invoke(args); // Invoke command action!
-                if (ReturnOnFoundCommand) return;
-            }
-        }
-
-        if (!found) _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
     }
 
     void Update()

@@ -39,8 +39,12 @@ public partial class DebugConsole
     // Other classes are free to register console commands at any point by using RegisterCommand().
     void RegisterCommonCommands()
     {
+        // TODO: Replace these with the non-underscore ('_') variant?
         _RegisterCommand("test", test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
-        _RegisterCommand("clear", clear); // temp!
+        _RegisterCommand("clear", _Clear);
+
+        _RegisterCommand("toggle_autocomplete", toggle_autocomplete);
+        _RegisterCommand("set_autocomplete", set_autocomplete);
 
         _RegisterCommand("song", LoadSong, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
         _RegisterCommand("world", LoadWorld, $"usage: {"world".AddColor(Colors.Application)} <relative world path, starting from Scenes/>");
@@ -78,7 +82,7 @@ public partial class DebugConsole
     // ----- Common commands ----- //
     /// You should add non-common commands from a different class.
 
-    public void test(string[] a)
+    void test(string[] a)
     {
         if (a.Length == 0)
         { _Log("We got no arguments.".M()); return; }
@@ -87,8 +91,26 @@ public partial class DebugConsole
         for (int i = 0; i < a.Length; ++i) s += a[i] + ' ';
         _Log("got the following args: %".TM(this), s);
     }
+    void set_autocomplete(string[] args)
+    {
+        if (args != null || args.Length != 0)
+        {
+            // TODO: We probably want a parser that will parse numeric values to bools as well as things like true/false and 'enabled'/'disabled'!
+            bool result; int int_result;
 
-    public void clear() => DebugConsole.Clear();
+            if (int.TryParse(args[0], out int_result)) result = (int_result == 1);
+            else result = bool.Parse(args[0]);
+
+            autocomplete_enabled = result;
+        }
+        Log("Autocomplete: %", (autocomplete_enabled ? "enabled" : "disabled"));
+    }
+    void toggle_autocomplete()
+    {
+        autocomplete_enabled = !autocomplete_enabled;
+        if (autocomplete_enabled) Log("Autocomplete enabled.");
+        else Log("Autocomplete disabled.");
+    }
 
     /// Songs & worlds:
     void LoadSong(string[] args) => SongsMenu.LoadSong(args[0]);
