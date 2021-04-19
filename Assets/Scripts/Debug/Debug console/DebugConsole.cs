@@ -240,6 +240,7 @@ public partial class DebugConsole : DebugComponent
 
     public static void Clear() => Instance?._Clear();
     void _Clear() => UI_Text.text = "";
+
     void _Write(string text, params object[] args)
     {
         string s = "";
@@ -263,16 +264,15 @@ public partial class DebugConsole : DebugComponent
         UI_Text.text += s;
         StartCoroutine(ScrollToBottom());
     }
+    void _Log(string text, params object[] args) => _Write(text + '\n', args);
+    // Inconvenient arguments
+    public void _LogMethod(string text, object type = null, [CallerMemberName] string methodName = null, params object[] args) => _Write(type + "/" + methodName + ": " + text, args);
 
     IEnumerator ScrollToBottom() // HACK: You have to wait for the end of the current frame to be able to scroll to the bottom.
     {
         yield return new WaitForEndOfFrame();
         UI_ScrollRect.verticalNormalizedPosition = 0f;
     }
-
-    void _Log(string text, params object[] args) => _Write(text + '\n', args);
-    // Inconvenient arguments
-    public void _LogMethod(string text, object type = null, [CallerMemberName] string methodName = null, params object[] args) => _Write(type + "/" + methodName + ": " + text, args);
 
     // Console interaction & command processing
     public static bool ReturnOnFoundCommand = true;
