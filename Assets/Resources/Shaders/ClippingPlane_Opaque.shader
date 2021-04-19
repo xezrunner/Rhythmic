@@ -25,7 +25,7 @@
 		SubShader
 		{
 			//the material is completely non-transparent and is rendered at the same time as the other opaque geometry
-			Tags{ "Queue" = "Geometry"  "RenderType" = "Opaque" "ForceNoShadowCasting" = "True"}
+			Tags{ "Queue" = "Geometry"  "RenderType" = "Opaque"}
 
 			// render faces regardless if they point towards the camera or away from it
 			//Lighting On

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Scripting;
 
 // Track streaming system
 // Purpose: stream in the measures and notes in real-time as we are playing
@@ -47,6 +48,8 @@ public class TrackStreamer : MonoBehaviour
         }
     }
 
+    void GC_Incremental() => GarbageCollector.CollectIncremental();
+
     void Awake()
     {
         Instance = this;
@@ -68,6 +71,9 @@ public class TrackStreamer : MonoBehaviour
 
         destroyed_notes = new AmpNote[SongController.total_note_count * RhythmicGame.TunnelTrackDuplicationNum]; // TODO!!! Total note count of song!!
         Logger.Log($"TrackStreamer: Allocated {SongController.total_note_count * RhythmicGame.TunnelTrackDuplicationNum} entries for recyclable notes.");
+
+        // ------ SET GARBAGE COLLECTION TO MANUAL ------ //
+        if (!Application.isEditor) GarbageCollector.GCMode = GarbageCollector.Mode.Manual;
 
         // Stream in the horizon!
         //StreamMeasureRange(0, RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreaming);
@@ -224,6 +230,7 @@ public class TrackStreamer : MonoBehaviour
                 StartCoroutine(_StreamMeasure(id, i));
                 if (!immediate && !RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Tracks)) yield return new WaitForSeconds(StreamDelay);
             }
+            if (!Application.isEditor) GC_Incremental();
         }
         IsStreaming = false;
     }
