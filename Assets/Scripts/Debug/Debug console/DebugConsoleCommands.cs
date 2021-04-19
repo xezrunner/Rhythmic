@@ -41,6 +41,8 @@ public partial class DebugConsole
     {
         // TODO: Replace these with the non-underscore ('_') variant?
         _RegisterCommand("test", test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
+        _RegisterCommand("clear_text_test", clear_text_test);
+
         _RegisterCommand("clear", _Clear);
 
         _RegisterCommand("toggle_autocomplete", toggle_autocomplete);
@@ -81,6 +83,14 @@ public partial class DebugConsole
 
     // ----- Common commands ----- //
     /// You should add non-common commands from a different class.
+
+    void clear_text_test()
+    {
+        string s = $"Hello {"wow".AddColor(Colors.Network)} this is {"really".AddColor(Colors.Application)} cool!";
+        Log("The original text is: %", s);
+        s = s.ClearColors();
+        Log("The cleaned text is: %", s);
+    }
 
     void test(string[] a)
     {

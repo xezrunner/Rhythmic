@@ -153,9 +153,8 @@ public partial class DebugConsole : DebugComponent
         if (!WasPressed(Keyboard.escapeKey)) Text = Input_Field.text;
 
         // Autocomplete:
-        if (!autocomplete_enabled) return;
+        if (!autocomplete_enabled || is_autocompleting) return;
 
-        Autocomplete_WriteEntries(); // Empty out the autocomplete text
         autocomplete_elapsed_since_req = 0f; // Reset autocomplete delay timer
         autocomplete_requested = (Text != "") ? true : false; // Request autocomplete
     }
@@ -170,7 +169,8 @@ public partial class DebugConsole : DebugComponent
     float autocomplete_padding_x = 6f;
     void Autocomplete_WriteEntries(params string[] args)
     {
-        if (args == null || args.Length == 0) { UI_Autocomplete.text = ""; return; }
+        UI_Autocomplete.text = "";
+        if (args == null || args.Length == 0) return;
 
         UI_Autocomplete.text += ":: ";
 
@@ -178,9 +178,41 @@ public partial class DebugConsole : DebugComponent
             UI_Autocomplete.text += args[i] + ((i != args.Length - 1) ? "; " : "");
 
         // Move autocomplete UI to the right of the text
+        UI_Autocomplete_UpdateLayout();
+    }
+
+    void UI_Autocomplete_UpdateLayout()
+    {
         int last_index = Input_Field.textComponent.textInfo.lineInfo[0].lastVisibleCharacterIndex;
         Vector3 c_trans = Input_Field.textComponent.transform.TransformPoint(Input_Field.textComponent.textInfo.characterInfo[last_index].bottomRight);
         UI_Autocomplete.rectTransform.position = new Vector2(c_trans.x + autocomplete_padding_x, UI_Autocomplete.rectTransform.position.y);
+    }
+
+    int autocomplete_index = -1;
+    List<string> autocomplete_commands;
+    bool is_autocompleting = false;
+
+    void Autocomplete_Next()
+    {
+        if (autocomplete_commands == null || autocomplete_commands.Count == 0) return;
+
+        is_autocompleting = true;
+
+        ++autocomplete_index;
+        if (autocomplete_index >= autocomplete_commands.Count) autocomplete_index = 0;
+
+        Input_Field.text = autocomplete_commands[autocomplete_index].ClearColors();
+        Input_Field.caretPosition = Input_Field.text.Length;
+
+        // Update autocomplete UI:
+        List<string> autocomplete_commands_temp = autocomplete_commands.ToList();
+        autocomplete_commands_temp[autocomplete_index] = autocomplete_commands_temp[autocomplete_index].ClearColors().Bold().Underline().AddColor(Colors.Network); // TODO: improve formatting?
+        Autocomplete_WriteEntries(autocomplete_commands_temp.ToArray());
+
+        // This is no longer needed if we do the eabove formatting. Leaving it here in case we change our minds.
+        //UI_Autocomplete_UpdateLayout();
+
+        is_autocompleting = false;
     }
 
     bool autocomplete_requested = false;
@@ -196,11 +228,12 @@ public partial class DebugConsole : DebugComponent
         {
             List<ConsoleCommand> results = Commands.Where(s => s.Command.Contains(Text)).ToList();
             List<string> s_results = new List<string>();
+            int count_of_exact_commands = 0;
 
             foreach (ConsoleCommand c in results)
             {
                 string command = c.Command;
-                if (command == Text) continue; // Do not include the actual whole command, but do include similar other ones!
+                if (command == Text) ++count_of_exact_commands; // Do not include the actual whole command, but do include similar other ones!
 
                 int index_of_found = command.IndexOf(Text);
                 int end_index = index_of_found + Text.Length;
@@ -212,6 +245,11 @@ public partial class DebugConsole : DebugComponent
 
                 s_results.Add(s);
             }
+
+            if (s_results.Count == 1 && count_of_exact_commands == 1) s_results = new List<string>(); // TODO: Performance?
+
+            autocomplete_index = -1;
+            autocomplete_commands = s_results;
 
             Autocomplete_WriteEntries(s_results.ToArray());
 
@@ -228,7 +266,6 @@ public partial class DebugConsole : DebugComponent
         DebugKeys.IsEnabled = false;
         //Input_Field.Select();
     }
-    // TODO: Cannot unfocus input fields manually! This is bad! Figure out why!!
     void UnfocusInputField()
     {
         // This calls the OnSubmit() and releated events.
@@ -355,5 +392,7 @@ public partial class DebugConsole : DebugComponent
 
         if (WasPressed(Keyboard.enterKey, Keyboard.numpadEnterKey))
             Submit();
+        if (WasPressed(Keyboard.tabKey))
+            Autocomplete_Next();
     }
 }
