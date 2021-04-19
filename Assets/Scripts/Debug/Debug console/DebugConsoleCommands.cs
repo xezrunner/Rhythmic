@@ -40,6 +40,7 @@ public partial class DebugConsole
     void RegisterCommonCommands()
     {
         _RegisterCommand("test", test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
+        _RegisterCommand("clear", clear); // temp!
 
         _RegisterCommand("song", LoadSong, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
         _RegisterCommand("world", LoadWorld, $"usage: {"world".AddColor(Colors.Application)} <relative world path, starting from Scenes/>");
@@ -86,6 +87,8 @@ public partial class DebugConsole
         for (int i = 0; i < a.Length; ++i) s += a[i] + ' ';
         _Log("got the following args: %".TM(this), s);
     }
+
+    public void clear() => DebugConsole.Clear();
 
     /// Songs & worlds:
     void LoadSong(string[] args) => SongsMenu.LoadSong(args[0]);
