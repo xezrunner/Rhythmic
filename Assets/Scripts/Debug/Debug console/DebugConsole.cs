@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using TMPro;
@@ -13,7 +14,7 @@ public enum ConsoleSizeState { Default, Compact, Full }
 public enum ConsoleState { Closed, Open }
 
 /// TODO:
-//  [ ] Fix text UI bounds, scrolling
+//  [*] Fix text UI bounds, scrolling
 /// 
 //  [ ] History + repeat
 ///
@@ -30,9 +31,14 @@ public partial class DebugConsole : DebugComponent
 
     public RectTransform UI_Parent_Trans;
     public RectTransform UI_RectTrans;
+
+    // Text:
     public ScrollRect UI_ScrollRect;
     public TMP_Text UI_Text;
+
+    // Input field:
     public TMP_InputField Input_Field;
+    public TMP_Text UI_Autocomplete;
 
     [NonSerialized] public bool IsOpen;
     [NonSerialized] public ConsoleState State;
@@ -57,7 +63,6 @@ public partial class DebugConsole : DebugComponent
         if (!UI_Text || !Input_Field)
         { Logger.LogMethodE("Console has no UI_Text or Input_Field references!", this, null); return; }
 
-        Logger.LogMethod($"Main canvas height: {UI_Canvas_Height}", this, null);
         target_height = GetHeightForSizeState(ConsoleSizeState.Compact);
         _Close(false);
 
@@ -80,7 +85,7 @@ public partial class DebugConsole : DebugComponent
 
         is_animating = true;
     }
-    void UPDATE_HandleAnimation()
+    void UPDATE_Animation()
     {
         if (!is_animating) return;
 
@@ -135,24 +140,80 @@ public partial class DebugConsole : DebugComponent
     }
 
     // Input field
-    string prev_text = "";
+    new string Text = ""; // Hiding: (base) DebugComponent.Text
     public void OnInputChanged()
     {
         if (!IsOpen) // HACK: Since unfocusing the console doesn't seem to want to work, we do this instead.
         {
-            Input_Field.text = prev_text;
+            Input_Field.text = Text;
             return;
         }
 
         // Make [Escape] not revert the input field
-        if (!WasPressed(Keyboard.escapeKey)) prev_text = Input_Field.text;
+        if (!WasPressed(Keyboard.escapeKey)) Text = Input_Field.text;
 
-        // Autocomplete?
+        // Autocomplete:
+        Autocomplete_WriteEntries(); // Empty out the autocomplete text
+        autocomplete_elapsed_since_req = 0f; // Reset autocomplete delay timer
+        autocomplete_requested = (Text != "") ? true : false; // Request autocomplete
     }
+
+    float autocomplete_padding_x = 6f;
+    void Autocomplete_WriteEntries(params string[] args)
+    {
+        if (args == null || args.Length == 0) { UI_Autocomplete.text = ""; return; }
+
+        UI_Autocomplete.text += ":: ";
+
+        for (int i = 0; i < args.Length; ++i)
+            UI_Autocomplete.text += args[i] + ((i != args.Length - 1) ? "; " : "");
+
+        // Move autocomplete UI to the right of the text
+        int last_index = Input_Field.textComponent.textInfo.lineInfo[0].lastVisibleCharacterIndex;
+        Vector3 c_trans = Input_Field.textComponent.transform.TransformPoint(Input_Field.textComponent.textInfo.characterInfo[last_index].bottomRight);
+        UI_Autocomplete.rectTransform.position = new Vector2(c_trans.x + autocomplete_padding_x, UI_Autocomplete.rectTransform.position.y);
+    }
+
+    bool autocomplete_requested = false;
+    float autocomplete_elapsed_since_req = 0f;
+    float autocomplete_delay = 300f; // ms
+    void UPDATE_Autocomplete()
+    {
+        if (!autocomplete_requested) return;
+
+        if (autocomplete_elapsed_since_req < autocomplete_delay)
+            autocomplete_elapsed_since_req += (Time.unscaledDeltaTime * 1000);
+        else // Delay done - do autocomplete:
+        {
+            List<ConsoleCommand> results = Commands.Where(s => s.Command.Contains(Text)).ToList();
+            List<string> s_results = new List<string>();
+
+            foreach (ConsoleCommand c in results)
+            {
+                string command = c.Command;
+                int index_of_found = command.IndexOf(Text);
+                int end_index = index_of_found + Text.Length;
+                int end_length = command.Length - (index_of_found + Text.Length);
+
+                string s0 = command.Substring(0, index_of_found);
+                string s1 = command.Substring(end_index, end_length);
+                string s = (s0 + Text.AddColor(Colors.Application, 1f) + s1);
+
+                s_results.Add(s);
+            }
+
+            Autocomplete_WriteEntries(s_results.ToArray());
+
+            // Reset autocomplete request
+            autocomplete_requested = false;
+            autocomplete_elapsed_since_req = 0f;
+        }
+    }
+
     public void OnInputEditingEnd()
     {
         // Make [Escape] not revert the input field
-        if (WasPressed(Keyboard.escapeKey)) Input_Field.text = prev_text;
+        if (WasPressed(Keyboard.escapeKey)) Input_Field.text = Text;
     }
 
     void FocusInputField()
@@ -276,7 +337,8 @@ public partial class DebugConsole : DebugComponent
 
     void Update()
     {
-        if (is_animating) UPDATE_HandleAnimation();
+        UPDATE_Animation();
+        UPDATE_Autocomplete();
 
         if (!IsOpen && WasPressed(Keyboard.digit0Key, Keyboard.backquoteKey))
             _Open();
