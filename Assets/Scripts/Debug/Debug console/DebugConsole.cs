@@ -155,9 +155,10 @@ public partial class DebugConsole : DebugComponent
 
     void FocusInputField()
     {
-        //Input_Field.Select();
         Input_Field.ActivateInputField();
         AmpPlayerInputHandler.IsActive = false;
+        DebugKeys.IsEnabled = false;
+        //Input_Field.Select();
     }
     // TODO: Cannot unfocus input fields manually! This is bad! Figure out why!!
     void UnfocusInputField()
@@ -167,6 +168,7 @@ public partial class DebugConsole : DebugComponent
         EventSystem.current.SetSelectedGameObject(null); // Unnecessary?
         Input_Field.DeactivateInputField();
         AmpPlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
+        DebugKeys.IsEnabled = true;
     }
 
     // Writing to the console
