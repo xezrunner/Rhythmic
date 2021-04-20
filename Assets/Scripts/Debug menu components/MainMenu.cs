@@ -42,7 +42,7 @@
             Stats.StatsMode = (Stats.StatsMode == mode) ? StatsMode.None : mode;
         }
 
-        void QuitGame()
+        public static void QuitGame()
         {
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;

@@ -43,6 +43,7 @@ public partial class DebugConsole
         // Testing / console-meta commands:
         RegisterCommand("clear", _Clear);
         RegisterCommand(help, "Lists all commands.");
+        RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds.");
         RegisterCommand(toggle_autocomplete);
         RegisterCommand(set_autocomplete);
 
