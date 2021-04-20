@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public static class StringExtensions
@@ -81,7 +82,7 @@ public static class StringExtensions
     public static string T(this string text, Color color, object type = null, bool standalone = true)
     {
         if (type != null)
-            return $"{type.GetType().Name}{(standalone ? ": " : "")}".AddColor(color) + text;
+            return $"{(type.GetType() == typeof(string) ? (string)type : type.GetType().Name)}{(standalone ? ": " : "")}".AddColor(color) + text;
         else return text;
     }
 
@@ -107,4 +108,5 @@ public static class StringExtensions
         else
         { Logger.LogMethodE("WTF", "StringExts", "TypeMethod"); return text; }
     }
+
 }
