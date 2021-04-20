@@ -1,6 +1,7 @@
 ﻿using DebugMenus;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 // These take in strings as parameters.
 // It was initially developed with it taking in objects, but it shouldn't really matter.
@@ -42,7 +43,7 @@ public partial class DebugConsole
 
         // Testing / console-meta commands:
         RegisterCommand("clear", _Clear);
-        RegisterCommand(help, "Lists all commands.");
+        RegisterCommand(help, "Lists all commands / gives help text for particular commands. usage: " + "help".AddColor(Colors.Application) + " <command>");
         RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds.");
         RegisterCommand(toggle_autocomplete);
         RegisterCommand(set_autocomplete);
@@ -104,11 +105,33 @@ public partial class DebugConsole
     void _RegisterCommand(Action action, string helpText = "") => _RegisterCommand(action.Method.Name, action, helpText); //Empty
     void _RegisterCommand(Action<string[]> action, string helpText = "") => _RegisterCommand(action.Method.Name, action, helpText); // Parameters
 
+    // Displays the help text for any command:
+    public static void Help_Command(string command) => Instance?._Help_Command(command);
+    void _Help_Command(string command)
+    {
+        for (int i = 0; i < Commands.Count; i++)
+        {
+            ConsoleCommand c = Commands[i];
+            if (c.Command == command)
+            {
+                if (c.HelpText != "") Log($"{c.HelpText}".AddColor(Colors.Unimportant));
+                else Log("No help text for command %", command);
+                return;
+            }
+        }
+    }
+
     // ----- Common commands ----- //
     /// You should add non-common commands from a different class.
 
-    void help()
+    void help(string[] args)
     {
+        if (args.Length > 0)
+        {
+            Help_Command(args[0]);
+            return;
+        }
+
         string s = "Listing all commands: \n";
         for (int i = 0; i < Commands.Count; ++i)
         {

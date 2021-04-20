@@ -414,8 +414,7 @@ public partial class DebugConsole : DebugComponent
                 // TODO: What kind of shenanigans should we do here? Perhaps we should let commands show their help text inside themselves. (DebugConsole/ShowHelpText(string command) ?)
                 //bool is_help = (is_exclusive_help || (!c.is_action_empty && args.Length == 0)); // TODO: this definitely isn't always correct. Once we have a better search algo, use that to display help text for any command by string!
 
-                if (is_exclusive_help)
-                    Log($"{c.HelpText}".AddColor(Colors.Unimportant));
+                if (is_exclusive_help) Help_Command(command);
 
                 if (!is_exclusive_help) c.Invoke(args); // Invoke command action!
                 if (ReturnOnFoundCommand) return;
