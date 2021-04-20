@@ -227,10 +227,12 @@ public partial class DebugConsole : DebugComponent
             autocomplete_elapsed_since_req += (Time.unscaledDeltaTime * 1000);
         else // Delay done - do autocomplete:
         {
+            // TODO: empty text should not perform an autocomplete!
             List<ConsoleCommand> results = Commands.Where(s => s.Command.Contains(Text)).ToList();
             List<string> s_results = new List<string>();
             int count_of_exact_commands = 0;
 
+            // TODO: better search algorithm here!
             foreach (ConsoleCommand c in results)
             {
                 string command = c.Command;
