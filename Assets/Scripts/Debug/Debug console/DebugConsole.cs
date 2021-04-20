@@ -156,7 +156,8 @@ public partial class DebugConsole : DebugComponent
         if (!autocomplete_enabled || is_autocompleting) return;
 
         autocomplete_elapsed_since_req = 0f; // Reset autocomplete delay timer
-        autocomplete_requested = (Text != "") ? true : false; // Request autocomplete
+        if (Input_Field.text == "") Autocomplete_WriteEntries(); // clear out
+        else autocomplete_requested = true; // Request autocomplete
     }
     public void OnInputEditingEnd()
     {
