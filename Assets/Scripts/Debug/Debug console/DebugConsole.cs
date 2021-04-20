@@ -18,7 +18,7 @@ public enum ConsoleState { Closed, Open }
 /// 
 //  [ ] History + repeat
 ///
-//  [ ] Autocomplete
+//  [*] Autocomplete
 /// 
 
 [DebugComponent(DebugComponentFlag.DebugMenu, DebugComponentType.Prefab_UI, true, -1, "Prefabs/Debug/DebugConsole")]
@@ -210,7 +210,7 @@ public partial class DebugConsole : DebugComponent
         autocomplete_commands_temp[autocomplete_index] = autocomplete_commands_temp[autocomplete_index].ClearColors().Bold().Underline().AddColor(Colors.Network); // TODO: improve formatting?
         Autocomplete_WriteEntries(autocomplete_commands_temp.ToArray());
 
-        // This is no longer needed if we do the eabove formatting. Leaving it here in case we change our minds.
+        // This is no longer needed if we do the above formatting. Leaving it here in case we change our minds.
         //UI_Autocomplete_UpdateLayout();
 
         is_autocompleting = false;
@@ -236,7 +236,7 @@ public partial class DebugConsole : DebugComponent
             foreach (ConsoleCommand c in results)
             {
                 string command = c.Command;
-                if (command == Text) ++count_of_exact_commands; // Do not include the actual whole command, but do include similar other ones!
+                if (command == Text) ++count_of_exact_commands;
 
                 int index_of_found = command.IndexOf(Text);
                 int end_index = index_of_found + Text.Length;
@@ -249,6 +249,7 @@ public partial class DebugConsole : DebugComponent
                 s_results.Add(s);
             }
 
+            // Do not include the actual whole command, but do include similar other ones:
             if (s_results.Count == 1 && count_of_exact_commands == 1) s_results = new List<string>(); // TODO: Performance?
 
             autocomplete_index = -1;
@@ -269,7 +270,7 @@ public partial class DebugConsole : DebugComponent
         DebugKeys.IsEnabled = false;
         //Input_Field.Select();
     }
-    void UnfocusInputField()
+    void UnfocusInputField() // TODO: This does not unfocus the input field in certain cases. Workaround in OnInputChanged()
     {
         // This calls the OnSubmit() and releated events.
         // In this case, we do not use that event, but it's good to know for future reference.

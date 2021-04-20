@@ -86,10 +86,10 @@ public partial class DebugConsole
 
     void clear_text_test()
     {
-        string s = $"Hello {"wow".AddColor(Colors.Network)} this is {"really".AddColor(Colors.Application)} cool!";
+        string s = $"Hello% {"Wow".AddColor(Colors.Network)}, this {"is".Italic()} {"really".AddColor(Colors.Application)} cool!";
         Log("The original text is: %", s);
         s = s.ClearColors();
-        Log("The cleaned text is: %", s);
+        Log("The color-cleared text is: %", s);
     }
 
     void test(string[] a)
