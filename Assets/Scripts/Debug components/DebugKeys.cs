@@ -116,7 +116,7 @@ public partial class DebugKeys : DebugComponent
                 shouldLog = false;
 
             if (shouldLog)
-                Logger.Log($"DestroyDelay: {TrackStreamer.Instance.DestroyDelay.ToString().AddColor(Colors.Application)}", "TrackStreamer", false);
+                Logger._Log_Method($"DestroyDelay: {TrackStreamer.Instance.DestroyDelay.ToString().AddColor(Colors.Application)}", "TrackStreamer", false);
         }
 
         // Lag compensation

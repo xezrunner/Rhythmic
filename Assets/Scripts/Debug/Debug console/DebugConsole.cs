@@ -40,6 +40,7 @@ public partial class DebugConsole : DebugComponent
     [NonSerialized] public float Vertical_Padding = 0f;
     [NonSerialized] public float Compact_Height = 300f;
 
+    [NonSerialized] public int Text_Max_Length = 5000; // chars
     [NonSerialized] public float Animation_Speed = 1f;
     [NonSerialized] public float Autocomplete_Delay = 100f; // ms
 
@@ -59,7 +60,7 @@ public partial class DebugConsole : DebugComponent
         target_height = GetHeightForSizeState(ConsoleSizeState.Compact);
         _Close(false);
 
-        RegisterCommonCommands();
+        Console_RegisterCommands();
     }
 
     // Animation: | TODO: smoothness, cancellability, fade out DebugUI?
@@ -133,17 +134,21 @@ public partial class DebugConsole : DebugComponent
     }
 
     // Input field
-    new string Text = ""; // Hiding: (base) DebugComponent.Text
+    string Input_Text = ""; // Hiding: (base) DebugComponent.Text
     public void OnInputChanged()
     {
         if (!IsOpen) // HACK: Since unfocusing the console doesn't seem to want to work, we do this instead.
         {
-            Input_Field.text = Text;
+            Input_Field.text = Input_Text; // Reset text to the last set text. Do not accept new input.
             return;
         }
 
         // Make [Escape] not revert the input field
-        if (!WasPressed(Keyboard.escapeKey)) Text = Input_Field.text;
+        if (!WasPressed(Keyboard.escapeKey)) Input_Text = Input_Field.text;
+
+        // Limit text length
+        if (UI_Text.text.Length > Text_Max_Length)
+            UI_Text.text = UI_Text.text.Substring(UI_Text.text.Length - Text_Max_Length, Text_Max_Length);
 
         // Reset history navigation
         if (!is_history_navigating) history_index = -1;
@@ -152,13 +157,53 @@ public partial class DebugConsole : DebugComponent
         if (!autocomplete_enabled || is_autocompleting) return;
 
         autocomplete_elapsed_since_req = 0f; // Reset autocomplete delay timer
+
         if (Input_Field.text == "") Autocomplete_WriteEntries(); // clear out
         else autocomplete_requested = true; // Request autocomplete
     }
     public void OnInputEditingEnd()
     {
         // Make [Escape] not revert the input field
-        if (WasPressed(Keyboard.escapeKey)) Input_Field.text = Text;
+        if (WasPressed(Keyboard.escapeKey)) Input_Field.text = Input_Text;
+    }
+    void InputField_ChangeText(string text, int next_caret = -1)
+    {
+        Input_Field.text = text.ClearColors();
+        Input_Field.caretPosition = (next_caret == -1 ? Input_Field.text.Length : next_caret);
+    }
+    void InputField_WordDelete(int dir) // -1: left | 1: right
+    {
+        if (Input_Text == "") return;
+        if (Input_Text.Length == 1) return;
+
+        int caret_position = Input_Field.caretPosition;
+
+        string s0 = Input_Text.Substring(0, caret_position); // 0 -> *| ...
+        string s1 = Input_Text.Substring(caret_position, Input_Text.Length - caret_position);
+
+        if (dir == -1) // Delete from caret to the left (one word)
+        {
+            if (caret_position == 0) return;
+
+            string[] tokens = s0.Split(' ');
+            if (tokens.Length > 0) tokens[tokens.Length - 1] = "";
+
+            s0 = string.Join(" ", tokens);
+            caret_position = s0.Length;
+        }
+        else if (dir == 1)
+        {
+            if (caret_position == Input_Text.Length - 1) return;
+
+            string[] tokens = s1.Split(' ');
+            if (tokens.Length > 0) tokens[0] = "";
+
+            s1 = string.Join(" ", tokens);
+            if (s1.Length > 1) s1 = s1.Substring(1, s1.Length - 1); // Eat first space
+        }
+
+        string s = s0 + s1;
+        InputField_ChangeText(s, caret_position);
     }
 
     // Autocomplete:
@@ -218,8 +263,7 @@ public partial class DebugConsole : DebugComponent
         if (autocomplete_index >= autocomplete_commands.Count) autocomplete_index = 0;
         else if (autocomplete_index < 0) autocomplete_index = autocomplete_commands.Count - 1;
 
-        Input_Field.text = autocomplete_commands[autocomplete_index].ClearColors();
-        Input_Field.caretPosition = Input_Field.text.Length;
+        InputField_ChangeText(autocomplete_commands[autocomplete_index]); // Colors are cleared for us.
 
         // Update autocomplete UI:
         List<string> autocomplete_commands_temp = autocomplete_commands.ToList();
@@ -243,9 +287,9 @@ public partial class DebugConsole : DebugComponent
             autocomplete_elapsed_since_req += (Time.unscaledDeltaTime * 1000);
             return;
         }
-        else if (Text != "") // Delay done - do autocomplete:
+        else if (Input_Text != "") // Delay done - do autocomplete:
         {
-            List<ConsoleCommand> results = Commands.Where(s => s.Command.Contains(Text)).ToList();
+            List<ConsoleCommand> results = Commands.Where(s => s.Command.Contains(Input_Text)).ToList();
             List<string> s_results = new List<string>();
             int count_of_exact_commands = 0;
 
@@ -253,15 +297,15 @@ public partial class DebugConsole : DebugComponent
             foreach (ConsoleCommand c in results)
             {
                 string command = c.Command;
-                if (command == Text) ++count_of_exact_commands;
+                if (command == Input_Text) ++count_of_exact_commands;
 
-                int index_of_found = command.IndexOf(Text);
-                int end_index = index_of_found + Text.Length;
-                int end_length = command.Length - (index_of_found + Text.Length);
+                int index_of_found = command.IndexOf(Input_Text);
+                int end_index = index_of_found + Input_Text.Length;
+                int end_length = command.Length - (index_of_found + Input_Text.Length);
 
                 string s0 = command.Substring(0, index_of_found);
                 string s1 = command.Substring(end_index, end_length);
-                string s = (s0 + Text.AddColor(Colors.Application, 1f) + s1);
+                string s = (s0 + Input_Text.AddColor(Colors.Application, 1f) + s1);
 
                 s_results.Add(s);
             }
@@ -307,8 +351,7 @@ public partial class DebugConsole : DebugComponent
 
         is_history_navigating = true;
 
-        Input_Field.text = History[history_index];
-        Input_Field.caretPosition = Input_Field.text.Length;
+        InputField_ChangeText(History[history_index]);
 
         is_history_navigating = false;
     }
@@ -367,11 +410,11 @@ public partial class DebugConsole : DebugComponent
             {
                 found = true;
 
-                // TODO: add function name?
                 bool is_exclusive_help = args.Contains("--help");
-                bool is_help = (is_exclusive_help || (!c.is_action_empty && args.Length == 0)); // TODO: this definitely isn't always correct. Once we have a better search algo, use that to display help text for any command by string!
+                // TODO: What kind of shenanigans should we do here? Perhaps we should let commands show their help text inside themselves. (DebugConsole/ShowHelpText(string command) ?)
+                //bool is_help = (is_exclusive_help || (!c.is_action_empty && args.Length == 0)); // TODO: this definitely isn't always correct. Once we have a better search algo, use that to display help text for any command by string!
 
-                if (is_help)
+                if (is_exclusive_help)
                     Log($"{c.HelpText}".AddColor(Colors.Unimportant));
 
                 if (!is_exclusive_help) c.Invoke(args); // Invoke command action!
@@ -437,5 +480,9 @@ public partial class DebugConsole : DebugComponent
             History_Next(1);
         if (WasPressed(Keyboard.downArrowKey))
             History_Next(-1);
+
+        // Editing:
+        if (Keyboard.ctrlKey.isPressed && Keyboard.backspaceKey.wasPressedThisFrame) InputField_WordDelete(-1);
+        if (Keyboard.ctrlKey.isPressed && Keyboard.deleteKey.wasPressedThisFrame) InputField_WordDelete(1);
     }
 }
