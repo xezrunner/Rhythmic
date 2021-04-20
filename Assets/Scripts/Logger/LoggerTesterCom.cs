@@ -13,7 +13,8 @@ public class LoggerTesterCom : MonoBehaviour
     public void SendText()
     {
         string debugInfo = $"CLogType: {LogType} [{(int)LogType}]";
-        Logger.Log($"{Text} | {debugInfo}", LogType);
+        Logger.LogWarning("I broke this.");
+        //Logger.Log($"{Text} | {debugInfo}", LogType);
     }
 
     public void SendObject(bool printIndex = true, char separatorChar = ',') => Logger.Log(TestList, 0, printIndex, separatorChar);

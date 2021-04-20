@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public static class StringExtensions
@@ -81,7 +82,7 @@ public static class StringExtensions
     public static string T(this string text, Color color, object type = null, bool standalone = true)
     {
         if (type != null)
-            return $"{type.GetType().Name}{(standalone ? ": " : "")}".AddColor(color) + text;
+            return $"{(type.GetType() == typeof(string) ? (string)type : type.GetType().Name)}{(standalone ? ": " : "")}".AddColor(color) + text;
         else return text;
     }
 
@@ -103,8 +104,30 @@ public static class StringExtensions
         else if (type == null && (methodName != null && methodName != ""))
             return text.M(color, methodName);
         else if (type != null && (methodName != null && methodName != ""))
-            return $"{T("", type, false)}/{methodName}(): ".AddColor(color) + text;
+            return $"{T("", type, false)}/" + $"{methodName}(): ".AddColor(color) + text;
         else
         { Logger.LogMethodE("WTF", "StringExts", "TypeMethod"); return text; }
+    }
+
+    // Boolean parsing:
+    public static bool ParseBool(this string text)
+    {
+        // Try parsing as boolean:
+        bool bool_result = false;
+        if (bool.TryParse(text, out bool_result)) return bool_result;
+
+        // Try parsing as integer: 
+        int int_result = -1;
+        if (int.TryParse(text, out int_result)) return (int_result == 1);
+
+        // Try parsing common bool-like strings:
+        string[] s_true = { "enabled", "yes", "y", "t" };
+        string[] s_false = { "disabled", "no", "n", "f" };
+
+        if (s_true.Contains(text.ToLower())) return true;
+        else if (s_false.Contains(text.ToLower())) return false;
+
+        Logger.LogW("could not parse the string '%' to boolean. Returning false.".T("StringExts"), text);
+        return false;
     }
 }

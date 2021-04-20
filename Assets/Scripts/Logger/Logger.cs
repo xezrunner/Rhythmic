@@ -14,9 +14,10 @@ using UnityEngine;
 
 public enum LogTarget
 {
-    Unity = 1, RhythmicConsole = 1 << 0, DebugLine = 1 << 1,
-    UnityAndConsole = (Unity | RhythmicConsole),
-    Default = UnityAndConsole, All = (Unity | RhythmicConsole | DebugLine)
+    None = 0, Unity = 1, RhythmicConsole = 1 << 1, DebugConsole = 1 << 2, DebugLine = 1 << 3,
+    UnityAndConsole = (Unity | RhythmicConsole | DebugConsole), // no DebugLine
+    All = (Unity | RhythmicConsole | DebugConsole | DebugLine),
+    Default = All
 }
 
 // TODO: Add LogWarning & LogError (& LogIO, LogNetwork, LogApplication, LogGame)(?) variatons!
@@ -47,19 +48,49 @@ public static partial class Logger
     public static string LogConsole(string text, CLogType logType) { if (ConsoleServer.IsServerActive) ConsoleServer.Write(text, logType); return text; }
 
     /// Log():
+    
+    // Args parser:
+    public static string ParseArgs(string text, params object[] args)
+    {
+        string s = "";
+
+        int c = 0, arg_i = 0;
+        for (int i = 0; i < text.Length; ++i, ++c)
+        {
+            if (text[c] == '%' && (c - 1 > 0 && text[c - 1] != '\\'))
+            {
+                if (arg_i >= args.Length) LogMethodE($"There was no argument at {arg_i} - total count: {args.Length}", "Logger");
+                else
+                {
+                    s += args[arg_i++]; 
+                    continue;
+                }
+            }
+
+            s += text[c];
+        }
+
+        return s;
+    }
 
     // Logging router:
-    public static string Log(string text, CLogType logType, LogTarget logTarget = LogTarget.All)
+    static string Log(string text, CLogType logType, LogTarget logTarget, params object[] args)
     {
+        if (text.Contains("%")) text = ParseArgs(text, args);
+
         if (logTarget.HasFlag(LogTarget.Unity) && CurrentLogTarget.HasFlag(LogTarget.Unity)) LogUnity(text, logType);
         if (logTarget.HasFlag(LogTarget.RhythmicConsole) && CurrentLogTarget.HasFlag(LogTarget.RhythmicConsole)) LogConsole(text, logType);
         if (Application.isPlaying)
+        {
+            if (logTarget.HasFlag(LogTarget.DebugConsole) && CurrentLogTarget.HasFlag(LogTarget.DebugConsole)) DebugConsole.Log(text.AddColor(Colors.GetColorForCLogType(logType)), args);
             if (logTarget.HasFlag(LogTarget.DebugLine) && CurrentLogTarget.HasFlag(LogTarget.DebugLine)) DebugUI.AddToDebugLine(text, Colors.GetColorForCLogType(logType)); // TODO: methods for this?
+        }
 
         return text;
     }
+    static string Log(string text, CLogType logType, params object[] args) => Log(text, logType, LogTarget.All, args);
     // Log without logging to Unity
-    static string LogR(string text, CLogType logType = CLogType.Info) => Log(text, logType, CurrentLogTarget & ~LogTarget.Unity);
+    static string LogR(string text, CLogType logType = CLogType.Info) => Log(text, logType, CurrentLogTarget & ~LogTarget.Unity); // Ignore Unity Console
 
     // Object logging (handling objects):
     /// <summary>
@@ -77,6 +108,7 @@ public static partial class Logger
 
             // TODO: Vector2,3,4
             case string s: return Log(s, logType, logTarget);
+            case bool b: return Log(b.ToString(), logType, logTarget);
             case Array a: return LogArray(a, logType, printIndex, separatorChar, logTarget);
             case List<string> l: return LogList(l, logType, printIndex, separatorChar, logTarget);
             case List<int> l: return LogList(l, logType, printIndex, separatorChar, logTarget);
@@ -84,13 +116,14 @@ public static partial class Logger
         }
     }
     // Simple text logging:
-    public static string Log(string text) => Log(text, CLogType.Info);
+    public static string Log(string text, params object[] args) => Log(text, CLogType.Info, args);
     // Class/Method() logging:
     /// <param name="objToType">Pass in 'this' to print out origin class name before the text.<br/>
     /// You can also pass in a string if you want custom text before the log text.</param>
     /// <param name="printMethodName">Whether to show the calling method (function) name.</param>
     // TODO: do we need printMethodName? We can just pass in "" or null instead.
-    public static string Log(string text, object objToType, bool printMethodName = false, CLogType logType = 0, LogTarget logTarget = LogTarget.All, [CallerMemberName] string methodName = null)
+    /// Deprecated
+    public static string _Log_Method(string text, object objToType, bool printMethodName = false, CLogType logType = 0, LogTarget logTarget = LogTarget.All, [CallerMemberName] string methodName = null)
     {
         // Build class name:
         string cName = ""; // className

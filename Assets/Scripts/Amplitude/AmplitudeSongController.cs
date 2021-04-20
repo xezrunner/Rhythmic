@@ -27,7 +27,7 @@ public class AmplitudeSongController : SongController
         string songPath = AmplitudeGame.AMP_GetSongFilePath(songName, AmplitudeGame.AMP_FileExtension.moggsong);
         if (!File.Exists(songPath))
         {
-            Logger.LogFormatE("AMP_SONGCTRL: Song {0} does not exist at path: {1}", songName, songPath);
+            Logger.LogE("AMP_SONGCTRL: Song % does not exist at path: %", songName, songPath);
             IsEnabled = false; return;
         }
 

@@ -37,27 +37,33 @@ public partial class DebugConsole
 
     // This is the main procedure for registering common console commands.
     // Other classes are free to register console commands at any point by using RegisterCommand().
-    void RegisterCommonCommands()
+    void Console_RegisterCommands() // **********************************
     {
-        // TODO: Replace these with the non-underscore ('_') variant?
-        _RegisterCommand("test", test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
-        _RegisterCommand("clear_text_test", clear_text_test);
 
-        _RegisterCommand("clear", _Clear);
+        // Testing / console-meta commands:
+        RegisterCommand("clear", _Clear);
+        RegisterCommand(help, "Lists all commands.");
+        RegisterCommand(toggle_autocomplete);
+        RegisterCommand(set_autocomplete);
 
-        _RegisterCommand("toggle_autocomplete", toggle_autocomplete);
-        _RegisterCommand("set_autocomplete", set_autocomplete);
+        RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
+        RegisterCommand(clear_text_test);
+        RegisterCommand(logger_parser_test, "Tests the new Logger parser system.");
+        RegisterCommand(test_console_limits, "Tests the console max text length limit.");
 
-        _RegisterCommand("song", LoadSong, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
-        _RegisterCommand("world", LoadWorld, $"usage: {"world".AddColor(Colors.Application)} <relative world path, starting from Scenes/>");
+        RegisterCommand(get_console_text_length, "Shows current console text length.");
 
-        _RegisterCommand("switch_to_track", SwitchToTrack, $"usage: {"switch_to_track".AddColor(Colors.Application)} <track_id>");
 
+        // Common commands:
+        RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
+        RegisterCommand(world, $"usage: {"world".AddColor(Colors.Application)} <relative world path, starting from Scenes/>");
+
+        RegisterCommand(switch_to_track, $"usage: {"switch_to_track".AddColor(Colors.Application)} <track_id>");
     }
 
     // NOTE: If you don't check for existing commands, depending on ReturnOnFoundCommand, you may run multiple commands at once!
     public static bool Register_CheckForExistingCommands = true;
-    public static void RegisterCommand(string command, Action<string[]> action) => Instance?._RegisterCommand(command, action);
+
     bool RegisterCommand_CheckDuplication(string command)
     {
         if (Register_CheckForExistingCommands) // TODO: Performance, especially in non-debug builds (?)
@@ -65,6 +71,18 @@ public partial class DebugConsole
                 if (Commands[i].Command == command) { Logger.LogMethodW($"Command {command.AddColor(Colors.Application)} was already registered! Ignoring current attempt..."); return true; }
         return false;
     }
+
+    #region Public -> RegisterCommand
+    //public static void RegisterCommand(string command, Action<string[]> action) => Instance?._RegisterCommand(command, action);
+
+    public static void RegisterCommand(string command, Action<string[]> action, string helpText = "") => Instance?._RegisterCommand(command, action, helpText); // Parameters
+    public static void RegisterCommand(string command, Action action, string helpText = "") => Instance?._RegisterCommand(command, action, helpText); // Empty
+
+    // Name-less register overloads
+    public static void RegisterCommand(Action action, string helpText = "") => Instance?._RegisterCommand(action.Method.Name, action, helpText); //Empty
+    public static void RegisterCommand(Action<string[]> action, string helpText = "") => Instance?._RegisterCommand(action.Method.Name, action, helpText); // Parameters
+
+    #endregion
 
     void _RegisterCommand(string command, Action<string[]> action, string helpText = "") // Parameters
     {
@@ -81,12 +99,38 @@ public partial class DebugConsole
         Commands.Add(c); ++Commands_Count;
     }
 
+    // Name-less register overloads
+    void _RegisterCommand(Action action, string helpText = "") => _RegisterCommand(action.Method.Name, action, helpText); //Empty
+    void _RegisterCommand(Action<string[]> action, string helpText = "") => _RegisterCommand(action.Method.Name, action, helpText); // Parameters
+
     // ----- Common commands ----- //
     /// You should add non-common commands from a different class.
 
+    void help()
+    {
+        string s = "Listing all commands: \n";
+        for (int i = 0; i < Commands.Count; ++i)
+        {
+            ConsoleCommand c = Commands[i];
+
+            s += $"{c.Command}".AddColor(Colors.IO);
+            if (c.HelpText != "") s += $" :: {Commands[i].HelpText}".AddColor(Colors.Unimportant);
+            if (i != Commands.Count - 1) s += "\n";
+        }
+        Log(s);
+    }
+    void get_console_text_length() => Log("Console text length: %", UI_Text.text.Length);
+    void test_console_limits()
+    {
+        string s = "";
+        for (int i = 0; i < Text_Max_Length; ++i)
+            s += '0';
+        Log(s);
+    }
+    void logger_parser_test(string[] args) => Logger.Log("%".M(), args);
     void clear_text_test()
     {
-        string s = $"Hello% {"Wow".AddColor(Colors.Network)}, this {"is".Italic()} {"really".AddColor(Colors.Application)} cool!";
+        string s = $"Hello! {"Wow".AddColor(Colors.Network)}, this {"is".Italic()} {"really".AddColor(Colors.Application)} cool!";
         Log("The original text is: %", s);
         s = s.ClearColors();
         Log("The color-cleared text is: %", s);
@@ -103,16 +147,8 @@ public partial class DebugConsole
     }
     void set_autocomplete(string[] args)
     {
-        if (args != null || args.Length != 0)
-        {
-            // TODO: We probably want a parser that will parse numeric values to bools as well as things like true/false and 'enabled'/'disabled'!
-            bool result; int int_result;
-
-            if (int.TryParse(args[0], out int_result)) result = (int_result == 1);
-            else result = bool.Parse(args[0]);
-
-            autocomplete_enabled = result;
-        }
+        if (args != null && args.Length != 0)
+            autocomplete_enabled = args[0].ParseBool();
         Log("Autocomplete: %", (autocomplete_enabled ? "enabled" : "disabled"));
     }
     void toggle_autocomplete()
@@ -122,10 +158,10 @@ public partial class DebugConsole
         else Log("Autocomplete disabled.");
     }
 
-    /// Songs & worlds:
-    void LoadSong(string[] args) => SongsMenu.LoadSong(args[0]);
-    void LoadWorld(string[] args) => WorldsMenu.LoadWorld(args[0]);
+    /// Songs and worlds:
+    void song(string[] args) => SongsMenu.LoadSong(args[0]);
+    void world(string[] args) => WorldsMenu.LoadWorld(args[0]);
 
     /// Track switching
-    void SwitchToTrack(string[] args) => AmpPlayerTrackSwitching.Instance.SwitchToTrack(int.Parse(args[0]));
+    void switch_to_track(string[] args) => AmpPlayerTrackSwitching.Instance.SwitchToTrack(int.Parse(args[0]));
 }
