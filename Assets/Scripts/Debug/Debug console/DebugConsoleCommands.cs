@@ -41,7 +41,7 @@ public partial class DebugConsole
     void Console_RegisterCommands() // **********************************
     {
 
-        // Testing / console-meta commands:
+        // Console-meta commands:
         RegisterCommand("clear", _Clear);
         RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds.");
         RegisterCommand(help, "Lists all commands / gives help text for particular commands. usage: " + "help".AddColor(Colors.Application) + " <command>");
@@ -49,11 +49,13 @@ public partial class DebugConsole
         RegisterCommand(set_autocomplete);
         RegisterCommand(logger_log, "Calls Logger.Log(). NOTE: % parameters are not supported yet!");
 
+        // Test commands **************************************************
         RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
         RegisterCommand(clear_text_test);
         RegisterCommand(logger_parser_test, "Tests the new Logger parser system.");
         RegisterCommand(test_console_limits, "Tests the console max text length limit.");
         RegisterCommand(get_console_text_length, "Shows current console text length.");
+        RegisterCommand(scroll_to_bottom); RegisterCommand(scroll_to_top); RegisterCommand(scroll_to);
 
         // Common commands:
         RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
@@ -181,6 +183,9 @@ public partial class DebugConsole
         Log(s);
     }
     void get_console_text_length() => Log("Console text length: %", UI_Text.text.Length);
+    void scroll_to_bottom() => ScrollConsole(SCROLL_BOTTOM);
+    void scroll_to_top() => ScrollConsole(SCROLL_TOP);
+    void scroll_to(string[] args) => ScrollConsole(float.Parse(args[0]));
 
     /// Songs and worlds:
     void song(string[] args) => SongsMenu.LoadSong(args[0]);

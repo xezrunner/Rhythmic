@@ -42,6 +42,9 @@ public partial class DebugConsole : DebugComponent
 
     [NonSerialized] public int Text_Max_Length = 5000; // chars
     [NonSerialized] public float Animation_Speed = 1f;
+    [NonSerialized] public float Scroll_Speed = 0.45f;
+    public const float SCROLL_BOTTOM = 0f;
+    public const float SCROLL_TOP = 1f;
     [NonSerialized] public float Autocomplete_Delay = 0f; //100f; // ms // We might be fast enough without a delay.
 
     Keyboard Keyboard;
@@ -61,36 +64,6 @@ public partial class DebugConsole : DebugComponent
         _Close(false);
 
         Console_RegisterCommands();
-    }
-
-    // Animation: | TODO: smoothness, cancellability, fade out DebugUI?
-    bool is_animating;
-    float anim_t;
-    float current_pos, target_pos;
-    float current_height, target_height;
-    public void Animate(float target, bool anim = true)
-    {
-        IsOpen = (State == ConsoleState.Open);
-
-        anim_t = (anim) ? 0.0f : 1.0f;
-
-        target_pos = (State == ConsoleState.Closed) ? target : -Vertical_Padding;
-        target_height = target - Vertical_Padding * 2f;
-
-        is_animating = true;
-    }
-    void UPDATE_Animation()
-    {
-        if (!is_animating) return;
-
-        current_pos = Mathf.Lerp(current_pos, target_pos, anim_t);
-        current_height = Mathf.Lerp(current_height, target_height, anim_t);
-
-        UI_RectTrans.anchoredPosition = new Vector3(UI_RectTrans.anchoredPosition.x, current_pos);
-        UI_RectTrans.sizeDelta = new Vector3(UI_RectTrans.sizeDelta.x, current_height);
-
-        if (anim_t < 1.0) anim_t += Time.unscaledDeltaTime * Animation_Speed;
-        else is_animating = false;
     }
 
     // TODO: Ability to change console size
@@ -147,6 +120,38 @@ public partial class DebugConsole : DebugComponent
         Animate(target_height, anim);
     }
 
+    // Animation: | TODO: smoothness, cancellability, fade out DebugUI?
+    bool is_animating;
+    float anim_t;
+    float current_pos, target_pos;
+    float current_height, target_height;
+    public void Animate(float target, bool anim = true)
+    {
+        IsOpen = (State == ConsoleState.Open);
+
+        anim_t = (anim) ? 0.0f : 1.0f;
+
+        target_pos = (State == ConsoleState.Closed) ? target : -Vertical_Padding;
+        target_height = target - Vertical_Padding * 2f;
+
+        is_animating = true;
+    }
+    void UPDATE_Animation()
+    {
+        if (!is_animating) return;
+
+        current_pos = Mathf.Lerp(current_pos, target_pos, anim_t);
+        current_height = Mathf.Lerp(current_height, target_height, anim_t);
+
+        UI_RectTrans.anchoredPosition = new Vector3(UI_RectTrans.anchoredPosition.x, current_pos);
+        UI_RectTrans.sizeDelta = new Vector3(UI_RectTrans.sizeDelta.x, current_height);
+
+        ScrollConsole();
+
+        if (anim_t < 1.0) anim_t += Time.unscaledDeltaTime * Animation_Speed;
+        else is_animating = false;
+    }
+
     // Input field
     string Input_Text = ""; // Hiding: (base) DebugComponent.Text
     public void OnInputChanged()
@@ -160,10 +165,6 @@ public partial class DebugConsole : DebugComponent
         // Make [Escape] not revert the input field
         if (!WasPressed(Keyboard.escapeKey)) Input_Text = Input_Field.text;
 
-        // Limit text length
-        if (UI_Text.text.Length > Text_Max_Length)
-            UI_Text.text = UI_Text.text.Substring(UI_Text.text.Length - Text_Max_Length, Text_Max_Length);
-
         // Reset history navigation
         if (!is_history_navigating) history_index = -1;
 
@@ -173,8 +174,10 @@ public partial class DebugConsole : DebugComponent
         autocomplete_elapsed_since_req = 0f; // Reset autocomplete delay timer
 
         // TODO: There's blinking here if we have a delay, but perhaps we're fast enough to just not have the delay?
-        /*if (Input_Field.text == "")*/ Autocomplete_WriteEntries(); // clear out
-        /*else */autocomplete_requested = true; // Request autocomplete
+        /*if (Input_Field.text == "")*/
+        Autocomplete_WriteEntries(); // clear out
+        /*else */
+        autocomplete_requested = true; // Request autocomplete
     }
     public void OnInputEditingEnd()
     {
@@ -400,16 +403,36 @@ public partial class DebugConsole : DebugComponent
         }
 
         UI_Text.text += s;
-        StartCoroutine(ScrollToBottom());
+
+        // Limit text length
+        if (UI_Text.text.Length > Text_Max_Length)
+            UI_Text.text = UI_Text.text.Substring(UI_Text.text.Length - Text_Max_Length, Text_Max_Length);
     }
     void _Log(string text, params object[] args) => _Write(text + '\n', args);
     // Inconvenient arguments
     public void _LogMethod(string text, object type = null, [CallerMemberName] string methodName = null, params object[] args) => _Write(type + "/" + methodName + ": " + text, args);
 
-    IEnumerator ScrollToBottom() // HACK: You have to wait for the end of the current frame to be able to scroll to the bottom.
+    bool is_scrolling = false;
+    float scroll_t = 0.0f;
+    void ScrollConsole(float target = SCROLL_BOTTOM) => StartCoroutine(_ScrollConsole(target)); // 0f is bottom, 1f is top
+    IEnumerator _ScrollConsole(float target)
     {
-        yield return new WaitForEndOfFrame();
-        UI_ScrollRect.verticalNormalizedPosition = 0f;
+        is_scrolling = false; // Cancel any scrolling animations.
+
+        yield return new WaitForEndOfFrame(); // HACK: You have to wait for the end of the current frame to be able to scroll to the bottom.
+
+        is_scrolling = true;
+        scroll_t = 0.0f;
+
+        while (scroll_t < 1f)
+        {
+            UI_ScrollRect.verticalNormalizedPosition = Mathf.Lerp(UI_ScrollRect.verticalNormalizedPosition, target, scroll_t);
+            scroll_t += Time.unscaledDeltaTime * Scroll_Speed;
+            if (is_scrolling) yield return null;
+            else yield break; // Get out of the loop once cancelled.
+        }
+
+        is_scrolling = false;
     }
 
     // Console interaction & command processing
@@ -468,6 +491,8 @@ public partial class DebugConsole : DebugComponent
 
         Input_Field.text = "";
         FocusInputField();
+
+        if (!command.Contains("scroll_to") /*&& UI_ScrollRect.verticalNormalizedPosition < SCROLL_BOTTOM - 0.83f*/) ScrollConsole();
 
         // Process commands...
         ProcessCommand(command, tokens);
