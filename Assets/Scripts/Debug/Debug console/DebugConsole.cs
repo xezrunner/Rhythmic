@@ -199,8 +199,11 @@ public partial class DebugConsole : DebugComponent
 
         is_autocompleting = true;
 
-        ++autocomplete_index;
+        int dir = (IsPressed(Keyboard.shiftKey) ? -1 : 1); // Inverse direction (<-) if holding Shift
+        autocomplete_index += dir;
+
         if (autocomplete_index >= autocomplete_commands.Count) autocomplete_index = 0;
+        else if (autocomplete_index < 0) autocomplete_index = autocomplete_commands.Count - 1;
 
         Input_Field.text = autocomplete_commands[autocomplete_index].ClearColors();
         Input_Field.caretPosition = Input_Field.text.Length;
