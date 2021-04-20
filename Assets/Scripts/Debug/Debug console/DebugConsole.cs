@@ -466,7 +466,7 @@ public partial class DebugConsole : DebugComponent
     public void Submit()
     {
         string s = Input_Field.text;
-        _Log(s); History_Add(s);
+        _Log("> ".AddColor(Colors.Unimportant) + s); History_Add(s);
 
         string command = s;
         string[] tokens = new string[0];
