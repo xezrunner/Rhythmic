@@ -37,17 +37,24 @@ public partial class DebugConsole
 
     // This is the main procedure for registering common console commands.
     // Other classes are free to register console commands at any point by using RegisterCommand().
-    void RegisterCommonCommands() // **********************************
+    void Console_RegisterCommands() // **********************************
     {
+
+        // Testing / console-meta commands:
         RegisterCommand("clear", _Clear);
+        RegisterCommand(help, "Lists all commands.");
+        RegisterCommand(toggle_autocomplete);
+        RegisterCommand(set_autocomplete);
 
         RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
         RegisterCommand(clear_text_test);
         RegisterCommand(logger_parser_test, "Tests the new Logger parser system.");
+        RegisterCommand(test_console_limits, "Tests the console max text length limit.");
 
-        RegisterCommand(toggle_autocomplete);
-        RegisterCommand(set_autocomplete);
+        RegisterCommand(get_console_text_length, "Shows current console text length.");
 
+
+        // Common commands:
         RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
         RegisterCommand(world, $"usage: {"world".AddColor(Colors.Application)} <relative world path, starting from Scenes/>");
 
@@ -99,13 +106,31 @@ public partial class DebugConsole
     // ----- Common commands ----- //
     /// You should add non-common commands from a different class.
 
-    void logger_parser_test(string[] args)
+    void help()
     {
-        Logger.Log("%".M(), args);
+        string s = "Listing all commands: \n";
+        for (int i = 0; i < Commands.Count; ++i)
+        {
+            ConsoleCommand c = Commands[i];
+
+            s += $"{c.Command}".AddColor(Colors.IO);
+            if (c.HelpText != "") s += $" :: {Commands[i].HelpText}".AddColor(Colors.Unimportant);
+            if (i != Commands.Count - 1) s += "\n";
+        }
+        Log(s);
     }
+    void get_console_text_length() => Log("Console text length: %", UI_Text.text.Length);
+    void test_console_limits()
+    {
+        string s = "";
+        for (int i = 0; i < Text_Max_Length; ++i)
+            s += '0';
+        Log(s);
+    }
+    void logger_parser_test(string[] args) => Logger.Log("%".M(), args);
     void clear_text_test()
     {
-        string s = $"Hello% {"Wow".AddColor(Colors.Network)}, this {"is".Italic()} {"really".AddColor(Colors.Application)} cool!";
+        string s = $"Hello! {"Wow".AddColor(Colors.Network)}, this {"is".Italic()} {"really".AddColor(Colors.Application)} cool!";
         Log("The original text is: %", s);
         s = s.ClearColors();
         Log("The color-cleared text is: %", s);
@@ -123,15 +148,7 @@ public partial class DebugConsole
     void set_autocomplete(string[] args)
     {
         if (args != null && args.Length != 0)
-        {
-            // TODO: We probably want a parser that will parse numeric values to bools as well as things like true/false and 'enabled'/'disabled'!
-            bool result; int int_result;
-
-            if (int.TryParse(args[0], out int_result)) result = (int_result == 1);
-            else result = bool.Parse(args[0]);
-
-            autocomplete_enabled = result;
-        }
+            autocomplete_enabled = args[0].ParseBool();
         Log("Autocomplete: %", (autocomplete_enabled ? "enabled" : "disabled"));
     }
     void toggle_autocomplete()
@@ -141,7 +158,7 @@ public partial class DebugConsole
         else Log("Autocomplete disabled.");
     }
 
-    /// Songs & worlds:
+    /// Songs and worlds:
     void song(string[] args) => SongsMenu.LoadSong(args[0]);
     void world(string[] args) => WorldsMenu.LoadWorld(args[0]);
 
