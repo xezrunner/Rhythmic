@@ -42,9 +42,9 @@ public partial class Logger
     // TODO: Warning: When we want to specify LogTarget, it will see it as an object and call the method with objToType param instead!
     // That is very erroneous and wrong!!!
     /// DEPRECATED: [CallerMemberName] and params args don't go together, unfortunately.
-    public static string LogMethod(string text, CLogType logType, LogTarget logTarget, object objToType = null, [CallerMemberName] string methodName = null) => Log(text, objToType, true, logType, logTarget, methodName);
-    public static string LogMethod(string text, CLogType logType, object objToType = null, [CallerMemberName] string methodName = "") => Log(text, objToType, true, logType, CurrentLogTarget, methodName);
-    public static string LogMethod(string text = "", object objToType = null, [CallerMemberName] string methodName = "") => Log(text, objToType, true, CLogType.Info, CurrentLogTarget, methodName);
+    public static string LogMethod(string text, CLogType logType, LogTarget logTarget, object objToType = null, [CallerMemberName] string methodName = null) => _Log_Method(text, objToType, true, logType, logTarget, methodName);
+    public static string LogMethod(string text, CLogType logType, object objToType = null, [CallerMemberName] string methodName = "") => _Log_Method(text, objToType, true, logType, CurrentLogTarget, methodName);
+    public static string LogMethod(string text = "", object objToType = null, [CallerMemberName] string methodName = "") => _Log_Method(text, objToType, true, CLogType.Info, CurrentLogTarget, methodName);
     // TODO: is logTarget even a neccessary param in these? You could just call Log() with the method params that has LogTarget anyway...
     // Warning:
     public static string LogMethodW(string text = "", object objToType = null, [CallerMemberName] string methodName = null, LogTarget logTarget = LogTarget.All) => LogMethod(text, CLogType.Warning, logTarget, objToType, methodName);
