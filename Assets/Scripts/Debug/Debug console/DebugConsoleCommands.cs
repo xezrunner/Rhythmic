@@ -45,30 +45,36 @@ public partial class DebugConsole
 
         // Console-meta commands:
         RegisterCommand("clear", _Clear);
-        RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds.");
+        RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds."); // TODO: Should use a global Quit procedure to quit the game once MetaSystem and/or GameState is in place
         RegisterCommand(help, "Lists all commands / gives help text for particular commands. usage: " + "help".AddColor(Colors.Application) + " <command>");
         RegisterCommand(toggle_autocomplete);
         RegisterCommand(set_autocomplete);
-        RegisterCommand(logger_log, "Calls Logger.Log(). NOTE: % parameters are not supported yet!");
+        RegisterCommand(logger_log, "Calls Logger.Log(). NOTE: \\% parameters are not supported yet!");
 
         // Test commands **************************************************
         RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
         RegisterCommand(clear_text_test);
         RegisterCommand(logger_parser_test, "Tests the new Logger parser system.");
         RegisterCommand(test_console_limits, "Tests the console max text length limit.");
-        RegisterCommand(get_console_text_length, "Shows current console text length.");
+        RegisterCommand(get_console_text_lines, "Shows current console text line count.");
         RegisterCommand(scroll_to_bottom); RegisterCommand(scroll_to_top); RegisterCommand(scroll_to);
+        RegisterCommand(set_console_line_limit, "Sets the console amount of lines allowed in the console.");
+        RegisterCommand(set_console_text_limit, "Sets the maximum amount of characters allowed in a line.");
 
         // Common commands:
         RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
         RegisterCommand(world, $"usage: {"world".AddColor(Colors.Application)} <relative world path, starting from Scenes/>");
 
         RegisterCommand(switch_to_track, $"usage: {"switch_to_track".AddColor(Colors.Application)} <track_id>");
+        RegisterCommand(capture_measure_range);
+        RegisterCommand(capture_measure_amount);
+        RegisterCommand(refresh_sequences, "usage: " + "refresh_sequences".AddColor(Colors.Application) + " <track_id (optional)>");
+        RegisterCommand(refresh_notes, "usage: " + "refresh_notes".AddColor(Colors.Application) + " <track_id (optional)>");
+        RegisterCommand(refresh_all, "usage: " + "refresh_all".AddColor(Colors.Application) + " <track_id (optional)>");
     }
 
     // NOTE: If you don't check for existing commands, depending on ReturnOnFoundCommand, you may run multiple commands at once!
     public static bool Register_CheckForExistingCommands = true;
-
     bool RegisterCommand_CheckDuplication(string command)
     {
         if (Register_CheckForExistingCommands) // TODO: Performance, especially in non-debug builds (?)
@@ -144,6 +150,8 @@ public partial class DebugConsole
             if (c.HelpText != "") s += $" :: {Commands[i].HelpText}".AddColor(Colors.Unimportant);
             if (i != Commands.Count - 1) s += "\n";
         }
+
+        s += $"\nTotal command count: {Commands_Count.ToString().AddColor(Colors.IO)}";
         Log(s);
     }
     void set_autocomplete(string[] args)
@@ -180,11 +188,13 @@ public partial class DebugConsole
     void test_console_limits()
     {
         string s = "";
-        for (int i = 0; i < Text_Max_Length; ++i)
+        for (int i = 0; i < Line_Max_Length * 2; ++i)
             s += '0';
         Log(s);
     }
-    void get_console_text_length() => Log("Console text length: %", UI_Text.text.Length);
+    void get_console_text_lines() => Log("Console text line count: %", UI_Text.text.Split('\n').Length);
+    void set_console_line_limit(string[] args) => Text_Max_Lines = args[0].ParseInt();
+    void set_console_text_limit(string[] args) => Line_Max_Length = args[0].ParseInt();
     void scroll_to_bottom() => ScrollConsole(SCROLL_BOTTOM);
     void scroll_to_top() => ScrollConsole(SCROLL_TOP);
     void scroll_to(string[] args) => ScrollConsole(float.Parse(args[0]));
@@ -193,6 +203,17 @@ public partial class DebugConsole
     void song(string[] args) => SongsMenu.LoadSong(args[0]);
     void world(string[] args) => WorldsMenu.LoadWorld(args[0]);
 
+    TracksController TracksController { get { return TracksController.Instance; } }
+
     /// Track switching
     void switch_to_track(string[] args) => AmpPlayerTrackSwitching.Instance.SwitchToTrack(int.Parse(args[0]));
+
+    /// Track capturing
+    void capture_measure_range(string[] args) => TracksController.CaptureMeasureRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
+    void capture_measure_amount(string[] args) => TracksController.CaptureMeasureAmount(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
+
+    /// Track refreshing
+    void refresh_sequences(string[] args) => TracksController.RefreshSequences(args[0] == null ? null : TracksController.MainTracks[args[0].ParseInt()]);
+    void refresh_notes(string[] args) => TracksController.RefreshTargetNotes(args[0] == null ? null : TracksController.MainTracks[args[0].ParseInt()]);
+    void refresh_all(string[] args) => TracksController.RefreshAll(args[0] == null ? null : TracksController.MainTracks[args[0].ParseInt()]);
 }
