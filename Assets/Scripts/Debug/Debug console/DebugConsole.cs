@@ -13,14 +13,6 @@ using static InputHandler;
 public enum ConsoleSizeState { Default, Compact, Full }
 public enum ConsoleState { Closed, Open }
 
-/// TODO:
-//  [*] Fix text UI bounds, scrolling
-/// 
-//  [ ] History + repeat
-///
-//  [*] Autocomplete
-/// 
-
 [DebugComponent(DebugComponentFlag.DebugMenu, DebugComponentType.Prefab_UI, true, -1, "Prefabs/Debug/DebugConsole")]
 public partial class DebugConsole : DebugComponent
 {
@@ -152,6 +144,9 @@ public partial class DebugConsole : DebugComponent
         // Make [Escape] not revert the input field
         if (!WasPressed(Keyboard.escapeKey)) Text = Input_Field.text;
 
+        // Reset history navigation
+        if (!is_history_navigating) history_index = -1;
+
         // Autocomplete:
         if (!autocomplete_enabled || is_autocompleting) return;
 
@@ -182,6 +177,23 @@ public partial class DebugConsole : DebugComponent
         UI_Autocomplete_UpdateLayout();
     }
 
+    void FocusInputField()
+    {
+        Input_Field.ActivateInputField();
+        AmpPlayerInputHandler.IsActive = false;
+        DebugKeys.IsEnabled = false;
+        //Input_Field.Select();
+    }
+    void UnfocusInputField() // TODO: This does not unfocus the input field in certain cases. Workaround in OnInputChanged()
+    {
+        // This calls the OnSubmit() and releated events.
+        // In this case, we do not use that event, but it's good to know for future reference.
+        EventSystem.current.SetSelectedGameObject(null); // Unnecessary?
+        Input_Field.DeactivateInputField();
+        AmpPlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
+        DebugKeys.IsEnabled = true;
+    }
+
     void UI_Autocomplete_UpdateLayout()
     {
         int last_index = Input_Field.textComponent.textInfo.lineInfo[0].lastVisibleCharacterIndex;
@@ -199,8 +211,11 @@ public partial class DebugConsole : DebugComponent
 
         is_autocompleting = true;
 
-        ++autocomplete_index;
+        int dir = (IsPressed(Keyboard.shiftKey) ? -1 : 1); // Inverse direction (<-) if holding Shift
+        autocomplete_index += dir;
+
         if (autocomplete_index >= autocomplete_commands.Count) autocomplete_index = 0;
+        else if (autocomplete_index < 0) autocomplete_index = autocomplete_commands.Count - 1;
 
         Input_Field.text = autocomplete_commands[autocomplete_index].ClearColors();
         Input_Field.caretPosition = Input_Field.text.Length;
@@ -224,10 +239,12 @@ public partial class DebugConsole : DebugComponent
         if (!autocomplete_requested) return;
 
         if (autocomplete_elapsed_since_req < autocomplete_delay)
-            autocomplete_elapsed_since_req += (Time.unscaledDeltaTime * 1000);
-        else // Delay done - do autocomplete:
         {
-            // TODO: empty text should not perform an autocomplete!
+            autocomplete_elapsed_since_req += (Time.unscaledDeltaTime * 1000);
+            return;
+        }
+        else if (Text != "") // Delay done - do autocomplete:
+        {
             List<ConsoleCommand> results = Commands.Where(s => s.Command.Contains(Text)).ToList();
             List<string> s_results = new List<string>();
             int count_of_exact_commands = 0;
@@ -251,33 +268,46 @@ public partial class DebugConsole : DebugComponent
 
             // Do not include the actual whole command, but do include similar other ones:
             if (s_results.Count == 1 && count_of_exact_commands == 1) s_results = new List<string>(); // TODO: Performance?
-
-            autocomplete_index = -1;
             autocomplete_commands = s_results;
-
             Autocomplete_WriteEntries(s_results.ToArray());
-
-            // Reset autocomplete request
-            autocomplete_requested = false;
-            autocomplete_elapsed_since_req = 0f;
         }
+
+        autocomplete_index = -1;
+
+        // Reset autocomplete request
+        autocomplete_requested = false;
+        autocomplete_elapsed_since_req = 0f;
     }
 
-    void FocusInputField()
+    // History:
+    public List<string> History;
+    public int History_Max = 30; // Maximum amount of items to be held in History
+
+    int history_index = -1;
+    public void History_Add(string s)
     {
-        Input_Field.ActivateInputField();
-        AmpPlayerInputHandler.IsActive = false;
-        DebugKeys.IsEnabled = false;
-        //Input_Field.Select();
+        History.Insert(0, s);
+        if (History.Count > History_Max) History.RemoveAt(History.Count - 1);
     }
-    void UnfocusInputField() // TODO: This does not unfocus the input field in certain cases. Workaround in OnInputChanged()
+
+    bool is_history_navigating = false;
+    public void History_Next(int dir) // -1 : 1
     {
-        // This calls the OnSubmit() and releated events.
-        // In this case, we do not use that event, but it's good to know for future reference.
-        EventSystem.current.SetSelectedGameObject(null); // Unnecessary?
-        Input_Field.DeactivateInputField();
-        AmpPlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
-        DebugKeys.IsEnabled = true;
+        if (History == null || History.Count == 0) return;
+
+        history_index += dir;
+
+        if (history_index >= History.Count) history_index = 0;
+        else if (history_index < 0) history_index = History.Count - 1;
+
+        //Logger.Log($"history_index: {history_index}");
+
+        is_history_navigating = true;
+
+        Input_Field.text = History[history_index];
+        Input_Field.caretPosition = Input_Field.text.Length;
+
+        is_history_navigating = false;
     }
 
     // Writing to the console
@@ -351,7 +381,9 @@ public partial class DebugConsole : DebugComponent
     }
     public void Submit()
     {
-        string s = Input_Field.text; _Log(s);
+        string s = Input_Field.text;
+        _Log(s); History_Add(s);
+
         string command = s;
         string[] tokens = new string[0];
 
@@ -379,7 +411,6 @@ public partial class DebugConsole : DebugComponent
 
         // Process commands...
         ProcessCommand(command, tokens);
-
     }
 
     void Update()
@@ -394,9 +425,15 @@ public partial class DebugConsole : DebugComponent
 
         if (!IsOpen) return;
 
-        if (WasPressed(Keyboard.enterKey, Keyboard.numpadEnterKey))
+        if (WasPressed(Keyboard.enterKey, Keyboard.numpadEnterKey)) // Submit
             Submit();
-        if (WasPressed(Keyboard.tabKey))
+        if (WasPressed(Keyboard.tabKey)) // Autocomplete
             Autocomplete_Next();
+
+        // History navigation:
+        if (WasPressed(Keyboard.upArrowKey))
+            History_Next(1);
+        if (WasPressed(Keyboard.downArrowKey))
+            History_Next(-1);
     }
 }
