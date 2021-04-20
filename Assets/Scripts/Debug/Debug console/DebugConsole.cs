@@ -146,7 +146,7 @@ public partial class DebugConsole : DebugComponent
         UI_RectTrans.anchoredPosition = new Vector3(UI_RectTrans.anchoredPosition.x, current_pos);
         UI_RectTrans.sizeDelta = new Vector3(UI_RectTrans.sizeDelta.x, current_height);
 
-        ScrollConsole();
+        ScrollConsole(false);
 
         if (anim_t < 1.0) anim_t += Time.unscaledDeltaTime * Animation_Speed;
         else is_animating = false;
@@ -414,25 +414,25 @@ public partial class DebugConsole : DebugComponent
 
     bool is_scrolling = false;
     float scroll_t = 0.0f;
-    void ScrollConsole(float target = SCROLL_BOTTOM) => StartCoroutine(_ScrollConsole(target)); // 0f is bottom, 1f is top
-    IEnumerator _ScrollConsole(float target)
+    float scroll_target = 0.0f;
+    void ScrollConsole(bool anim) => ScrollConsole(SCROLL_BOTTOM, anim); // 0f is bottom, 1f is top
+    void ScrollConsole(float target = SCROLL_BOTTOM, bool anim = true) => StartCoroutine(_ScrollConsole(target, anim)); // 0f is bottom, 1f is top
+    IEnumerator _ScrollConsole(float target, bool anim = true)
     {
-        is_scrolling = false; // Cancel any scrolling animations.
-
         yield return new WaitForEndOfFrame(); // HACK: You have to wait for the end of the current frame to be able to scroll to the bottom.
 
+        scroll_t = (anim ? 0.0f : 1.0f);
+        scroll_target = target;
         is_scrolling = true;
-        scroll_t = 0.0f;
+    }
+    void UPDATE_Scroll()
+    {
+        if (!is_scrolling) return;
 
-        while (scroll_t < 1f)
-        {
-            UI_ScrollRect.verticalNormalizedPosition = Mathf.Lerp(UI_ScrollRect.verticalNormalizedPosition, target, scroll_t);
-            scroll_t += Time.unscaledDeltaTime * Scroll_Speed;
-            if (is_scrolling) yield return null;
-            else yield break; // Get out of the loop once cancelled.
-        }
+        UI_ScrollRect.verticalNormalizedPosition = Mathf.Lerp(UI_ScrollRect.verticalNormalizedPosition, scroll_target, scroll_t);
 
-        is_scrolling = false;
+        if (scroll_t < 1.0f) scroll_t += Time.unscaledDeltaTime * Scroll_Speed;
+        else is_scrolling = false;
     }
 
     // Console interaction & command processing
@@ -502,6 +502,7 @@ public partial class DebugConsole : DebugComponent
     {
         UPDATE_Animation();
         UPDATE_Autocomplete();
+        UPDATE_Scroll();
 
         if (!IsOpen && WasPressed(Keyboard.digit0Key, Keyboard.backquoteKey))
             _Open();
