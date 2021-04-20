@@ -5,4 +5,4 @@
 *.unity     linguist-generated=true 
 *.scene     linguist-generated=true 
 
-Assets/TextMesh Pro/* linguist-vendored
+"Assets/TextMesh Pro/*" linguist-vendored
