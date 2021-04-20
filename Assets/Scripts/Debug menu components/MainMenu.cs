@@ -44,6 +44,7 @@
 
         public static void QuitGame()
         {
+            Logger.LogE("Shutting down...");
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #else

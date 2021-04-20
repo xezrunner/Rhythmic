@@ -20,6 +20,11 @@ public partial class Logger
     public static string LogObject(object obj, bool printIndex = true, char separatorChar = ',', LogTarget logTarget = LogTarget.All) => Log(obj, 0, printIndex, separatorChar, logTarget);
     public static string LogObjectWarning(object obj, bool printIndex = true, char separatorChar = ',', LogTarget logTarget = LogTarget.All) => Log(obj, CLogType.Warning, printIndex, separatorChar, logTarget);
 
+    /// Console-only logging:
+    public static string LogConsole(string text, params object[] args) => Log(text, CLogType.Info, LogTarget.DebugConsole, args);
+    public static string LogConsoleW(string text, params object[] args) => Log(text, CLogType.Warning, LogTarget.DebugConsole, args);
+    public static string LogConsoleE(string text, params object[] args) => Log(text, CLogType.Error, LogTarget.DebugConsole, args);
+
     /// String format: -- shouldn't use! --
 #if false // Deprecated
     static string LogFormat(string text, CLogType logType, LogTarget logTarget, params object[] args) => Log(string.Format(text, args), logType, logTarget);
