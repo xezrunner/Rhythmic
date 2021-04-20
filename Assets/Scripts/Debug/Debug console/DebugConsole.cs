@@ -40,9 +40,13 @@ public partial class DebugConsole : DebugComponent
     [NonSerialized] public float Vertical_Padding = 0f;
     [NonSerialized] public float Compact_Height = 300f;
 
-    [NonSerialized] public int Text_Max_Length = 5000; // chars
+    [NonSerialized] public int Text_Max_Lines = 500;
+    [NonSerialized] public int Line_Max_Length = 5000; // TODO: We probably want more!
     [NonSerialized] public float Animation_Speed = 1f;
-    [NonSerialized] public float Autocomplete_Delay = 100f; // ms
+    [NonSerialized] public float Scroll_Speed = 0.45f;
+    public const float SCROLL_BOTTOM = 0f;
+    public const float SCROLL_TOP = 1f;
+    [NonSerialized] public float Autocomplete_Delay = 0f; //100f; // ms // We might be fast enough without a delay.
 
     Keyboard Keyboard;
     void Awake()
@@ -61,6 +65,60 @@ public partial class DebugConsole : DebugComponent
         _Close(false);
 
         Console_RegisterCommands();
+    }
+
+    // TODO: Ability to change console size
+    public float GetHeightForSizeState(ConsoleSizeState size_state)
+    {
+        switch (size_state)
+        {
+            default:
+            case ConsoleSizeState.Default:
+            case ConsoleSizeState.Compact: return Compact_Height;
+            case ConsoleSizeState.Full: return UI_Canvas_Height;
+        }
+    }
+
+    // TODO: Multiple sizes, perhaps [UI] resizability? More modes? Input-only mode?
+    public void ChangeSize_Toggle() => ChangeSize(SizeState == ConsoleSizeState.Compact ? ConsoleSizeState.Full : ConsoleSizeState.Compact);
+    public void ChangeSize(ConsoleSizeState size_state)
+    {
+        SizeState = size_state;
+        float new_size = GetHeightForSizeState(size_state);
+        Animate(new_size);
+    }
+
+    // TODO: Static commands, global control/automation (?)
+    public void Toggle()
+    {
+        if (State == ConsoleState.Closed)
+            _Open();
+        else _Close();
+    }
+
+    public static void Open(bool anim = true, ConsoleSizeState size_state = ConsoleSizeState.Default) => Instance?._Open();
+    public static void Close(bool anim = true) => Instance?._Close();
+
+    void _Open(bool anim = true, ConsoleSizeState size_state = ConsoleSizeState.Default)
+    {
+        State = ConsoleState.Open;
+        if (size_state != ConsoleSizeState.Default) target_height = GetHeightForSizeState(size_state);
+
+        FocusInputField();
+        // TODO: Mouse cursor visibility / locking mechanism should be in a different utilitarian class as static functions (probably)
+        Cursor.visible = true; // Mouse cursor
+
+        Animate(target_height, anim);
+    }
+    void _Close(bool anim = true)
+    {
+        UnfocusInputField();
+        State = ConsoleState.Closed;
+
+        // TODO: Mouse cursor visibility / locking mechanism should be in a different utilitarian class as static functions (probably)
+        Cursor.visible = false; // Mouse cursor
+
+        Animate(target_height, anim);
     }
 
     // Animation: | TODO: smoothness, cancellability, fade out DebugUI?
@@ -89,48 +147,10 @@ public partial class DebugConsole : DebugComponent
         UI_RectTrans.anchoredPosition = new Vector3(UI_RectTrans.anchoredPosition.x, current_pos);
         UI_RectTrans.sizeDelta = new Vector3(UI_RectTrans.sizeDelta.x, current_height);
 
+        ScrollConsole(false);
+
         if (anim_t < 1.0) anim_t += Time.unscaledDeltaTime * Animation_Speed;
         else is_animating = false;
-    }
-
-    // TODO: Ability to change console size
-    public float GetHeightForSizeState(ConsoleSizeState size_state)
-    {
-        switch (size_state)
-        {
-            default:
-            case ConsoleSizeState.Default:
-            case ConsoleSizeState.Compact: return Compact_Height;
-            case ConsoleSizeState.Full: return UI_Canvas_Height;
-        }
-    }
-
-    // TODO: Static commands, global control/automation (?)
-    public void Toggle()
-    {
-        if (State == ConsoleState.Closed)
-            _Open();
-        else _Close();
-    }
-
-    public static void Open(bool anim = true, ConsoleSizeState size_state = ConsoleSizeState.Default) => Instance?._Open();
-    public static void Close(bool anim = true) => Instance?._Close();
-    void _Open(bool anim = true, ConsoleSizeState size_state = ConsoleSizeState.Default)
-    {
-        State = ConsoleState.Open;
-        if (size_state != ConsoleSizeState.Default) target_height = GetHeightForSizeState(size_state);
-
-        FocusInputField();
-
-        Animate(target_height, anim);
-    }
-    void _Close(bool anim = true)
-    {
-        UnfocusInputField();
-
-        State = ConsoleState.Closed;
-
-        Animate(target_height, anim);
     }
 
     // Input field
@@ -146,10 +166,6 @@ public partial class DebugConsole : DebugComponent
         // Make [Escape] not revert the input field
         if (!WasPressed(Keyboard.escapeKey)) Input_Text = Input_Field.text;
 
-        // Limit text length
-        if (UI_Text.text.Length > Text_Max_Length)
-            UI_Text.text = UI_Text.text.Substring(UI_Text.text.Length - Text_Max_Length, Text_Max_Length);
-
         // Reset history navigation
         if (!is_history_navigating) history_index = -1;
 
@@ -158,14 +174,18 @@ public partial class DebugConsole : DebugComponent
 
         autocomplete_elapsed_since_req = 0f; // Reset autocomplete delay timer
 
-        if (Input_Field.text == "") Autocomplete_WriteEntries(); // clear out
-        else autocomplete_requested = true; // Request autocomplete
+        // TODO: There's blinking here if we have a delay, but perhaps we're fast enough to just not have the delay?
+        /*if (Input_Field.text == "")*/
+        Autocomplete_WriteEntries(); // clear out
+        /*else */
+        autocomplete_requested = true; // Request autocomplete
     }
     public void OnInputEditingEnd()
     {
         // Make [Escape] not revert the input field
         if (WasPressed(Keyboard.escapeKey)) Input_Field.text = Input_Text;
     }
+
     void InputField_ChangeText(string text, int next_caret = -1)
     {
         Input_Field.text = text.ClearColors();
@@ -370,30 +390,47 @@ public partial class DebugConsole : DebugComponent
         int c = 0, arg_i = 0;
         for (int i = 0; i < text.Length; ++i, ++c)
         {
-            if (text[c] == '%')
+            if (text[c] == '\\' && (c + 1 > 0 && text[c + 1] == '%')) continue; // TODO: Not sure whether we should handle these cases manually, or ignore '\' characters completely.
+            if (text[c] == '%' && (c - 1 > 0 && text[c - 1] != '\\'))
             {
                 if (arg_i >= args.Length) Logger.LogMethodE($"There was no argument at {arg_i} - total count: {args.Length}", this);
-                else
-                {
-                    s += args[arg_i++];
-                    continue;
-                }
+                s += args[arg_i++]; continue;
             }
 
             s += text[c];
         }
 
+        if (s.Length > Line_Max_Length) s = s.Substring(0, Line_Max_Length);
         UI_Text.text += s;
-        StartCoroutine(ScrollToBottom());
+
+        // Limit text length
+        UI_Text.text = UI_Text.text.MaxLines(Text_Max_Lines);
     }
     void _Log(string text, params object[] args) => _Write(text + '\n', args);
     // Inconvenient arguments
     public void _LogMethod(string text, object type = null, [CallerMemberName] string methodName = null, params object[] args) => _Write(type + "/" + methodName + ": " + text, args);
 
-    IEnumerator ScrollToBottom() // HACK: You have to wait for the end of the current frame to be able to scroll to the bottom.
+    bool is_scrolling = false;
+    float scroll_t = 0.0f;
+    float scroll_target = 0.0f;
+    void ScrollConsole(bool anim) => ScrollConsole(SCROLL_BOTTOM, anim); // 0f is bottom, 1f is top
+    void ScrollConsole(float target = SCROLL_BOTTOM, bool anim = true) => StartCoroutine(_ScrollConsole(target, anim)); // 0f is bottom, 1f is top
+    IEnumerator _ScrollConsole(float target, bool anim = true)
     {
-        yield return new WaitForEndOfFrame();
-        UI_ScrollRect.verticalNormalizedPosition = 0f;
+        yield return new WaitForEndOfFrame(); // HACK: You have to wait for the end of the current frame to be able to scroll to the bottom.
+
+        scroll_t = (anim ? 0.0f : 1.0f);
+        scroll_target = target;
+        is_scrolling = true;
+    }
+    void UPDATE_Scroll()
+    {
+        if (!is_scrolling) return;
+
+        UI_ScrollRect.verticalNormalizedPosition = Mathf.Lerp(UI_ScrollRect.verticalNormalizedPosition, scroll_target, scroll_t);
+
+        if (scroll_t < 1.0f) scroll_t += Time.unscaledDeltaTime * Scroll_Speed;
+        else is_scrolling = false;
     }
 
     // Console interaction & command processing
@@ -416,17 +453,26 @@ public partial class DebugConsole : DebugComponent
 
                 if (is_exclusive_help) Help_Command(command);
 
-                if (!is_exclusive_help) c.Invoke(args); // Invoke command action!
+                if (!is_exclusive_help)
+                {
+                    bool result = c.Invoke(args); // Invoke command action!
+                    if (!result)
+                    {
+                        Write($" | " + "? ".AddColor(Colors.IO));
+                        Help_Command(command); // TODO: we might only want to show help for one-liners
+                    }
+                }
                 if (ReturnOnFoundCommand) return;
             }
         }
 
         if (!found) _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
     }
+
     public void Submit()
     {
         string s = Input_Field.text;
-        _Log(s); History_Add(s);
+        _Log("> ".AddColor(Colors.Unimportant) + s); History_Add(s);
 
         string command = s;
         string[] tokens = new string[0];
@@ -453,6 +499,8 @@ public partial class DebugConsole : DebugComponent
         Input_Field.text = "";
         FocusInputField();
 
+        if (!command.Contains("scroll_to") /*&& UI_ScrollRect.verticalNormalizedPosition < SCROLL_BOTTOM - 0.83f*/) ScrollConsole();
+
         // Process commands...
         ProcessCommand(command, tokens);
     }
@@ -461,6 +509,7 @@ public partial class DebugConsole : DebugComponent
     {
         UPDATE_Animation();
         UPDATE_Autocomplete();
+        UPDATE_Scroll();
 
         if (!IsOpen && WasPressed(Keyboard.digit0Key, Keyboard.backquoteKey))
             _Open();
@@ -471,8 +520,10 @@ public partial class DebugConsole : DebugComponent
 
         if (WasPressed(Keyboard.enterKey, Keyboard.numpadEnterKey)) // Submit
             Submit();
-        if (WasPressed(Keyboard.tabKey)) // Autocomplete
+        if (Input_Text != "" && WasPressed(Keyboard.tabKey)) // Autocomplete
             Autocomplete_Next();
+        else if (Input_Text == "" && WasPressed(Keyboard.tabKey)) // Change size on empty input field [Tab]
+            ChangeSize_Toggle();
 
         // History navigation:
         if (WasPressed(Keyboard.upArrowKey))
@@ -480,8 +531,9 @@ public partial class DebugConsole : DebugComponent
         if (WasPressed(Keyboard.downArrowKey))
             History_Next(-1);
 
-        // Editing:
+        // Editing: TODO: InputHandler shoudl have something for detecting hold + frame press
         if (Keyboard.ctrlKey.isPressed && Keyboard.backspaceKey.wasPressedThisFrame) InputField_WordDelete(-1);
         if (Keyboard.ctrlKey.isPressed && Keyboard.deleteKey.wasPressedThisFrame) InputField_WordDelete(1);
+        //if (/* Is selecting in the input field? */ Keyboard.ctrlKey.isPressed && Keyboard.cKey.wasPressedThisFrame) InputField_ChangeText(""); // Clear input field on [Ctrl+C]
     }
 }

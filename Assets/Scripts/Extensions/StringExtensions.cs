@@ -109,7 +109,7 @@ public static class StringExtensions
         { Logger.LogMethodE("WTF", "StringExts", "TypeMethod"); return text; }
     }
 
-    // Boolean parsing:
+    // Parsing:
     public static bool ParseBool(this string text)
     {
         // Try parsing as boolean:
@@ -130,4 +130,6 @@ public static class StringExtensions
         Logger.LogW("could not parse the string '%' to boolean. Returning false.".T("StringExts"), text);
         return false;
     }
+    public static int ParseInt(this string text) => int.Parse(text);
+    public static float ParseFloat(this string text) => float.Parse(text);
 }
