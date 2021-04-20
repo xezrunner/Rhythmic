@@ -13,14 +13,6 @@ using static InputHandler;
 public enum ConsoleSizeState { Default, Compact, Full }
 public enum ConsoleState { Closed, Open }
 
-/// TODO:
-//  [*] Fix text UI bounds, scrolling
-/// 
-//  [ ] History + repeat
-///
-//  [*] Autocomplete
-/// 
-
 [DebugComponent(DebugComponentFlag.DebugMenu, DebugComponentType.Prefab_UI, true, -1, "Prefabs/Debug/DebugConsole")]
 public partial class DebugConsole : DebugComponent
 {
