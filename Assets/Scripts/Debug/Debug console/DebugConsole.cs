@@ -124,20 +124,25 @@ public partial class DebugConsole : DebugComponent
 
     public static void Open(bool anim = true, ConsoleSizeState size_state = ConsoleSizeState.Default) => Instance?._Open();
     public static void Close(bool anim = true) => Instance?._Close();
+
     void _Open(bool anim = true, ConsoleSizeState size_state = ConsoleSizeState.Default)
     {
         State = ConsoleState.Open;
         if (size_state != ConsoleSizeState.Default) target_height = GetHeightForSizeState(size_state);
 
         FocusInputField();
+        // TODO: Mouse cursor visibility / locking mechanism should be in a different utilitarian class as static functions (probably)
+        Cursor.visible = true; // Mouse cursor
 
         Animate(target_height, anim);
     }
     void _Close(bool anim = true)
     {
         UnfocusInputField();
-
         State = ConsoleState.Closed;
+
+        // TODO: Mouse cursor visibility / locking mechanism should be in a different utilitarian class as static functions (probably)
+        Cursor.visible = false; // Mouse cursor
 
         Animate(target_height, anim);
     }

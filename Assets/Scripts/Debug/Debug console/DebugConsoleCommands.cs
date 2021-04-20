@@ -43,18 +43,17 @@ public partial class DebugConsole
 
         // Testing / console-meta commands:
         RegisterCommand("clear", _Clear);
-        RegisterCommand(help, "Lists all commands / gives help text for particular commands. usage: " + "help".AddColor(Colors.Application) + " <command>");
         RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds.");
+        RegisterCommand(help, "Lists all commands / gives help text for particular commands. usage: " + "help".AddColor(Colors.Application) + " <command>");
         RegisterCommand(toggle_autocomplete);
         RegisterCommand(set_autocomplete);
+        RegisterCommand(logger_log, "Calls Logger.Log(). NOTE: % parameters are not supported yet!");
 
         RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
         RegisterCommand(clear_text_test);
         RegisterCommand(logger_parser_test, "Tests the new Logger parser system.");
         RegisterCommand(test_console_limits, "Tests the console max text length limit.");
-
         RegisterCommand(get_console_text_length, "Shows current console text length.");
-
 
         // Common commands:
         RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
@@ -143,32 +142,6 @@ public partial class DebugConsole
         }
         Log(s);
     }
-    void get_console_text_length() => Log("Console text length: %", UI_Text.text.Length);
-    void test_console_limits()
-    {
-        string s = "";
-        for (int i = 0; i < Text_Max_Length; ++i)
-            s += '0';
-        Log(s);
-    }
-    void logger_parser_test(string[] args) => Logger.Log("%".M(), args);
-    void clear_text_test()
-    {
-        string s = $"Hello! {"Wow".AddColor(Colors.Network)}, this {"is".Italic()} {"really".AddColor(Colors.Application)} cool!";
-        Log("The original text is: %", s);
-        s = s.ClearColors();
-        Log("The color-cleared text is: %", s);
-    }
-
-    void test(string[] a)
-    {
-        if (a.Length == 0)
-        { _Log("We got no arguments.".M()); return; }
-
-        string s = "";
-        for (int i = 0; i < a.Length; ++i) s += a[i] + ' ';
-        _Log("got the following args: %".TM(this), s);
-    }
     void set_autocomplete(string[] args)
     {
         if (args != null && args.Length != 0)
@@ -181,6 +154,33 @@ public partial class DebugConsole
         if (autocomplete_enabled) Log("Autocomplete enabled.");
         else Log("Autocomplete disabled.");
     }
+    void logger_log(string[] args) => Logger.Log(args); // TODO: "" quotes should be parsed as one individual string parameter
+
+    void test(string[] a)
+    {
+        if (a.Length == 0)
+        { _Log("We got no arguments.".M()); return; }
+
+        string s = "";
+        for (int i = 0; i < a.Length; ++i) s += a[i] + ' ';
+        _Log("got the following args: %".TM(this), s);
+    }
+    void clear_text_test()
+    {
+        string s = $"Hello! {"Wow".AddColor(Colors.Network)}, this {"is".Italic()} {"really".AddColor(Colors.Application)} cool!";
+        Log("The original text is: %", s);
+        s = s.ClearColors();
+        Log("The color-cleared text is: %", s);
+    }
+    void logger_parser_test(string[] args) => Logger.Log("%".M(), args);
+    void test_console_limits()
+    {
+        string s = "";
+        for (int i = 0; i < Text_Max_Length; ++i)
+            s += '0';
+        Log(s);
+    }
+    void get_console_text_length() => Log("Console text length: %", UI_Text.text.Length);
 
     /// Songs and worlds:
     void song(string[] args) => SongsMenu.LoadSong(args[0]);
