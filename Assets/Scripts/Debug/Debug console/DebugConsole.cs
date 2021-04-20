@@ -42,7 +42,7 @@ public partial class DebugConsole : DebugComponent
 
     [NonSerialized] public int Text_Max_Length = 5000; // chars
     [NonSerialized] public float Animation_Speed = 1f;
-    [NonSerialized] public float Autocomplete_Delay = 100f; // ms
+    [NonSerialized] public float Autocomplete_Delay = 0f; //100f; // ms // We might be fast enough without a delay.
 
     Keyboard Keyboard;
     void Awake()
@@ -158,14 +158,16 @@ public partial class DebugConsole : DebugComponent
 
         autocomplete_elapsed_since_req = 0f; // Reset autocomplete delay timer
 
-        if (Input_Field.text == "") Autocomplete_WriteEntries(); // clear out
-        else autocomplete_requested = true; // Request autocomplete
+        // TODO: There's blinking here if we have a delay, but perhaps we're fast enough to just not have the delay?
+        /*if (Input_Field.text == "")*/ Autocomplete_WriteEntries(); // clear out
+        /*else */autocomplete_requested = true; // Request autocomplete
     }
     public void OnInputEditingEnd()
     {
         // Make [Escape] not revert the input field
         if (WasPressed(Keyboard.escapeKey)) Input_Field.text = Input_Text;
     }
+
     void InputField_ChangeText(string text, int next_caret = -1)
     {
         Input_Field.text = text.ClearColors();
@@ -480,8 +482,9 @@ public partial class DebugConsole : DebugComponent
         if (WasPressed(Keyboard.downArrowKey))
             History_Next(-1);
 
-        // Editing:
+        // Editing: TODO: InputHandler shoudl have something for detecting hold + frame press
         if (Keyboard.ctrlKey.isPressed && Keyboard.backspaceKey.wasPressedThisFrame) InputField_WordDelete(-1);
         if (Keyboard.ctrlKey.isPressed && Keyboard.deleteKey.wasPressedThisFrame) InputField_WordDelete(1);
+        //if (/* Is selecting in the input field? */ Keyboard.ctrlKey.isPressed && Keyboard.cKey.wasPressedThisFrame) InputField_ChangeText(""); // Clear input field on [Ctrl+C]
     }
 }
