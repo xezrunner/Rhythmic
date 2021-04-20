@@ -41,6 +41,7 @@ public partial class DebugConsole : DebugComponent
     [NonSerialized] public float Compact_Height = 300f;
 
     [NonSerialized] public float Animation_Speed = 1f;
+    [NonSerialized] public float Autocomplete_Delay = 100f; // ms
 
     Keyboard Keyboard;
     void Awake()
@@ -233,12 +234,11 @@ public partial class DebugConsole : DebugComponent
 
     bool autocomplete_requested = false;
     float autocomplete_elapsed_since_req = 0f;
-    float autocomplete_delay = 300f; // ms
     void UPDATE_Autocomplete()
     {
         if (!autocomplete_requested) return;
 
-        if (autocomplete_elapsed_since_req < autocomplete_delay)
+        if (autocomplete_elapsed_since_req < Autocomplete_Delay)
         {
             autocomplete_elapsed_since_req += (Time.unscaledDeltaTime * 1000);
             return;
@@ -368,11 +368,10 @@ public partial class DebugConsole : DebugComponent
                 found = true;
 
                 // TODO: add function name?
-                bool is_exclusive_help = (args.Contains("--help") || (!c.is_action_empty && args.Length == 0));
-                if (is_exclusive_help && command.StartsWith("set_")) is_exclusive_help = false; // TEMP / HACK!
+                bool is_exclusive_help = args.Contains("--help");
+                bool is_help = (is_exclusive_help || (!c.is_action_empty && args.Length == 0)); // TODO: this definitely isn't always correct. Once we have a better search algo, use that to display help text for any command by string!
 
-                if (is_exclusive_help || args.Length == 0)
-                    //Log($"{c.Command.AddColor(Colors.Application)}: {c.HelpText}".AddColor(Colors.Unimportant));
+                if (is_help)
                     Log($"{c.HelpText}".AddColor(Colors.Unimportant));
 
                 if (!is_exclusive_help) c.Invoke(args); // Invoke command action!
