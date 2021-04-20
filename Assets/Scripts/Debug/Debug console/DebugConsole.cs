@@ -105,6 +105,15 @@ public partial class DebugConsole : DebugComponent
         }
     }
 
+    // TODO: Multiple sizes, perhaps [UI] resizability? More modes? Input-only mode?
+    public void ChangeSize_Toggle() => ChangeSize(SizeState == ConsoleSizeState.Compact ? ConsoleSizeState.Full : ConsoleSizeState.Compact);
+    public void ChangeSize(ConsoleSizeState size_state)
+    {
+        SizeState = size_state;
+        float new_size = GetHeightForSizeState(size_state);
+        Animate(new_size);
+    }
+
     // TODO: Static commands, global control/automation (?)
     public void Toggle()
     {
@@ -473,8 +482,10 @@ public partial class DebugConsole : DebugComponent
 
         if (WasPressed(Keyboard.enterKey, Keyboard.numpadEnterKey)) // Submit
             Submit();
-        if (WasPressed(Keyboard.tabKey)) // Autocomplete
+        if (Input_Text != "" && WasPressed(Keyboard.tabKey)) // Autocomplete
             Autocomplete_Next();
+        else if (Input_Text == "" && WasPressed(Keyboard.tabKey)) // Change size on empty input field [Tab]
+            ChangeSize_Toggle();
 
         // History navigation:
         if (WasPressed(Keyboard.upArrowKey))
