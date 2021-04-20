@@ -152,6 +152,9 @@ public partial class DebugConsole : DebugComponent
         // Make [Escape] not revert the input field
         if (!WasPressed(Keyboard.escapeKey)) Text = Input_Field.text;
 
+        // Reset history navigation
+        if (!is_history_navigating) history_index = -1;
+
         // Autocomplete:
         if (!autocomplete_enabled || is_autocompleting) return;
 
@@ -180,6 +183,23 @@ public partial class DebugConsole : DebugComponent
 
         // Move autocomplete UI to the right of the text
         UI_Autocomplete_UpdateLayout();
+    }
+
+    void FocusInputField()
+    {
+        Input_Field.ActivateInputField();
+        AmpPlayerInputHandler.IsActive = false;
+        DebugKeys.IsEnabled = false;
+        //Input_Field.Select();
+    }
+    void UnfocusInputField() // TODO: This does not unfocus the input field in certain cases. Workaround in OnInputChanged()
+    {
+        // This calls the OnSubmit() and releated events.
+        // In this case, we do not use that event, but it's good to know for future reference.
+        EventSystem.current.SetSelectedGameObject(null); // Unnecessary?
+        Input_Field.DeactivateInputField();
+        AmpPlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
+        DebugKeys.IsEnabled = true;
     }
 
     void UI_Autocomplete_UpdateLayout()
@@ -266,21 +286,35 @@ public partial class DebugConsole : DebugComponent
         }
     }
 
-    void FocusInputField()
+    // History:
+    public List<string> History;
+    public int History_Max = 30; // Maximum amount of items to be held in History
+
+    int history_index = -1;
+    public void History_Add(string s)
     {
-        Input_Field.ActivateInputField();
-        AmpPlayerInputHandler.IsActive = false;
-        DebugKeys.IsEnabled = false;
-        //Input_Field.Select();
+        History.Insert(0, s);
+        if (History.Count > History_Max) History.RemoveAt(History.Count - 1);
     }
-    void UnfocusInputField() // TODO: This does not unfocus the input field in certain cases. Workaround in OnInputChanged()
+
+    bool is_history_navigating = false;
+    public void History_Next(int dir) // -1 : 1
     {
-        // This calls the OnSubmit() and releated events.
-        // In this case, we do not use that event, but it's good to know for future reference.
-        EventSystem.current.SetSelectedGameObject(null); // Unnecessary?
-        Input_Field.DeactivateInputField();
-        AmpPlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
-        DebugKeys.IsEnabled = true;
+        if (History == null || History.Count == 0) return;
+
+        history_index += dir;
+
+        if (history_index >= History.Count) history_index = 0;
+        else if (history_index < 0) history_index = History.Count - 1;
+
+        //Logger.Log($"history_index: {history_index}");
+
+        is_history_navigating = true;
+
+        Input_Field.text = History[history_index];
+        Input_Field.caretPosition = Input_Field.text.Length;
+
+        is_history_navigating = false;
     }
 
     // Writing to the console
@@ -354,7 +388,9 @@ public partial class DebugConsole : DebugComponent
     }
     public void Submit()
     {
-        string s = Input_Field.text; _Log(s);
+        string s = Input_Field.text;
+        _Log(s); History_Add(s);
+
         string command = s;
         string[] tokens = new string[0];
 
@@ -382,7 +418,6 @@ public partial class DebugConsole : DebugComponent
 
         // Process commands...
         ProcessCommand(command, tokens);
-
     }
 
     void Update()
@@ -397,9 +432,15 @@ public partial class DebugConsole : DebugComponent
 
         if (!IsOpen) return;
 
-        if (WasPressed(Keyboard.enterKey, Keyboard.numpadEnterKey))
+        if (WasPressed(Keyboard.enterKey, Keyboard.numpadEnterKey)) // Submit
             Submit();
-        if (WasPressed(Keyboard.tabKey))
+        if (WasPressed(Keyboard.tabKey)) // Autocomplete
             Autocomplete_Next();
+
+        // History navigation:
+        if (WasPressed(Keyboard.upArrowKey))
+            History_Next(1);
+        if (WasPressed(Keyboard.downArrowKey))
+            History_Next(-1);
     }
 }
