@@ -109,4 +109,25 @@ public static class StringExtensions
         { Logger.LogMethodE("WTF", "StringExts", "TypeMethod"); return text; }
     }
 
+    // Boolean parsing:
+    public static bool ParseBool(this string text)
+    {
+        // Try parsing as boolean:
+        bool bool_result = false;
+        if (bool.TryParse(text, out bool_result)) return bool_result;
+
+        // Try parsing as integer: 
+        int int_result = -1;
+        if (int.TryParse(text, out int_result)) return (int_result == 1);
+
+        // Try parsing common bool-like strings:
+        string[] s_true = { "enabled", "yes", "y", "t" };
+        string[] s_false = { "disabled", "no", "n", "f" };
+
+        if (s_true.Contains(text.ToLower())) return true;
+        else if (s_false.Contains(text.ToLower())) return false;
+
+        Logger.LogW("could not parse the string '%' to boolean. Returning false.".T("StringExts"), text);
+        return false;
+    }
 }
