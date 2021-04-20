@@ -247,10 +247,12 @@ public partial class DebugConsole : DebugComponent
         if (!autocomplete_requested) return;
 
         if (autocomplete_elapsed_since_req < autocomplete_delay)
-            autocomplete_elapsed_since_req += (Time.unscaledDeltaTime * 1000);
-        else // Delay done - do autocomplete:
         {
-            // TODO: empty text should not perform an autocomplete!
+            autocomplete_elapsed_since_req += (Time.unscaledDeltaTime * 1000);
+            return;
+        }
+        else if (Text != "") // Delay done - do autocomplete:
+        {
             List<ConsoleCommand> results = Commands.Where(s => s.Command.Contains(Text)).ToList();
             List<string> s_results = new List<string>();
             int count_of_exact_commands = 0;
@@ -274,16 +276,15 @@ public partial class DebugConsole : DebugComponent
 
             // Do not include the actual whole command, but do include similar other ones:
             if (s_results.Count == 1 && count_of_exact_commands == 1) s_results = new List<string>(); // TODO: Performance?
-
-            autocomplete_index = -1;
             autocomplete_commands = s_results;
-
             Autocomplete_WriteEntries(s_results.ToArray());
-
-            // Reset autocomplete request
-            autocomplete_requested = false;
-            autocomplete_elapsed_since_req = 0f;
         }
+
+        autocomplete_index = -1;
+
+        // Reset autocomplete request
+        autocomplete_requested = false;
+        autocomplete_elapsed_since_req = 0f;
     }
 
     // History:
