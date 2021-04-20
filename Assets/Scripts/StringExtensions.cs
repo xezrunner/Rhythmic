@@ -36,7 +36,7 @@ public static class StringExtensions
     // Bold, underline, etc...
     public static string Bold(this string text) => $"<b>{text}</b>";
     public static string Underline(this string text) => $"<u>{text}</u>";
-    public static string Italics(this string text) => $"<i>{text}</i>";
+    public static string Italic(this string text) => $"<i>{text}</i>";
     // TODO: Clear___() functions for these too?
 
     // Max lines:
