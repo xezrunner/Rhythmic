@@ -11,7 +11,7 @@ public partial class DebugKeys : DebugComponent
 
     public static RefDebugComInstance Instance;
 
-    public bool IsEnabled = true;
+    public static bool IsEnabled = true;
 
     void Awake() => Instance = new RefDebugComInstance(this);
 

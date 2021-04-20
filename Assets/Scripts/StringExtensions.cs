@@ -5,6 +5,7 @@ public static class StringExtensions
 {
     // Colors:
     /// Credit: https://forum.unity.com/threads/change-color-of-a-single-word.538706/#post-6819410
+    public static string ColorHexFromUnityColor(this Color unityColor) => $"#{ColorUtility.ToHtmlStringRGBA(unityColor)}";
     public static string AddColor(this string text, Color color, float? alpha = null)
     {
         if (alpha.HasValue) color.a = alpha.Value; // Set alpha if required
@@ -14,7 +15,29 @@ public static class StringExtensions
     }
     public static string AddColor(this string text, float alpha) => AddColor(text, new Color(1, 1, 1), alpha);
     public static string AddColor(this string text, float r, float g, float b, float? alpha = null) => AddColor(text, new Color(r, g, b), alpha);
-    public static string ColorHexFromUnityColor(this Color unityColor) => $"#{ColorUtility.ToHtmlStringRGBA(unityColor)}";
+    public static string ClearColors(this string text)
+    {
+        //<color=#03A9F4FF> && </color>
+        while (text.Contains("<color=#"))
+        {
+            int code_start_index = text.IndexOf("<color=#");
+            text = text.Remove(code_start_index, "<color=#000000FF>".Length);
+        }
+
+        while (text.Contains("</color>"))
+        {
+            int code_start_index = text.IndexOf("</color>");
+            text = text.Remove(code_start_index, "</color>".Length);
+        }
+
+        return text;
+    }
+
+    // Bold, underline, etc...
+    public static string Bold(this string text) => $"<b>{text}</b>";
+    public static string Underline(this string text) => $"<u>{text}</u>";
+    public static string Italics(this string text) => $"<i>{text}</i>";
+    // TODO: Clear___() functions for these too?
 
     // Max lines:
     public static string MaxLines(this string text, int maxLines)

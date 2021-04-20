@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using static InputHandler;
 
 public enum ConsoleSizeState { Default, Compact, Full }
 public enum ConsoleState { Closed, Open }
 
 /// TODO:
-//  [ ] Fix text UI bounds, scrolling
+//  [*] Fix text UI bounds, scrolling
 /// 
 //  [ ] History + repeat
 ///
@@ -29,8 +31,14 @@ public partial class DebugConsole : DebugComponent
 
     public RectTransform UI_Parent_Trans;
     public RectTransform UI_RectTrans;
+
+    // Text:
+    public ScrollRect UI_ScrollRect;
     public TMP_Text UI_Text;
+
+    // Input field:
     public TMP_InputField Input_Field;
+    public TMP_Text UI_Autocomplete;
 
     [NonSerialized] public bool IsOpen;
     [NonSerialized] public ConsoleState State;
@@ -55,7 +63,6 @@ public partial class DebugConsole : DebugComponent
         if (!UI_Text || !Input_Field)
         { Logger.LogMethodE("Console has no UI_Text or Input_Field references!", this, null); return; }
 
-        Logger.LogMethod($"Main canvas height: {UI_Canvas_Height}", this, null);
         target_height = GetHeightForSizeState(ConsoleSizeState.Compact);
         _Close(false);
 
@@ -78,7 +85,7 @@ public partial class DebugConsole : DebugComponent
 
         is_animating = true;
     }
-    void UPDATE_HandleAnimation()
+    void UPDATE_Animation()
     {
         if (!is_animating) return;
 
@@ -133,33 +140,135 @@ public partial class DebugConsole : DebugComponent
     }
 
     // Input field
-    string prev_text = "";
+    new string Text = ""; // Hiding: (base) DebugComponent.Text
     public void OnInputChanged()
     {
         if (!IsOpen) // HACK: Since unfocusing the console doesn't seem to want to work, we do this instead.
         {
-            Input_Field.text = prev_text;
+            Input_Field.text = Text;
             return;
         }
 
         // Make [Escape] not revert the input field
-        if (!WasPressed(Keyboard.escapeKey)) prev_text = Input_Field.text;
+        if (!WasPressed(Keyboard.escapeKey)) Text = Input_Field.text;
 
-        // Autocomplete?
+        // Autocomplete:
+        if (!autocomplete_enabled || is_autocompleting) return;
+
+        autocomplete_elapsed_since_req = 0f; // Reset autocomplete delay timer
+        if (Input_Field.text == "") Autocomplete_WriteEntries(); // clear out
+        else autocomplete_requested = true; // Request autocomplete
     }
     public void OnInputEditingEnd()
     {
         // Make [Escape] not revert the input field
-        if (WasPressed(Keyboard.escapeKey)) Input_Field.text = prev_text;
+        if (WasPressed(Keyboard.escapeKey)) Input_Field.text = Text;
+    }
+
+    // Autocomplete:
+    bool autocomplete_enabled = true;
+    float autocomplete_padding_x = 6f;
+    void Autocomplete_WriteEntries(params string[] args)
+    {
+        UI_Autocomplete.text = "";
+        if (args == null || args.Length == 0) return;
+
+        UI_Autocomplete.text += ":: ";
+
+        for (int i = 0; i < args.Length; ++i)
+            UI_Autocomplete.text += args[i] + ((i != args.Length - 1) ? "; " : "");
+
+        // Move autocomplete UI to the right of the text
+        UI_Autocomplete_UpdateLayout();
+    }
+
+    void UI_Autocomplete_UpdateLayout()
+    {
+        int last_index = Input_Field.textComponent.textInfo.lineInfo[0].lastVisibleCharacterIndex;
+        Vector3 c_trans = Input_Field.textComponent.transform.TransformPoint(Input_Field.textComponent.textInfo.characterInfo[last_index].bottomRight);
+        UI_Autocomplete.rectTransform.position = new Vector2(c_trans.x + autocomplete_padding_x, UI_Autocomplete.rectTransform.position.y);
+    }
+
+    int autocomplete_index = -1;
+    List<string> autocomplete_commands;
+    bool is_autocompleting = false;
+
+    void Autocomplete_Next()
+    {
+        if (autocomplete_commands == null || autocomplete_commands.Count == 0) return;
+
+        is_autocompleting = true;
+
+        ++autocomplete_index;
+        if (autocomplete_index >= autocomplete_commands.Count) autocomplete_index = 0;
+
+        Input_Field.text = autocomplete_commands[autocomplete_index].ClearColors();
+        Input_Field.caretPosition = Input_Field.text.Length;
+
+        // Update autocomplete UI:
+        List<string> autocomplete_commands_temp = autocomplete_commands.ToList();
+        autocomplete_commands_temp[autocomplete_index] = autocomplete_commands_temp[autocomplete_index].ClearColors().Bold().Underline().AddColor(Colors.Network); // TODO: improve formatting?
+        Autocomplete_WriteEntries(autocomplete_commands_temp.ToArray());
+
+        // This is no longer needed if we do the eabove formatting. Leaving it here in case we change our minds.
+        //UI_Autocomplete_UpdateLayout();
+
+        is_autocompleting = false;
+    }
+
+    bool autocomplete_requested = false;
+    float autocomplete_elapsed_since_req = 0f;
+    float autocomplete_delay = 300f; // ms
+    void UPDATE_Autocomplete()
+    {
+        if (!autocomplete_requested) return;
+
+        if (autocomplete_elapsed_since_req < autocomplete_delay)
+            autocomplete_elapsed_since_req += (Time.unscaledDeltaTime * 1000);
+        else // Delay done - do autocomplete:
+        {
+            // TODO: empty text should not perform an autocomplete!
+            List<ConsoleCommand> results = Commands.Where(s => s.Command.Contains(Text)).ToList();
+            List<string> s_results = new List<string>();
+            int count_of_exact_commands = 0;
+
+            // TODO: better search algorithm here!
+            foreach (ConsoleCommand c in results)
+            {
+                string command = c.Command;
+                if (command == Text) ++count_of_exact_commands; // Do not include the actual whole command, but do include similar other ones!
+
+                int index_of_found = command.IndexOf(Text);
+                int end_index = index_of_found + Text.Length;
+                int end_length = command.Length - (index_of_found + Text.Length);
+
+                string s0 = command.Substring(0, index_of_found);
+                string s1 = command.Substring(end_index, end_length);
+                string s = (s0 + Text.AddColor(Colors.Application, 1f) + s1);
+
+                s_results.Add(s);
+            }
+
+            if (s_results.Count == 1 && count_of_exact_commands == 1) s_results = new List<string>(); // TODO: Performance?
+
+            autocomplete_index = -1;
+            autocomplete_commands = s_results;
+
+            Autocomplete_WriteEntries(s_results.ToArray());
+
+            // Reset autocomplete request
+            autocomplete_requested = false;
+            autocomplete_elapsed_since_req = 0f;
+        }
     }
 
     void FocusInputField()
     {
-        //Input_Field.Select();
         Input_Field.ActivateInputField();
         AmpPlayerInputHandler.IsActive = false;
+        DebugKeys.IsEnabled = false;
+        //Input_Field.Select();
     }
-    // TODO: Cannot unfocus input fields manually! This is bad! Figure out why!!
     void UnfocusInputField()
     {
         // This calls the OnSubmit() and releated events.
@@ -167,11 +276,15 @@ public partial class DebugConsole : DebugComponent
         EventSystem.current.SetSelectedGameObject(null); // Unnecessary?
         Input_Field.DeactivateInputField();
         AmpPlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
+        DebugKeys.IsEnabled = true;
     }
 
     // Writing to the console
     public static void Write(string text, params object[] args) => Instance?._Write(text, args);
     public static void Log(string text, params object[] args) => Instance?._Log(text, args);
+
+    public static void Clear() => Instance?._Clear();
+    void _Clear() => UI_Text.text = "";
 
     void _Write(string text, params object[] args)
     {
@@ -194,13 +307,47 @@ public partial class DebugConsole : DebugComponent
         }
 
         UI_Text.text += s;
+        StartCoroutine(ScrollToBottom());
     }
     void _Log(string text, params object[] args) => _Write(text + '\n', args);
     // Inconvenient arguments
     public void _LogMethod(string text, object type = null, [CallerMemberName] string methodName = null, params object[] args) => _Write(type + "/" + methodName + ": " + text, args);
 
+    IEnumerator ScrollToBottom() // HACK: You have to wait for the end of the current frame to be able to scroll to the bottom.
+    {
+        yield return new WaitForEndOfFrame();
+        UI_ScrollRect.verticalNormalizedPosition = 0f;
+    }
+
     // Console interaction & command processing
     public static bool ReturnOnFoundCommand = true;
+    public void ProcessCommand(string command, params string[] args)
+    {
+        bool found = false;
+
+        // Find the command and call it with the args:
+        for (int i = 0; i < Commands_Count; ++i)
+        {
+            ConsoleCommand c = Commands[i];
+            if (c.Command == command)
+            {
+                found = true;
+
+                // TODO: add function name?
+                bool is_exclusive_help = (args.Contains("--help") || (!c.is_action_empty && args.Length == 0));
+                if (is_exclusive_help && command.StartsWith("set_")) is_exclusive_help = false; // TEMP / HACK!
+
+                if (is_exclusive_help || args.Length == 0)
+                    //Log($"{c.Command.AddColor(Colors.Application)}: {c.HelpText}".AddColor(Colors.Unimportant));
+                    Log($"{c.HelpText}".AddColor(Colors.Unimportant));
+
+                if (!is_exclusive_help) c.Invoke(args); // Invoke command action!
+                if (ReturnOnFoundCommand) return;
+            }
+        }
+
+        if (!found) _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
+    }
     public void Submit()
     {
         string s = Input_Field.text; _Log(s);
@@ -233,36 +380,11 @@ public partial class DebugConsole : DebugComponent
         ProcessCommand(command, tokens);
 
     }
-    public void ProcessCommand(string command, params string[] args)
-    {
-        bool found = false;
-
-        // Find the command and call it with the args:
-        for (int i = 0; i < Commands_Count; ++i)
-        {
-            ConsoleCommand c = Commands[i];
-            if (c.Command == command)
-            {
-                found = true;
-
-                // TODO: add function name?
-                bool is_exclusive_help = (args.Contains("--help") || (!c.is_action_empty && args.Length == 0));
-
-                if (is_exclusive_help || args.Length == 0)
-                    //Log($"{c.Command.AddColor(Colors.Application)}: {c.HelpText}".AddColor(Colors.Unimportant));
-                    Log($"{c.HelpText}".AddColor(Colors.Unimportant));
-
-                if (!is_exclusive_help) c.Invoke(args); // Invoke command action!
-                if (ReturnOnFoundCommand) return;
-            }
-        }
-
-        if (!found) _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
-    }
 
     void Update()
     {
-        if (is_animating) UPDATE_HandleAnimation();
+        UPDATE_Animation();
+        UPDATE_Autocomplete();
 
         if (!IsOpen && WasPressed(Keyboard.digit0Key, Keyboard.backquoteKey))
             _Open();
@@ -273,5 +395,7 @@ public partial class DebugConsole : DebugComponent
 
         if (WasPressed(Keyboard.enterKey, Keyboard.numpadEnterKey))
             Submit();
+        if (WasPressed(Keyboard.tabKey))
+            Autocomplete_Next();
     }
 }

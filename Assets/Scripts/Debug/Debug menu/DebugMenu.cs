@@ -256,7 +256,7 @@ public partial class DebugMenu : DebugComponent
         // *** Move Debug menu arrow: ***
         // Get the left-top position of the line
         //int line_index = debugmenuText.textInfo.lineInfo[index].firstCharacterIndex;
-        TMP_LineInfo line = new TMP_LineInfo();
+        TMP_LineInfo line;
         line = UI_Text.textInfo.lineInfo[index];
         float line_height = (line.lineHeight * index + (line.lineHeight / 2));
         Vector3 line_worldPos = UI_Text.transform.TransformPoint(new Vector3(0, -line_height, 0));
