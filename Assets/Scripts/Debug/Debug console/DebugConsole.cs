@@ -456,13 +456,22 @@ public partial class DebugConsole : DebugComponent
 
                 if (is_exclusive_help) Help_Command(command);
 
-                if (!is_exclusive_help) c.Invoke(args); // Invoke command action!
+                if (!is_exclusive_help)
+                {
+                    bool result = c.Invoke(args); // Invoke command action!
+                    if (!result)
+                    {
+                        Write($" | " + "? ".AddColor(Colors.IO));
+                        Help_Command(command); // TODO: we might only want to show help for one-liners
+                    }
+                }
                 if (ReturnOnFoundCommand) return;
             }
         }
 
         if (!found) _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
     }
+
     public void Submit()
     {
         string s = Input_Field.text;

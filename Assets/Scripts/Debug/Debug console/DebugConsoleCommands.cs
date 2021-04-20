@@ -19,15 +19,17 @@ public struct ConsoleCommand
     public Action Action_Empty;
     public Action<string[]> Action_Param;
 
-    public void Invoke(params string[] args)
+    /// <returns>Whether we encountered an error.</returns>
+    public bool Invoke(params string[] args)
     {
         try
         {
             if (is_action_empty) Action_Empty();
             else Action_Param(args);
+            return true;
         }
         catch (Exception ex)
-        { DebugConsole.Log("Failed to execute command: " + "%".AddColor(Colors.Error), ex.Message); }
+        { DebugConsole.Log("Failed to execute command: " + "%".AddColor(Colors.Error), ex.Message); return false; }
     }
 }
 
