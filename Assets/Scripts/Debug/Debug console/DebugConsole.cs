@@ -280,12 +280,15 @@ public partial class DebugConsole : DebugComponent
     }
 
     // History:
-    public List<string> History;
+    public List<string> History; // Using an array with a fixed size would be better in terms of performance. Preferring convenience for now.
     public int History_Max = 30; // Maximum amount of items to be held in History
 
     int history_index = -1;
     public void History_Add(string s)
     {
+        if (History != null && History.Count != 0 && History.First() == s) // Do not add to history if the command already existed as the last added one
+            return;
+
         History.Insert(0, s);
         if (History.Count > History_Max) History.RemoveAt(History.Count - 1);
     }
