@@ -40,7 +40,8 @@ public partial class DebugConsole : DebugComponent
     [NonSerialized] public float Vertical_Padding = 0f;
     [NonSerialized] public float Compact_Height = 300f;
 
-    [NonSerialized] public int Text_Max_Length = 5000; // chars
+    [NonSerialized] public int Text_Max_Lines = 500;
+    [NonSerialized] public int Line_Max_Length = 5000; // TODO: We probably want more!
     [NonSerialized] public float Animation_Speed = 1f;
     [NonSerialized] public float Scroll_Speed = 0.45f;
     public const float SCROLL_BOTTOM = 0f;
@@ -402,11 +403,11 @@ public partial class DebugConsole : DebugComponent
             s += text[c];
         }
 
+        if (s.Length > Line_Max_Length) s = s.Substring(0, Line_Max_Length);
         UI_Text.text += s;
 
         // Limit text length
-        if (UI_Text.text.Length > Text_Max_Length)
-            UI_Text.text = UI_Text.text.Substring(UI_Text.text.Length - Text_Max_Length, Text_Max_Length);
+        UI_Text.text = UI_Text.text.MaxLines(Text_Max_Lines);
     }
     void _Log(string text, params object[] args) => _Write(text + '\n', args);
     // Inconvenient arguments
