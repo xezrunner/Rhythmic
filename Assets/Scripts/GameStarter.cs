@@ -49,7 +49,7 @@ public class GameStarter : MonoBehaviour
 #endif
 
         // Hide cursor
-        Cursor.visible = false;
+        if (!Application.isEditor) Cursor.visible = false;
 
         StartCoroutine(Load(RhythmicGame.StartWorld));
         //StartCoroutine(Load("TestScene"));

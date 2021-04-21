@@ -116,7 +116,7 @@ public partial class DebugConsole : DebugComponent
         State = ConsoleState.Closed;
 
         // TODO: Mouse cursor visibility / locking mechanism should be in a different utilitarian class as static functions (probably)
-        Cursor.visible = false; // Mouse cursor
+        if (!Application.isEditor) Cursor.visible = false; // Mouse cursor
 
         Animate(target_height, anim);
     }
