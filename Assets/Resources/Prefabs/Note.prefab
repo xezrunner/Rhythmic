@@ -204,6 +204,7 @@ MonoBehaviour:
   NoteMeshRenderer: {fileID: 2734642669021029952}
   DotLightMeshRenderer: {fileID: 6331370741167696652}
   PS: {fileID: 8919151838760895493}
+  UI_Canvas: {fileID: 7979184450094653362}
   TargetNoteIndicator: {fileID: 1032841865962867534}
   SharedNoteMaterial: {fileID: 0}
   ID: 0

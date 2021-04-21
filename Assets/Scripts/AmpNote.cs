@@ -22,6 +22,7 @@ public class AmpNote : MonoBehaviour
     public ParticleSystem PS;
 
     public static bool DEBUG_ShowTargetNoteIndicators = false;
+    public Canvas UI_Canvas;
     public TextMeshProUGUI TargetNoteIndicator;
 
     /// Materials (TODO: revise)
@@ -125,15 +126,17 @@ public class AmpNote : MonoBehaviour
         // Set particle system color to match dotlight!
         PS_main = PS.main;
         PS_main.startColor = (DotLightColor * 2f);
+
+        UI_Canvas.gameObject.SetActive(DEBUG_ShowTargetNoteIndicators);
     }
 
-#if true
+#if false
     private void Update()
     {
-        if (!DEBUG_ShowTargetNoteIndicators) return;
+        if (!DEBUG_ShowTargetNoteIndicators) { UI_Canvas.gameObject.SetActive(false); return; }
 
         if (TracksController.Instance.targetNotes[Track.ID] == this)
-        { TargetNoteIndicator.gameObject.SetActive(true); TargetNoteIndicator.text = $"{TotalID}@{Distance}m"; }
+        { UI_Canvas.gameObject.SetActive(true); TargetNoteIndicator.gameObject.SetActive(true); TargetNoteIndicator.text = $"{TotalID}@{Distance}m"; }
         else
             TargetNoteIndicator.gameObject.SetActive(false);
     }
