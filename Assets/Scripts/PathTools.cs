@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Profiling;
 using PathCreation;
 
 public static class PathTools
@@ -10,6 +11,7 @@ public static class PathTools
     public static Vector3 GetPositionOnPath(VertexPath path, float distance) => GetPositionOnPath(path, distance, Vector3.zero);
     public static Vector3 GetPositionOnPath(VertexPath path, float distance, Vector3 offset)
     {
+        // TODO: tunnelCenter might be unnecessary, not just here, but everywhere else. Right now, it's zero in all cases.
         Vector3 tunnelCenter = (Tunnel.Instance) ? Tunnel.Instance.center : Vector3.zero;
 
         float dist = distance; // distance on path, 0 or path.length if out of path
@@ -34,10 +36,8 @@ public static class PathTools
 
         // Normals
         // Previous code - this has been optimized with potentially the exact same results.
-        Vector3 normal = path.GetNormalAtDistance(dist);
-        Vector3 localUp = Vector3.Cross(path.GetTangentAtDistance(dist), normal);
-        Vector3 localRight = normal;
-        
+        Vector3 localRight = path.GetNormalAtDistance(dist);
+        Vector3 localUp = Vector3.Cross(path.GetTangentAtDistance(dist), localRight);
 
         //Vector3 localRight = path.GetNormalAtDistance(dist);
         //Vector3 localUp = Quaternion.Euler(0, 0, 90) * localRight;

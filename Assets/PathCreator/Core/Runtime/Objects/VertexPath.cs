@@ -208,7 +208,7 @@ namespace PathCreation
         public TimeOnPathData GetIndexAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
         {
             float t = dst / length;
-            var data = CalculatePercentOnPathData(t, endOfPathInstruction);
+            TimeOnPathData data = CalculatePercentOnPathData(t, endOfPathInstruction);
             return data;
         }
 
@@ -242,7 +242,7 @@ namespace PathCreation
         /// Gets point on path based on 'time' (where 0 is start, and 1 is end of path).
         public Vector3 GetPointAtTime(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
         {
-            var data = CalculatePercentOnPathData(t, endOfPathInstruction);
+            TimeOnPathData data = CalculatePercentOnPathData(t, endOfPathInstruction);
             return Vector3.Lerp(GetPoint(data.previousIndex), GetPoint(data.nextIndex), data.percentBetweenIndices);
         }
 
@@ -250,14 +250,14 @@ namespace PathCreation
         /// Gets forward direction on path based on 'time' (where 0 is start, and 1 is end of path).
         public Vector3 GetDirection(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
         {
-            var data = CalculatePercentOnPathData(t, endOfPathInstruction);
+            TimeOnPathData data = CalculatePercentOnPathData(t, endOfPathInstruction);
             Vector3 dir = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
             return MathUtility.TransformDirection(dir, transform, space);
         }
 
         public Vector3 GetTangent(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
         {
-            var data = CalculatePercentOnPathData(t, endOfPathInstruction);
+            TimeOnPathData data = CalculatePercentOnPathData(t, endOfPathInstruction);
             Vector3 tangent = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
             return MathUtility.TransformDirection(tangent, transform, space);
         }
@@ -265,7 +265,7 @@ namespace PathCreation
         /// Gets normal vector on path based on 'time' (where 0 is start, and 1 is end of path).
         public Vector3 GetNormal(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
         {
-            var data = CalculatePercentOnPathData(t, endOfPathInstruction);
+            TimeOnPathData data = CalculatePercentOnPathData(t, endOfPathInstruction);
             Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices);
             return MathUtility.TransformDirection(normal, transform, space);
         }
@@ -273,7 +273,7 @@ namespace PathCreation
         /// Gets a rotation that will orient an object in the direction of the path at this point, with local up point along the path's normal
         public Quaternion GetRotation(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
         {
-            var data = CalculatePercentOnPathData(t, endOfPathInstruction);
+            TimeOnPathData data = CalculatePercentOnPathData(t, endOfPathInstruction);
             Vector3 direction = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
             Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices);
             return Quaternion.LookRotation(MathUtility.TransformDirection(direction, transform, space), MathUtility.TransformDirection(normal, transform, space));
@@ -308,16 +308,16 @@ namespace PathCreation
         /// Also calculate how far t is between those two vertices as a percentage between 0 and 1.
         TimeOnPathData CalculatePercentOnPathData(float t, EndOfPathInstruction endOfPathInstruction)
         {
+            //UnityEngine.Profiling.Profiler.BeginSample("PATH: CalculatePercentOnPathData()");
+
             // Constrain t based on the end of path instruction
             switch (endOfPathInstruction)
             {
                 case EndOfPathInstruction.Loop:
                     // If t is negative, make it the equivalent value between 0 and 1
-                    if (t < 0)
-                    {
-                        t += Mathf.CeilToInt(Mathf.Abs(t));
-                    }
-                    t %= 1;
+                    //if (t < 0)
+                        //t += Mathf.CeilToInt(Mathf.Abs(t));
+                    //t %= 1;
                     break;
                 case EndOfPathInstruction.Reverse:
                     t = Mathf.PingPong(t, 1);
@@ -345,7 +345,8 @@ namespace PathCreation
                 {
                     prevIndex = i;
                 }
-                i = (nextIndex + prevIndex) / 2;
+                //i = (nextIndex + prevIndex) / 2;
+                i = (int)(((float)nextIndex + (float)prevIndex) * 0.5f);
 
                 if (nextIndex - prevIndex <= 1)
                 {
@@ -354,6 +355,9 @@ namespace PathCreation
             }
 
             float abPercent = Mathf.InverseLerp(times[prevIndex], times[nextIndex], t);
+
+            //UnityEngine.Profiling.Profiler.EndSample();
+
             return new TimeOnPathData(prevIndex, nextIndex, abPercent);
         }
 

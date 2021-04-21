@@ -187,9 +187,8 @@ public class AmpTrackSection : MonoBehaviour
         }
         // Deform the mesh!
         DeformMesh();
-
-        MeshDeformer.DeformMesh
-                                  (Path, SeekerMesh.mesh, Position, Rotation, ogVerts: og_vertsSeeker, offset: new Vector3(0, 0.018f, 0), RhythmicGame.TrackWidth + 0.05f, -1, Length, movePivotToStart: false); // TODO: unneccessary parameters
+        
+        MeshDeformer.DeformMesh (Path, SeekerMesh.mesh, Position, Rotation, ogVerts: og_vertsSeeker, offset: new Vector3(0, 0.018f, 0), RhythmicGame.TrackWidth + 0.05f, -1, Length, movePivotToStart: false); // TODO: unneccessary parameters
         //SeekerRenderer.material.color = Track.Color;
     }
 

@@ -1,6 +1,7 @@
 using PathCreation;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 public enum Axis { X = 0, Y = 1, Z = 2, W = 3 }
 
@@ -24,6 +25,8 @@ public static class MeshDeformer
     /// </param>
     public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3 position, float angle = 0f, Vector3[] ogVerts = null, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = false)
     {
+        //Profiler.BeginSample($"DeformMesh() - {mesh.name}");
+
         //Vector3[] vertices = mesh.vertices;
         // TEMP: Testing funky path contours
         Vector3[] vertices = null;
@@ -70,6 +73,8 @@ public static class MeshDeformer
         mesh.SetVertices(vertices);
         mesh.RecalculateBounds();
 
+        //Profiler.EndSample();
+
         return mesh;
     }
     public static Mesh DeformMesh(VertexPath path, Mesh mesh, Vector3? offset = null, float width = -1, float height = -1, float length = -1, bool movePivotToStart = false) => DeformMesh(path, mesh, Vector3.zero, 0f, null, offset, width, height, length, movePivotToStart);
@@ -84,11 +89,11 @@ public static class MeshDeformer
     /// </summary>
     public static Vector3 TransformVertex(VertexPath path, Vector3 meshVertex, Vector3 position, float angle, Vector3? offset, float length = 0f)
     {
-        Vector3 tunnelCenter = Tunnel.Instance ? Tunnel.Instance.center : Vector3.zero;
+        //Vector3 tunnelCenter = Tunnel.Instance ? Tunnel.Instance.center : Vector3.zero;
 
         float distance = meshVertex.z + position.z; // Vertex Z distance along path + desired Z offset
         Vector3 vertexXY = new Vector3(meshVertex.x, meshVertex.y, 0); // Vertex X and Y points (horizontal)
-        Vector3 pointOnPath = PathTools.GetPositionOnPath(path, distance, position - tunnelCenter);
+        Vector3 pointOnPath = PathTools.GetPositionOnPath(path, distance, position /*- tunnelCenter*/);
         Quaternion pathRotation = PathTools.GetRotationOnPath(path, distance); // Rot on path at the distance
 
         pathRotation = pathRotation * Quaternion.Euler(0, 0, angle); // Offset rotation
