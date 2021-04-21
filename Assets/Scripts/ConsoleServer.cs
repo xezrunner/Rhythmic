@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 public enum CMessageType { Text = 0, DebugInfo = 1 }
-public enum CLogType { Info = 0, Unimportant = 1, Warning = 2, Error = 3, Caution = 4, Network = 5, IO = 6, Application = 7, UNKNOWN = -1 }
+public enum CLogType { None = -1, Info = 0, Unimportant = 1, Warning = 2, Error = 3, Caution = 4, Network = 5, IO = 6, Application = 7, UNKNOWN = 99 }
 
 public static class ConsoleServer
 {
@@ -16,14 +16,14 @@ public static class ConsoleServer
 
     public static void StartConsoleServer()
     {
-        if (CServer != null) { Debug.LogWarning("ConsoleServer: CServer is already running!"); return; }
+        if (CServer != null) { Logger.LogWarning("CServer: CServer is already running!"); return; }
+        Logger.Log("CServer: init!", CLogType.IO);
 
         Thread CServerThread = new Thread(() =>
         {
             CServer = new NamedPipeServerStream("RhythmicConsoleServer");
             CServer.WaitForConnection();
 
-            Debug.Log("CServer: Connected!");
 
             // TODO: This does not work.
             // This should detect client disconnects and stop the server.
@@ -36,13 +36,12 @@ public static class ConsoleServer
             */
         });
         CServerThread.Start();
-
-        Debug.Log("CServer: init!");
+        Logger.Log("CServer: Connected!", CLogType.IO);
     }
     public static void StopConsoleServer()
     {
         if (CServer == null) return;
-        Debug.Log("CServer: closing server...");
+        Logger.Log("CServer: closing server...", CLogType.IO);
 
         Stopping = true;
 
@@ -54,7 +53,7 @@ public static class ConsoleServer
         CServer.Dispose();
         CServer = null;
 
-        Debug.Log("CServer: server closed!");
+        Logger.Log("CServer: server closed!", CLogType.IO);
 
         Stopping = false;
     }

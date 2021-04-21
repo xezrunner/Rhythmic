@@ -405,6 +405,10 @@ public partial class DebugConsole : DebugComponent
 
         // Limit text length
         UI_Text.text = UI_Text.text.MaxLines(Text_Max_Lines);
+
+        // Log to the Rhythmic Console application | TODO: This isn't the right place to forward from.
+        //if (s[s.Length - 1] == '\n') s = s.Substring(0, s.Length - 1);
+        //if (ConsoleServer.CServer != null) Logger.Log(s.ClearColors(), CLogType.Info, LogTarget.RhythmicConsole);
     }
     void _Log(string text, params object[] args) => _Write(text + '\n', args);
     // Inconvenient arguments

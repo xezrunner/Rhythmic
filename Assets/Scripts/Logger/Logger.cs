@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using UnityEngine;
 
 /// <summary>
@@ -74,9 +75,9 @@ public static partial class Logger
     }
 
     // Logging router:
-    static string Log(string text, CLogType logType, LogTarget logTarget, params object[] args)
+    public static string Log(string text, CLogType logType, LogTarget logTarget, params object[] args)
     {
-        if (text.Contains("%")) text = ParseArgs(text, args);
+        if (args.Length != 0 && text.Contains("%")) text = ParseArgs(text, args);
 
         if (logTarget.HasFlag(LogTarget.Unity) && CurrentLogTarget.HasFlag(LogTarget.Unity)) LogUnity(text, logType);
         if (logTarget.HasFlag(LogTarget.RhythmicConsole) && CurrentLogTarget.HasFlag(LogTarget.RhythmicConsole)) LogConsole(text, logType);

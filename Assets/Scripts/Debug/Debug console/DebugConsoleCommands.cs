@@ -42,7 +42,6 @@ public partial class DebugConsole
     // Other classes are free to register console commands at any point by using RegisterCommand().
     void Console_RegisterCommands() // **********************************
     {
-
         // Console-meta commands:
         RegisterCommand("clear", _Clear);
         RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds."); // TODO: Should use a global Quit procedure to quit the game once MetaSystem and/or GameState is in place
@@ -60,6 +59,9 @@ public partial class DebugConsole
         RegisterCommand(scroll_to_bottom); RegisterCommand(scroll_to_top); RegisterCommand(scroll_to);
         RegisterCommand(set_console_line_limit, "Sets the console amount of lines allowed in the console.");
         RegisterCommand(set_console_text_limit, "Sets the maximum amount of characters allowed in a line.");
+
+        RegisterCommand(start_console_server);
+        RegisterCommand(stop_console_server);
 
         // Common commands:
         RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
@@ -198,6 +200,9 @@ public partial class DebugConsole
     void scroll_to_bottom() => ScrollConsole(SCROLL_BOTTOM);
     void scroll_to_top() => ScrollConsole(SCROLL_TOP);
     void scroll_to(string[] args) => ScrollConsole(float.Parse(args[0]));
+
+    void start_console_server() => ConsoleServer.StartConsoleServer();
+    void stop_console_server() => ConsoleServer.StopConsoleServer();
 
     /// Songs and worlds:
     void song(string[] args) => SongsMenu.LoadSong(args[0]);
