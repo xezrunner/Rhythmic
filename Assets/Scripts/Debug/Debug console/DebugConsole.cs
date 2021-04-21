@@ -466,7 +466,7 @@ public partial class DebugConsole : DebugComponent
             }
         }
 
-        if (!found) _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
+        if (!found && command != "") _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
     }
 
     public void Submit()
