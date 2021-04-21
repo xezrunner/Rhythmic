@@ -140,6 +140,9 @@ public class TracksController : MonoBehaviour
         if (!m.IsEnabled || !m.IsSequence || m.IsEmpty || m.IsCaptured) Seeker.SetActive(false);
         else Seeker.SetActive(true);
 
+        seeker_lastTrackID = m.Track.RealID;
+        seeker_lastSequenceID = m.ID;
+
         MeshDeformer.DeformMesh(PathTools.Path, SeekerMesh.mesh, m.Position, m.Rotation, ogVerts: og_vertsSeeker, offset: new Vector3(0, 0.018f, 0), RhythmicGame.TrackWidth + 0.05f, -1, m.Length * count, movePivotToStart: false); // TODO: unneccessary parameters
     }
 
