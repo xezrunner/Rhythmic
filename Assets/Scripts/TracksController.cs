@@ -117,7 +117,7 @@ public class TracksController : MonoBehaviour
         StartCoroutine(AddTrackMaterialsToClipper());
 
         // Instantiate seeker
-        Seeker = Instantiate(SeekerPrefab); Seeker.seta(false);
+        Seeker = Instantiate(SeekerPrefab); Seeker.SetActive(false);
         SeekerMesh = Seeker.GetComponent<MeshFilter>();
         SeekerRenderer = Seeker.GetComponent<MeshRenderer>();
         SeekerRenderer.material = (Material)Resources.Load("Materials/EdgeLightMaterial");
