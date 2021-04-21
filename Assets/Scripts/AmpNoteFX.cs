@@ -60,7 +60,11 @@ public class AmpNoteFX : MonoBehaviour
         NoteCaptureFX fx = Effect.Value;
 
         //if (fx.HasFlag(NoteCaptureFX._CatcherEffect)) { }
-        //if (fx.HasFlag(NoteCaptureFX._DestructEffect)) { }
+        if (fx.HasFlag(NoteCaptureFX._DestructEffect))
+        {
+            if (fraction > 1f)
+                DestructHit_Particles.gameObject.SetActive(false);
+        }
         if (fx.HasFlag(NoteCaptureFX.DotLightEffect))
         {
             float glowIntensity = FXProps.Note_DotLightGlowIntensity * (1 - fraction);
@@ -75,7 +79,7 @@ public class AmpNoteFX : MonoBehaviour
             BlastFX_Animator.transform.position = AmpPlayer.Instance.transform.position + (normal * offset);
         }
 
-        if (fraction >= 1f)
+        if (fraction > 1f)
         {
             // Restore shared material to reduce constant draw calls due to different meshes
             Note.DotLightMeshRenderer.material = Note.Track.NoteDotLightMaterial;
