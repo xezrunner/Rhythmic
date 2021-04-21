@@ -213,6 +213,7 @@ public class TrackStreamer : MonoBehaviour
                 Logger.LogMethod(s, this);
 #endif
                 track.AddSequence(measure, false);
+                TracksController.RefreshSeeker();
             }
 
             // Stream notes!

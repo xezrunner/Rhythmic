@@ -146,6 +146,18 @@ public class TracksController : MonoBehaviour
         MeshDeformer.DeformMesh(PathTools.Path, SeekerMesh.mesh, m.Position, m.Rotation, ogVerts: og_vertsSeeker, offset: new Vector3(0, 0.018f, 0), RhythmicGame.TrackWidth + 0.05f, -1, m.Length * count, movePivotToStart: false); // TODO: unneccessary parameters
     }
 
+    IEnumerator _Seeker_Init_WaitForStart()
+    {
+        while (!CurrentTrack || CurrentTrack.Sequences.Count == 0) yield return null;
+        DeformSeeker(CurrentTrack.Sequences[0], CurrentTrack.Sequences.Count);
+    }
+
+    public void RefreshSeeker()
+    {
+        if (CurrentTrack && CurrentTrack.Sequences.Count > 0 && (CurrentTrack.Sequences[0].ID != seeker_lastSequenceID || CurrentTrack.RealID != seeker_lastTrackID))
+            DeformSeeker(CurrentTrack.Sequences[0], CurrentTrack.Sequences.Count);
+    }
+
     // Shared AmpNote material (TODO: move somewhere else? Into AmpNote as static?)
     public Material SharedNoteMaterial;
 
@@ -411,14 +423,7 @@ public class TracksController : MonoBehaviour
             }
         }
 
-        if (CurrentTrack && CurrentTrack.Sequences.Count > 0 && (CurrentTrack.RealID != seeker_lastTrackID && CurrentTrack.Sequences[0].ID != seeker_lastSequenceID))
-            DeformSeeker(CurrentTrack.Sequences[0], CurrentTrack.Sequences.Count);
-    }
-
-    IEnumerator _Seeker_Init_WaitForStart()
-    {
-        while (!CurrentTrack || CurrentTrack.Sequences.Count == 0) yield return null;
-        DeformSeeker(CurrentTrack.Sequences[0], CurrentTrack.Sequences.Count);
+        RefreshSeeker();
     }
 
     public void RefreshAll(AmpTrack c_track = null)
@@ -464,7 +469,7 @@ public class TracksController : MonoBehaviour
         if (RhythmicGame.DebugPlayerTrackSwitchEvents)
             Debug.LogFormat("TRACKS: Track switched to {0} [{1}]", track.RealID, track.name);
 
-        if (CurrentTrack && CurrentTrack.Sequences.Count > 0)
+        if (CurrentTrack && CurrentTrack.Sequences.Count > 0) // TODO: hack!
             DeformSeeker(CurrentTrack.Sequences[0], CurrentTrack.Sequences.Count);
 
         // Invoke event!
