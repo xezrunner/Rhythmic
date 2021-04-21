@@ -20,6 +20,7 @@ public class AmpNoteFX : MonoBehaviour
 
     [Header("References to contents")]
     public Animator BlastFX_Animator;
+    public ParticleSystem CatcherHit_Particles;
     public ParticleSystem DestructHit_Particles;
 
     public NoteCaptureFX? Effect = null;
@@ -42,7 +43,14 @@ public class AmpNoteFX : MonoBehaviour
         IsPlaying = true;
 
         if (fx.HasFlag(NoteCaptureFX._CatcherEffect))
+        {
             if (BlastFX_Animator) BlastFX_Animator.gameObject.SetActive(true); // TODO: temp! This keeps on playing, don't know how to reset it etc...
+            if (CatcherHit_Particles)
+            {
+                CatcherHit_Particles.gameObject.SetActive(true);
+                CatcherHit_Particles.Play();
+            }
+        }
         if (fx.HasFlag(NoteCaptureFX._DestructEffect))
             if (DestructHit_Particles)
             {
@@ -59,7 +67,19 @@ public class AmpNoteFX : MonoBehaviour
 
         NoteCaptureFX fx = Effect.Value;
 
-        //if (fx.HasFlag(NoteCaptureFX._CatcherEffect)) { }
+        if (fx.HasFlag(NoteCaptureFX._CatcherEffect))
+        {
+            // TEMP: have blast move with catcher!
+                float offset = (Note.Lane == LaneSide.Center) ? 0f : (Note.Lane == LaneSide.Left ? -1.18f : 1.18f);
+                Vector3 normal = (WorldSystem.Instance.Path != null) ? (WorldSystem.Instance.Path.GetNormalAtDistance(Mathf.Clamp(AmpPlayerLocomotion.Instance.DistanceTravelled, -10000, WorldSystem.Instance.Path.length - 0.001f))) : Vector3.right;
+                CatcherHit_Particles.transform.position = AmpPlayer.Instance.transform.position + (normal * offset);
+
+            if (fraction > 1f)
+            {
+                CatcherHit_Particles.Stop();
+                CatcherHit_Particles.gameObject.SetActive(false);
+            }
+        }
         if (fx.HasFlag(NoteCaptureFX._DestructEffect))
         {
             if (fraction > 1f)
@@ -69,14 +89,6 @@ public class AmpNoteFX : MonoBehaviour
         {
             float glowIntensity = FXProps.Note_DotLightGlowIntensity * (1 - fraction);
             Note.DotLightGlowIntensity = Mathf.Clamp(glowIntensity, 1, 100);
-        }
-
-        // TEMP: have blast move with catcher!
-        if (BlastFX_Animator)
-        {
-            float offset = (Note.Lane == LaneSide.Center) ? 0f : (Note.Lane == LaneSide.Left ? -1.18f : 1.18f);
-            Vector3 normal = (WorldSystem.Instance.Path != null) ? (WorldSystem.Instance.Path.GetNormalAtDistance(Mathf.Clamp(AmpPlayerLocomotion.Instance.DistanceTravelled, -10000, WorldSystem.Instance.Path.length - 0.001f))) : Vector3.right;
-            BlastFX_Animator.transform.position = AmpPlayer.Instance.transform.position + (normal * offset);
         }
 
         if (fraction > 1f)
