@@ -5,6 +5,7 @@ using UnityEngine;
 using PathCreation;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine.Assertions;
 
 /// New track controller
 // Manages the new tracks, section creations, captures etc...
@@ -26,6 +27,7 @@ public class TracksController : MonoBehaviour
 
     [Header("Prefabs")]
     public GameObject TrackPrefab; // Change to public property?
+    public GameObject SeekerPrefab;
 
     [Header("Properties")]
     public int CurrentRealTrackID = -1; // This is the RealID of the track that the player is currently on | -1 is none
@@ -51,6 +53,13 @@ public class TracksController : MonoBehaviour
     public ClipManager clipManager;
     GameObject lengthPlane;
 
+    // Seeker
+    public static bool SeekerEnabled = true;
+    public GameObject Seeker;
+    public MeshRenderer SeekerRenderer;
+    public MeshFilter SeekerMesh;
+    static Vector3[] og_vertsSeeker;
+
     /// Functionality
 
     void Awake()
@@ -59,6 +68,7 @@ public class TracksController : MonoBehaviour
         gameObject.layer = 11; // Assign to Tracks layer
 
         TrackPrefab = (GameObject)Resources.Load("Prefabs/AmpTrack");
+        SeekerPrefab = (GameObject)Resources.Load("Models/seeker_frame");
 
         OnTrackSwitched += Tracks_OnTrackSwitched;
 
@@ -105,6 +115,32 @@ public class TracksController : MonoBehaviour
         //clipManager.inverse_plane = inversePlane;
 
         StartCoroutine(AddTrackMaterialsToClipper());
+
+        // Instantiate seeker
+        Seeker = Instantiate(SeekerPrefab);
+        SeekerMesh = Seeker.GetComponent<MeshFilter>();
+        SeekerRenderer = Seeker.GetComponent<MeshRenderer>();
+        SeekerRenderer.material = (Material)Resources.Load("Materials/EdgeLightMaterial");
+
+        if (og_vertsSeeker == null)
+        {
+            og_vertsSeeker = new Vector3[SeekerMesh.mesh.vertices.Length];
+            SeekerMesh.mesh.vertices.CopyTo(og_vertsSeeker, 0);
+        }
+
+        StartCoroutine(_Seeker_Init_WaitForStart());
+    }
+
+    int seeker_lastTrackID = -1;
+    int seeker_lastSequenceID = -1;
+    void DeformSeeker(AmpTrackSection m, int count = 1)
+    {
+        if (!SeekerEnabled) Seeker.SetActive(false);
+
+        if (!m.IsEnabled || !m.IsSequence || m.IsEmpty || m.IsCaptured) Seeker.SetActive(false);
+        else Seeker.SetActive(true);
+
+        MeshDeformer.DeformMesh(PathTools.Path, SeekerMesh.mesh, m.Position, m.Rotation, ogVerts: og_vertsSeeker, offset: new Vector3(0, 0.018f, 0), RhythmicGame.TrackWidth + 0.05f, -1, m.Length * count, movePivotToStart: false); // TODO: unneccessary parameters
     }
 
     // Shared AmpNote material (TODO: move somewhere else? Into AmpNote as static?)
@@ -371,6 +407,15 @@ public class TracksController : MonoBehaviour
                 ++total;
             }
         }
+
+        if (CurrentTrack && CurrentTrack.Sequences.Count > 0 && (CurrentTrack.RealID != seeker_lastTrackID && CurrentTrack.Sequences[0].ID != seeker_lastSequenceID))
+            DeformSeeker(CurrentTrack.Sequences[0], CurrentTrack.Sequences.Count);
+    }
+
+    IEnumerator _Seeker_Init_WaitForStart()
+    {
+        while (!CurrentTrack || CurrentTrack.Sequences.Count == 0) yield return null;
+        DeformSeeker(CurrentTrack.Sequences[0], CurrentTrack.Sequences.Count);
     }
 
     public void RefreshAll(AmpTrack c_track = null)
@@ -415,6 +460,9 @@ public class TracksController : MonoBehaviour
 
         if (RhythmicGame.DebugPlayerTrackSwitchEvents)
             Debug.LogFormat("TRACKS: Track switched to {0} [{1}]", track.RealID, track.name);
+
+        if (CurrentTrack && CurrentTrack.Sequences.Count > 0)
+            DeformSeeker(CurrentTrack.Sequences[0], CurrentTrack.Sequences.Count);
 
         // Invoke event!
         OnTrackSwitched?.Invoke(this, eventArgs);

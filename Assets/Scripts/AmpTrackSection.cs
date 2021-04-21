@@ -17,24 +17,6 @@ public class AmpTrackSection : MonoBehaviour
     public MeshRenderer ModelRenderer;
     public MeshFilter ModelMesh; // Mesh of the model
 
-    public static bool _seekerEnabled = true;
-    public static bool SeekerEnabled
-    {
-        get { return _seekerEnabled; }
-        set
-        {
-            _seekerEnabled = value;
-            foreach (AmpTrack t in TracksController.Instance.Tracks)
-            {
-                foreach (AmpTrackSection m in t.Measures)
-                    if (m && m.SeekerRenderer) m.SeekerRenderer.enabled = value;
-            }
-        }
-    }
-    public MeshRenderer SeekerRenderer;
-    public MeshFilter SeekerMesh; // Mesh of the model
-    public GameObject Seeker;
-
     public Transform NotesContainer;
 
     public ClipManager ClipManager;
@@ -110,7 +92,6 @@ public class AmpTrackSection : MonoBehaviour
         if (IsEnabled == value) return;
         IsEnabled = value;
         Notes.ForEach(n => n.IsEnabled = false);
-        Seeker.SetActive(false);
         // TODO: Disable active surface! (IsFocused / IsSequence to false?)
 
         foreach (AmpTrack t in Track.TrackTwins)
@@ -127,8 +108,8 @@ public class AmpTrackSection : MonoBehaviour
 
             // Toggle edge light material
             if (Track) Track.Track_Bottom_Global_Mat.SetInteger("_Enabled", value ? 1 : 0); // TODO: Optimization?
-            if (!IsEmpty || !IsCaptured)
-                Seeker.SetActive(value ? (_isSequence && !IsCaptured ? true : false) : false);
+            if (!IsEmpty || !IsCaptured) return;
+                /*Seeker.SetActive(value ? (_isSequence && !IsCaptured ? true : false) : false);*/
         }
     }
 
@@ -140,7 +121,6 @@ public class AmpTrackSection : MonoBehaviour
         {
             _isSequence = value;
             if (value) IsFocused = Track.IsTrackFocused;
-            else if (Seeker) Seeker.SetActive(false);
         }
     }
 
@@ -150,7 +130,6 @@ public class AmpTrackSection : MonoBehaviour
     /// ----- Functionality -----
 
     public static Vector3[] og_verts;
-    public static Vector3[] og_vertsSeeker;
     public static bool AllowDeformations = true; // TODO!
 
     void Awake() => Path = PathTools.Path;
@@ -170,8 +149,6 @@ public class AmpTrackSection : MonoBehaviour
         if (!ModelMesh || !ModelMesh.sharedMesh)
         { Debug.LogWarning($"AmpTrackSection [init]: measure {ID} does not have a Model!"); return; }
 
-        SeekerRenderer.enabled = SeekerEnabled;
-
         // Disable measure visuals when empty or captured
         if (IsEmpty || IsCaptured)
             SetEmptyMaterials();
@@ -182,14 +159,9 @@ public class AmpTrackSection : MonoBehaviour
         {
             og_verts = new Vector3[ModelMesh.mesh.vertices.Length];
             ModelMesh.mesh.vertices.CopyTo(og_verts, 0);
-            og_vertsSeeker = new Vector3[SeekerMesh.mesh.vertices.Length];
-            SeekerMesh.mesh.vertices.CopyTo(og_vertsSeeker, 0);
         }
         // Deform the mesh!
         DeformMesh();
-        
-        MeshDeformer.DeformMesh (Path, SeekerMesh.mesh, Position, Rotation, ogVerts: og_vertsSeeker, offset: new Vector3(0, 0.018f, 0), RhythmicGame.TrackWidth + 0.05f, -1, Length, movePivotToStart: false); // TODO: unneccessary parameters
-        //SeekerRenderer.material.color = Track.Color;
     }
 
     public void DeformMesh() => MeshDeformer.DeformMesh
