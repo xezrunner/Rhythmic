@@ -135,7 +135,7 @@ public class TracksController : MonoBehaviour
     int seeker_lastSequenceID = -1;
     void DeformSeeker(AmpTrackSection m, int count = 1)
     {
-        if (!SeekerEnabled) Seeker.SetActive(false);
+        if (!SeekerEnabled) { Seeker.SetActive(false); return; }
 
         if (!m.IsEnabled || !m.IsSequence || m.IsEmpty || m.IsCaptured) Seeker.SetActive(false);
         else Seeker.SetActive(true);
