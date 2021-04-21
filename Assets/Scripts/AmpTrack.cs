@@ -59,9 +59,9 @@ public partial class AmpTrack : MonoBehaviour
         set
         {
             _color = value;
-            Track_Bottom_Mat.SetColor("_Color", /*value*/ Color.black);
+            Track_Bottom_Mat.SetColor("_Color", /*value*/ Color.white);
             Track_Bottom_Mat.SetColor("_Emission", value * TracksController.LocalEmission);
-            Track_Bottom_Global_Mat.SetColor("_Color", value);
+            Track_Bottom_Global_Mat.SetColor("_Color", /*value*/ Color.white);
             Track_Bottom_Global_Mat.SetColor("_Emission", value * TracksController.GlobalEmission);
         }
     }
@@ -355,8 +355,8 @@ public partial class AmpTrack : MonoBehaviour
         public static Color Empty = new Color(118, 118, 118, Opacity);
 
         public static Color Drums = new Color(255, 61, 246, Opacity);
-        public static Color Bass = new Color(20, 99, 252, Opacity);
-        public static Color Synth = new Color(221, 255, 0, Opacity);
+        public static Color Bass = new Color(9, 79, 255, Opacity);
+        public static Color Synth = new Color(218, 195, 43, Opacity);
         public static Color Guitar = new Color(213, 21, 11, Opacity);
         public static Color Vocals = new Color(32, 202, 45, Opacity);
         public static Color Freestyle = new Color(110, 110, 110, Opacity);

@@ -35,8 +35,8 @@ public class TracksController : MonoBehaviour
     public AmpTrack CurrentTrack; // The track that the player is currently on
     public AmpTrackSection CurrentMeasure { get { return CurrentTrack.CurrentMeasure; } }
 
-    public float LocalEmission = 1f; // Local material
-    public float GlobalEmission = 1.5f; // Global material
+    public float LocalEmission = 1.5f; // Local material
+    public float GlobalEmission = 2f; // Global material
 
     [Header("Variables")]
     public AmpTrack[] MainTracks;
