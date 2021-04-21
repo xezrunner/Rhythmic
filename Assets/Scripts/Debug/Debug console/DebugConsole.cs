@@ -226,23 +226,6 @@ public partial class DebugConsole : DebugComponent
         InputField_ChangeText(s, caret_position);
     }
 
-    // Autocomplete:
-    bool autocomplete_enabled = true;
-    float autocomplete_padding_x = 6f;
-    void Autocomplete_WriteEntries(params string[] args)
-    {
-        UI_Autocomplete.text = "";
-        if (args == null || args.Length == 0) return;
-
-        UI_Autocomplete.text += ":: ";
-
-        for (int i = 0; i < args.Length; ++i)
-            UI_Autocomplete.text += args[i] + ((i != args.Length - 1) ? "; " : "");
-
-        // Move autocomplete UI to the right of the text
-        UI_Autocomplete_UpdateLayout();
-    }
-
     void FocusInputField()
     {
         Input_Field.ActivateInputField();
@@ -258,6 +241,23 @@ public partial class DebugConsole : DebugComponent
         Input_Field.DeactivateInputField();
         AmpPlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
         DebugKeys.IsEnabled = true;
+    }
+
+    // Autocomplete:
+    bool autocomplete_enabled = true;
+    float autocomplete_padding_x = 6f;
+    void Autocomplete_WriteEntries(params string[] args)
+    {
+        UI_Autocomplete.text = "";
+        if (args == null || args.Length == 0) return;
+
+        UI_Autocomplete.text += ":: ";
+
+        for (int i = 0; i < args.Length; ++i)
+            UI_Autocomplete.text += args[i] + ((i != args.Length - 1) ? "; " : "");
+
+        // Move autocomplete UI to the right of the text
+        UI_Autocomplete_UpdateLayout();
     }
 
     void UI_Autocomplete_UpdateLayout()
