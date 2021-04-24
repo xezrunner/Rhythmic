@@ -390,6 +390,7 @@ public partial class DebugConsole : DebugComponent
         int c = 0, arg_i = 0;
         for (int i = 0; i < text.Length; ++i, ++c)
         {
+            // TODO:                what? [c + 1 > 0] & [c - 1 > 0]???
             if (text[c] == '\\' && (c + 1 > 0 && text[c + 1] == '%')) continue; // TODO: Not sure whether we should handle these cases manually, or ignore '\' characters completely.
             if (text[c] == '%' && (c - 1 > 0 && text[c - 1] != '\\'))
             {
