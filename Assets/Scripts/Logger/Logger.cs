@@ -92,6 +92,7 @@ public static partial class Logger
     static string Log(string text, CLogType logType, params object[] args) => Log(text, logType, LogTarget.All, args);
     // Log without logging to Unity
     static string LogR(string text, CLogType logType = CLogType.Info) => Log(text, logType, CurrentLogTarget & ~LogTarget.Unity); // Ignore Unity Console
+    /// TODO: Overloads for logger-only logging etc...
 
     // Object logging (handling objects):
     /// <summary>

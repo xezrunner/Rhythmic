@@ -63,6 +63,42 @@ public class AmpPlayerCatching : MonoBehaviour
 
         // Set up notesToCatch array
         TracksController.targetNotes = new AmpNote[TracksController.MainTracks.Length];
+
+        // Slop visualization:
+        IsSlopVisualization = _isSlopVisualization;
+    }
+
+    // TODO: TEMP: should remove/redo (if needed) at some point
+    List<GameObject> _slopVisualizationObjects = new List<GameObject>();
+    public static bool _isSlopVisualization;
+    public static bool IsSlopVisualization
+    {
+        get { return _isSlopVisualization; }
+        set
+        {
+            _isSlopVisualization = value;
+            if (Instance) Instance.SetSlopVisualization(value);
+        }
+    }
+    void SetSlopVisualization(bool value)
+    {
+        if (value)
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                obj.transform.position = Catchers[i].transform.position + Catchers[i].transform.right * AmpTrack.GetLocalXPosFromLaneType((LaneSide)i);
+                obj.transform.rotation = Catchers[i].transform.rotation;
+                obj.transform.localScale = new Vector3(0.5f, 0.5f, SongController.posInMs * SongController.SlopMs);
+                obj.transform.parent = Catchers[i].transform;
+                _slopVisualizationObjects.Add(obj);
+            }
+        }
+        else
+        {
+            _slopVisualizationObjects.ForEach(o => Destroy(o));
+            _slopVisualizationObjects.Clear();
+        }
     }
 
     int lastIgnoreBar = -1;
@@ -73,7 +109,7 @@ public class AmpPlayerCatching : MonoBehaviour
         if (SongController.IsSongOver) return;
 
         // TEMP | TODO: Move elsewhere? (partially?)
-        if (Clock.Fbar >= 4)
+        if (Clock.Fbar >= 4) // TODO: countin
         {
             foreach (AmpTrack t in TracksController.MainTracks)
             {
@@ -90,31 +126,32 @@ public class AmpPlayerCatching : MonoBehaviour
         if (lastIgnoreBar == Clock.Fbar) return; // avoid spamming
 
         // *** SLOP ***
-        float dist = Locomotion.DistanceTravelled;
+        float ms = Clock.seconds * 1000;
 
-        var currentMeasure = TracksController.CurrentMeasure;
+        AmpTrackSection currentMeasure = TracksController.CurrentMeasure;
         if (!currentMeasure.IsEmpty & !currentMeasure.IsCaptured)
         {
             AmpNote note = TracksController.targetNotes[TracksController.CurrentTrackID];
-            HandleSlop(dist, note);
+            HandleSlop(ms, note);
         }
         else
             foreach (AmpNote note in TracksController.targetNotes)
-                if (note) HandleSlop(dist, note);
+                if (note) HandleSlop(ms, note);
     }
 
-    public void HandleSlop(float dist, AmpNote note)
+    public void HandleSlop(float ms, AmpNote note)
     {
         if (!note) { Debug.LogWarning($"Catching/HandleSlop(): No note was passed!"); HandleResult(new CatchResult()); lastIgnoreBar = Clock.Fbar; return; }
 
         // If the distance is bigger than the note distance + slop distance, we have 'ignored' the note.
-        if (note.IsEnabled && dist > note.Distance + SongController.SlopPos)
+        float maxMs = note.TimeMs + (SongController.SlopMs / 2); // Only one axis of SlopMs is required | NOTE: there was a bug here where missing the very last note in a sequence would result in the next measure being disabled.
+        if (note.IsEnabled && ms > maxMs)
         {
+            if (RhythmicGame.DebugCatcherSlopEvents)
+                Logger.LogWarning($">>>>>>> SLOP! <<<<<<< | Track ID: {TracksController.CurrentRealTrackID}; targetNote timeMs: {note.TimeMs}, ms: {ms}, maxMs: {maxMs}");
+
             HandleResult(new CatchResult(Catchers[(int)note.Lane], CatchResultType.Ignore, note));
             lastIgnoreBar = Clock.Fbar; // avoid slop check spam
-
-            if (RhythmicGame.DebugCatcherSlopEvents)
-                Logger.LogWarning($">>>>>>> SLOP! <<<<<<< | Track ID: {TracksController.CurrentRealTrackID}; targetNote dist: {TracksController.targetNotes[note.TrackID].Distance}, dist: {dist}, maxDist: {note.Distance + SongController.SlopPos}");
         }
     }
 
@@ -152,8 +189,10 @@ public class AmpPlayerCatching : MonoBehaviour
             case CatchResultType.Ignore:
             case CatchResultType.Miss:
                 {
-                    if (result.note) result.note.NoteMeshRenderer.material.color = Color.red; // TODO
-                    TracksController.DisableCurrentMeasures(true);
+                    if (result.note) result.note.NoteMeshRenderer.material.color = Color.red; // TODO: note fail state visuals
+                    // TODO: This might be needed in the future, in case we have a long slop value.
+                    //if (!(Clock.bar == result.note.MeasureID + 1 & (int)Clock.beat % 8 == 0))
+                        TracksController.DisableCurrentMeasures(true);
                     TracksController.RefreshAll();
 
                     break;

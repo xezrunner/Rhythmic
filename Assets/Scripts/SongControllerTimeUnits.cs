@@ -69,16 +69,16 @@ public partial class SongController
     public float PosToSec(float pos, bool scale = false)
     {
         float value = secInPos * pos;
-        if (scale) value *= 1.8f / songFudgeFactor;
-        else value /= songFudgeFactor * 1.8f;
+        if (scale) value *= RhythmicGame.DifficultyFudgeFactor / songFudgeFactor;
+        else value /= songFudgeFactor * RhythmicGame.DifficultyFudgeFactor;
 
         return value;
     }
     public float PosToMs(float pos, bool scale = false)
     {
         float value = msInPos * pos;
-        if (scale) value *= 1.8f / songFudgeFactor;
-        else value /= songFudgeFactor * 1.8f;
+        if (scale) value *= RhythmicGame.DifficultyFudgeFactor / songFudgeFactor;
+        else value /= songFudgeFactor * RhythmicGame.DifficultyFudgeFactor;
 
         return value;
     }
@@ -147,7 +147,7 @@ public partial class SongController
         // Seconds
         secInTick = 60f / (songBpm * beatTicks);
         secInMs = 0.001f; // 1s = 1000ms
-        secInPos = (secPerBeat / 4); // * songFudgeFactor / 1.8f
+        secInPos = (secPerBeat / 4); // * songFudgeFactor / RhythmicGame.DifficultyFudgeFactor
 
         // Milliseconds
         msInTick = secInTick * 1000;
@@ -155,8 +155,8 @@ public partial class SongController
         msInPos = secInPos * 1000;
 
         // Position (meters)
-        posInSec = (4 / secPerBeat) / songFudgeFactor * 1.8f;
-        posInMs = (4 / secPerBeat / 1000) / songFudgeFactor * 1.8f;
+        posInSec = (4 / secPerBeat) / songFudgeFactor * RhythmicGame.DifficultyFudgeFactor;
+        posInMs = (4 / secPerBeat / 1000) / songFudgeFactor * RhythmicGame.DifficultyFudgeFactor;
         posInTick = posInSec * secInTick;
 
         // Ticks

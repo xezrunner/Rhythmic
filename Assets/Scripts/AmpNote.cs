@@ -78,6 +78,7 @@ public class AmpNote : MonoBehaviour
     public NoteType NoteType;
     public LaneSide Lane = LaneSide.Center;
     public float Distance;
+    public float TimeMs;
     public bool IsLastNote;
 
     private bool _isEnabled = true;
@@ -130,7 +131,7 @@ public class AmpNote : MonoBehaviour
         UI_Canvas.gameObject.SetActive(DEBUG_ShowTargetNoteIndicators);
     }
 
-#if false
+#if true
     private void Update()
     {
         if (!DEBUG_ShowTargetNoteIndicators) { UI_Canvas.gameObject.SetActive(false); return; }

@@ -199,6 +199,7 @@ public class AmplitudeSongController : SongController
                     TrackID = t,
                     MeasureID = m,
                     Distance = dist,
+                    TimeMs = TickToMs(note.AbsoluteTime),
                     Type = note_type,
                     Lane = lane_side,
                 };

@@ -98,6 +98,7 @@ public partial class AmpTrack
         note.MeasureID = meta.MeasureID;
         note.Lane = meta.Lane;
         note.Distance = meta.Distance;
+        note.TimeMs = meta.TimeMs;
         note.IsCaptured = meta.IsCaptured;
         note.IsLastNote = lastNote;
 
@@ -125,6 +126,7 @@ public struct MetaNote
     public int TrackID;
     public int MeasureID;
     public float Distance;
+    public float TimeMs;
     public NoteType Type;
     public LaneSide Lane;
 

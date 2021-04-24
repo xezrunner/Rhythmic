@@ -129,7 +129,7 @@ public class DebugStats : DebugComponent
             AddLine($"Timescale: [song: {SongController.songTimeScale.ToString("0.00")}]  [world: {Time.timeScale.ToString("0.00")}]", -1);
 
         // Clock stats:
-        AddLine($"Clock seconds: {Clock.seconds}".AddColor(1, 1, 1, 0.8f));
+        AddLine($"Clock seconds: {Clock.seconds}".AddColor(1, 1, 1, 0.8f) + $" ({Clock.seconds * 1000} ms)".AddColor(0.54f));
         AddLine($"Clock bar: {(int)Clock.bar}  Fbar: {Clock.Fbar}  ".AddColor(1, 1, 1, 0.8f) + $"({SongController.songLengthInMeasures})".AddColor(1, 1, 1, 0.6f));
         AddLine($"Clock beat: {(int)Clock.beat % 8} ({(int)Clock.beat})".AddColor(1, 1, 1, 0.8f));
 

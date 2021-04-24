@@ -15,8 +15,11 @@
             AddEntry();
 
             AddEntry("Enable note target info", new Ref(() => AmpNote.DEBUG_ShowTargetNoteIndicators, (v) => AmpNote.DEBUG_ShowTargetNoteIndicators = (bool)v));
-            AddEntry("Debug catch result events", new Ref(() => RhythmicGame.DebugCatchResultEvents, (v) => RhythmicGame.DebugCatchResultEvents = (bool)v));
+            AddEntry("Visualize note slop on catchers", new Ref(() => AmpPlayerCatching.IsSlopVisualization, (v) => AmpPlayerCatching.IsSlopVisualization = (bool)v));
             AddEntry("Debug catcher slop events", new Ref(() => RhythmicGame.DebugCatcherSlopEvents, (v) => RhythmicGame.DebugCatcherSlopEvents = (bool)v));
+            AddEntry();
+
+            AddEntry("Debug catch result events", new Ref(() => RhythmicGame.DebugCatchResultEvents, (v) => RhythmicGame.DebugCatchResultEvents = (bool)v));
             AddEntry("Debug target note refresh events", new Ref(() => RhythmicGame.DebugTargetNoteRefreshEvents, (v) => RhythmicGame.DebugTargetNoteRefreshEvents = (bool)v));
             AddEntry("Debug sequences refresh events", new Ref(() => RhythmicGame.DebugSequenceRefreshEvents, (v) => RhythmicGame.DebugSequenceRefreshEvents = (bool)v));
         }
