@@ -125,7 +125,6 @@ public class DebugUI : DebugComponent
     //  TODO: We may want individual entries in the debug line to have their own text component,
     //  so that we can easily fade them out.
 
-    int bananasCounter = -1;
 
     // TODO: improve this! Add Logger compatibility!
     // TODO: Colors!
@@ -250,6 +249,7 @@ public class DebugUI : DebugComponent
 
     /// Debug main loop
 
+    //int bananasCounter = -1;
     void ProcessKeys()
     {
         // Debug control

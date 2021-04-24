@@ -54,7 +54,6 @@ public class _TunnelTest : MonoBehaviour
     {
         float x;
         float y;
-        float z;
 
         float angle = 20f;
 

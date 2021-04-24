@@ -73,8 +73,7 @@ public class MeshDeformTest : MonoBehaviour
 
         targetObject.transform.position = Vector3.zero;
 
-        return;
-
+#if false
         // Grab OG mesh vertices
         vertices = new Vector3[ogMesh.vertices.Length];
         Array.Copy(ogMesh.vertices, vertices, ogMesh.vertices.Length);
@@ -118,6 +117,7 @@ public class MeshDeformTest : MonoBehaviour
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
         mesh.RecalculateBounds();
+#endif
     }
 
     public Transform Cube;

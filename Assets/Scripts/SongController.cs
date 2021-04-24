@@ -133,9 +133,6 @@ public partial class SongController : MonoBehaviour
     // Vibrate on every clock beat!
     private void Clock_OnBeat(object sender, int e) => BeatVibration();
 
-    public event EventHandler<float> LoadingProgress;
-    public event EventHandler LoadingFinished;
-
     public virtual void LoadSong(string song)
     {
         // Set basic song metadata
