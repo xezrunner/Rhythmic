@@ -531,6 +531,7 @@ public class TracksController : MonoBehaviour
                 m.CaptureState = MeasureCaptureState.Capturing;
 
             m.IsSequence = false;
+            m.SetIsEnabled(false); // Set all notes to be grayed out | TODO: improve!y
         }
 
         // Refresh sequences & target notes
