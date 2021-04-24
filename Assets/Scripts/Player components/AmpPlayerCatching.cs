@@ -190,9 +190,10 @@ public class AmpPlayerCatching : MonoBehaviour
             case CatchResultType.Miss:
                 {
                     if (result.note) result.note.NoteMeshRenderer.material.color = Color.red; // TODO: note fail state visuals
+
                     // TODO: This might be needed in the future, in case we have a long slop value.
                     //if (!(Clock.bar == result.note.MeasureID + 1 & (int)Clock.beat % 8 == 0))
-                        TracksController.DisableCurrentMeasures(true);
+                    TracksController.DisableCurrentMeasures(true);
                     TracksController.RefreshAll();
 
                     break;
