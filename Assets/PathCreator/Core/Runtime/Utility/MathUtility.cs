@@ -34,7 +34,7 @@ namespace PathCreation.Utility
         // A single MeshDeformer/TransformVertex() operation used to take ~10ms in the Profiler.
         // Now, it takes less than ~2ms. This change is magnified in release builds.
         // We do not need any of the original features of PathCreator, so removing these does not affect our goals.
-        // - xezrunner, 2021.04.21
+        // -xezrunner, 21.04.2021
         /// TODO: Remove UI elements / other functionality potentially referencing these removed features. Also remove unused parameters!
         public static Vector3 TransformPoint(Vector3 p, Transform t, PathSpace space)
         {

@@ -16,6 +16,7 @@ public class MidiReader : MonoBehaviour
     // TODO: read BPM from moggsong!
     public int bpm;
 
+    public int ticks_target = 480; // TODO: Route to SongController default!
     public int ticks;
     public int offset;
 
@@ -64,7 +65,7 @@ public class MidiReader : MonoBehaviour
         midi = new MidiFile(s, true);
 
         // Ticks needed for timing calculations
-        ticks = midi.DeltaTicksPerQuarterNote;
+        ticks = midi.DeltaTicksPerQuarterNote; // NOTE: Do not get the delta ticks - we want 480 at all times, for all songs!  @ MidiReading
 
         // BPM
         bpm = GetBPMfromMidi();
@@ -114,6 +115,21 @@ public class MidiReader : MonoBehaviour
             if (midevent.CommandCode == MidiCommandCode.NoteOn) // note ON event was found!
             {
                 NoteOnEvent noteEvent = (NoteOnEvent)midevent;
+
+                // ticks correction: | TODO: revise!!!
+                if (ticks != ticks_target)
+                {
+                    // If the MIDI has a different tick unit as opposed to the standard 480 (ticks_target), then
+                    // note distance calculations will be wrong (spaced out by a huge amount).
+                    // The MIDI library we are using calculates the time by its own, we can't control that.
+                    // We can, however, correct it after the fact by getting the 'tick-less' time and calculating + setting it with 480 ticks.
+                    // -xezrunner, 25.04.2021
+                    long abs_time = noteEvent.AbsoluteTime;
+                    double abs_nonticks = (double)abs_time / (bpm * ticks);
+                    noteEvent.AbsoluteTime = (long)(abs_nonticks * (bpm * ticks_target));
+                }
+
+
                 if (AmplitudeGame.CurrentNoteNumberSet.Any(n => n == noteEvent.NoteNumber)) // is it any of the current difficulty note numbers?
                     list.Add(noteEvent); // add the note to list
             }
