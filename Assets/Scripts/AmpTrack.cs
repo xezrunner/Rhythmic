@@ -138,18 +138,31 @@ public partial class AmpTrack : MonoBehaviour
     public List<AmpTrackSection> Sequences = new List<AmpTrackSection>();
     public int AddSequence(AmpTrackSection measure, bool twins = true) // Returns count of sequences
     {
-        measure.IsSequence = true;
-        Sequences.Add(measure);
-        if (twins)
-        {
-            foreach (AmpTrack t in TrackTwins)
+        //try
+        //{
+            measure.IsSequence = true;
+            Sequences.Add(measure);
+            if (twins)
             {
-                AmpTrackSection twin_measure = t.Measures[measure.ID];
-                twin_measure.IsSequence = true;
-                t.Sequences.Add(twin_measure);
+                foreach (AmpTrack t in TrackTwins)
+                {
+                    if (measure.ID >= t.Measures.Count) continue;
+
+                    AmpTrackSection twin_measure = t.Measures[measure.ID]; if (!twin_measure) continue;
+                    twin_measure.IsSequence = true;
+                    t.Sequences.Add(twin_measure);
+                }
             }
-        }
-        return Sequences.Count;
+
+            return Sequences.Count;
+        //}
+        //catch
+        //{
+        //    SongController.TogglePause();
+        //    Debug.DebugBreak();
+        //}
+        //
+        //return Sequences.Count;
     }
     public void RemoveSequence(AmpTrackSection measure, bool deactivate = false)
     {

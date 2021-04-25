@@ -95,7 +95,7 @@ public class AmpTrackSection : MonoBehaviour
         // TODO: Disable active surface! (IsFocused / IsSequence to false?)
 
         foreach (AmpTrack t in Track.TrackTwins)
-            t.Measures[ID].SetIsEnabled(value);
+            if (/*ID > 0 && */ ID < t.Measures.Count && t.Measures[ID]) t.Measures[ID].SetIsEnabled(value);
     }
 
     bool _isFocused;
