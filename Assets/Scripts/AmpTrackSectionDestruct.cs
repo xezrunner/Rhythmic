@@ -74,10 +74,10 @@ public class AmpTrackSectionDestruct : MonoBehaviour
             // If the distance between the current measure and the target measure is < than 3,
             // we consider the effect 'proximity'.
             // Some particles will not play when not in proximity to provide better framerate.
-            bool isProximity = (m.ID - Clock.Fbar < FXProps.Destruct_ProximityDistanceBar);
+            bool isProximity = (m.ID - Clock.Fbar <= FXProps.Destruct_ProximityDistanceBar);
             // Consider clone tracks as NOT proximity - do not play sparkles
-            bool isCloneTrack = (m.Track.TrackSetID != TracksController.CurrentTrackSetID);
-            DestructFX.Play(!isCloneTrack && isProximity);
+            bool isCurrentSet = (m.Track.TrackSetID == TracksController.CurrentTrackSetID);
+            DestructFX.Play(isCurrentSet && isProximity);
         }
     }
 

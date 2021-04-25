@@ -215,12 +215,9 @@ public class TracksController : MonoBehaviour
 
     /// Events
     public event EventHandler<int[]> OnTrackSwitched;
-    private void Tracks_OnTrackSwitched(object sender, int[] e)
+    private void Tracks_OnTrackSwitched(object sender, int[] e) // NOTE: RealID is sent in e[1]
     {
         //Debug.LogFormat("TRACKS <event>: Track switched from {0} to {1}", e[0], e[1]);
-        AmpTrack target = Tracks[e[1]];
-        CurrentTrackSet = TrackSets[target.TrackSetID];
-        CurrentTrackSetID = target.TrackSetID;
     }
 
     /// Tracks
@@ -453,14 +450,15 @@ public class TracksController : MonoBehaviour
     /// </summary>
     public void SwitchToTrack(AmpTrack track)
     {
-        // Prepare event args
-        int[] eventArgs = new int[2] { CurrentTrackID, track.ID };
-
         // Set track variables
         CurrentTrack = track;
         CurrentTrackID = track.ID;
         CurrentRealTrackID = track.RealID;
         CurrentTrackSetID = track.TrackSetID;
+        CurrentTrackSet = TrackSets[track.TrackSetID];
+
+        // Prepare event args
+        int[] eventArgs = new int[2] { CurrentTrackID, track.RealID };
 
         // Handle focus states
         foreach (AmpTrack t in MainTracks)
