@@ -148,6 +148,7 @@ public partial class SongController
     public void CalculateTimeUnits()
     {
         // TODO: We should prefer one over the other, probably. Doesn't look like the OG game mixes it.
+        // TODO: Fix this for faster values!
         totalFudgeFactor = (/*songFudgeFactor + */RhythmicGame.DifficultyFudgeFactor);
 
         // Seconds

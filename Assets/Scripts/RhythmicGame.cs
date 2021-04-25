@@ -85,8 +85,8 @@ public static class RhythmicGame
     public static float SlopMs = 300f; // 100f
     public static float DebounceWindowMs = 85f;
 
-    public static int HorizonMeasures = 6; // How many measures should we be able to see ahead of us
-    public static float HorizonMeasuresOffset = 15f; // How many units to offset (backwards) from the horizon when clipping
+    public static int HorizonMeasures = 7; // How many measures should we be able to see ahead of us
+    public static float HorizonMeasuresOffset = 40f; // How many units to offset (backwards) from the horizon when clipping
 
     // --- Track streaming --- //
     public static bool AllowSongStreaming = true;
