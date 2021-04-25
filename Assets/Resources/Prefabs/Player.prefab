@@ -5273,6 +5273,7 @@ MonoBehaviour:
   Player: {fileID: 1225588844875742809}
   Locomotion: {fileID: 1225588844875742810}
   CatcherContainer: {fileID: 1225588844558043491}
+  CatcherVisuals: {fileID: 1225588845445939235}
   Catchers: []
 --- !u!114 &1225588844875742810
 MonoBehaviour:

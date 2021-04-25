@@ -28,6 +28,7 @@ public class AmpPlayerCatching : MonoBehaviour
     public AmpPlayerLocomotion Locomotion;
 
     public Transform CatcherContainer; // This will automatically populate the Catchers list!
+    public GameObject CatcherVisuals;
     public List<Catcher> Catchers = new List<Catcher>();
 
     void Awake()

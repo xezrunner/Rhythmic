@@ -77,7 +77,8 @@ public class AmpNoteFX : MonoBehaviour
             float offset = (Note.Lane == LaneSide.Center) ? 0f : (Note.Lane == LaneSide.Left ? -1.18f : 1.18f);
             Vector3 normal = (WorldSystem.Instance.Path != null) ? (WorldSystem.Instance.Path.GetNormalAtDistance(Mathf.Clamp(AmpPlayerLocomotion.Instance.DistanceTravelled, -10000, WorldSystem.Instance.Path.length - 0.001f))) : Vector3.right;
             //CatcherHit_Particles.transform.position = AmpPlayer.Instance.transform.position + (normal * offset);
-            BlastFX_Animator.gameObject.transform.position = AmpPlayer.Instance.transform.position + (normal * offset);
+            BlastFX_Animator.gameObject.transform.position = AmpPlayerCatching.Instance.CatcherVisuals.transform.position + (normal * offset);
+            BlastFX_Animator.gameObject.transform.rotation = AmpPlayerCatching.Instance.CatcherVisuals.transform.rotation;
 
             if (fraction > 1f)
             {
