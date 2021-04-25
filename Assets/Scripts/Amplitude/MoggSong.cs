@@ -69,7 +69,7 @@ public class MoggSong : MonoBehaviour
                         break;
                     }
                 case "countin": songCountInTime = SetValue<int>(Tokens, ++i); break;
-                case "tunnel_scale": songFudgeFactor = SetValue<float>(Tokens, ++i); break;
+                case "tunnel_scale": songFudgeFactor = SetValue<float>(Tokens, ++i); break; /// TODO: .xx values (without the leading 0) DO NOT WORK! FIX!!
                 case "bpm": songBpm = SetValue<int>(Tokens, ++i); break;
                 case "boss_level": songBossLevel = SetValue<int>(Tokens, ++i); break;
                     // TODO: freestyle tracks were previously added here. This might be the MIDI reading's job.
@@ -116,7 +116,7 @@ public class MoggSong : MonoBehaviour
         }
     }
 
-    // TODO: separate parsing into a different (partial) class?
+    /// TODO: separate parsing into a different (partial) class?
 
     /// <summary>Returns a specific type of value from a token. <br/>
     /// Used in setting the values parsed from the .moggsong file. </summary>
@@ -224,7 +224,7 @@ public class MoggSong : MonoBehaviour
 
                         break;
                     }
-                    else if (char.IsDigit(t.c)) // TODO: Revise this - do we want numbers as identifiers?  @ Duplicate
+                    else if (char.IsDigit(t.c)) // TODO: Handle negative numbers (-)
                     {
                         string text = "";
                         while (!t.end_of_file && !IsWhitespace(t.c) && t.c != ')')
