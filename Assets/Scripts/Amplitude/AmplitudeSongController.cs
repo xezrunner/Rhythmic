@@ -11,7 +11,7 @@ using UnityEngine.Networking;
 public class AmplitudeSongController : SongController
 {
     MidiReader reader;
-    public MoggSong moggSong { get; set; }
+    MoggSong moggSong;
 
     // MIDI properties
     public float DeltaTicksPerQuarterNote { get { return IsEnabled ? reader.midi.DeltaTicksPerQuarterNote : 480; } } // 1 subbeat's length in MIDI ticks

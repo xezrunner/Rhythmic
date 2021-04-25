@@ -40,7 +40,7 @@ public partial class DebugConsole : DebugComponent
     [NonSerialized] public float Vertical_Padding = 0f;
     [NonSerialized] public float Compact_Height = 300f;
 
-    [NonSerialized] public int Text_Max_Lines = 500;
+    [NonSerialized] public int Text_Max_Lines = 2000;
     [NonSerialized] public int Line_Max_Length = 5000; // TODO: We probably want more!
     [NonSerialized] public float Animation_Speed = 1f;
     [NonSerialized] public float Scroll_Speed = 0.45f;
@@ -377,32 +377,19 @@ public partial class DebugConsole : DebugComponent
     }
 
     // Writing to the console
-    public static void Write(string text, params object[] args) => Instance?._Write(text, args);
-    public static void Log(string text, params object[] args) => Instance?._Log(text, args);
 
     public static void Clear() => Instance?._Clear();
     void _Clear() => UI_Text.text = "";
 
+    public static void Write(string text, params object[] args) => Instance?._Write(text, args);
+    public static void Log(string text, params object[] args) => Instance?._Log(text, args);
+
     void _Write(string text, params object[] args)
     {
-        string s = "";
+        if (args.Length != 0 && text.Contains("%")) text = Logger.ParseArgs(text, args);
 
-        int c = 0, arg_i = 0;
-        for (int i = 0; i < text.Length; ++i, ++c)
-        {
-            // TODO:                what? [c + 1 > 0] & [c - 1 > 0]???
-            if (text[c] == '\\' && (c + 1 > 0 && text[c + 1] == '%')) continue; // TODO: Not sure whether we should handle these cases manually, or ignore '\' characters completely.
-            if (text[c] == '%' && (c - 1 > 0 && text[c - 1] != '\\'))
-            {
-                if (arg_i >= args.Length) Logger.LogMethodE($"There was no argument at {arg_i} - total count: {args.Length}", this);
-                s += args[arg_i++]; continue;
-            }
-
-            s += text[c];
-        }
-
-        if (s.Length > Line_Max_Length) s = s.Substring(0, Line_Max_Length);
-        UI_Text.text += s;
+        if (text.Length > Line_Max_Length) text = text.Substring(0, Line_Max_Length);
+        UI_Text.text += text;
 
         // Limit text length
         UI_Text.text = UI_Text.text.MaxLines(Text_Max_Lines);
