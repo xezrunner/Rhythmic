@@ -56,10 +56,11 @@ public static partial class Logger
         string s = "";
 
         int c = 0, arg_i = 0;
-        for (int i = 0; i < text.Length; ++i, ++c)
+        for (; c < text.Length; ++c)
         {
-            if (text[c] == '%' && (c - 1 > 0 && text[c - 1] != '\\'))
+            if (text[c] == '%')
             {
+                if (c - 1 > 0 && text[c - 1] == '\\') continue;
                 if (arg_i >= args.Length) LogMethodE($"There was no argument at {arg_i} - total count: {args.Length}", "Logger");
                 else
                 {

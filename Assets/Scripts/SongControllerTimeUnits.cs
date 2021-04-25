@@ -149,6 +149,7 @@ public partial class SongController
     {
         // TODO: We should prefer one over the other, probably. Doesn't look like the OG game mixes it.
         // TODO: Fix this for faster values!
+        /// NOTE: This doesn't seem to be a good solution. We need to look at the fudge factor from a closer perspective!
         totalFudgeFactor = (/*songFudgeFactor + */RhythmicGame.DifficultyFudgeFactor);
 
         // Seconds
