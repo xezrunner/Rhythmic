@@ -25,6 +25,7 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
     public float PositionEasingStrength = 10f;
     public float RotationEasingStrength = 10f;
     public float Duration = 1f;
+    public float Duration_Damp = 0.8f;
     [Range(0, 1)]
     public float AnimationProgress;
 
@@ -187,6 +188,7 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
         }
         else if (track.Instrument == AmpTrack.InstrumentType.bg_click & !force) return;
 
+        Duration = (Mathf.Abs(TracksController.CurrentRealTrackID - ID)) / ((Mathf.Abs(TracksController.CurrentRealTrackID - ID) * Duration_Damp));
         IsAnimating = true;
 
         // Propagate track switching to tracks controller!
@@ -243,8 +245,8 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
     {
         if (!SongController.IsPlaying && !Locomotion.IsPlaying) return;
 
-        Locomotion.PositionOffset = Vector3.SmoothDamp(Locomotion.PositionOffset, targetPos, ref pos_vel, 1f, 100f, PositionEasingStrength * Time.deltaTime);
+        Locomotion.PositionOffset = Vector3.SmoothDamp(Locomotion.PositionOffset, targetPos, ref pos_vel, Duration, 100f, PositionEasingStrength * Time.deltaTime);
         Locomotion.RotationOffset = Vector3.SmoothDamp(Locomotion.RotationOffset, RhythmicGame.IsTunnelMode ? targetRot : Vector3.zero,
-                                                       ref rot_vel, 1f, 100f, RotationEasingStrength * Time.deltaTime);
+                                                       ref rot_vel, Duration, 100f, RotationEasingStrength * Time.deltaTime);
     }
 }
