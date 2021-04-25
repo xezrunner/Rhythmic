@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Globalization;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -64,13 +65,27 @@ public static class StringExtensions
 
     // Align a text by number of spaces.
     // Note! For best results, text should be monospace!
-    public static string AlignSpaces(this string text, int total_text_length, int amount)
+    public static string AlignSpaces(this string text, int total_text_length, int max)
     {
-        int space_count = amount - total_text_length;
+        int space_count = max - total_text_length;
         string s = "";
-        for (int i = 0; i < space_count; i++) s += ' ';
+        for (int i = 0; i < space_count; i++)
+            s += ' ';
 
         return s + text;
+
+    }
+
+    public static string AlignSpaces_New(this string text, int left_length, int right_target, bool after = false)
+    {
+        int space_count = right_target - text.Length;
+        string s = "";
+        for (; space_count > 0 ; --space_count) s += ' ';
+
+        if (!after)
+            return s + text;
+        else 
+            return text + s;
     }
 
     /// Not sure about the naming for these... the shorter ones seem more convenient.
@@ -131,5 +146,5 @@ public static class StringExtensions
         return false;
     }
     public static int ParseInt(this string text) => int.Parse(text);
-    public static float ParseFloat(this string text) => float.Parse(text);
+    public static float ParseFloat(this string text) => float.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
 }

@@ -63,6 +63,8 @@ public partial class DebugConsole
         RegisterCommand(start_console_server);
         RegisterCommand(stop_console_server);
 
+        RegisterCommand(moggsong_parser_debug_print, "Prints the tokens used during .moggsong file parsing.");
+
         // Common commands:
         RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
         RegisterCommand(world, $"usage: {"world".AddColor(Colors.Application)} <relative world path, starting from Scenes/>");
@@ -199,10 +201,12 @@ public partial class DebugConsole
     void set_console_text_limit(string[] args) => Line_Max_Length = args[0].ParseInt();
     void scroll_to_bottom() => ScrollConsole(SCROLL_BOTTOM);
     void scroll_to_top() => ScrollConsole(SCROLL_TOP);
-    void scroll_to(string[] args) => ScrollConsole(float.Parse(args[0]));
+    void scroll_to(string[] args) => ScrollConsole(args[0].ParseFloat());
 
     void start_console_server() => ConsoleServer.StartConsoleServer();
     void stop_console_server() => ConsoleServer.StopConsoleServer();
+
+    void moggsong_parser_debug_print() => MoggSong.Instance?.DebugPrintTokens();
 
     /// Songs and worlds:
     void song(string[] args) => SongsMenu.LoadSong(args[0]);

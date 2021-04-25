@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Globalization;
+using System.Linq;
 using UnityEngine;
 
 public class MoggSong : MonoBehaviour
 {
-    public string Moggsong { get; set; }
+    public static MoggSong Instance;
 
     // Song properties
-    public int songLengthInMeasures { get; set; }
-    public int songCountInTime { get; set; }
-    public List<string> songTracks { get; set; } = new List<string>();
-    public int songBpm { get; set; }
+    public int songLengthInMeasures;
+    public int songCountInTime;
+    public List<string> songTracks = new List<string>();
+    public int songBpm;
 
     // TODO: Mixer!
     // TODO: Score goals!
@@ -22,81 +23,233 @@ public class MoggSong : MonoBehaviour
     public float songFudgeFactor { get { if (!_songFudgeFactor.HasValue) return 1f; else return _songFudgeFactor.Value; } set { _songFudgeFactor = value; } }
 
     // TOOD: Unknown props
-    public int[] songEnableOrder { get; set; }
-    public int[] songSectionStartBars { get; set; }
+    public int[] songEnableOrder;
+    public int[] songSectionStartBars;
 
     // TODO: Metadata!
 
     // Song boss level
     // n + 1 streaks required
-    public int songBossLevel { get; set; }
+    public int songBossLevel;
 
-    // TODO: IMPROVE THIS BY USING TOKENS FOR EVERYTHING!
-    // TODO: IMPROVE THIS BY USING SWITCH STATEMENTS (?)
+    void Awake() => Instance = this;
+
+    List<Token> Tokens = new List<Token>();
     public void LoadMoggSong(string songName)
     {
         string finalPath = AmplitudeGame.AMP_GetSongFilePath(songName, AmplitudeGame.AMP_FileExtension.moggsong); // moggsong path
-        char[] CRLF = new char[2] { '\n', '\r' }; // newline characters
 
-        TextReader tr = File.OpenText(finalPath);
-        string[] fileLines = tr.ReadToEnd().Split(CRLF); // create array of moggsong lines 
+        TextReader reader = File.OpenText(finalPath);
+        string text = reader.ReadToEnd();
 
-        int counter = 0;
-        foreach (string line in fileLines) // go through each line
+        Tokenizer tokenizer = new Tokenizer(text);
+
+        while (true) // Get all tokens
         {
-            // TODO: use TrimStart?
-
-            if (line.Contains("length ")) // Song length
-            {
-                int index = line.IndexOf("length ");
-                string[] tokens = line.Substring(index + 7, line.Length - (7 + index)).Split(':');
-                songLengthInMeasures = int.Parse(tokens[0]);
-
-                if (line.Contains("LESS THAN")) // moggsongs report 4 less than actual, although tutorial doesn't
-                    songLengthInMeasures += 4;
-            }
-            else if (line.Contains("countin ")) // TODO: this might be the accountation for song length reporting 4 less than actual. But why?
-                songCountInTime = int.Parse(line.Substring(line.IndexOf("countin ") + 8, 1));
-            else if (line.Contains("tunnel_scale ")) // Song fudge factor
-            {
-                float parse = float.Parse(line.Substring(14, 3), CultureInfo.InvariantCulture.NumberFormat);
-                /*
-                if (parse > 0.5f) songFudgeFactor = 1f * (1f + parse);
-                else songFudgeFactor = 1f / parse;
-                */
-
-                //if (parse < 1f & parse > 0.5f)
-                //    parse = 1f + parse;
-                //else if (parse < 0.5f)
-                //    parse = 2f + (1f - parse);
-
-                if (parse == 0) parse = float.MinValue;
-
-                songFudgeFactor = parse;
-            }
-            else if (line.Contains("bpm ")) // Song BPM | TODO: this is really hacky!
-            {
-                string finalBPM = line.Substring(5, 3);
-
-                if (finalBPM.EndsWith(")"))
-                    finalBPM = line.Substring(5, 2);
-
-                songBpm = int.Parse(finalBPM);
-            }
-            else if (line.Contains("boss_level ")) // Song boss level
-                songBossLevel = int.Parse(line.Substring(12, 1));
-
-            else if (line.Contains("SONG_BUS") || line.Contains("FREESTYLE_FX")) // Song tracks
-            {
-                string[] tokens = line.Substring(7).Split(' ');
-                string trackName = tokens[0];
-                if (trackName == "freestyle" & !RhythmicGame.PlayableFreestyleTracks)
-                    continue;
-                else
-                    songTracks.Add(trackName);
-            }
-
-            counter++;
+            Token token = GetToken(tokenizer);
+            Tokens.Add(token);
+            if (token.Type == Token_Type.EndOfFile) break;
         }
+
+        // Parse information from tokens:
+        // TODO: Move this to its own proc?
+        for (int i = 0; i < Tokens.Count; ++i)
+        {
+            Token token = Tokens[i];
+            switch (token.Text)
+            {
+                case "length":
+                    {
+                        Token token_value = Tokens[++i];
+
+                        // Get the measure count from the time unit (MMM:_:_)
+                        string[] time_values = token_value.Text.Split(':');
+                        songLengthInMeasures = time_values[0].ParseInt();
+
+                        break;
+                    }
+                case "countin": songCountInTime = SetValue<int>(Tokens, ++i); break;
+                case "tunnel_scale": songFudgeFactor = SetValue<float>(Tokens, ++i); break;
+                case "bpm": songBpm = SetValue<int>(Tokens, ++i); break;
+                case "boss_level": songBossLevel = SetValue<int>(Tokens, ++i); break;
+                    // TODO: freestyle tracks were previously added here. This might be the MIDI reading's job.
+            }
+        }
+    }
+
+    public void DebugPrintTokens()
+    {
+        int type_max_width = Tokens.Max(s => s.Type.ToString().Length) + 1;
+
+        for (int i = 0; i < Tokens.Count; ++i)
+        {
+            string token_type = Tokens[i].Type == Token_Type.Unknown ? "---" : Tokens[i].Type.ToString();
+            token_type = token_type.AlignSpaces_New(13, type_max_width, false);
+            switch (Tokens[i].Type) // Color coding
+            {
+                case Token_Type.OpenParen:
+                case Token_Type.CloseParen:
+                case Token_Type.OpenBrace:
+                case Token_Type.CloseBrace: 
+                case Token_Type.StringQuotes: token_type = token_type.AddColor(Colors.IO); break;
+                case Token_Type.Identifier:
+                case Token_Type.Number:
+                case Token_Type.TimeUnitColon: token_type = token_type.AddColor(Colors.Network); break;
+                default:
+                    token_type = token_type.AddColor(Colors.Info); break;
+            }
+
+            string token_text = Tokens[i].Text;
+            switch (Tokens[i].Type)
+            {
+                case Token_Type.OpenParen: token_text = "("; break;
+                case Token_Type.CloseParen: token_text = ")"; break;
+                case Token_Type.OpenBrace: token_text = "{"; break;
+                case Token_Type.CloseBrace: token_text = "}"; break;
+                case Token_Type.TimeUnitColon: token_text = ":"; break;
+                case Token_Type.EndOfFile: token_text = "EOF"; break;
+            }
+
+            DebugConsole.Log("[%]: Type: %"
+                      + " | " + (token_text == "" || token_text == null ? null : "%").AddColor(Colors.Unimportant),
+                      i.ToString("D3"), token_type, token_text);
+        }
+    }
+
+    // TODO: separate parsing into a different (partial) class?
+
+    /// <summary>Returns a specific type of value from a token. <br/>
+    /// Used in setting the values parsed from the .moggsong file. </summary>
+    T SetValue<T>(List<Token> tokens, int index)
+    {
+        string value = tokens[index].Text;
+        object return_value = null;
+
+        switch (typeof(T))
+        {
+            //case Type i when i == typeof(int):    return    value.ParseInt();
+            //case Type i when i == typeof(float):  return  value.ParseFloat();
+            //case Type i when i == typeof(bool):   return   value.ParseBool();
+            //case Type i when i == typeof(string): return value;
+
+            case Type i when i == typeof(int): return_value = value.ParseInt(); break;
+            case Type i when i == typeof(float): return_value = value.ParseFloat(); break;
+            case Type i when i == typeof(bool): return_value = value.ParseBool(); break;
+            case Type i when i == typeof(string): return_value = value; break;
+            default:
+                {
+                    Logger.LogW("Weird type being set | value: % | target type: %".TM(this), tokens[index].Text, typeof(T).Name);
+                    try { return_value = (T)Convert.ChangeType(value, typeof(T)); }
+                    catch (Exception ex) { Logger.LogE("Failed to convert value to type % | %".TM(this), (typeof(T).Name), ex.Message); }
+                    break;
+                }
+        }
+
+        return (T)return_value;
+    }
+
+    public enum Token_Type { EndOfFile, Unknown, Comment, Identifier, Number, OpenParen, CloseParen, OpenBrace, CloseBrace, StringQuotes, TimeUnitColon }
+
+    public class Token
+    {
+        public Token(Token_Type type = Token_Type.Unknown) { Type = type; }
+        public Token(Token_Type type, string text) { Type = type; Text = text; }
+
+        public Token_Type Type;
+        public string Text;
+    }
+    public class Tokenizer
+    {
+        public Tokenizer(string t) { Text = t; c = Text[0]; }
+        public Tokenizer(string t, int p) { Text = t; c = Text[pos]; }
+
+        public void Advance()
+        {
+            if (pos + 1 < Text.Length)
+                c = Text[++pos];
+            else end_of_file = true;
+        }
+        public void Backwards()
+        {
+            if (pos > 0) c = Text[--pos];
+        }
+
+        public string Text;
+        public char c;
+        public int pos;
+        public bool end_of_file = false;
+    }
+    bool IsWhitespace(char c) => (c == ' ' || c == '\r' || c == '\n' || c == '\t');
+
+
+    Token GetToken(Tokenizer t) // TODO: naming - e? t?
+    {
+        if (t.end_of_file) return new Token(Token_Type.EndOfFile);
+
+        Token token;
+        bool advance = true; // TODO: Not sure if we should use this, or t.Backwards() once, when we need to.
+
+        while (!t.end_of_file && IsWhitespace(t.c)) t.Advance();
+        switch (t.c)
+        {
+            case ';':
+                {
+                    token = new Token(Token_Type.Comment);
+
+                    while (!t.end_of_file && t.c != '\r' && t.c != '\n')
+                    {
+                        token.Text += t.c;
+                        t.Advance();
+                    }
+
+                    break;
+                }
+            case '(': token = new Token(Token_Type.OpenParen); break;
+            case ')': token = new Token(Token_Type.CloseParen); break;
+            case '{': token = new Token(Token_Type.OpenBrace); break;
+            case '}': token = new Token(Token_Type.CloseBrace); break;
+            case '"': token = new Token(Token_Type.StringQuotes); token.Text = "\""; break; // TODO: string reading!
+            case ':': token = new Token(Token_Type.TimeUnitColon); break;
+            default: // Identifier
+                {
+                    if (char.IsLetter(t.c))
+                    {
+                        string text = "";
+                        while (!t.end_of_file && !IsWhitespace(t.c) && t.c != ')')
+                        {
+                            text += t.c;
+                            t.Advance();
+                        }
+
+                        token = new Token(Token_Type.Identifier, text);
+
+                        // TODO: decide whether to advance or t.Backwards()
+                        //if (t.c == ')') advance = false; // Do not advance on ')', because we want it as an identifier!
+                        if (t.c == ')') t.Backwards(); // // Traverse -1 to Leave ')' to be parsed
+
+                        break;
+                    }
+                    else if (char.IsDigit(t.c)) // TODO: Revise this - do we want numbers as identifiers?  @ Duplicate
+                    {
+                        string text = "";
+                        while (!t.end_of_file && !IsWhitespace(t.c) && t.c != ')')
+                        {
+                            text += t.c;
+                            t.Advance();
+                        }
+
+                        token = new Token(Token_Type.Number, text);
+
+                        if (t.c == ')') t.Backwards(); // // Traverse -1 to Leave ')' to be parsed
+                        break;
+                    }
+
+                    token = new Token(Token_Type.Unknown); if (!IsWhitespace(t.c)) token.Text += $"'{t.c}'";
+                    break;
+                }
+        }
+
+        if (advance) t.Advance();
+        return token;
     }
 }
