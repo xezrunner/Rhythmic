@@ -126,29 +126,29 @@ public class AmpPlayerCatching : MonoBehaviour
         if (lastIgnoreBar == Clock.Fbar) return; // avoid spamming
 
         // *** SLOP ***
-        float ms = Clock.seconds * 1000;
+        float dist = Locomotion.DistanceTravelled;
 
         AmpTrackSection currentMeasure = TracksController.CurrentMeasure;
         if (!currentMeasure.IsEmpty & !currentMeasure.IsCaptured)
         {
             AmpNote note = TracksController.targetNotes[TracksController.CurrentTrackID];
-            HandleSlop(ms, note);
+            HandleSlop(dist, note);
         }
         else
             foreach (AmpNote note in TracksController.targetNotes)
-                if (note) HandleSlop(ms, note);
+                if (note) HandleSlop(dist, note);
     }
 
-    public void HandleSlop(float ms, AmpNote note)
+    public void HandleSlop(float dist, AmpNote note)
     {
         if (!note) { Debug.LogWarning($"Catching/HandleSlop(): No note was passed!"); HandleResult(new CatchResult()); lastIgnoreBar = Clock.Fbar; return; }
 
         // If the distance is bigger than the note distance + slop distance, we have 'ignored' the note.
-        float maxMs = note.TimeMs + (SongController.SlopMs / 2); // Only one axis of SlopMs is required | NOTE: there was a bug here where missing the very last note in a sequence would result in the next measure being disabled.
-        if (note.IsEnabled && ms > maxMs)
+        float max_dist = note.Distance + (SongController.SlopPos / 2); // Only one axis of SlopMs is required | NOTE: there was a bug here where missing the very last note in a sequence would result in the next measure being disabled.
+        if (note.IsEnabled && dist > max_dist)
         {
             if (RhythmicGame.DebugCatcherSlopEvents)
-                Logger.LogWarning($">>>>>>> SLOP! <<<<<<< | Track ID: {TracksController.CurrentRealTrackID}; targetNote timeMs: {note.TimeMs}, ms: {ms}, maxMs: {maxMs}");
+                Logger.LogWarning($">>>>>>> SLOP! <<<<<<< | Track ID: {TracksController.CurrentRealTrackID}; targetNote timeMs: {note.TimeMs}, ms: {dist}, maxMs: {max_dist}");
 
             HandleResult(new CatchResult(Catchers[(int)note.Lane], CatchResultType.Ignore, note));
             lastIgnoreBar = Clock.Fbar; // avoid slop check spam

@@ -81,12 +81,12 @@ public class Catcher : MonoBehaviour
         {
             float targetDist = target.Distance;
 
-            float slopMs = SongController.SlopMs;
+            float slopPos = SongController.SlopPos / 2;
 
             // Evaluate where we hit
             float diff = Mathf.Abs(dist - targetDist); // meters
-            float diffSec = SongController.PosToSec(diff); // seconds
-            float diffMs = SongController.PosToMs(diff); // milliseconds
+            //float diffSec = SongController.PosToSec(diff); // seconds
+            //float diffMs = SongController.PosToMs(diff); // milliseconds
 
             //Debug.Log($"diff: {diff} | diffSec: {diffSec} | diffMs: {diffMs} | slopMs: {slopMs} :: speed: {speed}");
 
@@ -105,7 +105,7 @@ public class Catcher : MonoBehaviour
 #endif
 
             // If the difference between target note and current distance is less than slopMs, we're good!
-            if (diffMs < slopMs && (int)target.Lane == (int)Side)
+            if (diff < slopPos && (int)target.Lane == (int)Side)
                 return new CatchResult(this, CatchResultType.Success, target);
             else // Otherwise, find what note is closest
                 return GenerateFail(dist);
