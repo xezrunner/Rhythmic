@@ -127,11 +127,6 @@ public class MoggSong : MonoBehaviour
 
         switch (typeof(T))
         {
-            //case Type i when i == typeof(int):    return    value.ParseInt();
-            //case Type i when i == typeof(float):  return  value.ParseFloat();
-            //case Type i when i == typeof(bool):   return   value.ParseBool();
-            //case Type i when i == typeof(string): return value;
-
             case Type i when i == typeof(int): return_value = value.ParseInt(); break;
             case Type i when i == typeof(float): return_value = value.ParseFloat(); break;
             case Type i when i == typeof(bool): return_value = value.ParseBool(); break;
