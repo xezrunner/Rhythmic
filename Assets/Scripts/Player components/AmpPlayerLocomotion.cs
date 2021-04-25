@@ -57,7 +57,7 @@ public class AmpPlayerLocomotion : MonoBehaviour
         MainCamera.transform.position = new Vector3(Tunnel.center.x, Tunnel.center.y + CameraElevation, -CameraPullback);
 
         normalCameraPos = MainCamera.transform.localPosition;
-        normalRotation = Quaternion.Euler(15.5f, 0, 0);
+        normalRotation = MainCamera.transform.localRotation;
         closeCameraPos = normalCameraPos + (Vector3.down * 5f) + (Vector3.forward * 8.5f);
         closeRotation = Quaternion.Euler(13f, 0, 0);
 

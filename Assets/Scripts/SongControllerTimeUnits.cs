@@ -5,6 +5,7 @@ using UnityEngine;
 public partial class SongController
 {
     [NonSerialized] public float songFudgeFactor = 1f; // Default is 1
+    public float totalFudgeFactor = 1f; // Default is 1
 
     /// Time & unit calculations
     /*---- SONG UNITS ------
@@ -69,16 +70,18 @@ public partial class SongController
     public float PosToSec(float pos, bool scale = false)
     {
         float value = secInPos * pos;
-        if (scale) value *= RhythmicGame.DifficultyFudgeFactor / songFudgeFactor;
-        else value /= songFudgeFactor * RhythmicGame.DifficultyFudgeFactor;
+        value += (value * totalFudgeFactor);
+        //if (scale) value *= RhythmicGame.DifficultyFudgeFactor / songFudgeFactor;
+        //else value /= songFudgeFactor * RhythmicGame.DifficultyFudgeFactor;
 
         return value;
     }
     public float PosToMs(float pos, bool scale = false)
     {
         float value = msInPos * pos;
-        if (scale) value *= RhythmicGame.DifficultyFudgeFactor / songFudgeFactor;
-        else value /= songFudgeFactor * RhythmicGame.DifficultyFudgeFactor;
+        value += (value * totalFudgeFactor);
+        //if (scale) value *= RhythmicGame.DifficultyFudgeFactor / songFudgeFactor;
+        //else value /= songFudgeFactor * RhythmicGame.DifficultyFudgeFactor;
 
         return value;
     }
@@ -144,6 +147,9 @@ public partial class SongController
 
     public void CalculateTimeUnits()
     {
+        // TODO: We should prefer one over the other, probably. Doesn't look like the OG game mixes it.
+        totalFudgeFactor = (/*songFudgeFactor + */RhythmicGame.DifficultyFudgeFactor);
+
         // Seconds
         secInTick = 60f / (songBpm * beatTicks);
         secInMs = 0.001f; // 1s = 1000ms
@@ -155,8 +161,8 @@ public partial class SongController
         msInPos = secInPos * 1000;
 
         // Position (meters)
-        posInSec = (4 / secPerBeat) / songFudgeFactor * RhythmicGame.DifficultyFudgeFactor;
-        posInMs = (4 / secPerBeat / 1000) / songFudgeFactor * RhythmicGame.DifficultyFudgeFactor;
+        posInSec = (4 / secPerBeat) + ((4 / secPerBeat) * totalFudgeFactor);
+        posInMs = (4 / secPerBeat / 1000) + ((4 / secPerBeat / 1000) * totalFudgeFactor);
         posInTick = posInSec * secInTick;
 
         // Ticks
