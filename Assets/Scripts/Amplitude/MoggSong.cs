@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class MoggSong : MonoBehaviour
 {
+    public SongController SongController { get { return SongController.Instance; } }
+
     public static MoggSong Instance;
 
     // Song properties
@@ -79,6 +81,12 @@ public class MoggSong : MonoBehaviour
 
     public void DebugPrintTokens()
     {
+        if (!SongController.Instance.IsEnabled)
+        {
+            DebugConsole.Log("SongController is not enabled - this could be due to an invalid song being specified. ".AddColor(Colors.Warning) + "[Song name: %]", SongController.songName);
+            return;
+        }
+
         int type_max_width = Tokens.Max(s => s.Type.ToString().Length) + 1;
 
         for (int i = 0; i < Tokens.Count; ++i)
