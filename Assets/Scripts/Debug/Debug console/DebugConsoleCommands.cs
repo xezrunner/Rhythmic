@@ -222,7 +222,7 @@ public partial class DebugConsole
     void capture_measure_amount(string[] args) => TracksController.CaptureMeasureAmount(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
 
     /// Track refreshing
-    void refresh_sequences(string[] args) => TracksController.RefreshSequences(args[0] == null ? null : TracksController.MainTracks[args[0].ParseInt()]);
-    void refresh_notes(string[] args) => TracksController.RefreshTargetNotes(args[0] == null ? null : TracksController.MainTracks[args[0].ParseInt()]);
-    void refresh_all(string[] args) => TracksController.RefreshAll(args[0] == null ? null : TracksController.MainTracks[args[0].ParseInt()]);
+    void refresh_sequences(string[] args) => TracksController.RefreshSequences(args.Length == 0 ? null : TracksController.MainTracks[args[0].ParseInt()]);
+    void refresh_notes(string[] args) => TracksController.RefreshTargetNotes(args.Length == 0 ? null : TracksController.MainTracks[args[0].ParseInt()]);
+    void refresh_all(string[] args) => TracksController.RefreshAll(args.Length == 0 ? null : TracksController.MainTracks[args[0].ParseInt()]);
 }
