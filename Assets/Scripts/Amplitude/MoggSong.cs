@@ -213,7 +213,7 @@ public class MoggSong : MonoBehaviour
             case '}': token = new Token(Token_Type.CloseBrace); break;
             case '"': token = new Token(Token_Type.StringQuotes); token.Text = "\""; break; // TODO: string reading!
             case ':': token = new Token(Token_Type.TimeUnitColon); break;
-            case char c when char.IsLetter(c): // Letter:
+            case char x when char.IsLetter(x): // Letter:
                 {
                     string text = "";
                     while (!t.end_of_file && !IsWhitespace(t.c) && t.c != ')')
