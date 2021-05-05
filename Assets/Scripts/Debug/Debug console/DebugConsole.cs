@@ -392,7 +392,8 @@ public partial class DebugConsole : DebugComponent
         UI_Text.text += text;
 
         // Limit text length
-        UI_Text.text = UI_Text.text.MaxLines(Text_Max_Lines);
+        /// TODO: Performance!! This is probably extremely slow!
+        //UI_Text.text = UI_Text.text.MaxLines(Text_Max_Lines);
 
         // Log to the Rhythmic Console application | TODO: This isn't the right place to forward from.
         //if (s[s.Length - 1] == '\n') s = s.Substring(0, s.Length - 1);
