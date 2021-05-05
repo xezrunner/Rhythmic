@@ -74,6 +74,8 @@ public partial class DebugMenu : DebugComponent
         DebugUI = DebugUI.Instance;
         UI_Text = DebugUI.debugmenuText;
         UI_Arrow = DebugUI.debugmenuArrow;
+
+        InitInput();
     }
     void Start()
     {

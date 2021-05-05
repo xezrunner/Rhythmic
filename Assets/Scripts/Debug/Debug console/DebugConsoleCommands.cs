@@ -63,6 +63,9 @@ public partial class DebugConsole
         RegisterCommand(start_console_server);
         RegisterCommand(stop_console_server);
 
+        RegisterCommand(change_amp_folder);
+        RegisterCommand(change_ogg_folder);
+
         RegisterCommand(moggsong_parser_debug_print, "Prints the tokens used during .moggsong file parsing.");
 
         // Common commands:
@@ -205,6 +208,20 @@ public partial class DebugConsole
 
     void start_console_server() => ConsoleServer.StartConsoleServer();
     void stop_console_server() => ConsoleServer.StopConsoleServer();
+
+    /// TODO: We should let actions take in a single string as well, for simpler commands.
+    void change_amp_folder(string[] args)
+    {
+        if (args.Length == 0) Logger.LogConsoleW("Current value: %", AmplitudeGame.AMP_songFolder);
+        else if (args.Length > 1) Logger.LogConsoleW("Invalid argument format. Expected: " + "change_amp_folder <folder path>".AddColor(Colors.IO));
+        else AmplitudeGame.AMP_songFolder = args[0];
+    }
+    void change_ogg_folder(string[] args)
+    {
+        if (args.Length == 0) Logger.LogConsoleW("Current value: %", AmplitudeGame.song_ogg_path);
+        else if (args.Length > 1) Logger.LogConsoleW("Invalid argument format. Expected: " + "change_ogg_folder <folder path>".AddColor(Colors.IO));
+        else AmplitudeGame.song_ogg_path = args[0];
+    }
 
     void moggsong_parser_debug_print() => MoggSong.Instance?.DebugPrintTokens();
 

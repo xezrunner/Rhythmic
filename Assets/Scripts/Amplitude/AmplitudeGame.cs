@@ -13,6 +13,7 @@ public static class AmplitudeGame
 
     public static string song_ogg_path = "H:\\HMXAMPLITUDE\\Extractions\\ps4_songs";
 
+    /*
     public static string AMP_songFolder
     {
         get
@@ -30,6 +31,9 @@ public static class AmplitudeGame
             return string.Format("{0}", dataPath);
         }
     }
+    */
+    public static string AMP_songFolder = @"H:/HMXAMPLITUDE/Extractions/amplitude_ps4_extraction/ps4/songs";
+
     public static string AMP_GetSongFilePath(string songName, AMP_FileExtension extension)
     {
         return string.Format(@"{0}\{1}\{1}.{2}", AMP_songFolder, songName, extension);

@@ -11,18 +11,50 @@ public partial class DebugMenu
     #region Keys & buttons
     ButtonControl Open_Key = Keyboard.f1Key;
     ButtonControl Close_Key = Keyboard.f2Key;
-    ButtonControl[] OpenClose_Gamepad = { Gamepad.leftTrigger, Gamepad.leftShoulder };
+    ButtonControl[] OpenClose_Gamepad;
 
-    ButtonControl[] Submit_Buttons = { Keyboard.spaceKey, Keyboard.yKey, Gamepad.buttonWest, Gamepad.buttonSouth};
-    ButtonControl[] Decrease_Buttons = { Keyboard.digit1Key, Gamepad.dpad.left };
-    ButtonControl[] Increase_Buttons = { Keyboard.digit2Key, Gamepad.dpad.right };
+    ButtonControl[] Submit_Buttons;
+    ButtonControl[] Decrease_Buttons;
+    ButtonControl[] Increase_Buttons;
 
-    // TODO: Analog sticks?
-    ButtonControl[] NavigateUp_Buttons = { Keyboard.oKey, Gamepad.dpad.up, Gamepad.leftStick.up };
-    ButtonControl[] NavigateDown_Buttons = { Keyboard.uKey, Gamepad.dpad.down, Gamepad.leftStick.down };
+    // TODO: Analog sticks?                
+    ButtonControl[] NavigateUp_Buttons;
+    ButtonControl[] NavigateDown_Buttons;
 
-    ButtonControl[] HistoryBack_Buttons = { Keyboard.pageUpKey, Gamepad.buttonEast };
-    ButtonControl[] HistoryForwards_Buttons = { Keyboard.pageDownKey, Gamepad.rightShoulder };
+    ButtonControl[] HistoryBack_Buttons;
+    ButtonControl[] HistoryForwards_Buttons;
+
+    // HACK HACK HACK!!!
+    void InitInput()
+    {
+        if (Gamepad != null)
+        {
+            OpenClose_Gamepad = new ButtonControl[] { Gamepad.leftTrigger, Gamepad.leftShoulder }; // TODO: Fix gamepad not being connected
+
+            Submit_Buttons = new ButtonControl[] { Keyboard.spaceKey, Keyboard.yKey, Gamepad.buttonWest, Gamepad.buttonSouth };
+            Decrease_Buttons = new ButtonControl[] { Keyboard.digit1Key, Gamepad.dpad.left };
+            Increase_Buttons = new ButtonControl[] { Keyboard.digit2Key, Gamepad.dpad.right };
+
+            NavigateUp_Buttons = new ButtonControl[] { Keyboard.oKey, Gamepad.dpad.up, Gamepad.leftStick.up };
+            NavigateDown_Buttons = new ButtonControl[] { Keyboard.uKey, Gamepad.dpad.down, Gamepad.leftStick.down };
+
+            HistoryBack_Buttons = new ButtonControl[] { Keyboard.pageUpKey, Gamepad.buttonEast };
+            HistoryForwards_Buttons = new ButtonControl[] { Keyboard.pageDownKey, Gamepad.rightShoulder };
+        }
+        else
+        {
+            Submit_Buttons = new ButtonControl[] { Keyboard.spaceKey, Keyboard.yKey };
+            Decrease_Buttons = new ButtonControl[] { Keyboard.digit1Key };
+            Increase_Buttons = new ButtonControl[] { Keyboard.digit2Key };
+
+            NavigateUp_Buttons = new ButtonControl[] { Keyboard.oKey };
+            NavigateDown_Buttons = new ButtonControl[] { Keyboard.uKey };
+
+            HistoryBack_Buttons = new ButtonControl[] { Keyboard.pageUpKey };
+            HistoryForwards_Buttons = new ButtonControl[] { Keyboard.pageDownKey };
+        }
+    }
+
     #endregion
 
     // Processing & logic:
@@ -35,6 +67,7 @@ public partial class DebugMenu
 
     void ProcessKeys()
     {
+        // TODO: The game should handle Gamepads not being connected!
         bool gamepad_ts_held_now = ArePressed(OpenClose_Gamepad);
 
         // Holding down the Open key  @Hold

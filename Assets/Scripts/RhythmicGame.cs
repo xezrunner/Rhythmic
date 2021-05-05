@@ -13,7 +13,12 @@ public enum GameMatchType { Singleplayer = 0, LocalMultiplayer = 1, OnlineMultip
 // TODO: Some props here could be moved to their respective class!
 public static class RhythmicGame
 {
+    // Temporary stuff / hacks:
+
+    public static int HACK_FudgeSongMeasureLength = 4;
     public static float DifficultyFudgeFactor = 1.8f; //1.8f; // * to multiply!
+
+    // ---------------------- //
 
     public static GameState GameState;
 

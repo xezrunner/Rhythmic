@@ -6,9 +6,11 @@ public static class InputHandler
 {
     public static bool IsPressed(KeyPressOp op, params ButtonControl[] args)
     {
+        if (args == null || args.Length == 0) return false;
+
         int counter = 0;
         foreach (ButtonControl k in args)
-            if (k.isPressed) counter++;
+            if (k.isPressed) ++counter;
 
         if (op == KeyPressOp.OR) return (counter > 0);
         else return (counter == args.Length);
@@ -31,4 +33,4 @@ public static class InputHandler
     public static bool WasReleased(KeyPressOp op, params ButtonControl[] args) => WasFrame(op, FramePressKind.WasPressedOnThisFrame, args);
     public static bool WasPressed(params ButtonControl[] args) => WasPressed(KeyPressOp.OR, args);
     public static bool WasReleased(params ButtonControl[] args) => WasReleased(KeyPressOp.OR, args);
-}
+}   
