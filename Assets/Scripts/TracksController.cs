@@ -155,7 +155,11 @@ public class TracksController : MonoBehaviour
     public void RefreshSeeker()
     {
         if (CurrentTrack && CurrentTrack.Sequences.Count > 0 && (CurrentTrack.Sequences[0].ID != seeker_lastSequenceID || CurrentTrack.RealID != seeker_lastTrackID))
+        {
+            Seeker.SetActive(true);
             DeformSeeker(CurrentTrack.Sequences[0], CurrentTrack.Sequences.Count);
+        }
+        else Seeker.SetActive(false);
     }
 
     // Shared AmpNote material (TODO: move somewhere else? Into AmpNote as static?)
