@@ -98,7 +98,7 @@ public class MoggSong : MonoBehaviour
                 case Token_Type.OpenParen:
                 case Token_Type.CloseParen:
                 case Token_Type.OpenBrace:
-                case Token_Type.CloseBrace: 
+                case Token_Type.CloseBrace:
                 case Token_Type.StringQuotes: token_type = token_type.AddColor(Colors.IO); break;
                 case Token_Type.Identifier:
                 case Token_Type.Number:
@@ -182,8 +182,8 @@ public class MoggSong : MonoBehaviour
         public int pos;
         public bool end_of_file = false;
     }
-    bool IsWhitespace(char c) => (c == ' ' || c == '\r' || c == '\n' || c == '\t');
 
+    bool IsWhitespace(char c) => (c == ' ' || c == '\r' || c == '\n' || c == '\t');
 
     Token GetToken(Tokenizer t) // TODO: naming - e? t?
     {
@@ -213,40 +213,41 @@ public class MoggSong : MonoBehaviour
             case '}': token = new Token(Token_Type.CloseBrace); break;
             case '"': token = new Token(Token_Type.StringQuotes); token.Text = "\""; break; // TODO: string reading!
             case ':': token = new Token(Token_Type.TimeUnitColon); break;
+            case char c when char.IsLetter(c): // Letter:
+                {
+                    string text = "";
+                    while (!t.end_of_file && !IsWhitespace(t.c) && t.c != ')')
+                    {
+                        text += t.c;
+                        t.Advance();
+                    }
+
+                    token = new Token(Token_Type.Identifier, text);
+
+                    // TODO: decide whether to advance or t.Backwards()
+                    //if (t.c == ')') advance = false; // Do not advance on ')', because we want it as an identifier!
+                    if (t.c == ')') t.Backwards(); // // Traverse -1 to Leave ')' to be parsed
+                    break;
+                }
+            case char x when (char.IsDigit(x) || x == '-' || x == '.'): // Number:
+                {
+                    string text = "";
+                    //bool is_negative = (t.c == '-');
+                    //bool is_fraction = (t.c == '.' || t.c == ',');
+
+                    while (!t.end_of_file && !IsWhitespace(t.c) && t.c != ')')
+                    {
+                        text += t.c;
+                        t.Advance();
+                    }
+
+                    token = new Token(Token_Type.Number, text);
+
+                    if (t.c == ')') t.Backwards(); // // Traverse -1 to Leave ')' to be parsed
+                    break;
+                }
             default: // Identifier
                 {
-                    if (char.IsLetter(t.c))
-                    {
-                        string text = "";
-                        while (!t.end_of_file && !IsWhitespace(t.c) && t.c != ')')
-                        {
-                            text += t.c;
-                            t.Advance();
-                        }
-
-                        token = new Token(Token_Type.Identifier, text);
-
-                        // TODO: decide whether to advance or t.Backwards()
-                        //if (t.c == ')') advance = false; // Do not advance on ')', because we want it as an identifier!
-                        if (t.c == ')') t.Backwards(); // // Traverse -1 to Leave ')' to be parsed
-
-                        break;
-                    }
-                    else if (char.IsDigit(t.c)) // TODO: Handle negative numbers (-)
-                    {
-                        string text = "";
-                        while (!t.end_of_file && !IsWhitespace(t.c) && t.c != ')')
-                        {
-                            text += t.c;
-                            t.Advance();
-                        }
-
-                        token = new Token(Token_Type.Number, text);
-
-                        if (t.c == ')') t.Backwards(); // // Traverse -1 to Leave ')' to be parsed
-                        break;
-                    }
-
                     token = new Token(Token_Type.Unknown); if (!IsWhitespace(t.c)) token.Text += $"'{t.c}'";
                     break;
                 }
