@@ -117,6 +117,7 @@ public class MidiReader : MonoBehaviour
                 NoteOnEvent noteEvent = (NoteOnEvent)midevent;
 
                 // ticks correction: | TODO: revise!!!
+                /// TODO / HACK: We might want to just use the MIDI's beat ticks instead.
                 if (ticks != ticks_target)
                 {
                     // If the MIDI has a different tick unit as opposed to the standard 480 (ticks_target), then
@@ -234,7 +235,7 @@ public class MidiReader : MonoBehaviour
         float time = (60 * noe.AbsoluteTime) / (bpm * ticks);
 
         //The number (key) of the note. Heres a useful chart of number-to-note translation:
-        //http://www.electronics.dit.ie/staff/tscarff/Music_technology/midi/midi_note_numbers_for_octaves.htm
+        // http://www.electronics.dit.ie/staff/tscarff/Music_technology/midi/midi_note_numbers_for_octaves.htm
         // TODO: translate note events of Amplitude
         int noteNumber = noe.NoteNumber;
 

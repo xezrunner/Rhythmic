@@ -43,8 +43,10 @@ public class AmplitudeSongController : SongController
             songBpm = reader.bpm;
             songTracks = reader.songTracks;
             midi_songTracks = reader.midi_songTracks;
-        }
 
+            // TODO: Refer to MidiReader - we might want to adjust our beat ticks based on the MIDI
+            //beatTicks = reader.ticks;
+        }
 
         // Load MoggSong!
         {
