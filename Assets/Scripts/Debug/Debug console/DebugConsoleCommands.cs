@@ -192,10 +192,11 @@ public partial class DebugConsole
         Log("The color-cleared text is: %", s);
     }
     void logger_parser_test(string[] args) => Logger.Log("%".M(), args);
-    void test_console_limits()
+    void test_console_limits(string[] args)
     {
         string s = "";
-        for (int i = 0; i < Line_Max_Length * 2; ++i)
+        int count = (args.Length == 1 && char.IsDigit('c') ? args[0].ParseInt() : 2);
+        for (int i = 0; i < Line_Max_Length * count; ++i)
             s += '0';
         Log(s);
     }

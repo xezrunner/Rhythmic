@@ -384,12 +384,15 @@ public partial class DebugConsole : DebugComponent
     public static void Write(string text, params object[] args) => Instance?._Write(text, args);
     public static void Log(string text, params object[] args) => Instance?._Log(text, args);
 
+    string MainText;
     void _Write(string text, params object[] args)
     {
         if (args.Length != 0 && text.Contains("%")) text = Logger.ParseArgs(text, args);
-
         if (text.Length > Line_Max_Length) text = text.Substring(0, Line_Max_Length);
-        UI_Text.text += text;
+        MainText += text; /// TODO: Performance!!!
+
+        UI_Text.SetText(MainText);
+        //UI_Text.text += text; /// TODO: Performance!
 
         // Limit text length
         /// TODO: Performance!! This is probably extremely slow!
