@@ -43,7 +43,7 @@ public static class RhythmicGame
         Time.timeScale = speed;
         if (SongController.Instance) SongController.Instance.SetSongSpeed(speed);
     }
-    public static void SetResolution(Vector2 resolution) { Screen.SetResolution((int)resolution.x, (int)resolution.y, FullScreenMode.FullScreenWindow); }
+    public static void SetResolution(Vector2 resolution) { Screen.SetResolution((int)resolution.x, (int)resolution.y, FullScreenMode.FullScreenWindow); DebugUI.Instance?.Start(); }
     public static void SetAVCalibrationOffset(float offsetMs) { AVCalibrationOffsetMs = offsetMs; /*Player.Instance.UpdateAVCalibrationOffset();*/ }
 
     public static bool IsDeveloper = true; // Enable dev buttons

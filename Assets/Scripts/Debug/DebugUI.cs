@@ -78,7 +78,7 @@ public class DebugUI : DebugComponent
         Instances = new RefDebugComInstance(this, gameObject);
         IsDebugLineOn = _isDebugLineOn;
     }
-    void Start()
+    public void Start()
     {
         datetimeText.text = $"{DateTime.Now}";
         resolutionVersionText.text = ($"{RhythmicGame.Resolution.x}x{RhythmicGame.Resolution.y} @ 75Hz\n" +

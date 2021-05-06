@@ -48,7 +48,7 @@ public partial class DebugConsole
         RegisterCommand(help, "Lists all commands / gives help text for particular commands. usage: " + "help".AddColor(Colors.Application) + " <command>");
         RegisterCommand(toggle_autocomplete);
         RegisterCommand(set_autocomplete);
-        RegisterCommand(console_resize, "Resizes the console height. Usage: " + nameof(console_resize).AddColor(Colors.Application) + "<height>");
+        RegisterCommand(console_resize, "Resizes the console height. Usage: " + nameof(console_resize).AddColor(Colors.Application) + " <height>");
 
         // Test commands **************************************************
         RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
@@ -176,7 +176,7 @@ public partial class DebugConsole
     }
     void console_resize(string[] args)
     {
-        if (args.Length != 1) _Write("Invalid/no arguments were passed");
+        if (args.Length != 1) Logger.LogConsoleE("Invalid/no arguments were passed.");
         else ChangeSize(args[0].ParseFloat());
     }
 
@@ -220,13 +220,13 @@ public partial class DebugConsole
     void change_amp_folder(string[] args)
     {
         if (args.Length == 0) Logger.LogConsoleW("Current value: %", AmplitudeGame.AMP_songFolder);
-        else if (args.Length > 1) Logger.LogConsoleW("Invalid argument format. Expected: " + "change_amp_folder <folder path>".AddColor(Colors.IO));
+        else if (args.Length > 1) Logger.LogConsoleE("Invalid argument format. Expected: " + "change_amp_folder <folder path>".AddColor(Colors.IO));
         else AmplitudeGame.AMP_songFolder = args[0];
     }
     void change_ogg_folder(string[] args)
     {
         if (args.Length == 0) Logger.LogConsoleW("Current value: %", AmplitudeGame.song_ogg_path);
-        else if (args.Length > 1) Logger.LogConsoleW("Invalid argument format. Expected: " + "change_ogg_folder <folder path>".AddColor(Colors.IO));
+        else if (args.Length > 1) Logger.LogConsoleE("Invalid argument format. Expected: " + "change_ogg_folder <folder path>".AddColor(Colors.IO));
         else AmplitudeGame.song_ogg_path = args[0];
     }
 
