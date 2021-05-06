@@ -48,11 +48,12 @@ public partial class DebugConsole
         RegisterCommand(help, "Lists all commands / gives help text for particular commands. usage: " + "help".AddColor(Colors.Application) + " <command>");
         RegisterCommand(toggle_autocomplete);
         RegisterCommand(set_autocomplete);
-        RegisterCommand(logger_log, "Calls Logger.Log(). NOTE: \\% parameters are not supported yet!");
+        RegisterCommand(console_resize, "Resizes the console height. Usage: " + nameof(console_resize).AddColor(Colors.Application) + "<height>");
 
         // Test commands **************************************************
         RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
         RegisterCommand(clear_text_test);
+        RegisterCommand(logger_log, "Calls Logger.Log(). NOTE: \\% parameters are not supported yet!");
         RegisterCommand(logger_parser_test, "Tests the new Logger parser system.");
         RegisterCommand(test_console_limits, "Tests the console max text length limit.");
         RegisterCommand(get_console_text_lines, "Shows current console text line count.");
@@ -173,7 +174,11 @@ public partial class DebugConsole
         if (autocomplete_enabled) Log("Autocomplete enabled.");
         else Log("Autocomplete disabled.");
     }
-    void logger_log(string[] args) => Logger.Log(args); // TODO: "" quotes should be parsed as one individual string parameter
+    void console_resize(string[] args)
+    {
+        if (args.Length != 1) _Write("Invalid/no arguments were passed");
+        else ChangeSize(args[0].ParseFloat());
+    }
 
     void test(string[] a)
     {
@@ -191,6 +196,7 @@ public partial class DebugConsole
         s = s.ClearColors();
         Log("The color-cleared text is: %", s);
     }
+    void logger_log(string[] args) => Logger.Log(args); // TODO: "" quotes should be parsed as one individual string parameter
     void logger_parser_test(string[] args) => Logger.Log("%".M(), args);
     void test_console_limits(string[] args)
     {

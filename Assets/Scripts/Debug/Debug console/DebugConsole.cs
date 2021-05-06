@@ -84,8 +84,14 @@ public partial class DebugConsole : DebugComponent
     public void ChangeSize(ConsoleSizeState size_state)
     {
         SizeState = size_state;
-        float new_size = GetHeightForSizeState(size_state);
-        Animate(new_size);
+        Animate(GetHeightForSizeState(size_state));
+    }
+    public void ChangeSize(float size)
+    {
+        // TODO: We're going to need a Custom mode here that will actually save the user's preferences.
+        Compact_Height = size;
+        SizeState = ConsoleSizeState.Compact;
+        Animate(size);
     }
 
     // TODO: Static commands, global control/automation (?)
