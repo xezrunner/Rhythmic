@@ -409,7 +409,7 @@ public partial class DebugConsole : DebugComponent
         //if (ConsoleServer.CServer != null) Logger.Log(s.ClearColors(), CLogType.Info, LogTarget.RhythmicConsole);
     }
     void _Log(string text, params object[] args) => _Write(text + '\n', args);
-    // Inconvenient arguments
+    // Inconvenient arguments:
     public void _LogMethod(string text, object type = null, [CallerMemberName] string methodName = null, params object[] args) => _Write(type + "/" + methodName + ": " + text, args);
 
     bool is_scrolling = false;
@@ -437,6 +437,7 @@ public partial class DebugConsole : DebugComponent
 
     // Console interaction & command processing
     public static bool ReturnOnFoundCommand = true;
+
     public void ProcessCommand(string command, params string[] args)
     {
         bool found = false;
@@ -501,7 +502,8 @@ public partial class DebugConsole : DebugComponent
         Input_Field.text = "";
         FocusInputField();
 
-        if (!command.Contains("scroll_to") /*&& UI_ScrollRect.verticalNormalizedPosition < SCROLL_BOTTOM - 0.83f*/) ScrollConsole();
+        if (!command.Contains("scroll_to") /*&& UI_ScrollRect.verticalNormalizedPosition < SCROLL_BOTTOM - 0.83f*/)
+            ScrollConsole();
 
         // Process commands...
         ProcessCommand(command, tokens);
