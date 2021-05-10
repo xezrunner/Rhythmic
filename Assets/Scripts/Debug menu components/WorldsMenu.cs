@@ -15,6 +15,7 @@
             AddEntry("Dev worlds: ", false);
             {
                 AddEntry("  - DevScene", () => LoadWorld("DevScene"));
+                AddEntry("  - DevScene_Demo", () => LoadWorld("DevScene_Demo"));
                 AddEntry("  - DevScene_Sandbox", () => LoadWorld("DevScene_Sandbox"));
                 AddEntry("  - TestScene", () => LoadWorld("TestScene"), "Space-themed abstract background test (xezrunner)");
             }

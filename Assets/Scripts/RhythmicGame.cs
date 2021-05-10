@@ -23,7 +23,7 @@ public static class RhythmicGame
     public static GameState GameState;
 
     // TODO: World & loading systems!
-    public static string StartWorld = "DevScene";
+    public static string StartWorld = "DevScene_Demo";
 
     // TODO: These should persist between loads!
     public static void SetFramerate(int fps, int vsync = 0)
