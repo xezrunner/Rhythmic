@@ -21,11 +21,5 @@ public class PowerupManagerEditor : Editor
             EditorGUILayout.LabelField("Game session inactive.");
             return;
         }
-
-        foreach (Powerup p in main.Powerups)
-        {
-            if (p && GUILayout.Button($"Deploy {p.Name}"))
-                p.Deploy();
-        }
     }
 }

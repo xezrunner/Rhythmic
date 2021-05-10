@@ -65,7 +65,7 @@ public partial class Track
         Measures.Add(measure);
         return measure;
     }
-    public Note CreateNote(MetaNote meta, Measure measure = null, int id = 0, bool lastNote = false)
+    public Note CreateNote(MetaNote meta, Measure measure = null, int id = 0, bool last_note = false, PowerupType powerup_type = PowerupType.None)
     {
         Note note = TrackStreamer.GetDestroyedNote();
         GameObject obj = note ? note.gameObject : null;
@@ -100,7 +100,8 @@ public partial class Track
         note.Distance = meta.Distance;
         note.TimeMs = meta.TimeMs;
         note.IsCaptured = meta.IsCaptured;
-        note.IsLastNote = lastNote;
+        note.IsLastNote = last_note;
+        note.PowerupType = powerup_type;
 
         note.Start();
 
@@ -114,6 +115,7 @@ public struct MetaMeasure
 {
     public int ID;
     public bool IsEmpty;
+    public PowerupType Powerup;
     public bool IsCaptured;
     public bool IsBossMeasure; // shouldn't capture this measure when capturing a track from another measure
     public float StartDistance;

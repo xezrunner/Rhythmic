@@ -24,6 +24,7 @@ public class TrackStreamer : MonoBehaviour
 {
     public static TrackStreamer Instance;
 
+    PlayerPowerupManager PlayerPowerupManager { get { return PlayerPowerupManager.Instance; } }
     SongController SongController;
     TracksController TracksController;
     Clock Clock;
@@ -74,6 +75,9 @@ public class TrackStreamer : MonoBehaviour
 
         // ------ SET GARBAGE COLLECTION TO MANUAL ------ //
         if (!Application.isEditor) GarbageCollector.GCMode = GarbageCollector.Mode.Manual;
+
+        // Generate the powerup map
+        PlayerPowerupManager.STREAMER_GeneratePowerupMap();
 
         // Stream in the horizon!
         //StreamMeasureRange(0, RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreaming);
@@ -150,8 +154,8 @@ public class TrackStreamer : MonoBehaviour
         destroyCounter = Clock.Fbar - 1;
     }
 
-    public void StreamNotes(int id, int trackID, Measure measure) => StartCoroutine(_StreamNotes(id, trackID, measure, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Notes)));
-    IEnumerator _StreamNotes(int id, int trackID, Measure measure, bool immediate = false)
+    public void StreamNotes(int id, int trackID, Measure measure, PowerupType powerup_type = PowerupType.None) => StartCoroutine(_StreamNotes(id, trackID, measure, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Notes), powerup_type));
+    IEnumerator _StreamNotes(int id, int trackID, Measure measure, bool immediate = false, PowerupType powerup_type = PowerupType.None)
     {
         Track track = TracksController.Tracks[trackID];
 
@@ -164,7 +168,7 @@ public class TrackStreamer : MonoBehaviour
             MetaNote meta_note = measureNotes[i];
             meta_note.IsCaptured = measure.IsCaptured;
 
-            Note note = track.CreateNote(meta_note, measure, i, false);
+            Note note = track.CreateNote(meta_note, measure, i, false, powerup_type);
             // Target note from meta
             if (meta_note.IsTargetNote && track.Sequence_Start_IDs[0] == meta_note.MeasureID)
                 TracksController.SetTargetNote(meta_note.TrackID, note);
@@ -218,7 +222,7 @@ public class TrackStreamer : MonoBehaviour
 
             // Stream notes!
             // Get all meta notes from the current measure
-            StreamNotes(id, track.RealID, measure);
+            StreamNotes(id, track.RealID, measure, meta.Powerup);
 
             //if (measure.Position.z > AmpPlayerLocomotion.Instance.HorizonLength) measure.enabled = false;
             //if (measure.ID > Clock.Fbar + RhythmicGame.HorizonMeasures) measure.gameObject.SetActive(false);

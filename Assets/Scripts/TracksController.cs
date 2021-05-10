@@ -175,7 +175,8 @@ public class TracksController : MonoBehaviour
         // Instantiate a shared Note Material | (TODO: move somewhere else? Into AmpNote as static?)
         SharedNoteMaterial = Instantiate((Material)Resources.Load("Materials/note-test/note_material"));
 
-        clipManager.AddMaterial(SharedNoteMaterial);
+        // TODO: Bug - when changing the note material, clipping stays as notes get recycled?
+        //clipManager.AddMaterial(SharedNoteMaterial);
 
         LengthClip();
     }

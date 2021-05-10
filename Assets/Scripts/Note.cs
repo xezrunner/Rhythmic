@@ -80,6 +80,7 @@ public class Note : MonoBehaviour
     public float Distance;
     public float TimeMs;
     public bool IsLastNote;
+    public PowerupType PowerupType;
 
     private bool _isEnabled = true;
     public bool IsEnabled
@@ -128,10 +129,17 @@ public class Note : MonoBehaviour
         PS_main = PS.main;
         PS_main.startColor = (DotLightColor * 2f);
 
+        if (PowerupType > 0)
+        {
+            NoteMeshRenderer.material.color = Color.red;
+            UI_Canvas.gameObject.SetActive(true);
+            TargetNoteIndicator.text = $"Powerup: {PowerupType}";
+        }
+
         UI_Canvas.gameObject.SetActive(DEBUG_ShowTargetNoteIndicators);
     }
 
-#if true
+#if false
     private void Update()
     {
         if (!DEBUG_ShowTargetNoteIndicators) { UI_Canvas.gameObject.SetActive(false); return; }
