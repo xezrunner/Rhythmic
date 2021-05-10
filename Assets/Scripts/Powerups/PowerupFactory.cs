@@ -7,8 +7,7 @@ public partial class PlayerPowerupManager
         switch (type)
         {
             case PowerupType.Generic: return typeof(Powerup);
-            case PowerupType.Special: return typeof(Powerup);
-            case PowerupType.Special2: return typeof(Powerup);
+            case PowerupType.Slowmo: return typeof(Powerup_Slowmo);
 
             case PowerupType.UNKNOWN: return null;
             default: return null;

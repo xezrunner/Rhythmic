@@ -1,4 +1,5 @@
 ﻿using System;
+using TMPro;
 using UnityEngine;
 
 [Flags]
@@ -8,7 +9,7 @@ public enum PowerupType
     UNKNOWN = -1,
     None = 0,
     Generic = 1,
-    Special = 1 << 1, Special2 = 1 << 2
+    Slowmo = 1 << 1
 }
 
 /// TODO:
@@ -20,6 +21,8 @@ public partial class PlayerPowerupManager : MonoBehaviour
     SongController SongController { get { return SongController.Instance; } }
     TrackStreamer TrackStreamer { get { return TrackStreamer.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
+
+    public TMP_Text UI_Powerup_Label;
 
     // This controls which powerups can be generated on the tracks.
     public PowerupType Configuration = PowerupType.All;
@@ -66,17 +69,38 @@ public partial class PlayerPowerupManager : MonoBehaviour
     public Powerup Current_Powerup = null;
     public void InventorizePowerup(PowerupType type)
     {
-        Type t = GetPowerupForType(type);
-        if (t != null)
+        if (type == PowerupType.None)
         {
-            // Destory current powerup, in case it hasn't been deployed yet.
-            if (Current_Powerup && !Current_Powerup.Deployed) Current_Powerup.Destroy();
-
-            Powerup p = (Powerup)gameObject.AddComponent(t);
-            Current_Powerup = p;
-            Logger.Log("Instantiated powerup module - type: %".M(), type.ToString());
+            ClearPowerups(); 
+            return;
         }
-        else Logger.LogError("Could not instantiate powerup module - type: %".M(), type.ToString());
+        else
+        {
+            Type t = GetPowerupForType(type);
+            if (t != null)
+            {
+                ClearPowerups();
+
+                Powerup p = (Powerup)gameObject.AddComponent(t);
+                Current_Powerup = p;
+                Logger.Log("Instantiated powerup module - type: %".M(), type.ToString());
+
+                UI_Powerup_Label.text = p.Attribute?.Name;
+
+                return;
+            }
+        }
+
+        Logger.LogError("Could not instantiate powerup module - type: %".M(), type.ToString());
+    }
+
+    void ClearPowerups()
+    {
+        // Destory current powerup, in case it hasn't been deployed yet.
+        if (Current_Powerup && !Current_Powerup.Deployed) Current_Powerup.Destroy();
+        Instance.Current_Powerup = null;
+
+        UI_Powerup_Label.text = "";
     }
 
     //public void DeployCurrentPowerup() => Current_Powerup?.Deploy();
@@ -86,7 +110,8 @@ public partial class PlayerPowerupManager : MonoBehaviour
         else Logger.LogWarning("No powerup in inventory - deploy failed.".M());
 
         // TODO: Control for whether powerups should be removed from inventory.
-        Destroy(Current_Powerup);
+        /// TODO: Remove only ourselves from the future inventory of powerups!
+        ClearPowerups();
     }
 
     public void STREAMER_GeneratePowerupMap()
@@ -96,7 +121,7 @@ public partial class PlayerPowerupManager : MonoBehaviour
             for (int x = 0; x < SongController.songLengthInMeasures; ++x)
             {
                 if (x % 2 != 0) continue;
-                TrackStreamer.metaMeasures[i, x].Powerup = PowerupType.Special;
+                TrackStreamer.metaMeasures[i, x].Powerup = PowerupType.Slowmo;
             }
         }
     }

@@ -131,7 +131,7 @@ public class Note : MonoBehaviour
 
         if (PowerupType > 0)
         {
-            NoteMeshRenderer.material.color = Color.red;
+            NoteMeshRenderer.material.color = Colors.ConvertToFloatColor(new Color(128,0,128));
             UI_Canvas.gameObject.SetActive(true);
             TargetNoteIndicator.text = $"Powerup: {PowerupType}";
         }

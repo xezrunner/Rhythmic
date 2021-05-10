@@ -3,13 +3,13 @@ using UnityEngine;
 
 public class PowerupAttribute : Attribute
 {
-    public PowerupAttribute(PowerupType type) => Type = type;
+    public PowerupAttribute(PowerupType type, string name = null) { Type = type; if (name != null) Name = name; }
+    public string Name = "Powerup";
     public PowerupType Type;
 }
 
 public class Powerup : MonoBehaviour
 {
-    public string Name;
     public bool Deployed = false; // NonSerialized?
     public int Deploy_Count = 0; // NonSerialized?
 
@@ -20,7 +20,7 @@ public class Powerup : MonoBehaviour
         Deployed = true;
         ++Deploy_Count;
 
-        Logger.Log("Powerup deployed! name: % | it has been deployed % times.".TM(), Name, Deploy_Count);
+        Logger.Log("Powerup deployed! name: % | it has been deployed % times.".TM(), Attribute?.Name, Deploy_Count);
     }
 
     public virtual void Destroy()
