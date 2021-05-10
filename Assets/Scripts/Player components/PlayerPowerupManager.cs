@@ -25,6 +25,60 @@ public partial class PlayerPowerupManager : MonoBehaviour
     public PowerupType Configuration = PowerupType.All;
 
     void Awake() => Instance = this;
+    private void Start() => RegisterCommands();
+
+    /// Commands:
+    bool registered_commands;
+    void RegisterCommands()
+    {
+        if (registered_commands) return;
+
+        DebugConsole.RegisterCommand(current_powerup);
+        DebugConsole.RegisterCommand(deploy_powerup);
+        DebugConsole.RegisterCommand(inventorize_powerup);
+
+        registered_commands = true;
+    }
+    public static void current_powerup() => Logger.LogConsole("Current powerup: %", Instance?.Current_Powerup);
+    public static void deploy_powerup() => Instance?.DeployCurrentPowerup();
+    public static void inventorize_powerup(string[] args)
+    {
+        if (args.Length < 1) return;
+        if (char.IsDigit(args[0][0]))
+        {
+            int digit = args[0][0].ToString().ParseInt();
+            if (digit > 1)
+                digit = 1 << digit;
+
+            Instance?.InventorizePowerup((PowerupType)digit);
+        }
+        else Instance?.InventorizePowerup((PowerupType)Enum.Parse(typeof(PowerupType), args[0]));
+    }
+
+    /// TODO:
+    /// We might want to store multiple powerups for specific game modes / settings.
+    public Powerup Current_Powerup = null;
+    public void InventorizePowerup(PowerupType type)
+    {
+        Type t = GetPowerupForType(type);
+        if (t != null)
+        {
+            Powerup p = (Powerup)gameObject.AddComponent(t);
+            Current_Powerup = p;
+            Logger.Log("Instantiated powerup module - type: %".M(), type.ToString());
+        }
+        else Logger.LogError("Could not instantiate powerup module - type: %".M(), type.ToString());
+    }
+
+    //public void DeployCurrentPowerup() => Current_Powerup?.Deploy();
+    public void DeployCurrentPowerup()
+    {
+        if (Current_Powerup) Current_Powerup.Deploy();
+        else Logger.LogWarning("No powerup in inventory - deploy failed.".M());
+
+        // TODO: Control for whether powerups should be removed from inventory.
+        Destroy(Current_Powerup);
+    }
 
     public void STREAMER_GeneratePowerupMap()
     {

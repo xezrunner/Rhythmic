@@ -24,6 +24,7 @@ public class PlayerCatching : MonoBehaviour
     Clock Clock { get { return Clock.Instance; } }
     SongController SongController { get { return SongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
+    PlayerPowerupManager PlayerPowerupManager { get { return PlayerPowerupManager.Instance; } } // TODO: Assign like the ones below?
     public Player Player;
     public PlayerLocomotion Locomotion;
 
@@ -176,8 +177,14 @@ public class PlayerCatching : MonoBehaviour
                         TracksController.RefreshAll(note.Track);
                     }
 
-                    if (note == note.Track.Sequences.Last().Notes.Last()) // Capture track if last note was captured
+                    // Give powerup for the given measure | TODO: This needs revising!! - What if there's a sequence worth of powerups? A simple check might be enough.
+                    if (note == note.Track.Measures[note.MeasureID].Notes.Last() && note.PowerupType > 0)
+                        PlayerPowerupManager.InventorizePowerup(note.PowerupType); // TODO: Revise - should this be from the note or the measure instead? Theoretically, the last picked up note would make the most sense.
+
+                    // Capture track if last note was captured IN A SEQUENCE
+                    if (note == note.Track.Sequences.Last().Notes.Last())
                         note.Track.CaptureMeasureAmount(Clock.Fbar, RhythmicGame.TrackCaptureLength);
+
                     else // Increment to next note, disable current measures
                     {
                         TracksController.IncrementTargetNote(note.Track);

@@ -2,7 +2,7 @@
 
 public partial class PlayerPowerupManager
 {
-    public Type GetPowerupType(PowerupType type)
+    public Type GetPowerupForType(PowerupType type)
     {
         switch (type)
         {

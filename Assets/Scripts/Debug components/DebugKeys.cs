@@ -76,8 +76,8 @@ public partial class DebugKeys : DebugComponent
         // TODO: Move to gameplay input!
         if (Input.GetKeyDown(KeyCode.R))
             RhythmicGame.Restart();
-        if (Input.GetKeyDown(KeyCode.Escape))
-            SongController.Instance.PlayPause();
+        //  if (PlayerInputHandler.IsActive && Input.GetKeyDown(KeyCode.Escape))
+        //      SongController.Instance.PlayPause();
 
         // Resolution
         if (!Application.isEditor)
