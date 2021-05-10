@@ -39,12 +39,18 @@ public partial class PlayerPowerupManager : MonoBehaviour
 
         registered_commands = true;
     }
-    public static void current_powerup() => Logger.LogConsole("Current powerup: %", Instance?.Current_Powerup);
-    public static void deploy_powerup() => Instance?.DeployCurrentPowerup();
-    public static void inventorize_powerup(string[] args)
+    static void current_powerup() => Logger.LogConsole("Current powerup: %", Instance?.Current_Powerup);
+    static void deploy_powerup() => Instance?.DeployCurrentPowerup();
+    static void inventorize_powerup(string[] args)
     {
-        if (args.Length < 1) return;
-        if (char.IsDigit(args[0][0]))
+        if (args.Length < 1 || !Instance) return;
+
+        if (args[0] == "clear")
+        {
+            Instance.Current_Powerup?.Destroy();
+            Instance.Current_Powerup = null;
+        }
+        else if (char.IsDigit(args[0][0]))
         {
             int digit = args[0][0].ToString().ParseInt();
             if (digit > 1)
@@ -63,6 +69,9 @@ public partial class PlayerPowerupManager : MonoBehaviour
         Type t = GetPowerupForType(type);
         if (t != null)
         {
+            // Destory current powerup, in case it hasn't been deployed yet.
+            if (Current_Powerup && !Current_Powerup.Deployed) Current_Powerup.Destroy();
+
             Powerup p = (Powerup)gameObject.AddComponent(t);
             Current_Powerup = p;
             Logger.Log("Instantiated powerup module - type: %".M(), type.ToString());

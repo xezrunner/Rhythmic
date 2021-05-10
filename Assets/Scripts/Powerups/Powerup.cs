@@ -10,13 +10,23 @@ public class PowerupAttribute : Attribute
 public class Powerup : MonoBehaviour
 {
     public string Name;
+    public bool Deployed = false; // NonSerialized?
     public int Deploy_Count = 0; // NonSerialized?
 
     public PowerupAttribute Attribute { get { return (PowerupAttribute)System.Attribute.GetCustomAttribute(GetType(), typeof(PowerupAttribute)); } }
 
     public virtual void Deploy()
     {
-        Logger.Log("Powerup deployed! name: % | it has been deployed % times.".TM(), Name, Deploy_Count);
+        Deployed = true;
         ++Deploy_Count;
+
+        Logger.Log("Powerup deployed! name: % | it has been deployed % times.".TM(), Name, Deploy_Count);
+    }
+
+    public virtual void Destroy()
+    {
+        Logger.LogWarning("This procedure should determine whether we have our own GameObject and make decisions based on that!\n".TM(this) + 
+                   "For now, we're only removing the component."); // TODO!
+        Destroy(this);
     }
 }
