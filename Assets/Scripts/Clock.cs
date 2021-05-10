@@ -24,7 +24,7 @@ public class Clock : MonoBehaviour
     public float subbeat;
     public float zPos;
 
-    // F stands for Floor (TODO: ambigious between float?)
+    // F stands for Floor (TODO: ambigious between float?) | TODO: Performance!
     public int Fbar { get { return Mathf.FloorToInt(bar); } } // TODO: Naming confusion for float?
     public int Fbeat { get { return Mathf.FloorToInt(beat); } }
 

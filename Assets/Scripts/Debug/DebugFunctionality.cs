@@ -137,12 +137,19 @@ public static class DebugFunctionality
 
         if (!Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad8Key.wasPressedThisFrame) // DOESN'T WORK FOR SOME REASON
         {
+            TrackStreamer.Instance.AllowRecycling = false;
+
             DEBUG_OffsetSong(SongController.TickToSec(SongController.measureTicks * 4));
-
             Clock.Instance.bar = SongController.SecToTick(Clock.Instance.seconds) / SongController.measureTicks;
-
-            for (int i = Clock.Instance.Fbar; i < Clock.Instance.Fbar + RhythmicGame.HorizonMeasures + 1; i++)
+            for (int i = Clock.Instance.Fbar; i < Clock.Instance.Fbar + RhythmicGame.HorizonMeasures; i++)
                 TrackStreamer.Instance.StreamMeasure(i, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
+
+            /*for (int i = prev_bar; i < prev_bar + 4; ++i) */TrackStreamer.Instance.Clock_OnBar(null, Clock.Fbar);
+
+            TrackStreamer.Instance.AllowRecycling = true;
+            TracksController.RefreshAll();
+
+            //TrackStreamer.Instance.Clock_OnBar(null, Clock.Instance.Fbar);
         }
         else if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad9Key.isPressed)
             DEBUG_OffsetSong(1);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,27 +85,30 @@ public class TrackStreamer : MonoBehaviour
         StreamMeasureRange(0, RhythmicGame.StreamAllMeasuresOnStart ? SongController.songLengthInMeasures : RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
     }
 
-    private void Clock_OnBar(object sender, int e)
+    public void Clock_OnBar(object sender, int e)
     {
         if (SongController.IsSongOver) return;
 
-        if (RhythmicGame.StreamAllMeasuresOnStart) { }
-        else
-            // Stream measures on every bar tick
-            StreamMeasure(e + RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
+        //if (RhythmicGame.StreamAllMeasuresOnStart) { }
+        //else
+        // Stream measures on every bar tick
+        StreamMeasure(e + RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
 
-        // Delete measures behind us | TODO: revise!
-        if (e < 2) return;
+        // Delete measures behind us
+        //if (e < DestroyBehind_Offset) return;
         DestroyBehind(DestroyDelay == 0);
     }
 
     /// Recycling
+    public bool AllowRecycling = true;
+    [NonSerialized] public int DestroyBehind_Offset = 1;
+
     // TODO: Assign a pool of measures</notes> to start off with? (* countin)
     int[] measure_recycle_count, measure_recycle_counter;
     public Measure[][] destroyed_measures;
     public Measure GetDestroyedMeasure(int track_id)
     {
-        if (destroyed_measures[track_id][measure_recycle_counter[track_id]] != null)
+        if (AllowRecycling && destroyed_measures[track_id][measure_recycle_counter[track_id]] != null)
         {
             Measure m = destroyed_measures[track_id][measure_recycle_counter[track_id]];
             destroyed_measures[track_id][measure_recycle_counter[track_id]++] = null;
@@ -117,7 +121,7 @@ public class TrackStreamer : MonoBehaviour
     public Note[] destroyed_notes;
     public Note GetDestroyedNote()
     {
-        if (destroyed_notes[note_recycle_counter] != null)
+        if (AllowRecycling && destroyed_notes[note_recycle_counter] != null)
         {
             Note m = destroyed_notes[note_recycle_counter];
             destroyed_notes[note_recycle_counter++] = null;
@@ -126,32 +130,33 @@ public class TrackStreamer : MonoBehaviour
         else return null;
     }
 
-    int destroyCounter = 0; // Keep track of the last destroyed ID
     public void DestroyBehind(bool immediate = false) => StartCoroutine(_DestroyBehind(immediate));
     IEnumerator _DestroyBehind(bool immediate = false)
     {
-        if (destroyCounter < 0) yield break;
         for (int t = 0; t < TracksController.Tracks_Count; ++t)
         {
             Track track = TracksController.Tracks[t];
-            for (int i = 0; i < Clock.Fbar - 1; ++i)
+            for (int i = 0; i < Clock.Fbar - DestroyBehind_Offset; ++i)
             {
                 var measure = track.Measures[i];
                 if (!measure) continue;
 
-                //Destroy(measure.gameObject);
-                destroyed_measures[t][++measure_recycle_count[t]] = measure;
+                if (AllowRecycling) destroyed_measures[t][++measure_recycle_count[t]] = measure;
+                else Destroy(measure.gameObject);
 
                 // Recycle notes as well:
-                measure.Notes.ForEach(n => { n.ResetComponent(); destroyed_notes[++note_recycle_count] = n; });
-                measure.ResetComponent();
+                if (AllowRecycling)
+                {
+                    measure.Notes.ForEach(n => { n.ResetComponent(); destroyed_notes[++note_recycle_count] = n; });
+                    measure.ResetComponent();
+                }
+                else measure.Notes.ForEach(n => Destroy(n.gameObject));
 
-                track.Measures[destroyCounter] = null;
+                track.Measures[i] = null;
 
                 if (!immediate) yield return new WaitForSeconds(DestroyDelay);
             }
         }
-        destroyCounter = Clock.Fbar - 1;
     }
 
     public void StreamNotes(int id, int trackID, Measure measure, PowerupType powerup_type = PowerupType.None) => StartCoroutine(_StreamNotes(id, trackID, measure, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Notes), powerup_type));
