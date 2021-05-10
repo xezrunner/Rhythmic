@@ -5,7 +5,7 @@ using UnityEngine;
 /// AmpTrackSectionDestruct
 // This is a single measure of a track ** BEING DESTROYED **. Its regular script is removed.
 
-public class AmpTrackSectionDestruct : MonoBehaviour
+public class MeasureDestruct : MonoBehaviour
 {
     Clock Clock { get { return Clock.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
@@ -20,10 +20,10 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     float RotationOnPath; // Note: in Euler angles!
     public Quaternion RotationQuat; // angles
 
-    AmpTrackSection Measure;
-    AmpTrack Track;
+    Measure Measure;
+    Track Track;
     ClipManager ClipManager;
-    AmpTrackDestructFX DestructFX;
+    TrackDestructFX DestructFX;
 
     // TODO TODO TODO:
     // Move this to be on a Track rather than a Measure!
@@ -32,11 +32,11 @@ public class AmpTrackSectionDestruct : MonoBehaviour
     {
         // If not initialized with a measure, get it!
         if (!Measure)
-            Init(GetComponent<AmpTrackSection>());
+            Init(GetComponent<Measure>());
     }
     void Start() { if (!Measure.IsCaptured & !Measure.IsCapturing) Clip(); } // Clip to start (0f)
 
-    public void Init(AmpTrackSection m)
+    public void Init(Measure m)
     {
         Measure = m;
         Track = Measure.Track;

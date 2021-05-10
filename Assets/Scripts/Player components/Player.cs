@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public partial class AmpPlayer : MonoBehaviour
+public partial class Player : MonoBehaviour
 {
-    public static AmpPlayer Instance;
+    public static Player Instance;
     public SongController SongController { get { return SongController.Instance; } }
     public TracksController TracksController { get { return TracksController.Instance; } }
 

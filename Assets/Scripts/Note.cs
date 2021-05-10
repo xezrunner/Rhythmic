@@ -11,10 +11,10 @@ using UnityEngine;
 ///   Level Editor:
 ///     - Quantization of notes: automatically place notes on the beat. Should support different snapping settings as well!
 
-public class AmpNote : MonoBehaviour
+public class Note : MonoBehaviour
 {
     /// References to the contents
-    public GameObject Note;
+    public GameObject Note_Object;
     public GameObject DotLight;
     public MeshRenderer NoteMeshRenderer;
     public MeshRenderer DotLightMeshRenderer;
@@ -36,7 +36,7 @@ public class AmpNote : MonoBehaviour
         set
         {
             if (RhythmicGame.IsTunnelTrackDuplication)
-                foreach (AmpTrack t in Track.TrackTwins)
+                foreach (Track t in Track.TrackTwins)
                 {
                     var n = t.Measures[MeasureID].Notes[ID];
                     if (!n) return;
@@ -72,7 +72,7 @@ public class AmpNote : MonoBehaviour
     /// Global variables and properties
     public int ID;
     public int TotalID;
-    public AmpTrack Track;
+    public Track Track;
     public int TrackID;
     public int MeasureID;
     public NoteType NoteType;
@@ -143,7 +143,7 @@ public class AmpNote : MonoBehaviour
     }
 #endif
 
-    [SerializeField] AmpNoteFX FXCom;
+    [SerializeField] NoteFX FXCom;
 
     /// <param name="twins">Whether to capture twin tracks' notes too.</param>
     public void CaptureNote(NoteCaptureFX fx = NoteCaptureFX.DestructCapture, bool twins = false, bool anim = true)
@@ -154,14 +154,14 @@ public class AmpNote : MonoBehaviour
 
         if (!FXCom) // Add capture effect provider component
         {
-            FXCom = gameObject.AddComponent<AmpNoteFX>();
+            FXCom = gameObject.AddComponent<NoteFX>();
             FXCom.Note = this;
         }
         else FXCom.ResetFX(); // If it already exists, reset the effect
         FXCom.Play(fx); // Set capture effect
 
         if (twins && RhythmicGame.IsTunnelTrackDuplication) // Capture twin tracks' notes too
-            foreach (AmpTrack t in Track.TrackTwins) t.Measures[MeasureID].Notes[ID].CaptureNote(fx, anim: anim);
+            foreach (Track t in Track.TrackTwins) t.Measures[MeasureID].Notes[ID].CaptureNote(fx, anim: anim);
     }
 }
 

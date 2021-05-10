@@ -6,17 +6,17 @@ using UnityEngine.InputSystem;
 public enum HDirection { Left = 0, Right = 1 }
 public enum TrackSwitchForce { None = 0, IgnoreSeeking = 1, Force = 2 }
 
-public class AmpPlayerTrackSwitching : MonoBehaviour
+public class PlayerTrackSwitching : MonoBehaviour
 {
-    public static AmpPlayerTrackSwitching Instance;
+    public static PlayerTrackSwitching Instance;
 
     [Header("Common")]
-    public AmpPlayer Player;
+    public Player Player;
     Clock Clock { get { return Clock.Instance; } }
     Tunnel Tunnel { get { return Tunnel.Instance; } }
     SongController SongController { get { return SongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
-    public AmpPlayerLocomotion Locomotion;
+    public PlayerLocomotion Locomotion;
 
     [Header("Properties")]
     public int StartTrackID = 0; // -1 is clear focus, < -2 does nothing
@@ -57,8 +57,8 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
             int captured_count = 0;
             for (int i = 0; i < tracks_count; i++)
             {
-                AmpTrack t = TracksController.Tracks[i]; if (!t) continue;
-                AmpTrackSection m = t.Measures[bar_to_check];
+                Track t = TracksController.Tracks[i]; if (!t) continue;
+                Measure m = t.Measures[bar_to_check];
                 if (m.IsCaptured || m.IsEmpty /*|| !m.IsEnabled*/) ++captured_count;
             }
 
@@ -70,9 +70,9 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
                 {
                     if (i <= -1 || i >= tracks_count) break;
 
-                    AmpTrack t = TracksController.Tracks[i]; if (!t) continue;
+                    Track t = TracksController.Tracks[i]; if (!t) continue;
                     if (t.Sequences.Count == 0) continue;
-                    AmpTrackSection m = t.Sequences[0]; if (!m) continue;
+                    Measure m = t.Sequences[0]; if (!m) continue;
 
                     // Check the distance:
                     if (target == -1 || m.ID < target) { target = m.ID; t_id = i; }
@@ -91,12 +91,12 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
             if (t_id <= -1 || t_id >= tracks_count) break;
 
             // ----- Seeking checks: ----- //
-            AmpTrack t = TracksController.Tracks[t_id]; if (!t) continue;
+            Track t = TracksController.Tracks[t_id]; if (!t) continue;
             {
                 if (t.Sequences.Count == 0) continue; // No sequences in given track - ignore!
                 if (t.Measures.Count < bar_to_check) continue; // There are less measures than the bar we are trying to check on - ignore!
 
-                AmpTrackSection m = t.Measures[bar_to_check]; if (!m) continue;
+                Measure m = t.Measures[bar_to_check]; if (!m) continue;
                 if (!m.IsEmpty && !m.IsCaptured && m.IsEnabled)
                 {
                     if (RhythmicGame.DebugPlayerTrackSeekEvents) Logger.LogMethod(debug_s + $":: (skipped {i}) | landed at {t_id} (SUCCESS)".AddColor(Colors.Network));
@@ -172,13 +172,13 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
         if (ID == TracksController.CurrentRealTrackID) return;
 
         // Get the track for the ID
-        AmpTrack track = TracksController.Tracks[ID];
+        Track track = TracksController.Tracks[ID];
         if (track is null) Debug.LogErrorFormat("Track switching: Invalid track ID: {0}", ID);
 
         if (RhythmicGame.DebugPlayerTrackSwitchEvents) Debug.LogFormat("Track switching: Switching to track: {0} [{1}] [force: {2}]", ID, track.TrackName != "" ? track.TrackName : track.name, force);
 
         // Forbid FREESTYLE tracks based on policy
-        if (track.Instrument == AmpTrack.InstrumentType.FREESTYLE)
+        if (track.Instrument == Track.InstrumentType.FREESTYLE)
         {
             if (!force && !RhythmicGame.PlayableFreestyleTracks)
             {
@@ -186,7 +186,7 @@ public class AmpPlayerTrackSwitching : MonoBehaviour
                 return;
             }
         }
-        else if (track.Instrument == AmpTrack.InstrumentType.bg_click & !force) return;
+        else if (track.Instrument == Track.InstrumentType.bg_click & !force) return;
 
         Duration = (Mathf.Abs(TracksController.CurrentRealTrackID - ID)) / ((Mathf.Abs(TracksController.CurrentRealTrackID - ID) * Duration_Damp));
         IsAnimating = true;

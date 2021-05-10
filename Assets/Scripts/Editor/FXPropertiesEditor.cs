@@ -24,7 +24,7 @@ class FXPropertiesEditor : Editor
 
         if (GUILayout.Button("Update destruct FX colors"))
         {
-            foreach (AmpTrack t in TracksController.Tracks)
+            foreach (Track t in TracksController.Tracks)
                 t.DestructFX.SetupColors();
         }
 
@@ -33,10 +33,10 @@ class FXPropertiesEditor : Editor
         {
             main.Destruct_ForceEffects = true;
 
-            foreach (AmpTrack t in TracksController.Tracks)
+            foreach (Track t in TracksController.Tracks)
                 t.DestructFX.SetupColors();
 
-            foreach (AmpTrackSection m in TracksController.CurrentTrack.Measures)
+            foreach (Measure m in TracksController.CurrentTrack.Measures)
                 if (m) m.CaptureState = MeasureCaptureState.None;
 
             TracksController.CurrentTrack.CaptureMeasureAmount(Clock.Instance.Fbar, 3);

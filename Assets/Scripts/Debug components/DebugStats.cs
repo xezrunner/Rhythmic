@@ -21,7 +21,7 @@ public class DebugStats : DebugComponent
     WorldSystem WorldSystem { get { return WorldSystem.Instance; } }
     SongController SongController { get { return SongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
-    AmpPlayerLocomotion AmpPlayerLocomotion { get { return AmpPlayerLocomotion.Instance; } }
+    PlayerLocomotion AmpPlayerLocomotion { get { return PlayerLocomotion.Instance; } }
 
     public bool IsSelfDebug = false;
     public bool IsEnabled = true;
@@ -78,9 +78,9 @@ public class DebugStats : DebugComponent
         // Tracks stats:
         {
             string trackNames = $"{(RhythmicGame.IsTunnelMode ? "\nTunnel mode ON  " : "")}";
-            foreach (AmpTrack t in TracksController.Instance.Tracks)
+            foreach (Track t in TracksController.Instance.Tracks)
             {
-                trackNames += $"{t.TrackName.AddColor(t.IsTrackCaptured ? Color.white : AmpTrack.Colors.ColorFromInstrument(t.Instrument) * 1.25f, t.IsTrackFocused ? 1 : 0.40f)}" +
+                trackNames += $"{t.TrackName.AddColor(t.IsTrackCaptured ? Color.white : Track.Colors.ColorFromInstrument(t.Instrument) * 1.25f, t.IsTrackFocused ? 1 : 0.40f)}" +
                                                                                         $"{(t.RealID > TracksController.songTracks.Count ? $"F{t.RealID}" : "")}".AddColor(0.5f) + "  ";
             }
 
@@ -94,8 +94,8 @@ public class DebugStats : DebugComponent
             string s = "Target notes: ";
             for (int i = 0; i < TracksController.targetNotes.Length; i++)
             {
-                AmpNote n = TracksController.targetNotes[i];
-                AmpTrack t = TracksController.MainTracks[i];
+                Note n = TracksController.targetNotes[i];
+                Track t = TracksController.MainTracks[i];
                 if (!n | !t) s += "null ";
                 else
                     s += $"{t.TrackName}: ".AddColor(t.Color) +
@@ -107,10 +107,10 @@ public class DebugStats : DebugComponent
         if (StatsMode > StatsMode.ShortShort)
         {
             string s = "Track sequences: ";
-            foreach (AmpTrack t in TracksController.MainTracks)
+            foreach (Track t in TracksController.MainTracks)
             {
                 s += $"{t.TrackName}: ".AddColor(t.Color) + "[";
-                foreach (AmpTrackSection m in t.Sequences)
+                foreach (Measure m in t.Sequences)
                     s += $" {m.ID}";
                 s += " ]  ";
             }

@@ -2,15 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AmpPlayerInputHandler : MonoBehaviour
+public class PlayerInputHandler : MonoBehaviour
 {
     SongController SongController { get { return SongController.Instance; } }
 
-    public static AmpPlayerInputHandler Instance;
+    public static PlayerInputHandler Instance;
 
-    public AmpPlayer Player;
-    public AmpPlayerTrackSwitching TrackSwitching;
-    public AmpPlayerCatching Catching;
+    public Player Player;
+    public PlayerTrackSwitching TrackSwitching;
+    public PlayerCatching Catching;
 
     // TODO: Can this end up being stuck in certain situations?
     static bool _isActive = true;

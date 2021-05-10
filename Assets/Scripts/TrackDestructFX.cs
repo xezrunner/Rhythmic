@@ -3,7 +3,7 @@ using UnityEngine;
 
 // Track destruction FX
 
-public class AmpTrackDestructFX : MonoBehaviour
+public class TrackDestructFX : MonoBehaviour
 {
     FXProperties FXProps { get { return FXProperties.Instance; } }
 

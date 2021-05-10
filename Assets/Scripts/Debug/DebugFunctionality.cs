@@ -107,7 +107,7 @@ public static class DebugFunctionality
         TracksController.Instance.RefreshTargetNotes(currentTrack ? TracksController.CurrentTrack : null);
         Logger.LogWarning($"Debug: Refreshing with {(currentTrack ? "current" : "no")} track specified!");
     }
-    public static void DEBUG_CaptureMeasureAmount(AmpTrack track = null, int count = 7, int start = -1)
+    public static void DEBUG_CaptureMeasureAmount(Track track = null, int count = 7, int start = -1)
     {
         if (start == -1)
             start = Clock.Fbar;
@@ -124,15 +124,15 @@ public static class DebugFunctionality
 
     public static void DEBUG_OffsetSong(float offset = 2f)
     {
-        AmpPlayerLocomotion.Instance.DistanceTravelled += offset * SongController.posInSec;
+        PlayerLocomotion.Instance.DistanceTravelled += offset * SongController.posInSec;
         SongController.Instance.OffsetSong(offset);
         Clock.Instance.seconds += offset;
     }
     public static bool? prevSmooth;
     public static void HandleSongOffsetting()
     {
-        if (!prevSmooth.HasValue) prevSmooth = AmpPlayerLocomotion.Instance.SmoothEnabled;
-        AmpPlayerLocomotion.Instance.SmoothEnabled = false; // Disable smoothing in Locomotion
+        if (!prevSmooth.HasValue) prevSmooth = PlayerLocomotion.Instance.SmoothEnabled;
+        PlayerLocomotion.Instance.SmoothEnabled = false; // Disable smoothing in Locomotion
         //if (SongController.IsPlaying) SongController.TogglePause();
 
         if (!Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad8Key.wasPressedThisFrame) // DOESN'T WORK FOR SOME REASON
@@ -146,7 +146,7 @@ public static class DebugFunctionality
         }
         else if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad9Key.isPressed)
             DEBUG_OffsetSong(1);
-        else if ((Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad9Key.isPressed) || (AmpPlayerInputHandler.IsActive && Gamepad.current != null && Gamepad.current.dpad.up.isPressed))
+        else if ((Keyboard.current.leftAltKey.isPressed && Keyboard.current.numpad9Key.isPressed) || (PlayerInputHandler.IsActive && Gamepad.current != null && Gamepad.current.dpad.up.isPressed))
             DEBUG_OffsetSong(0.05f);
         else if (Keyboard.current.leftShiftKey.isPressed && Keyboard.current.numpad9Key.isPressed)
             DEBUG_OffsetSong(2);
@@ -157,7 +157,7 @@ public static class DebugFunctionality
             DEBUG_OffsetSong(-0.1f);
 
         else // Restore smoothing in Locomotion
-            AmpPlayerLocomotion.Instance.SmoothEnabled = prevSmooth.Value;
+            PlayerLocomotion.Instance.SmoothEnabled = prevSmooth.Value;
     }
     public static void DEBUG_HandleTimescale()
     {

@@ -2,12 +2,12 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class AmpPlayerLocomotion : MonoBehaviour
+public class PlayerLocomotion : MonoBehaviour
 {
-    public static AmpPlayerLocomotion Instance;
+    public static PlayerLocomotion Instance;
 
     [Header("Common")]
-    public AmpPlayer Player;
+    public Player Player;
     public PathCreator PathCreator;
     public VertexPath Path;
     public Tunnel Tunnel { get { return Tunnel.Instance; } }
@@ -153,13 +153,13 @@ public class AmpPlayerLocomotion : MonoBehaviour
 
             // Live note capture glow thing
             // TODO: Improve performance!
-            foreach (AmpTrack t in TracksController.Tracks)
+            foreach (Track t in TracksController.Tracks)
             {
                 if (t == TracksController.CurrentTrack && (!t.CurrentMeasure.IsEmpty & !t.CurrentMeasure.IsCaptured)) continue;
-                foreach (AmpTrackSection s in t.Measures)
+                foreach (Measure s in t.Measures)
                 {
                     if (s is null) continue;
-                    foreach (AmpNote n in s.Notes)
+                    foreach (Note n in s.Notes)
                     {
                         if ((int)n.Distance == (int)DistanceTravelled + LiveCaptDist & n.IsCaptured)
                             n.CaptureNote(NoteCaptureFX.DotLightEffect);

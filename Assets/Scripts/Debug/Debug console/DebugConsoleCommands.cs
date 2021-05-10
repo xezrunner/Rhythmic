@@ -239,7 +239,7 @@ public partial class DebugConsole
     TracksController TracksController { get { return TracksController.Instance; } }
 
     /// Track switching
-    void switch_to_track(string[] args) => AmpPlayerTrackSwitching.Instance.SwitchToTrack(int.Parse(args[0]));
+    void switch_to_track(string[] args) => PlayerTrackSwitching.Instance.SwitchToTrack(int.Parse(args[0]));
 
     /// Track capturing
     void capture_measure_range(string[] args) => TracksController.CaptureMeasureRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());

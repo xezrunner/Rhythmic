@@ -5,7 +5,7 @@ using UnityEngine;
 public enum CatchResultType { UNKNOWN = 0, Success = 1, Empty = 2, Ignore = 3, Miss = 4, Error = 5 }
 public struct CatchResult
 {
-    public CatchResult(Catcher c, CatchResultType t, AmpNote n)
+    public CatchResult(Catcher c, CatchResultType t, Note n)
     {
         resultType = t;
         catcher = c;
@@ -14,18 +14,18 @@ public struct CatchResult
 
     public CatchResultType resultType;
     public Catcher catcher;
-    public AmpNote note;
+    public Note note;
 }
 
-public class AmpPlayerCatching : MonoBehaviour
+public class PlayerCatching : MonoBehaviour
 {
-    public static AmpPlayerCatching Instance;
+    public static PlayerCatching Instance;
 
     Clock Clock { get { return Clock.Instance; } }
     SongController SongController { get { return SongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
-    public AmpPlayer Player;
-    public AmpPlayerLocomotion Locomotion;
+    public Player Player;
+    public PlayerLocomotion Locomotion;
 
     public Transform CatcherContainer; // This will automatically populate the Catchers list!
     public GameObject CatcherVisuals;
@@ -63,7 +63,7 @@ public class AmpPlayerCatching : MonoBehaviour
         TracksController.Catching = this;
 
         // Set up notesToCatch array
-        TracksController.targetNotes = new AmpNote[TracksController.MainTracks.Length];
+        TracksController.targetNotes = new Note[TracksController.MainTracks.Length];
 
         // Slop visualization:
         IsSlopVisualization = _isSlopVisualization;
@@ -88,7 +88,7 @@ public class AmpPlayerCatching : MonoBehaviour
             for (int i = 0; i < 3; ++i)
             {
                 GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                obj.transform.position = Catchers[i].transform.position + Catchers[i].transform.right * AmpTrack.GetLocalXPosFromLaneType((LaneSide)i);
+                obj.transform.position = Catchers[i].transform.position + Catchers[i].transform.right * Track.GetLocalXPosFromLaneType((LaneSide)i);
                 obj.transform.rotation = Catchers[i].transform.rotation;
                 obj.transform.localScale = new Vector3(0.5f, 0.5f, SongController.posInMs * SongController.SlopMs);
                 obj.transform.parent = Catchers[i].transform;
@@ -112,7 +112,7 @@ public class AmpPlayerCatching : MonoBehaviour
         // TEMP | TODO: Move elsewhere? (partially?)
         if (Clock.Fbar >= 4) // TODO: countin
         {
-            foreach (AmpTrack t in TracksController.MainTracks)
+            foreach (Track t in TracksController.MainTracks)
             {
                 if (t.IsTrackCaptured)
                 {
@@ -129,18 +129,18 @@ public class AmpPlayerCatching : MonoBehaviour
         // *** SLOP ***
         float dist = Locomotion.DistanceTravelled;
 
-        AmpTrackSection currentMeasure = TracksController.CurrentMeasure;
+        Measure currentMeasure = TracksController.CurrentMeasure;
         if (!currentMeasure.IsEmpty & !currentMeasure.IsCaptured)
         {
-            AmpNote note = TracksController.targetNotes[TracksController.CurrentTrackID];
+            Note note = TracksController.targetNotes[TracksController.CurrentTrackID];
             HandleSlop(dist, note);
         }
         else
-            foreach (AmpNote note in TracksController.targetNotes)
+            foreach (Note note in TracksController.targetNotes)
                 if (note) HandleSlop(dist, note);
     }
 
-    public void HandleSlop(float dist, AmpNote note)
+    public void HandleSlop(float dist, Note note)
     {
         if (!note) { Debug.LogWarning($"Catching/HandleSlop(): No note was passed!"); HandleResult(new CatchResult()); lastIgnoreBar = Clock.Fbar; return; }
 
@@ -166,7 +166,7 @@ public class AmpPlayerCatching : MonoBehaviour
 
             case CatchResultType.Success:
                 {
-                    AmpNote note = result.note;
+                    Note note = result.note;
 
                     note.CaptureNote(NoteCaptureFX.CatcherCapture, true);
 

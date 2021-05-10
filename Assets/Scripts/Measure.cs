@@ -7,7 +7,7 @@ public enum MeasureCaptureState { None = 0, Capturing = 1, Captured = 2 }
 /// AmpTrackSection (previously Measure)
 /// This is a single measure of a track.
 
-public class AmpTrackSection : MonoBehaviour
+public class Measure : MonoBehaviour
 {
     public VertexPath Path;
 
@@ -23,15 +23,15 @@ public class AmpTrackSection : MonoBehaviour
     public GameObject ClipPlane;
 
     [Header("Capture animation content refs")]
-    public AmpTrackDestructFX DestructFX;
+    public TrackDestructFX DestructFX;
 
     [Header("Variables")]
-    public AmpTrack Track; // The track this measure belongs to
-    public List<AmpNote> Notes = new List<AmpNote>();
+    public Track Track; // The track this measure belongs to
+    public List<Note> Notes = new List<Note>();
 
     [Header("Properties")]
     public int ID;
-    public AmpTrack.InstrumentType Instrument;
+    public Track.InstrumentType Instrument;
 
     public float Length = 32f; // meters
     public Vector3 Position; // meters
@@ -94,7 +94,7 @@ public class AmpTrackSection : MonoBehaviour
         Notes.ForEach(n => n.IsEnabled = false);
         // TODO: Disable active surface! (IsFocused / IsSequence to false?)
 
-        foreach (AmpTrack t in Track.TrackTwins)
+        foreach (Track t in Track.TrackTwins)
             if (/*ID > 0 && */ ID < t.Measures.Count && t.Measures[ID]) t.Measures[ID].SetIsEnabled(value);
     }
 

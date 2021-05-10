@@ -3,7 +3,7 @@ using UnityEngine;
 
 public enum HealthOption { Normal = 0, Invincible = 1, Off = 2}
 
-public partial class AmpPlayer : MonoBehaviour
+public partial class Player : MonoBehaviour
 {
     [Header("Health")]
     public HealthOption HealthMode = HealthOption.Normal;

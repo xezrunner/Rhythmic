@@ -2,7 +2,7 @@
 
 // Generating measures and notes in an AmpTrack
 
-public partial class AmpTrack
+public partial class Track
 {
     TrackStreamer TrackStreamer { get { return TrackStreamer.Instance; } }
 
@@ -10,13 +10,13 @@ public partial class AmpTrack
     public GameObject TrackSectionPrefab;
     public GameObject NotePrefab;
 
-    public static AmpTrack CreateTrack(int ID, string name, InstrumentType instrument, int realID, bool isCloneTrack, int trackSetID)
+    public static Track CreateTrack(int ID, string name, InstrumentType instrument, int realID, bool isCloneTrack, int trackSetID)
     {
         var obj = Instantiate(TracksController.Instance.TrackPrefab, TracksController.Instance.gameObject.transform);
         obj.name = name + (isCloneTrack ? $"F{realID}" : "");
 
         // Add Track component:
-        AmpTrack com = obj.GetComponent<AmpTrack>();
+        Track com = obj.GetComponent<Track>();
 
         com.ID = ID;
         com.RealID = realID;
@@ -28,14 +28,14 @@ public partial class AmpTrack
 
         return com;
     }
-    public AmpTrackSection CreateMeasure(MetaMeasure meta)
+    public Measure CreateMeasure(MetaMeasure meta)
     {
-        AmpTrackSection measure = TrackStreamer.GetDestroyedMeasure(RealID);
+        Measure measure = TrackStreamer.GetDestroyedMeasure(RealID);
         GameObject obj = measure ? measure.gameObject : null;
         if (!measure) // If we didn't get a recycle-able measure back, create a new one!
         {
             obj = Instantiate(TrackSectionPrefab);
-            measure = obj.GetComponent<AmpTrackSection>();
+            measure = obj.GetComponent<Measure>();
         }
         obj.transform.parent = MeasureContainer;
 
@@ -65,15 +65,15 @@ public partial class AmpTrack
         Measures.Add(measure);
         return measure;
     }
-    public AmpNote CreateNote(MetaNote meta, AmpTrackSection measure = null, int id = 0, bool lastNote = false)
+    public Note CreateNote(MetaNote meta, Measure measure = null, int id = 0, bool lastNote = false)
     {
-        AmpNote note = TrackStreamer.GetDestroyedNote();
+        Note note = TrackStreamer.GetDestroyedNote();
         GameObject obj = note ? note.gameObject : null;
         if (!note)
         {
             obj = Instantiate(NotePrefab);
             if (measure) obj.transform.parent = measure.NotesContainer;
-            note = obj.GetComponent<AmpNote>();
+            note = obj.GetComponent<Note>();
         }
 
         Vector3 offset = TunnelPos - Tunnel.center;

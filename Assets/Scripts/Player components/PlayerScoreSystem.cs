@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public partial class AmpPlayer : MonoBehaviour
+public partial class Player : MonoBehaviour
 {
     [Header("Score system")]
     public int Score;

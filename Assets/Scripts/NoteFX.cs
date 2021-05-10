@@ -13,10 +13,10 @@ public enum NoteCaptureFX
     DestructCapture = _DestructEffect | DotLightEffect
 }
 
-public class AmpNoteFX : MonoBehaviour
+public class NoteFX : MonoBehaviour
 {
     FXProperties FXProps { get { return FXProperties.Instance; } }
-    public AmpNote Note;
+    public Note Note;
 
     [Header("References to contents")]
     public Animation BlastFX_Animator;
@@ -75,10 +75,10 @@ public class AmpNoteFX : MonoBehaviour
         {
             // TODO: TEMP: have blast move with catcher! (hacky)
             float offset = (Note.Lane == LaneSide.Center) ? 0f : (Note.Lane == LaneSide.Left ? -1.18f : 1.18f);
-            Vector3 normal = (WorldSystem.Instance.Path != null) ? /*(WorldSystem.Instance.Path.GetNormalAtDistance(Mathf.Clamp(AmpPlayerLocomotion.Instance.DistanceTravelled, -10000, WorldSystem.Instance.Path.length - 0.001f)))*/AmpPlayerCatching.Instance.CatcherVisuals.transform.right : Vector3.right;
+            Vector3 normal = (WorldSystem.Instance.Path != null) ? /*(WorldSystem.Instance.Path.GetNormalAtDistance(Mathf.Clamp(AmpPlayerLocomotion.Instance.DistanceTravelled, -10000, WorldSystem.Instance.Path.length - 0.001f)))*/PlayerCatching.Instance.CatcherVisuals.transform.right : Vector3.right;
             //CatcherHit_Particles.transform.position = AmpPlayer.Instance.transform.position + (normal * offset);
-            BlastFX_Animator.gameObject.transform.position = AmpPlayerCatching.Instance.CatcherVisuals.transform.position + (normal * offset);
-            BlastFX_Animator.gameObject.transform.rotation = AmpPlayerCatching.Instance.CatcherVisuals.transform.rotation;
+            BlastFX_Animator.gameObject.transform.position = PlayerCatching.Instance.CatcherVisuals.transform.position + (normal * offset);
+            BlastFX_Animator.gameObject.transform.rotation = PlayerCatching.Instance.CatcherVisuals.transform.rotation;
 
             if (fraction > 1f)
             {

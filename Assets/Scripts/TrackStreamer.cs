@@ -63,13 +63,13 @@ public class TrackStreamer : MonoBehaviour
     void Start()
     {
         // ---- initialize recycle arrays -----
-        destroyed_measures = new AmpTrackSection[TracksController.Tracks_Count][];
-        for (int i = 0; i < TracksController.Tracks_Count; ++i) destroyed_measures[i] = new AmpTrackSection[SongController.songLengthInMeasures];
+        destroyed_measures = new Measure[TracksController.Tracks_Count][];
+        for (int i = 0; i < TracksController.Tracks_Count; ++i) destroyed_measures[i] = new Measure[SongController.songLengthInMeasures];
 
         measure_recycle_count = new int[TracksController.Tracks_Count]; for (int i = 0; i < TracksController.Tracks_Count; ++i) measure_recycle_count[i] = -1;
         measure_recycle_counter = new int[TracksController.Tracks_Count];
 
-        destroyed_notes = new AmpNote[SongController.total_note_count * RhythmicGame.TunnelTrackDuplicationNum]; // TODO!!! Total note count of song!!
+        destroyed_notes = new Note[SongController.total_note_count * RhythmicGame.TunnelTrackDuplicationNum]; // TODO!!! Total note count of song!!
         Logger.Log($"TrackStreamer: Allocated {SongController.total_note_count * RhythmicGame.TunnelTrackDuplicationNum} entries for recyclable notes.");
 
         // ------ SET GARBAGE COLLECTION TO MANUAL ------ //
@@ -97,12 +97,12 @@ public class TrackStreamer : MonoBehaviour
     /// Recycling
     // TODO: Assign a pool of measures</notes> to start off with? (* countin)
     int[] measure_recycle_count, measure_recycle_counter;
-    public AmpTrackSection[][] destroyed_measures;
-    public AmpTrackSection GetDestroyedMeasure(int track_id)
+    public Measure[][] destroyed_measures;
+    public Measure GetDestroyedMeasure(int track_id)
     {
         if (destroyed_measures[track_id][measure_recycle_counter[track_id]] != null)
         {
-            AmpTrackSection m = destroyed_measures[track_id][measure_recycle_counter[track_id]];
+            Measure m = destroyed_measures[track_id][measure_recycle_counter[track_id]];
             destroyed_measures[track_id][measure_recycle_counter[track_id]++] = null;
             return m;
         }
@@ -110,12 +110,12 @@ public class TrackStreamer : MonoBehaviour
     }
 
     int note_recycle_count = -1, note_recycle_counter = 0;
-    public AmpNote[] destroyed_notes;
-    public AmpNote GetDestroyedNote()
+    public Note[] destroyed_notes;
+    public Note GetDestroyedNote()
     {
         if (destroyed_notes[note_recycle_counter] != null)
         {
-            AmpNote m = destroyed_notes[note_recycle_counter];
+            Note m = destroyed_notes[note_recycle_counter];
             destroyed_notes[note_recycle_counter++] = null;
             return m;
         }
@@ -129,7 +129,7 @@ public class TrackStreamer : MonoBehaviour
         if (destroyCounter < 0) yield break;
         for (int t = 0; t < TracksController.Tracks_Count; ++t)
         {
-            AmpTrack track = TracksController.Tracks[t];
+            Track track = TracksController.Tracks[t];
             for (int i = 0; i < Clock.Fbar - 1; ++i)
             {
                 var measure = track.Measures[i];
@@ -150,10 +150,10 @@ public class TrackStreamer : MonoBehaviour
         destroyCounter = Clock.Fbar - 1;
     }
 
-    public void StreamNotes(int id, int trackID, AmpTrackSection measure) => StartCoroutine(_StreamNotes(id, trackID, measure, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Notes)));
-    IEnumerator _StreamNotes(int id, int trackID, AmpTrackSection measure, bool immediate = false)
+    public void StreamNotes(int id, int trackID, Measure measure) => StartCoroutine(_StreamNotes(id, trackID, measure, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Notes)));
+    IEnumerator _StreamNotes(int id, int trackID, Measure measure, bool immediate = false)
     {
-        AmpTrack track = TracksController.Tracks[trackID];
+        Track track = TracksController.Tracks[trackID];
 
         MetaNote[] measureNotes = SongController.songNotes[track.ID, id];
         //if (measureNotes == null || measureNotes.Length == 0)
@@ -164,7 +164,7 @@ public class TrackStreamer : MonoBehaviour
             MetaNote meta_note = measureNotes[i];
             meta_note.IsCaptured = measure.IsCaptured;
 
-            AmpNote note = track.CreateNote(meta_note, measure, i, false);
+            Note note = track.CreateNote(meta_note, measure, i, false);
             // Target note from meta
             if (meta_note.IsTargetNote && track.Sequence_Start_IDs[0] == meta_note.MeasureID)
                 TracksController.SetTargetNote(meta_note.TrackID, note);
@@ -187,7 +187,7 @@ public class TrackStreamer : MonoBehaviour
         {
             if (id >= SongController.songLengthInMeasures) { IsStreaming = false; yield break; }
             MetaMeasure meta = metaMeasures[trackID % TracksController.MainTracks.Length, id];
-            AmpTrack track = TracksController.Tracks[trackID];
+            Track track = TracksController.Tracks[trackID];
 
             // Error checking:
             {
@@ -202,7 +202,7 @@ public class TrackStreamer : MonoBehaviour
             }
 
             // Create section!
-            AmpTrackSection measure = track.CreateMeasure(meta);
+            Measure measure = track.CreateMeasure(meta);
             if (track.Sequence_Start_IDs.Contains(meta.ID) && meta.ID >= track.Measures[track.Measures.Count - 1].ID) // TODO: Performance!
             {
 #if false

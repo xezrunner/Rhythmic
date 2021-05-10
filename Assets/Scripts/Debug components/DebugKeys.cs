@@ -23,7 +23,7 @@ public partial class DebugKeys : DebugComponent
 
         if (Input.GetKeyDown(KeyCode.KeypadDivide))
         {
-            AmpTrack t = TracksController.CurrentTrack;
+            Track t = TracksController.CurrentTrack;
             string s = $"Sequences [{t.TrackName}]: ";
             foreach (var m in t.Sequences)
                 s += $"({m.ID}); ";
@@ -151,15 +151,15 @@ public partial class DebugKeys : DebugComponent
         // Enable IsPlaying property in Locomotion
         if (Keyboard.current.shiftKey.isPressed && Keyboard.current.numpadMinusKey.wasPressedThisFrame)
         {
-            AmpPlayerLocomotion.Instance.IsPlaying = !AmpPlayerLocomotion.Instance.IsPlaying;
-            Logger.Log($"DEBUG: Locomotion IsPlaying: {AmpPlayerLocomotion.Instance.IsPlaying}");
+            PlayerLocomotion.Instance.IsPlaying = !PlayerLocomotion.Instance.IsPlaying;
+            Logger.Log($"DEBUG: Locomotion IsPlaying: {PlayerLocomotion.Instance.IsPlaying}");
         }
 
         // Quick track switching
         if (Input.GetKeyDown(KeyCode.Q)) // First track (0)
-            AmpPlayerTrackSwitching.Instance.SwitchToTrack(0, true);
+            PlayerTrackSwitching.Instance.SwitchToTrack(0, true);
         else if (Input.GetKeyDown(KeyCode.P)) // Last track
-            AmpPlayerTrackSwitching.Instance.SwitchToTrack(TracksController.Instance.Tracks.Length - 1, true);
+            PlayerTrackSwitching.Instance.SwitchToTrack(TracksController.Instance.Tracks.Length - 1, true);
 
         // Timescale
         DEBUG_HandleTimescale();

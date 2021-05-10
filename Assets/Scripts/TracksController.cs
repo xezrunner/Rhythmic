@@ -23,7 +23,7 @@ public class TracksController : MonoBehaviour
 
     [Header("Common")]
     public Tunnel Tunnel;
-    public AmpPlayerCatching Catching;
+    public PlayerCatching Catching;
 
     [Header("Prefabs")]
     public GameObject TrackPrefab; // Change to public property?
@@ -32,20 +32,20 @@ public class TracksController : MonoBehaviour
     [Header("Properties")]
     public int CurrentRealTrackID = -1; // This is the RealID of the track that the player is currently on | -1 is none
     public int CurrentTrackID = -1; // This is the ID of the track that the player is currently on | -1 is none
-    public AmpTrack CurrentTrack; // The track that the player is currently on
-    public AmpTrackSection CurrentMeasure { get { return CurrentTrack.CurrentMeasure; } }
+    public Track CurrentTrack; // The track that the player is currently on
+    public Measure CurrentMeasure { get { return CurrentTrack.CurrentMeasure; } }
 
     public float LocalEmission = 1.5f; // Local material
     public float GlobalEmission = 2f; // Global material
 
     [Header("Variables")]
-    public AmpTrack[] MainTracks;
-    public AmpTrack[] Tracks;
+    public Track[] MainTracks;
+    public Track[] Tracks;
     public int MainTracks_Count = 0;
     public int Tracks_Count = 0;
 
-    public AmpTrack[][] TrackSets;
-    public AmpTrack[] CurrentTrackSet;
+    public Track[][] TrackSets;
+    public Track[] CurrentTrackSet;
     public int CurrentTrackSetID;
     public List<string> songTracks = new List<string>();
 
@@ -78,10 +78,10 @@ public class TracksController : MonoBehaviour
 
         foreach (string s in SongController.songTracks)
         {
-            var inst = AmpTrack.InstrumentFromString(s);
+            var inst = Track.InstrumentFromString(s);
 
-            if (inst == AmpTrack.InstrumentType.FREESTYLE & !RhythmicGame.PlayableFreestyleTracks) continue;
-            if (inst == AmpTrack.InstrumentType.bg_click) continue;
+            if (inst == Track.InstrumentType.FREESTYLE & !RhythmicGame.PlayableFreestyleTracks) continue;
+            if (inst == Track.InstrumentType.bg_click) continue;
             songTracks.Add(s);
         }
 
@@ -133,7 +133,7 @@ public class TracksController : MonoBehaviour
 
     int seeker_lastTrackID = -1;
     int seeker_lastSequenceID = -1;
-    void DeformSeeker(AmpTrackSection m, int count = 1)
+    void DeformSeeker(Measure m, int count = 1)
     {
         if (!SeekerEnabled) { Seeker.SetActive(false); return; }
 
@@ -197,7 +197,7 @@ public class TracksController : MonoBehaviour
         else clipping_lastVisualControlState = false;
 
         // Calculate clip plane offset based on measure draw distance
-        float dist = AmpPlayerLocomotion.Instance.HorizonLength;
+        float dist = PlayerLocomotion.Instance.HorizonLength;
 
         Vector3 planePos = PathTools.GetPositionOnPath(PathTools.Path, dist);
         Quaternion planeRot = PathTools.GetRotationOnPath(PathTools.Path, dist, new Vector3(90, 0, 0));
@@ -210,7 +210,7 @@ public class TracksController : MonoBehaviour
     void Update()
     {
         // Clipmanager update
-        if (SongController.IsPlaying || AmpPlayerLocomotion.Instance.IsPlaying) LengthClip();
+        if (SongController.IsPlaying || PlayerLocomotion.Instance.IsPlaying) LengthClip();
     }
 
     /// Events
@@ -229,13 +229,13 @@ public class TracksController : MonoBehaviour
     void CreateTracks()
     {
         // Initialize Tracks arrays:
-        Tracks = new AmpTrack[songTracks.Count * RhythmicGame.TunnelTrackDuplicationNum];
-        MainTracks = new AmpTrack[songTracks.Count];
+        Tracks = new Track[songTracks.Count * RhythmicGame.TunnelTrackDuplicationNum];
+        MainTracks = new Track[songTracks.Count];
 
         // Initialize Track sets arrays:
-        TrackSets = new AmpTrack[RhythmicGame.TunnelTrackDuplicationNum][];
+        TrackSets = new Track[RhythmicGame.TunnelTrackDuplicationNum][];
         for (int i = 0; i < TrackSets.Length; i++)
-            TrackSets[i] = new AmpTrack[songTracks.Count];
+            TrackSets[i] = new Track[songTracks.Count];
 
         // Create tracks - populate Tracks array:
         int counter = 0;
@@ -245,9 +245,9 @@ public class TracksController : MonoBehaviour
             {
                 string trackName = songTracks[x];
                 bool isCloneTrack = i > 0;
-                var inst = AmpTrack.InstrumentFromString(trackName);
+                var inst = Track.InstrumentFromString(trackName);
 
-                var track = AmpTrack.CreateTrack(x, trackName, inst, counter, isCloneTrack, i);
+                var track = Track.CreateTrack(x, trackName, inst, counter, isCloneTrack, i);
 
                 Tracks[counter] = track;
                 if (i == 0) MainTracks[counter] = track;
@@ -265,8 +265,8 @@ public class TracksController : MonoBehaviour
             {
                 if (z >= MainTracks.Length) z = 0; // Reset main track counter
 
-                AmpTrack t = Tracks[i];
-                t.TrackTwins = new AmpTrack[duplCount - 1];
+                Track t = Tracks[i];
+                t.TrackTwins = new Track[duplCount - 1];
                 for (int x = 0, y = 0; x < TrackSets.Length; x++) // x: 3
                 {
                     // Assign those tracksets' tracks, which are not identical to current track set (ignore self)
@@ -282,12 +282,12 @@ public class TracksController : MonoBehaviour
 
     /// Track states
     public void SetTrackState(int id, bool state) => SetTrackState(Tracks[id], state);
-    public void SetTrackState(AmpTrack track, bool state) => track.IsEnabled = state;
+    public void SetTrackState(Track track, bool state) => track.IsEnabled = state;
 
     public void DisableCurrentMeasures(bool current = false, int id = -1)
     {
         int measure = (id == -1) ? Clock.Fbar : id;
-        foreach (AmpTrack t in MainTracks)
+        foreach (Track t in MainTracks)
         {
             if (!current && t.ID == CurrentTrack.ID) continue; // Ignore current track
             t.Measures[measure].SetIsEnabled(false);
@@ -298,8 +298,8 @@ public class TracksController : MonoBehaviour
     /// Sequences
 
     // This is an array of upcoming notes that the player is supposed to catch
-    public AmpNote[] targetNotes;
-    public void SetTargetNote(int track_id, AmpNote note)
+    public Note[] targetNotes;
+    public void SetTargetNote(int track_id, Note note)
     {
         targetNotes[track_id] = note;
         //note.Color = Color.green; // TODO: TEMP!
@@ -312,12 +312,12 @@ public class TracksController : MonoBehaviour
     /// In case we're already playing a track, this will only update the current track's upcoming notes.
     /// </summary>
     /// <param name="c_track">Giving a track will skip forward a sequence amount of measures for the other tracks.</param>
-    public void RefreshTargetNotes(AmpTrack c_track = null)
+    public void RefreshTargetNotes(Track c_track = null)
     {
         // Find notes:
         for (int t = 0; t < MainTracks_Count; t++)
         {
-            AmpTrack track = MainTracks[t];
+            Track track = MainTracks[t];
             if (c_track && t == c_track.ID) continue; // Ignore current track
 
             if (track.Sequences.Count == 0 || track.Sequences[0].Notes.Count == 0) // No sequences or no notes in them - META
@@ -341,13 +341,13 @@ public class TracksController : MonoBehaviour
         }
     }
     /// <summary>Finds the next targetNote for a given track.</summary>
-    public void IncrementTargetNote(AmpTrack track)
+    public void IncrementTargetNote(Track track)
     {
         int target_id = 0;
         for (int i = 0; i < track.Sequences.Count; i++)
         {
-            AmpTrackSection m = track.Sequences[i];
-            AmpNote current_note = targetNotes[track.ID];
+            Measure m = track.Sequences[i];
+            Note current_note = targetNotes[track.ID];
             target_id = current_note.ID + 1;
 
             if (target_id >= m.Notes.Count)
@@ -358,7 +358,7 @@ public class TracksController : MonoBehaviour
                 track.RemoveSequence(track.Sequences[i - 1]); // Remove previous sequence so that it no longer counts
             }
 
-            AmpNote target_note = m.Notes[target_id];
+            Note target_note = m.Notes[target_id];
             if (!target_note) Logger.LogMethodE($"target_note was null! - target_id: {target_id}", this);
             else
             {
@@ -371,7 +371,7 @@ public class TracksController : MonoBehaviour
         {
             for (int i = 0; i < track.Sequences.Count; i++)
             {
-                AmpTrackSection m = track.Sequences[i];
+                Measure m = track.Sequences[i];
                 for (int x = 0; x < m.Notes.Count; x++)
                     if (!m.Notes[x].IsCaptured) SetTargetNote(i, m.Notes[x]);
             }
@@ -382,13 +382,13 @@ public class TracksController : MonoBehaviour
     /// Finds the next sequences in all tracks. <br/>
     /// Populates the Sequences list in AmpTracks with measures.
     /// </summary>
-    public void RefreshSequences(AmpTrack c_track = null)
+    public void RefreshSequences(Track c_track = null)
     {
         int measure_offset = (c_track) ? RhythmicGame.SequenceAmount : 0;
 
         for (int t = 0; t < MainTracks_Count; t++)
         {
-            AmpTrack track = MainTracks[t];
+            Track track = MainTracks[t];
             if (c_track && t == c_track.ID) continue; // Ignore current track
 
             track.ClearSequences();
@@ -410,7 +410,7 @@ public class TracksController : MonoBehaviour
                     //Logger.LogMethod($"META: t: {t}, start_id: {i} - {i + RhythmicGame.SequenceAmount - 1}", this);
                     break;
                 }
-                AmpTrackSection measure = track.Measures[i];
+                Measure measure = track.Measures[i];
                 if (measure.IsEmpty || measure.IsCaptured || !measure.IsEnabled) // Not eligible!
                     if (total >= 1) break;
                     else continue;
@@ -423,7 +423,7 @@ public class TracksController : MonoBehaviour
         RefreshSeeker();
     }
 
-    public void RefreshAll(AmpTrack c_track = null)
+    public void RefreshAll(Track c_track = null)
     {
         RefreshSequences(c_track);
         RefreshTargetNotes(c_track);
@@ -448,7 +448,7 @@ public class TracksController : MonoBehaviour
     /// Switches the track. <br/>
     /// This handles setting the new track ID and preparing the tracks for their focus states.
     /// </summary>
-    public void SwitchToTrack(AmpTrack track)
+    public void SwitchToTrack(Track track)
     {
         // Set track variables
         CurrentTrack = track;
@@ -461,7 +461,7 @@ public class TracksController : MonoBehaviour
         int[] eventArgs = new int[2] { CurrentTrackID, track.RealID };
 
         // Handle focus states
-        foreach (AmpTrack t in MainTracks)
+        foreach (Track t in MainTracks)
             t.SetIsTrackFocused(track.RealID); // Focused state is whether t's ID is the same as the requested track's ID
 
         if (RhythmicGame.DebugPlayerTrackSwitchEvents)
@@ -483,13 +483,13 @@ public class TracksController : MonoBehaviour
     /// <param name="end">Last Measure ID to capture</param>
     public void CaptureMeasureRange(int start, int end, int id)
     {
-        foreach (AmpTrack[] set in TrackSets)
+        foreach (Track[] set in TrackSets)
             StartCoroutine(_CaptureMeasureRange(start, end, set[id]));
     }
-    public void CaptureMeasureRange(int start, int end, AmpTrack track) => CaptureMeasureRange(start, end, track.ID);
-    public void CaptureMeasureRange(int start, int end, AmpTrack[] tracks)
+    public void CaptureMeasureRange(int start, int end, Track track) => CaptureMeasureRange(start, end, track.ID);
+    public void CaptureMeasureRange(int start, int end, Track[] tracks)
     {
-        foreach (AmpTrack t in tracks)
+        foreach (Track t in tracks)
             CaptureMeasureRange(start, end, t);
 
         RefreshSequences();
@@ -501,11 +501,11 @@ public class TracksController : MonoBehaviour
     /// </summary>
     /// <param name="start">Measure ID to start capturing from</param>
     /// <param name="amount">Amount of measures to capture from starting point onward</param>
-    public void CaptureMeasureAmount(int start, int amount, AmpTrack track) => CaptureMeasureRange(start, start + amount, track);
+    public void CaptureMeasureAmount(int start, int amount, Track track) => CaptureMeasureRange(start, start + amount, track);
     public void CaptureMeasureAmount(int start, int amount, int trackID) => CaptureMeasureRange(start, start + amount, MainTracks[trackID]);
-    public void CaptureMeasureAmount(int start, int amount, AmpTrack[] tracks) => CaptureMeasureRange(start, start + amount, tracks);
+    public void CaptureMeasureAmount(int start, int amount, Track[] tracks) => CaptureMeasureRange(start, start + amount, tracks);
 
-    IEnumerator _CaptureMeasureRange(int start, int end, AmpTrack track)
+    IEnumerator _CaptureMeasureRange(int start, int end, Track track)
     {
         if (RhythmicGame.DebugTrackCapturingEvents) Debug.Log($"CAPTURE: started | start: {start}, end: {end}, track: {track.TrackName} | {track.RealID} ");
 
@@ -522,7 +522,7 @@ public class TracksController : MonoBehaviour
                 TrackStreamer.metaMeasures[track.ID, i].IsCaptured = true;
                 continue;
             }
-            AmpTrackSection m = track.Measures[i];
+            Measure m = track.Measures[i];
             if (!m) continue;
 
             if (m.CaptureState != MeasureCaptureState.Captured)

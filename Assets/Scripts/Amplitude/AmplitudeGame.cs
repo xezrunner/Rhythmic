@@ -2,7 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
-using static AmpTrack;
+using static Track;
 
 public static class AmplitudeGame
 {

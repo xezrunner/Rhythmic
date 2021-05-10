@@ -12,9 +12,9 @@ public class Catcher : MonoBehaviour
     TracksController TracksController { get { return TracksController.Instance; } }
 
     [Header("Automatically assigned from Catching")]
-    public AmpPlayer Player;
-    public AmpPlayerLocomotion Locomotion;
-    public AmpPlayerCatching Catching;
+    public Player Player;
+    public PlayerLocomotion Locomotion;
+    public PlayerCatching Catching;
 
     [Header("Properties")]
     public int ID;
@@ -42,7 +42,7 @@ public class Catcher : MonoBehaviour
         // Evaluate whether we are under a measure and return the appropriate fail catch result
         // for the scenario.
 
-        AmpTrackSection measure = TracksController.CurrentTrack.CurrentMeasure;
+        Measure measure = TracksController.CurrentTrack.CurrentMeasure;
 
         if (measure.IsEmpty || measure.IsCaptured)
             return new CatchResult(this, CatchResultType.Empty, null);
@@ -55,7 +55,7 @@ public class Catcher : MonoBehaviour
         float mFrac = (mStart - dist) / mLength; // Fraction (0-1) player distance in the measure
 
         int noteNum = (int)mFrac * measure.Notes.Count;
-        AmpNote note = measure.Notes[noteNum];
+        Note note = measure.Notes[noteNum];
 
         if (note.Distance > dist + slopzPos || note.Distance < dist - slopzPos)
             return new CatchResult(this, CatchResultType.Miss, null); // Missed with no particular note
@@ -66,7 +66,7 @@ public class Catcher : MonoBehaviour
     public CatchResult Catch()
     {
         // Handle empty catch
-        AmpTrackSection currentMeasure = TracksController.CurrentTrack.CurrentMeasure;
+        Measure currentMeasure = TracksController.CurrentTrack.CurrentMeasure;
         if (!currentMeasure) return new CatchResult();
         if (currentMeasure.IsEmpty || currentMeasure.IsCaptured)
             return new CatchResult(this, CatchResultType.Empty, null);
@@ -74,7 +74,7 @@ public class Catcher : MonoBehaviour
         float dist = Locomotion.DistanceTravelled; // Distance travelled
         float speed = Locomotion.Speed; // How many units do we traverse in a second?
 
-        AmpNote target = TracksController.targetNotes[TracksController.CurrentTrackID];
+        Note target = TracksController.targetNotes[TracksController.CurrentTrackID];
 
         // There is a target note to catch!
         if (target)

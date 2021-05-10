@@ -14,8 +14,8 @@
             AddEntry("Debug player track seeking events", new Ref(() => RhythmicGame.DebugPlayerTrackSeekEvents, (v) => RhythmicGame.DebugPlayerTrackSeekEvents = (bool)v));
             AddEntry();
 
-            AddEntry("Enable note target info", new Ref(() => AmpNote.DEBUG_ShowTargetNoteIndicators, (v) => AmpNote.DEBUG_ShowTargetNoteIndicators = (bool)v));
-            AddEntry("Visualize note slop on catchers", new Ref(() => AmpPlayerCatching.IsSlopVisualization, (v) => AmpPlayerCatching.IsSlopVisualization = (bool)v));
+            AddEntry("Enable note target info", new Ref(() => Note.DEBUG_ShowTargetNoteIndicators, (v) => Note.DEBUG_ShowTargetNoteIndicators = (bool)v));
+            AddEntry("Visualize note slop on catchers", new Ref(() => PlayerCatching.IsSlopVisualization, (v) => PlayerCatching.IsSlopVisualization = (bool)v));
             AddEntry("Debug catcher slop events", new Ref(() => RhythmicGame.DebugCatcherSlopEvents, (v) => RhythmicGame.DebugCatcherSlopEvents = (bool)v));
             AddEntry();
 

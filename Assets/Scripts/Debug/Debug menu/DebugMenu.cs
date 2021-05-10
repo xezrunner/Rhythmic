@@ -46,7 +46,7 @@ public partial class DebugMenu : DebugComponent
         UI_Text.gameObject.SetActive(value);
 
         // Disable player input during debug menu
-        AmpPlayerInputHandler.IsActive = !value;
+        PlayerInputHandler.IsActive = !value;
 
         // Close debug menu
         if (!value && DebugMenuClosesConsole) DebugConsole.Close(); // TODO!!: This does not work for some reason. We seemingly can't unfocus during Scene loading or in some other cases.

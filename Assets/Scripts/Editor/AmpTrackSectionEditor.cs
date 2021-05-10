@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(AmpTrackSection))]
+[CustomEditor(typeof(Measure))]
 public class AmpTrackSectionEditor : Editor
 {
-    AmpTrackSection script;
-    void Awake() => script = (AmpTrackSection)target;
+    Measure script;
+    void Awake() => script = (Measure)target;
 
     public override void OnInspectorGUI()
     {

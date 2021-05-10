@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public partial class AmpTrack : MonoBehaviour
+public partial class Track : MonoBehaviour
 {
     // TODO: performance accessing these might be a bit concerning?
     Clock Clock { get { return Clock.Instance; } }
@@ -22,7 +22,7 @@ public partial class AmpTrack : MonoBehaviour
     public Transform MeasureContainer;
 
     [Header("Capture animation content refs")]
-    public AmpTrackDestructFX DestructFX;
+    public TrackDestructFX DestructFX;
 
     [Header("Global Edge Light")]
     public EdgeLights GlobalEdgeLights;
@@ -45,7 +45,7 @@ public partial class AmpTrack : MonoBehaviour
 
     public bool IsCloneTrack; // Whether this track is cloned in Tunnel mode.
     public int TrackSetID; // The ID of the track set this track belongs to.
-    public AmpTrack[] TrackTwins;
+    public Track[] TrackTwins;
 
     public Vector3[] TunnelTransform;
     public Vector3 TunnelPos;
@@ -125,18 +125,18 @@ public partial class AmpTrack : MonoBehaviour
         DestructFX.gameObject.SetActive(true);
     }
 
-    public List<AmpTrackSection> Measures = new List<AmpTrackSection>();
-    public AmpTrackSection CurrentMeasure { get { if (Clock.Fbar < Measures.Count) return Measures[Clock.Fbar]; else return null; } }
+    public List<Measure> Measures = new List<Measure>();
+    public Measure CurrentMeasure { get { if (Clock.Fbar < Measures.Count) return Measures[Clock.Fbar]; else return null; } }
 
     public int[] Sequence_Start_IDs = new int[RhythmicGame.SequenceAmount];
     public void SetSequenceStartIDs(int x, int id)
     {
         Sequence_Start_IDs[x] = id;
-        foreach (AmpTrack t in TrackTwins)
+        foreach (Track t in TrackTwins)
             t.Sequence_Start_IDs[x] = id;
     }
-    public List<AmpTrackSection> Sequences = new List<AmpTrackSection>();
-    public int AddSequence(AmpTrackSection measure, bool twins = true) // Returns count of sequences
+    public List<Measure> Sequences = new List<Measure>();
+    public int AddSequence(Measure measure, bool twins = true) // Returns count of sequences
     {
         //try
         //{
@@ -144,11 +144,11 @@ public partial class AmpTrack : MonoBehaviour
             Sequences.Add(measure);
             if (twins)
             {
-                foreach (AmpTrack t in TrackTwins)
+                foreach (Track t in TrackTwins)
                 {
                     if (measure.ID >= t.Measures.Count) continue;
 
-                    AmpTrackSection twin_measure = t.Measures[measure.ID]; if (!twin_measure) continue;
+                    Measure twin_measure = t.Measures[measure.ID]; if (!twin_measure) continue;
                     twin_measure.IsSequence = true;
                     t.Sequences.Add(twin_measure);
                 }
@@ -164,20 +164,20 @@ public partial class AmpTrack : MonoBehaviour
         //
         //return Sequences.Count;
     }
-    public void RemoveSequence(AmpTrackSection measure, bool deactivate = false)
+    public void RemoveSequence(Measure measure, bool deactivate = false)
     {
         if (deactivate) measure.IsSequence = false;
         Sequences.Remove(measure);
-        foreach (AmpTrack t in TrackTwins)
+        foreach (Track t in TrackTwins)
         {
-            AmpTrackSection twin_measure = t.Measures[measure.ID];
+            Measure twin_measure = t.Measures[measure.ID];
             if (deactivate) twin_measure.IsSequence = false;
             t.Sequences.Remove(twin_measure);
         }
     }
     public void ClearSequences()
     {
-        foreach (AmpTrack t in TrackTwins)
+        foreach (Track t in TrackTwins)
         {
             t.Sequences.ForEach(s => s.IsSequence = false);
             t.Sequences.Clear();
@@ -203,7 +203,7 @@ public partial class AmpTrack : MonoBehaviour
     public bool IsTrackBeingPlayed;
     public void SetIsTrackBeingPlayed(bool value)
     {
-        foreach (AmpTrack t in TrackTwins) t.IsTrackBeingPlayed = value;
+        foreach (Track t in TrackTwins) t.IsTrackBeingPlayed = value;
         IsTrackBeingPlayed = value;
     }
 
@@ -214,7 +214,7 @@ public partial class AmpTrack : MonoBehaviour
         set
         {
             _isTrackFocused = value;
-            foreach (AmpTrackSection m in Measures)
+            foreach (Measure m in Measures)
                 if (m) m.IsFocused = value;
 
             //UpdateSequenceStates(); // TODO: is this needed?
@@ -223,7 +223,7 @@ public partial class AmpTrack : MonoBehaviour
     public void SetIsTrackFocused(int realID)
     {
         IsTrackFocused = (RealID == realID);
-        foreach (AmpTrack t in TrackTwins) t.IsTrackFocused = (t.RealID == realID);
+        foreach (Track t in TrackTwins) t.IsTrackFocused = (t.RealID == realID);
     }
 
     int _capturedOnBar;
@@ -284,16 +284,16 @@ public partial class AmpTrack : MonoBehaviour
         for (int i = Clock.Fbar; i < Clock.Fbar + RhythmicGame.HorizonMeasures; i++)
         {
             if (i >= Measures.Count) continue;
-            AmpTrackSection m = Measures[i];
+            Measure m = Measures[i];
             if (m) m.IsSequence = false;
         }
 
         for (int i = 0; i < Sequences.Count; i++)
         {
-            AmpTrackSection m = Sequences[i];
+            Measure m = Sequences[i];
             if (m) m.IsSequence = true;
 
-            foreach (AmpNote n in m.Notes)
+            foreach (Note n in m.Notes)
                 n.IsLastNote = false;
             if (i == Sequences.Count - 1)
                 m.Notes.Last().IsLastNote = true;
@@ -303,9 +303,9 @@ public partial class AmpTrack : MonoBehaviour
     // Measure capturing
 
     public IEnumerator CaptureMeasure(int id) { Debug.LogFormat("AmpTrack: Capturing measure: requested: {0} measure: {1} - Clock(bar): {2}", id, Measures[id].ID, Clock.Instance.bar); yield return CaptureMeasure(Measures[id]); }
-    public IEnumerator CaptureMeasure(AmpTrackSection measure)
+    public IEnumerator CaptureMeasure(Measure measure)
     {
-        AmpTrackSectionDestruct destruct = measure.gameObject.AddComponent<AmpTrackSectionDestruct>();
+        MeasureDestruct destruct = measure.gameObject.AddComponent<MeasureDestruct>();
         destruct.Init(measure);
 
         while (measure.IsCapturing && measure.gameObject != null) // TODO: When capturing all tracks (thus from 0), it can get stuck waiting on already destroyed measures.

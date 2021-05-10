@@ -64,7 +64,7 @@ public class Tunnel : MonoBehaviour
     private void OnDrawGizmos()
     {
         if (!RhythmicGame.DebugDrawTunnelGizmos) return;
-        Gizmos.DrawSphere(AmpPlayer.Instance.gameObject.transform.position, radius);
-        Gizmos.DrawWireCube(AmpPlayer.Instance.gameObject.transform.position, new Vector3(0.5f, 0.5f, 0.5f));
+        Gizmos.DrawSphere(Player.Instance.gameObject.transform.position, radius);
+        Gizmos.DrawWireCube(Player.Instance.gameObject.transform.position, new Vector3(0.5f, 0.5f, 0.5f));
     }
 }

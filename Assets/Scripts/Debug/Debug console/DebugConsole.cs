@@ -235,7 +235,7 @@ public partial class DebugConsole : DebugComponent
     void FocusInputField()
     {
         Input_Field.ActivateInputField();
-        AmpPlayerInputHandler.IsActive = false;
+        PlayerInputHandler.IsActive = false;
         DebugKeys.IsEnabled = false;
         //Input_Field.Select();
     }
@@ -245,7 +245,7 @@ public partial class DebugConsole : DebugComponent
         // In this case, we do not use that event, but it's good to know for future reference.
         EventSystem.current.SetSelectedGameObject(null); // Unnecessary?
         Input_Field.DeactivateInputField();
-        AmpPlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
+        PlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
         DebugKeys.IsEnabled = true;
     }
 

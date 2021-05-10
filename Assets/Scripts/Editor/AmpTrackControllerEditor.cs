@@ -13,7 +13,7 @@ public class AmpTrackControllerEditor : Editor
     void Awake() => script = (TracksController)target;
 
     GameObject trackSectionPrefab;
-    AmpTrackSection lastSection;
+    Measure lastSection;
 
     public override void OnInspectorGUI()
     {
@@ -29,7 +29,7 @@ public class AmpTrackControllerEditor : Editor
             else
             {
                 GameObject go = Instantiate(trackSectionPrefab);
-                AmpTrackSection s = go.GetComponent<AmpTrackSection>();
+                Measure s = go.GetComponent<Measure>();
                 s.Position = script.TestTrackSectionPos;
                 s.Rotation = script.TestTrackSectionRot;
 

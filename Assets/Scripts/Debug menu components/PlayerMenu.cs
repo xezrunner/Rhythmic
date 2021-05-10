@@ -9,7 +9,7 @@
             base.Init();
             Instance = this;
 
-            AddEntry("Enable player input (global)", new Ref(() => AmpPlayerInputHandler.IsActive, (v) => AmpPlayerInputHandler.IsActive = (bool)v));
+            AddEntry("Enable player input (global)", new Ref(() => PlayerInputHandler.IsActive, (v) => PlayerInputHandler.IsActive = (bool)v));
             AddEntry("Tunnel mode", new Ref(() => RhythmicGame.IsTunnelMode, (v) => RhythmicGame.IsTunnelMode = (bool)v));
 
             AddEntry("Enable seeker frames", new Ref(() => TracksController.SeekerEnabled, (v) => TracksController.SeekerEnabled = (bool)v));
