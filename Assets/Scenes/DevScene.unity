@@ -2554,14 +2554,6 @@ PrefabInstance:
       propertyPath: interpolation
       value: 0.215
       objectReference: {fileID: 0}
-    - target: {fileID: 835594481, guid: 092cc62a45da22949af241be520f22ee, type: 3}
-      propertyPath: m_AllowMSAA
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 835594481, guid: 092cc62a45da22949af241be520f22ee, type: 3}
-      propertyPath: field of view
-      value: 65
-      objectReference: {fileID: 0}
     - target: {fileID: 1117322937, guid: 092cc62a45da22949af241be520f22ee, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -2640,46 +2632,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 1225588845251898407, guid: 092cc62a45da22949af241be520f22ee,
-        type: 3}
-      propertyPath: m_ClearFlags
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1225588845251898407, guid: 092cc62a45da22949af241be520f22ee,
-        type: 3}
-      propertyPath: field of view
-      value: 47
-      objectReference: {fileID: 0}
-    - target: {fileID: 1225588845251898407, guid: 092cc62a45da22949af241be520f22ee,
-        type: 3}
-      propertyPath: m_OcclusionCulling
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1225588845251898411, guid: 092cc62a45da22949af241be520f22ee,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 5.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 1225588845251898411, guid: 092cc62a45da22949af241be520f22ee,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -11.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 1225588845251898411, guid: 092cc62a45da22949af241be520f22ee,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.9862857
-      objectReference: {fileID: 0}
-    - target: {fileID: 1225588845251898411, guid: 092cc62a45da22949af241be520f22ee,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.16504757
-      objectReference: {fileID: 0}
-    - target: {fileID: 1225588845251898411, guid: 092cc62a45da22949af241be520f22ee,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 19
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 092cc62a45da22949af241be520f22ee, type: 3}
