@@ -1,6 +1,7 @@
 ﻿using DebugMenus;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 // These take in strings as parameters.
@@ -101,6 +102,8 @@ public partial class DebugConsole
     // Other classes are free to register console commands at any point by using RegisterCommand().
     void Console_RegisterCommands() // **********************************
     {
+        RegisterCommand(console_perf, "Prints a ton of lines into the console to test performance. Also prints the time difference in ticks.");
+
         // Console-meta commands:
         RegisterCommand("clear", _Clear);
         RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds."); // TODO: Should use a global Quit procedure to quit the game once MetaSystem and/or GameState is in place
@@ -141,6 +144,26 @@ public partial class DebugConsole
     }
 
     /// You should add non-common commands from a different class.
+
+    void console_perf()
+    {
+        // Initial time:
+        long t_before = Stopwatch.GetTimestamp();
+        Log("PERF: Measuring performance...\nInitial time: %", t_before);
+
+        // Write stuff to the console:
+        {
+            // Max line length text:
+            string s = "";
+            for (int i = 0; i < 300; ++i) s += "1";
+            // Write for maximum amount of lines:
+            for (int i = 0; i < 300; ++i)
+                Log(s);
+        }
+
+        long t_after = Stopwatch.GetTimestamp();
+        Log("PERF: Ending time: %\nDiff : %", t_after, t_after - t_before);
+    }
 
     void help(string[] args)
     {
@@ -203,13 +226,13 @@ public partial class DebugConsole
     {
         string s = "";
         int count = (args.Length == 1 && char.IsDigit('c') ? args[0].ParseInt() : 2);
-        for (int i = 0; i < Line_Max_Length * count; ++i)
+        for (int i = 0; i < Text_Max_Length * count; ++i)
             s += '0';
         Log(s);
     }
-    void get_console_text_lines() => Log("Console text line count: %", UI_Text.text.Split('\n').Length);
-    void set_console_line_limit(string[] args) => Text_Max_Lines = args[0].ParseInt();
-    void set_console_text_limit(string[] args) => Line_Max_Length = args[0].ParseInt();
+    void get_console_text_lines() => Log("Console text line count: %", text_inst_counter);
+    void set_console_line_limit(string[] args) { Text_Max_Lines = args[0].ParseInt(); /*TODO: Manage text instances!*/ }
+    void set_console_text_limit(string[] args) => Text_Max_Length = args[0].ParseInt();
     void scroll_to_bottom() => ScrollConsole(SCROLL_BOTTOM);
     void scroll_to_top() => ScrollConsole(SCROLL_TOP);
     void scroll_to(string[] args) => ScrollConsole(args[0].ParseFloat());

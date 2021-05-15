@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -26,12 +27,14 @@ public partial class DebugConsole : DebugComponent
 
     // Text:
     public ScrollRect UI_ScrollRect;
-    public TMP_Text UI_Text;
+    public RectTransform UI_TextContent;
+    public TMP_Text UI_TextPrefab;
 
     // Input field:
     public TMP_InputField Input_Field;
     public TMP_Text UI_Autocomplete;
 
+    [NonSerialized] public bool IsReady;
     [NonSerialized] public bool IsOpen;
     [NonSerialized] public ConsoleState State;
     [NonSerialized] public ConsoleSizeState SizeState = ConsoleSizeState.Compact;
@@ -40,8 +43,9 @@ public partial class DebugConsole : DebugComponent
     [NonSerialized] public float Vertical_Padding = 0f;
     [NonSerialized] public float Compact_Height = 300f;
 
-    [NonSerialized] public int Text_Max_Lines = 2000;
-    [NonSerialized] public int Line_Max_Length = 5000; // TODO: We probably want more!
+    // TODO: Tweak these values for performance! We should be able to drive more entries in builds, while we should keep less in the editor.
+    [NonSerialized] public int Text_Max_Lines = 1000;
+    [NonSerialized] public int Text_Max_Length = 500; // TODO: We probably want more!?
     [NonSerialized] public float Animation_Speed = 1f;
     [NonSerialized] public float Scroll_Speed = 0.45f;
     public const float SCROLL_BOTTOM = 0f;
@@ -58,8 +62,13 @@ public partial class DebugConsole : DebugComponent
     }
     void Start()
     {
-        if (!UI_Text || !Input_Field)
-        { Logger.LogMethodE("Console has no UI_Text or Input_Field references!", this, null); return; }
+        if (!Input_Field)
+        { Logger.LogMethodE("Console has no Input_Field reference!", this, null); return; }
+
+        // Initialize text instances array | TODO: This might go in Awake()
+        Text_Instances = new TMP_Text[Text_Max_Lines];
+
+        IsReady = true; // :WriteToConsoleBeforeReady
 
         target_height = GetHeightForSizeState(ConsoleSizeState.Compact);
         _Close(false);
@@ -384,8 +393,20 @@ public partial class DebugConsole : DebugComponent
 
     // Writing to the console
 
+    // This holds references to all the text object instances we have created so far.
+    [SerializeField] int text_inst_counter = 0;
+    [SerializeField] TMP_Text[] Text_Instances;
+
     public static void Clear() => Instance?._Clear();
-    void _Clear() => UI_Text.text = "";
+    void _Clear()
+    {
+        int length = Text_Instances.Length;
+
+        for (int i = 0; i < length; ++i)
+            if (Text_Instances[i]) Destroy(Text_Instances[i].gameObject);
+
+        text_inst_counter = 0;
+    }
 
     public static void Write(string text, params object[] args) => Instance?._Write(text, args);
     public static void Log(string text, params object[] args) => Instance?._Log(text, args);
@@ -393,16 +414,26 @@ public partial class DebugConsole : DebugComponent
     string MainText;
     void _Write(string text, params object[] args)
     {
+        if (!IsReady) // :WriteToConsoleBeforeReady
+            return;
+
+        // If we reached the line limit, overflow *intentionally*.
+        if (text_inst_counter >= Text_Max_Lines)
+            text_inst_counter = 0;
+
+        // Destroy old text instances if we come across them:
+        if (Text_Instances[text_inst_counter] != null)
+            Destroy(Text_Instances[text_inst_counter].gameObject);
+
         if (args.Length != 0 && text.Contains("%")) text = Logger.ParseArgs(text, args);
-        if (text.Length > Line_Max_Length) text = text.Substring(0, Line_Max_Length);
-        MainText += text; /// TODO: Performance!!!
 
-        UI_Text.SetText(MainText);
-        //UI_Text.text += text; /// TODO: Performance!
+        TMP_Text text_inst = Instantiate(UI_TextPrefab);
+        text_inst.transform.SetParent(UI_TextContent, false);
+        text_inst.SetText(text);
 
-        // Limit text length
-        /// TODO: Performance!! This is probably extremely slow!
-        //UI_Text.text = UI_Text.text.MaxLines(Text_Max_Lines);
+        Text_Instances[text_inst_counter] = text_inst;
+
+        ++text_inst_counter;
 
         // Log to the Rhythmic Console application | TODO: This isn't the right place to forward from.
         //if (s[s.Length - 1] == '\n') s = s.Substring(0, s.Length - 1);
@@ -420,6 +451,8 @@ public partial class DebugConsole : DebugComponent
     IEnumerator _ScrollConsole(float target, bool anim = true)
     {
         yield return new WaitForEndOfFrame(); // HACK: You have to wait for the end of the current frame to be able to scroll to the bottom.
+
+        scroll_t = 0f;
 
         scroll_t = (anim ? 0.0f : 1.0f);
         scroll_target = target;
@@ -521,6 +554,10 @@ public partial class DebugConsole : DebugComponent
             _Close();
 
         if (!IsOpen) return;
+
+        // Cancel scrolling animations when scrolling with mouse wheel
+        if (Mouse.current != null && Mouse.current.scroll.y.ReadValue() != 0)
+            is_scrolling = false;
 
         if (WasPressed(Keyboard.enterKey, Keyboard.numpadEnterKey)) // Submit
             Submit();
