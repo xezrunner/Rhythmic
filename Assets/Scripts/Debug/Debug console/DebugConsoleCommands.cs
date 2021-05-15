@@ -1,6 +1,7 @@
 ﻿using DebugMenus;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 // These take in strings as parameters.
@@ -37,49 +38,6 @@ public partial class DebugConsole
 {
     public List<ConsoleCommand> Commands = new List<ConsoleCommand>();
     public int Commands_Count = 0;
-
-    // This is the main procedure for registering common console commands.
-    // Other classes are free to register console commands at any point by using RegisterCommand().
-    void Console_RegisterCommands() // **********************************
-    {
-        // Console-meta commands:
-        RegisterCommand("clear", _Clear);
-        RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds."); // TODO: Should use a global Quit procedure to quit the game once MetaSystem and/or GameState is in place
-        RegisterCommand(help, "Lists all commands / gives help text for particular commands. usage: " + "help".AddColor(Colors.Application) + " <command>");
-        RegisterCommand(toggle_autocomplete);
-        RegisterCommand(set_autocomplete);
-        RegisterCommand(console_resize, "Resizes the console height. Usage: " + nameof(console_resize).AddColor(Colors.Application) + " <height>");
-
-        // Test commands **************************************************
-        RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
-        RegisterCommand(clear_text_test);
-        RegisterCommand(logger_log, "Calls Logger.Log(). NOTE: \\% parameters are not supported yet!");
-        RegisterCommand(logger_parser_test, "Tests the new Logger parser system.");
-        RegisterCommand(test_console_limits, "Tests the console max text length limit.");
-        RegisterCommand(get_console_text_lines, "Shows current console text line count.");
-        RegisterCommand(scroll_to_bottom); RegisterCommand(scroll_to_top); RegisterCommand(scroll_to);
-        RegisterCommand(set_console_line_limit, "Sets the console amount of lines allowed in the console.");
-        RegisterCommand(set_console_text_limit, "Sets the maximum amount of characters allowed in a line.");
-
-        RegisterCommand(start_console_server);
-        RegisterCommand(stop_console_server);
-
-        RegisterCommand(change_amp_folder);
-        RegisterCommand(change_ogg_folder);
-
-        RegisterCommand(moggsong_parser_debug_print, "Prints the tokens used during .moggsong file parsing.");
-
-        // Common commands:
-        RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
-        RegisterCommand(world, $"usage: {"world".AddColor(Colors.Application)} <relative world path, starting from Scenes/>");
-
-        RegisterCommand(switch_to_track, $"usage: {"switch_to_track".AddColor(Colors.Application)} <track_id>");
-        RegisterCommand(capture_measure_range);
-        RegisterCommand(capture_measure_amount);
-        RegisterCommand(refresh_sequences, "usage: " + "refresh_sequences".AddColor(Colors.Application) + " <track_id (optional)>");
-        RegisterCommand(refresh_notes, "usage: " + "refresh_notes".AddColor(Colors.Application) + " <track_id (optional)>");
-        RegisterCommand(refresh_all, "usage: " + "refresh_all".AddColor(Colors.Application) + " <track_id (optional)>");
-    }
 
     // NOTE: If you don't check for existing commands, depending on ReturnOnFoundCommand, you may run multiple commands at once!
     public static bool Register_CheckForExistingCommands = true;
@@ -139,7 +97,73 @@ public partial class DebugConsole
     }
 
     // ----- Common commands ----- //
+
+    // This is the main procedure for registering common console commands.
+    // Other classes are free to register console commands at any point by using RegisterCommand().
+    void Console_RegisterCommands() // **********************************
+    {
+        RegisterCommand(console_perf, "Prints a ton of lines into the console to test performance. Also prints the time difference in ticks.");
+
+        // Console-meta commands:
+        RegisterCommand("clear", _Clear);
+        RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds."); // TODO: Should use a global Quit procedure to quit the game once MetaSystem and/or GameState is in place
+        RegisterCommand(help, "Lists all commands / gives help text for particular commands. usage: " + "help".AddColor(Colors.Application) + " <command>");
+        RegisterCommand(toggle_autocomplete);
+        RegisterCommand(set_autocomplete);
+        RegisterCommand(console_resize, "Resizes the console height. Usage: " + nameof(console_resize).AddColor(Colors.Application) + " <height>");
+
+        // Test commands **************************************************
+        RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
+        RegisterCommand(clear_text_test);
+        RegisterCommand(logger_log, "Calls Logger.Log(). NOTE: \\% parameters are not supported yet!");
+        RegisterCommand(logger_parser_test, "Tests the new Logger parser system.");
+        RegisterCommand(test_console_limits, "Tests the console max text length limit.");
+        RegisterCommand(get_console_text_lines, "Shows current console text line count.");
+        RegisterCommand(scroll_to_bottom); RegisterCommand(scroll_to_top); RegisterCommand(scroll_to);
+        RegisterCommand(set_console_line_limit, "Sets the console amount of lines allowed in the console.");
+        RegisterCommand(set_console_text_limit, "Sets the maximum amount of characters allowed in a line.");
+
+        RegisterCommand(start_console_server);
+        RegisterCommand(stop_console_server);
+
+        RegisterCommand(change_amp_folder);
+        RegisterCommand(change_ogg_folder);
+
+        RegisterCommand(moggsong_parser_debug_print, "Prints the tokens used during .moggsong file parsing.");
+
+        // Common commands:
+        RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
+        RegisterCommand(world, $"usage: {"world".AddColor(Colors.Application)} <relative world path, starting from Scenes/>");
+
+        RegisterCommand(switch_to_track, $"usage: {"switch_to_track".AddColor(Colors.Application)} <track_id>");
+        RegisterCommand(capture_measure_range);
+        RegisterCommand(capture_measure_amount);
+        RegisterCommand(refresh_sequences, "usage: " + "refresh_sequences".AddColor(Colors.Application) + " <track_id (optional)>");
+        RegisterCommand(refresh_notes, "usage: " + "refresh_notes".AddColor(Colors.Application) + " <track_id (optional)>");
+        RegisterCommand(refresh_all, "usage: " + "refresh_all".AddColor(Colors.Application) + " <track_id (optional)>");
+    }
+
     /// You should add non-common commands from a different class.
+
+    void console_perf()
+    {
+        // Initial time:
+        long t_before = Stopwatch.GetTimestamp();
+        Log("PERF: Measuring performance...\nInitial time: %", t_before);
+
+        // Write stuff to the console:
+        {
+            // Max line length text:
+            string s = "";
+            for (int i = 0; i < 300; ++i) s += "1";
+            // Write for maximum amount of lines:
+            for (int i = 0; i < 300; ++i)
+                Log(s);
+        }
+
+        long t_after = Stopwatch.GetTimestamp();
+        Log("PERF: Ending time: %\nDiff : %", t_after, t_after - t_before);
+    }
 
     void help(string[] args)
     {
@@ -202,13 +226,13 @@ public partial class DebugConsole
     {
         string s = "";
         int count = (args.Length == 1 && char.IsDigit('c') ? args[0].ParseInt() : 2);
-        for (int i = 0; i < Line_Max_Length * count; ++i)
+        for (int i = 0; i < Text_Max_Length * count; ++i)
             s += '0';
         Log(s);
     }
-    void get_console_text_lines() => Log("Console text line count: %", UI_Text.text.Split('\n').Length);
-    void set_console_line_limit(string[] args) => Text_Max_Lines = args[0].ParseInt();
-    void set_console_text_limit(string[] args) => Line_Max_Length = args[0].ParseInt();
+    void get_console_text_lines() => Log("Console text line count: %", text_inst_counter);
+    void set_console_line_limit(string[] args) { Text_Max_Lines = args[0].ParseInt(); /*TODO: Manage text instances!*/ }
+    void set_console_text_limit(string[] args) => Text_Max_Length = args[0].ParseInt();
     void scroll_to_bottom() => ScrollConsole(SCROLL_BOTTOM);
     void scroll_to_top() => ScrollConsole(SCROLL_TOP);
     void scroll_to(string[] args) => ScrollConsole(args[0].ParseFloat());
