@@ -38,49 +38,6 @@ public partial class DebugConsole
     public List<ConsoleCommand> Commands = new List<ConsoleCommand>();
     public int Commands_Count = 0;
 
-    // This is the main procedure for registering common console commands.
-    // Other classes are free to register console commands at any point by using RegisterCommand().
-    void Console_RegisterCommands() // **********************************
-    {
-        // Console-meta commands:
-        RegisterCommand("clear", _Clear);
-        RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds."); // TODO: Should use a global Quit procedure to quit the game once MetaSystem and/or GameState is in place
-        RegisterCommand(help, "Lists all commands / gives help text for particular commands. usage: " + "help".AddColor(Colors.Application) + " <command>");
-        RegisterCommand(toggle_autocomplete);
-        RegisterCommand(set_autocomplete);
-        RegisterCommand(console_resize, "Resizes the console height. Usage: " + nameof(console_resize).AddColor(Colors.Application) + " <height>");
-
-        // Test commands **************************************************
-        RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
-        RegisterCommand(clear_text_test);
-        RegisterCommand(logger_log, "Calls Logger.Log(). NOTE: \\% parameters are not supported yet!");
-        RegisterCommand(logger_parser_test, "Tests the new Logger parser system.");
-        RegisterCommand(test_console_limits, "Tests the console max text length limit.");
-        RegisterCommand(get_console_text_lines, "Shows current console text line count.");
-        RegisterCommand(scroll_to_bottom); RegisterCommand(scroll_to_top); RegisterCommand(scroll_to);
-        RegisterCommand(set_console_line_limit, "Sets the console amount of lines allowed in the console.");
-        RegisterCommand(set_console_text_limit, "Sets the maximum amount of characters allowed in a line.");
-
-        RegisterCommand(start_console_server);
-        RegisterCommand(stop_console_server);
-
-        RegisterCommand(change_amp_folder);
-        RegisterCommand(change_ogg_folder);
-
-        RegisterCommand(moggsong_parser_debug_print, "Prints the tokens used during .moggsong file parsing.");
-
-        // Common commands:
-        RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
-        RegisterCommand(world, $"usage: {"world".AddColor(Colors.Application)} <relative world path, starting from Scenes/>");
-
-        RegisterCommand(switch_to_track, $"usage: {"switch_to_track".AddColor(Colors.Application)} <track_id>");
-        RegisterCommand(capture_measure_range);
-        RegisterCommand(capture_measure_amount);
-        RegisterCommand(refresh_sequences, "usage: " + "refresh_sequences".AddColor(Colors.Application) + " <track_id (optional)>");
-        RegisterCommand(refresh_notes, "usage: " + "refresh_notes".AddColor(Colors.Application) + " <track_id (optional)>");
-        RegisterCommand(refresh_all, "usage: " + "refresh_all".AddColor(Colors.Application) + " <track_id (optional)>");
-    }
-
     // NOTE: If you don't check for existing commands, depending on ReturnOnFoundCommand, you may run multiple commands at once!
     public static bool Register_CheckForExistingCommands = true;
     bool RegisterCommand_CheckDuplication(string command)
@@ -139,6 +96,50 @@ public partial class DebugConsole
     }
 
     // ----- Common commands ----- //
+
+    // This is the main procedure for registering common console commands.
+    // Other classes are free to register console commands at any point by using RegisterCommand().
+    void Console_RegisterCommands() // **********************************
+    {
+        // Console-meta commands:
+        RegisterCommand("clear", _Clear);
+        RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds."); // TODO: Should use a global Quit procedure to quit the game once MetaSystem and/or GameState is in place
+        RegisterCommand(help, "Lists all commands / gives help text for particular commands. usage: " + "help".AddColor(Colors.Application) + " <command>");
+        RegisterCommand(toggle_autocomplete);
+        RegisterCommand(set_autocomplete);
+        RegisterCommand(console_resize, "Resizes the console height. Usage: " + nameof(console_resize).AddColor(Colors.Application) + " <height>");
+
+        // Test commands **************************************************
+        RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
+        RegisterCommand(clear_text_test);
+        RegisterCommand(logger_log, "Calls Logger.Log(). NOTE: \\% parameters are not supported yet!");
+        RegisterCommand(logger_parser_test, "Tests the new Logger parser system.");
+        RegisterCommand(test_console_limits, "Tests the console max text length limit.");
+        RegisterCommand(get_console_text_lines, "Shows current console text line count.");
+        RegisterCommand(scroll_to_bottom); RegisterCommand(scroll_to_top); RegisterCommand(scroll_to);
+        RegisterCommand(set_console_line_limit, "Sets the console amount of lines allowed in the console.");
+        RegisterCommand(set_console_text_limit, "Sets the maximum amount of characters allowed in a line.");
+
+        RegisterCommand(start_console_server);
+        RegisterCommand(stop_console_server);
+
+        RegisterCommand(change_amp_folder);
+        RegisterCommand(change_ogg_folder);
+
+        RegisterCommand(moggsong_parser_debug_print, "Prints the tokens used during .moggsong file parsing.");
+
+        // Common commands:
+        RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
+        RegisterCommand(world, $"usage: {"world".AddColor(Colors.Application)} <relative world path, starting from Scenes/>");
+
+        RegisterCommand(switch_to_track, $"usage: {"switch_to_track".AddColor(Colors.Application)} <track_id>");
+        RegisterCommand(capture_measure_range);
+        RegisterCommand(capture_measure_amount);
+        RegisterCommand(refresh_sequences, "usage: " + "refresh_sequences".AddColor(Colors.Application) + " <track_id (optional)>");
+        RegisterCommand(refresh_notes, "usage: " + "refresh_notes".AddColor(Colors.Application) + " <track_id (optional)>");
+        RegisterCommand(refresh_all, "usage: " + "refresh_all".AddColor(Colors.Application) + " <track_id (optional)>");
+    }
+
     /// You should add non-common commands from a different class.
 
     void help(string[] args)
