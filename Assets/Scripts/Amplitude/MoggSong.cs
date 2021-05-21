@@ -164,7 +164,7 @@ public class MoggSong : MonoBehaviour
     public class Tokenizer
     {
         public Tokenizer(string t) { Text = t; c = Text[0]; }
-        public Tokenizer(string t, int p) { Text = t; c = Text[pos]; }
+        public Tokenizer(string t, int p) { Text = t; c = Text[pos]; pos = p; }
 
         public void Advance()
         {
