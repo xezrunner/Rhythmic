@@ -19,7 +19,7 @@ public class GameStarter : MonoBehaviour
 
     void Awake()
     {
-        RhythmicGame.IsLoading = true;
+        GameState.IsLoading = true;
 
         Debug.LogFormat("GAME [init]: Game type is {0}", RhythmicGame.GameLogic.ToString());
 

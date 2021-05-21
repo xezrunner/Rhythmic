@@ -10,6 +10,7 @@ public class Catcher : MonoBehaviour
 {
     SongController SongController { get { return SongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
+    GameState GameState { get { return GameState.Instance; } }
 
     [Header("Automatically assigned from Catching")]
     public Player Player;
@@ -22,7 +23,7 @@ public class Catcher : MonoBehaviour
     {
         get
         {
-            if (RhythmicGame.GameMatchTpye == GameMatchType.Singleplayer)
+            if (GameState.GameMatchTpye == GameMatchType.Singleplayer)
                 return Side.ToString();
             else
                 return $"{Player.Name}_{Side.ToString()}"; // Return the player name + catcher side ["Player1_Center"]

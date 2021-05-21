@@ -7,8 +7,6 @@ using UnityEngine.SceneManagement;
 /// Some features found in RHYTHMIC may not work / be disabled in AMPLITUDE mode.
 /// </summary>
 public enum GameLogic { AMPLITUDE, RHYTHMIC }
-public enum GameMode { Metagame, Gameplay, Practice, Editor, Charting, Debugging }
-public enum GameMatchType { Singleplayer = 0, LocalMultiplayer = 1, OnlineMultiplayer = 2 }
 
 // TODO: Some props here could be moved to their respective class!
 public static class RhythmicGame
@@ -70,10 +68,6 @@ public static class RhythmicGame
         else return "";
     }
 
-    public static GameMode GameMode = GameMode.Gameplay;
-    public static GameMatchType GameMatchTpye = GameMatchType.Singleplayer;
-
-    public static bool IsLoading = true;
     public static Vector2 Resolution { get { return new Vector2(Screen.currentResolution.width, Screen.currentResolution.height); } }
     public static Vector2 PreferredResolution = new Vector2(1920, 1080);
     public static int LowestFramerate = 60; // 30
