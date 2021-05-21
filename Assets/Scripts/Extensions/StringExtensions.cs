@@ -148,3 +148,9 @@ public static class StringExtensions
     public static int ParseInt(this string text) => int.Parse(text);
     public static float ParseFloat(this string text) => float.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
 }
+
+public static class CharExtensions
+{
+    public static bool IsWhitespace(this char c) => (c == ' ' || c == '\r' || c == '\n' || c == '\t');
+    public static bool IsNewline(this char c) => (c == '\r' || c == '\n');
+}

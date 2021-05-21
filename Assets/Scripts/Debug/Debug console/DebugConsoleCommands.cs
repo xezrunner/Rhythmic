@@ -103,6 +103,8 @@ public partial class DebugConsole
     void Console_RegisterCommands() // **********************************
     {
         RegisterCommand(console_perf, "Prints a ton of lines into the console to test performance. Also prints the time difference in ticks.");
+        RegisterCommand(conf_runtime_test);
+        RegisterCommand(conf_test);
 
         // Console-meta commands:
         RegisterCommand("clear", _Clear);
@@ -144,6 +146,16 @@ public partial class DebugConsole
     }
 
     /// You should add non-common commands from a different class.
+
+    void conf_runtime_test()
+    {
+        ConfigurationManager.DEBUG_RuntimeTestConfig();
+    }
+    
+    void conf_test()
+    {
+        ConfigurationManager.DEBUG_TestConfig();
+    }
 
     void console_perf()
     {
