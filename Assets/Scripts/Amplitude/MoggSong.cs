@@ -41,12 +41,15 @@ public class MoggSong : MonoBehaviour
     {
         string finalPath = AmplitudeGame.AMP_GetSongFilePath(songName, AmplitudeGame.AMP_FileExtension.moggsong); // moggsong path
 
-        TextReader reader = File.OpenText(finalPath);
-        string text = reader.ReadToEnd();
+        // TODO: error checking
+        Tokenizer tokenizer;
+        using (TextReader reader = File.OpenText(finalPath))
+        {
+            string text = reader.ReadToEnd();
+            tokenizer = new Tokenizer(text);
+        }
 
-        Tokenizer tokenizer = new Tokenizer(text);
-
-        while (true) // Get all tokens
+        while (true) // TODO: This could end up being an infinite-loop!
         {
             Token token = GetToken(tokenizer);
             Tokens.Add(token);
