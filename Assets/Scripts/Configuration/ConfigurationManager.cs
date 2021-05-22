@@ -318,10 +318,11 @@ public class ConfigurationManager
 
     // -------------------- //
 
-    public static Configuration DEBUG_TestConfig()
+    public static Configuration DEBUG_TestConfig(string file_name = "test")
     {
+        if (file_name == null) file_name = "test";
         ConfigurationManager m = new ConfigurationManager();
-        return m.LoadConfiguration("test");
+        return m.LoadConfiguration(file_name);
     }
 
     public static void DEBUG_RuntimeTestConfig()

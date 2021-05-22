@@ -1,5 +1,5 @@
 #name Hello
-# local
+# local # hotload
 
 : Testing
 test_var value

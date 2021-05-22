@@ -153,9 +153,11 @@ public partial class DebugConsole
         ConfigurationManager.DEBUG_RuntimeTestConfig();
     }
     
-    void conf_test()
+    void conf_test(string[] args)
     {
-        Configuration c = ConfigurationManager.DEBUG_TestConfig();
+        string file_name = (args != null && args.Length > 0) ? args[0] : null;
+        Configuration c = ConfigurationManager.DEBUG_TestConfig(file_name);
+
         Logger.LogConsole("-------- LISTING --------");
         Logger.LogConsole("config_name: %", c.config_name);
         foreach (var s in c.Sections)
