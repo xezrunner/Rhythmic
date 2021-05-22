@@ -1,9 +1,22 @@
-#name Hello
-# local # hotload
+// Test configuration file
 
-: Testing
+#name TestConfig_00
+
+// Local lets the game know that the config file is custom.
+// Hotreload makes the file automatically reload when a change is detected.
+# local # hotreload
+
+// This is a section. Variables can be grouped to different sections:
+: The first section
 test_var value
 string_var "Hi!"
 
+// If you specify a ':' with no name, or you place a variable before any sections are declared,
+// the variables will be grouped under an automatic section "global".
+:
+global_var wow!
+
 : Another section
+// If you want to declare multiple variables, you can do so by enclosing them within parantheses.
 paren_var (1 2 3)
+

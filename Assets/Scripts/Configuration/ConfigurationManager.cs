@@ -250,6 +250,14 @@ public class ConfigurationManager
                         token.Value += t.Advance(false);
                     break;
                 }
+            case ':':
+                {
+                    token = new Token(Token_Type.Section);
+                    t.Advance();
+                    while (!t.end_of_file && !t.c.IsNewline())
+                        token.Value += t.Advance();
+                    break;
+                }
             case '(': token = new Token(Token_Type.OpenParen); break;
             case ')': token = new Token(Token_Type.CloseParen); break;
             case '"':
@@ -270,14 +278,6 @@ public class ConfigurationManager
 
                         ++pos;
                     }
-                    break;
-                }
-            case ':':
-                {
-                    token = new Token(Token_Type.Section);
-                    if (t.Peek() == ' ') t.Advance();
-                    while (!t.end_of_file && !t.c.IsNewline())
-                        token.Value += t.Advance();
                     break;
                 }
             case char x when (char.IsLetter(x)):

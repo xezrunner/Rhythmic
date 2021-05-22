@@ -158,15 +158,22 @@ public partial class DebugConsole
         string file_name = (args != null && args.Length > 0) ? args[0] : null;
         Configuration c = ConfigurationManager.DEBUG_TestConfig(file_name);
 
-        Logger.LogConsole("-------- LISTING --------");
-        Logger.LogConsole("config_name: %", c.config_name);
+        if (c == null) return;
+
+        Logger.LogConsole("\n------- LISTING -------\n");
+        Logger.LogConsole("# Props: ");
+        Logger.LogConsole("   * config_name: %", c.config_name);
+        Logger.LogConsole("   * is_local: %", c.is_local);
+        Logger.LogConsole("   * is_hotreload: %", c.is_hotreload);
+        Logger.LogConsole("   * priority: %", c.priority);
+        Logger.LogConsole("");
         foreach (var s in c.Sections)
         {
             Logger.LogConsole("# Section: %", s.Key);
             foreach (var v in s.Value)
                 Logger.LogConsole("   * % | %", v.Key, v.Value);
         }
-        Logger.LogConsole("-------- LISTING --------");
+        Logger.LogConsole("\n----- LISTING END -----");
     }
 
     void config_debug_parser(string[] args)
