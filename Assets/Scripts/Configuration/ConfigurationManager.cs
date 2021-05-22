@@ -101,6 +101,12 @@ public class ConfigurationManager
 
                         if (s == "local") config.is_local = value;
                         if (s == "hotreload") config.is_hotreload = value;
+                        if (s == "name")
+                        {
+                            token = tokens[++cursor];
+                            if (token.Type == Token_Type.Identifier)
+                                config.config_name = token.Value;
+                        }
 
                         break;
                     }
