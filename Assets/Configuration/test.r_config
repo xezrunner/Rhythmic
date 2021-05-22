@@ -20,3 +20,5 @@ global_var wow!
 // If you want to declare multiple variables, you can do so by enclosing them within parantheses.
 paren_var (1 2 3)
 
+// You can call in-game console commands directly from a config file using the '# cmd' notion.
+# cmd "logger_log Test configuration successfully loaded."

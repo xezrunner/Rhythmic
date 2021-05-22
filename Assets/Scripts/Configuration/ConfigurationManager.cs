@@ -88,6 +88,7 @@ public class ConfigurationManager
     }
 
     // ***** INTERPRETATION: *****
+    public static bool debug_log_cmds = true;
     public Configuration InterpretConfigurationFile(string file_name, List<Token> tokens)
     {
         Configuration config = new Configuration(file_name);
@@ -111,6 +112,7 @@ public class ConfigurationManager
                         bool value = s[0] != '!';
                         if (!value) s.Substring(1, s.Length - 1); // Remove '!' from string
 
+                        // Config props: 
                         if (s == "name")
                         {
                             token = tokens[++cursor];
@@ -124,13 +126,26 @@ public class ConfigurationManager
                             if (token.Type == Token_Type.Identifier) config.priority = token.Value.ParseInt();
                         }
 
+                        // Actions: 
+                        if (s == "cmd")
+                        {
+                            token = tokens[++cursor];
+                            if (token.Type == Token_Type.String)
+                            {
+                                string cmd; string[] cmd_tokens;
+                                DebugConsole.parse_input_out(token.Value, out cmd, out cmd_tokens);
+                                if (debug_log_cmds) Logger.LogConsole("Config '%' executing command: '%%'".AddColor(Colors.IO), file_name, cmd, (cmd_tokens.Length != 0 ? (" " + string.Join(" ", cmd_tokens)) : ""));
+                                DebugConsole.ExecuteCommand(cmd, cmd_tokens);
+                            }
+                        }
+
                         break;
                     }
 
                 case Token_Type.Section:
                     {
                         string s = token.Value;
-                        if (s.IsEmpty())
+                        if (s.IsEmpty()) // TODO: also detect spaces as empty!
                             s = Configuration.SECTION_GLOBAL;
 
                         config.AddSection(s);
