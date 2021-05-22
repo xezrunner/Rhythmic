@@ -102,7 +102,6 @@ public partial class DebugConsole
     // Other classes are free to register console commands at any point by using RegisterCommand().
     void Console_RegisterCommands() // **********************************
     {
-        RegisterCommand(console_perf, "Prints a ton of lines into the console to test performance. Also prints the time difference in ticks.");
 
         // Console-meta commands:
         RegisterCommand("clear", _Clear);
@@ -111,6 +110,7 @@ public partial class DebugConsole
         RegisterCommand(toggle_autocomplete);
         RegisterCommand(set_autocomplete);
         RegisterCommand(console_resize, "Resizes the console height. Usage: " + nameof(console_resize).AddColor(Colors.Application) + " <height>");
+        RegisterCommand(console_perf, "Prints a ton of lines into the console to test performance. Also prints the time difference in ticks.");
 
         // Test commands **************************************************
         RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
@@ -122,14 +122,15 @@ public partial class DebugConsole
         RegisterCommand(scroll_to_bottom); RegisterCommand(scroll_to_top); RegisterCommand(scroll_to);
         RegisterCommand(set_console_line_limit, "Sets the console amount of lines allowed in the console.");
         RegisterCommand(set_console_text_limit, "Sets the maximum amount of characters allowed in a line.");
+        RegisterCommand(moggsong_parser_debug_print, "Prints the tokens used during .moggsong file parsing.");
+        RegisterCommand(conf_set_parser_debug);
+        RegisterCommand(conf_test);
 
         RegisterCommand(start_console_server);
         RegisterCommand(stop_console_server);
 
         RegisterCommand(change_amp_folder);
         RegisterCommand(change_ogg_folder);
-
-        RegisterCommand(moggsong_parser_debug_print, "Prints the tokens used during .moggsong file parsing.");
 
         // Common commands:
         RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
@@ -144,26 +145,6 @@ public partial class DebugConsole
     }
 
     /// You should add non-common commands from a different class.
-
-    void console_perf()
-    {
-        // Initial time:
-        long t_before = Stopwatch.GetTimestamp();
-        Log("PERF: Measuring performance...\nInitial time: %", t_before);
-
-        // Write stuff to the console:
-        {
-            // Max line length text:
-            string s = "";
-            for (int i = 0; i < 300; ++i) s += "1";
-            // Write for maximum amount of lines:
-            for (int i = 0; i < 300; ++i)
-                Log(s);
-        }
-
-        long t_after = Stopwatch.GetTimestamp();
-        Log("PERF: Ending time: %\nDiff : %", t_after, t_after - t_before);
-    }
 
     void help(string[] args)
     {
@@ -255,6 +236,57 @@ public partial class DebugConsole
     }
 
     void moggsong_parser_debug_print() => MoggSong.Instance?.DebugPrintTokens();
+
+    // Configuration system:
+    void conf_test(string[] args)
+    {
+        string file_name = (args != null && args.Length > 0) ? args[0] : null;
+        Configuration c = ConfigurationManager.DEBUG_TestConfig(file_name);
+
+        if (c == null) return;
+
+        Logger.LogConsole("\n------- LISTING -------\n");
+        Logger.LogConsole("# Props: ");
+        Logger.LogConsole("   * config_name: %", c.config_name);
+        Logger.LogConsole("   * is_local: %", c.is_local);
+        Logger.LogConsole("   * is_hotreload: %", c.is_hotreload);
+        Logger.LogConsole("   * priority: %", c.priority);
+        Logger.LogConsole("");
+        foreach (var s in c.Sections)
+        {
+            Logger.LogConsole("# Section: %", s.Key);
+            foreach (var v in s.Value)
+                Logger.LogConsole("   * % | %", v.Key, v.Value);
+        }
+        Logger.LogConsole("\n----- LISTING END -----");
+    }
+    void conf_set_parser_debug(string[] args)
+    {
+        if (args == null || args.Length == 0) ConfigurationManager.debug_tokens = !ConfigurationManager.debug_tokens;
+        else ConfigurationManager.debug_tokens = args[0].ParseBool();
+
+        Logger.LogConsole("ConfigurationManager: parser debugger: %", ConfigurationManager.debug_tokens);
+    }
+
+    void console_perf()
+    {
+        // Initial time:
+        long t_before = Stopwatch.GetTimestamp();
+        Log("PERF: Measuring performance...\nInitial time: %", t_before);
+
+        // Write stuff to the console:
+        {
+            // Max line length text:
+            string s = "";
+            for (int i = 0; i < 300; ++i) s += "1";
+            // Write for maximum amount of lines:
+            for (int i = 0; i < 300; ++i)
+                Log(s);
+        }
+
+        long t_after = Stopwatch.GetTimestamp();
+        Log("PERF: Ending time: %\nDiff : %", t_after, t_after - t_before);
+    }
 
     /// Songs and worlds:
     void song(string[] args) => SongsMenu.LoadSong(args[0]);

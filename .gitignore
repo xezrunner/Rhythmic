@@ -72,3 +72,5 @@ Packages/packages-lock.json
 .vsconfig
 amp_config_notes.txt
 Packages/packages-lock.json
+Assets/Configuration/Local.r_config
+Assets/Configuration/Local.r_config.meta

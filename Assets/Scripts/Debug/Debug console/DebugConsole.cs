@@ -471,6 +471,7 @@ public partial class DebugConsole : DebugComponent
     // Console interaction & command processing
     public static bool ReturnOnFoundCommand = true;
 
+    public static void ExecuteCommand(string command, params string[] args) => Instance?.ProcessCommand(command, args);
     public void ProcessCommand(string command, params string[] args)
     {
         bool found = false;
@@ -505,32 +506,41 @@ public partial class DebugConsole : DebugComponent
         if (!found && command != "") _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
     }
 
+    public static void parse_input_out(string input, out string cmd, out string[] args)
+    {
+        if (input.Contains(' ')) // We have args!
+        {
+            int command_index = input.IndexOf(' ');
+            cmd = input.Substring(0, command_index);
+            ++command_index; // Move index to after the space
+
+            // Get args:
+            input = input.Substring(command_index, input.Length - command_index);
+            args = input.Split(' ');
+
+            // Spaces shouldn't count as args
+            int space_counter = 0;
+            for (int i = 0; i < args.Length; ++i)
+                if (args[i] == " " || args[i] == "")
+                { args[i] = null; ++space_counter; }
+
+            if (space_counter == args.Length) args = new string[0];
+        }
+        else
+        {
+            cmd = input;
+            args = new string[0];
+        }
+    }
     public void Submit()
     {
         string s = Input_Field.text;
         _Log("> ".AddColor(Colors.Unimportant) + s); History_Add(s);
 
-        string command = s;
-        string[] tokens = new string[0];
+        string command;
+        string[] tokens;
 
-        if (s.Contains(' ')) // We have args!
-        {
-            int command_index = s.IndexOf(' ');
-            command = s.Substring(0, command_index);
-            ++command_index; // Move index to after the space
-
-            // Get args:
-            s = s.Substring(command_index, s.Length - command_index);
-            tokens = s.Split(' ');
-
-            // Spaces shouldn't count as args
-            int space_counter = 0;
-            for (int i = 0; i < tokens.Length; ++i)
-                if (tokens[i] == " " || tokens[i] == "")
-                { tokens[i] = null; ++space_counter; }
-
-            if (space_counter == tokens.Length) tokens = new string[0];
-        }
+        parse_input_out(s, out command, out tokens);
 
         Input_Field.text = "";
         FocusInputField();
