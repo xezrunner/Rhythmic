@@ -10,26 +10,6 @@ public class Configuration
         if (config_auto_global_section) AddSection(SECTION_GLOBAL);
     }
 
-    /*
-    public Configuration() { }
-
-    public Configuration(string file_name, string config_name = null, bool is_hotreload = false, bool is_local = false)
-    {
-        if (file_name.IsEmpty() && config_name.IsEmpty())
-            throw new Exception("A Configuration class did not have a file_name or a config_name.");
-
-        Sections = new Dictionary<string, Dictionary<string, object>>();
-
-        this.file_name = file_name;
-        // Assign file name without ext as config_name if none was given
-        if (config_name.IsEmpty())
-            this.config_name = file_name.RemoveExt();
-
-        this.is_hotreload = is_hotreload;
-        this.is_local = is_local;
-    }
-    */
-
     public string file_name;
     // public File file_handle;
     public string config_name; // Should be the same as file_name without ext in case there isn't one defined within the file!
