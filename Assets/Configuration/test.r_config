@@ -1,6 +1,6 @@
 // Test configuration file
 
-#name TestConfig_00
+//#name TestConfig_00
 
 // Local lets the game know that the config file is custom.
 // Hotreload makes the file automatically reload when a change is detected.

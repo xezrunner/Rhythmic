@@ -149,7 +149,7 @@ public static class StringExtensions
 
     public static string RemoveExt(this string text, string ext = null)
     {
-        if (ext != null || ext != "") return text.Replace(ext, "");
+        if (ext != null && ext != "") return text.Replace(ext, "");
         else if (text.Contains("."))
         {
             for (int i = text.Length - 1; i > 0; --i)

@@ -183,6 +183,11 @@ public class ConfigurationManager
             if (cursor + 1 < total) token = tokens[++cursor];
             else break;
         }
+
+        // Check whether we had a config_name:
+        if (config.config_name.IsEmpty())
+            config.config_name = file_name.RemoveExt();
+
         return config;
     }
 
