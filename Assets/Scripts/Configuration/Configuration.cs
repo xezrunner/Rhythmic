@@ -7,6 +7,7 @@ public class Configuration
     {
         this.file_name = file_name;
         Sections = new Dictionary<string, Dictionary<string, string>>();
+        if (config_auto_global_section) AddSection(SECTION_GLOBAL);
     }
 
     /*
@@ -40,6 +41,7 @@ public class Configuration
     // [section: [vars]]
     public Dictionary<string, Dictionary<string, string>> Sections;
 
+    public static bool config_auto_global_section = true;
     public void AddSection(string name)
     {
         if (!name.IsEmpty() && !Sections.ContainsKey(name))
