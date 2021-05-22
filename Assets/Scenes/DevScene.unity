@@ -176,7 +176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultSong: allthetime
-  IsEnabled: 1
+  IsEnabled: 0
   IsFake: 0
   IsPlaying: 0
   IsSongOver: 0

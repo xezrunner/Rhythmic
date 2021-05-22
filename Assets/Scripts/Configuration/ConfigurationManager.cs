@@ -98,6 +98,12 @@ public class ConfigurationManager
             if (cursor > 0)
                 c = Text[--cursor];
         }
+        public char Peek()
+        {
+            char c = Advance();
+            Backwards();
+            return c;
+        }
 
         public string Text;
         public char c;
@@ -119,7 +125,7 @@ public class ConfigurationManager
             case '#':
                 {
                     token = new Token(Token_Type.Comment);
-                    while (!t.end_of_file && (t.c != '\r' || t.c != '\n'))
+                    while (!t.end_of_file && (t.c != '\r' && t.c != '\n'))
                     {
                         token.Value += t.c; // Include the entire comment starting from #
                         t.Advance();
@@ -131,13 +137,14 @@ public class ConfigurationManager
             case '"':
                 {
                     token = new Token(Token_Type.String);
-                    while (!t.end_of_file && (t.c != '"'))
+                    while (!t.end_of_file && t.c != '"')
                         token.Value += t.Advance();
                     break;
                 }
             case ':':
                 {
                     token = new Token(Token_Type.Section);
+                    if (t.Peek() == ' ') t.Advance();
                     while (!t.end_of_file && !t.c.IsNewline())
                         token.Value += t.Advance();
                     break;
@@ -145,7 +152,7 @@ public class ConfigurationManager
             case char x when (char.IsLetter(x)):
                 {
                     string ident = "";
-                    while (!t.end_of_file && (!t.c.IsWhitespace() || t.c != ')'))
+                    while (!t.end_of_file && !t.c.IsWhitespace() && t.c != ')')
                     {
                         ident += t.c;
                         t.Advance();
