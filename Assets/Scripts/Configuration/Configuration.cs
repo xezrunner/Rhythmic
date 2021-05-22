@@ -34,6 +34,8 @@ public class Configuration
     // public File file_handle;
     public string config_name; // Should be the same as file_name without ext in case there isn't one defined within the file!
 
+    public int priority = 0;
+
     public bool is_hotreload;
     public bool is_local;
 

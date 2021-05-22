@@ -87,6 +87,7 @@ public class ConfigurationManager
         return Tokens;
     }
 
+    // ***** INTERPRETATION: *****
     public Configuration InterpretConfigurationFile(string file_name, List<Token> tokens)
     {
         Configuration config = new Configuration(file_name);
@@ -110,13 +111,17 @@ public class ConfigurationManager
                         bool value = s[0] != '!';
                         if (!value) s.Substring(1, s.Length - 1); // Remove '!' from string
 
-                        if (s == "local") config.is_local = value;
-                        if (s == "hotreload") config.is_hotreload = value;
                         if (s == "name")
                         {
                             token = tokens[++cursor];
-                            if (token.Type == Token_Type.Identifier)
-                                config.config_name = token.Value;
+                            if (token.Type == Token_Type.Identifier) config.config_name = token.Value;
+                        }
+                        if (s == "local") config.is_local = value;
+                        if (s == "hotreload") config.is_hotreload = value;
+                        if (s == "priority")
+                        {
+                            token = tokens[++cursor];
+                            if (token.Type == Token_Type.Identifier) config.priority = token.Value.ParseInt();
                         }
 
                         break;
