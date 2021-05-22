@@ -1,6 +1,4 @@
-// This is a comment.
-config_name test
-
+#name Hello
 # local
 
 : Testing

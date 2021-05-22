@@ -132,6 +132,7 @@ public partial class DebugConsole
         RegisterCommand(change_ogg_folder);
 
         RegisterCommand(moggsong_parser_debug_print, "Prints the tokens used during .moggsong file parsing.");
+        RegisterCommand(config_debug_parser);
 
         // Common commands:
         RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
@@ -156,6 +157,7 @@ public partial class DebugConsole
     {
         Configuration c = ConfigurationManager.DEBUG_TestConfig();
         Logger.LogConsole("-------- LISTING --------");
+        Logger.LogConsole("config_name: %", c.config_name);
         foreach (var s in c.Sections)
         {
             Logger.LogConsole("# Section: %", s.Key);
@@ -163,6 +165,14 @@ public partial class DebugConsole
                 Logger.LogConsole("   * % | %", v.Key, v.Value);
         }
         Logger.LogConsole("-------- LISTING --------");
+    }
+
+    void config_debug_parser(string[] args)
+    {
+        if (args == null || args.Length == 0) ConfigurationManager.debug_tokens = !ConfigurationManager.debug_tokens;
+        else ConfigurationManager.debug_tokens = args[0].ParseBool();
+
+        Logger.LogConsole("ConfigurationManager: parser debugger: %", ConfigurationManager.debug_tokens);
     }
 
     void console_perf()
