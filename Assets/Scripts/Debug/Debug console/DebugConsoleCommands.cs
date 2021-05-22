@@ -45,7 +45,11 @@ public partial class DebugConsole
     {
         if (Register_CheckForExistingCommands) // TODO: Performance, especially in non-debug builds (?)
             for (int i = 0; i < Commands_Count; ++i)
-                if (Commands[i].Command == command) { Logger.LogMethodW($"Command {command.AddColor(Colors.Application)} was already registered! Ignoring current attempt..."); return true; }
+                if (Commands[i].Command == command)
+                {
+                    //Logger.LogMethodW($"Command {command.AddColor(Colors.Application)} was already registered! Ignoring current attempt...");
+                    return true;
+                }
         return false;
     }
 

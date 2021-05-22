@@ -45,7 +45,7 @@ public class GameStarter : MonoBehaviour
         if (!SetResolutionOnce & Keyboard.current.leftCtrlKey.isPressed)
             RhythmicGame.SetResolution(RhythmicGame.PreferredResolution); // TODO: this forces you in to exclusive fullscreen mode
         SetResolutionOnce = true;
-        Debug.LogFormat("GameStarter: Preferred resolution applied - {0}x{1}.", RhythmicGame.PreferredResolution.x, RhythmicGame.PreferredResolution.y);
+        Logger.Log("Preferred resolution applied - %x%".T(this), RhythmicGame.PreferredResolution.x, RhythmicGame.PreferredResolution.y);
 #endif
 
         // Hide cursor

@@ -134,7 +134,7 @@ public class ConfigurationManager
                             {
                                 string cmd; string[] cmd_tokens;
                                 DebugConsole.parse_input_out(token.Value, out cmd, out cmd_tokens);
-                                if (debug_log_cmds) Logger.LogConsole("Config '%' executing command: '%%'".AddColor(Colors.IO), file_name, cmd, (cmd_tokens.Length != 0 ? (" " + string.Join(" ", cmd_tokens)) : ""));
+                                if (debug_log_cmds) Logger.LogConsole("Config '%' executing command: ".AddColor(Colors.IO) + "'%%'".AddColor(Colors.Application), file_name, cmd, (cmd_tokens.Length != 0 ? (" " + string.Join(" ", cmd_tokens)) : ""));
                                 DebugConsole.ExecuteCommand(cmd, cmd_tokens);
                             }
                         }
