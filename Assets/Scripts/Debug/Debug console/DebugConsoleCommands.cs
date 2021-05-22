@@ -154,7 +154,15 @@ public partial class DebugConsole
     
     void conf_test()
     {
-        ConfigurationManager.DEBUG_TestConfig();
+        Configuration c = ConfigurationManager.DEBUG_TestConfig();
+        Logger.LogConsole("-------- LISTING --------");
+        foreach (var s in c.Sections)
+        {
+            Logger.LogConsole("# Section: %", s.Key);
+            foreach (var v in s.Value)
+                Logger.LogConsole("   * % | %", v.Key, v.Value);
+        }
+        Logger.LogConsole("-------- LISTING --------");
     }
 
     void console_perf()

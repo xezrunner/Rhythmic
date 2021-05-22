@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -45,14 +46,23 @@ public class ConfigurationManager
             tokenizer = new Tokenizer(text);
         }
 
-        Configuration config = ParseConfigurationFile(tokenizer);
+        List<Token> tokens = ParseConfigurationFile(tokenizer);
+        if (tokens.Count <= 0)
+        {
+            Logger.LogConsoleE("An error occured while trying to parse the config file '%'.", file_name);
+            return null;
+        }
+
+        Configuration config = InterpretConfigurationFile(file_name, tokens); // new Configuration(file_name, config_name)
+
         return config;
     }
 
-    public List<Token> Tokens = new List<Token>();
-    public static bool debug_tokens = true;
-    public Configuration ParseConfigurationFile(Tokenizer t)
+    public static bool debug_tokens = false;
+    public List<Token> ParseConfigurationFile(Tokenizer t)
     {
+        List<Token> Tokens = new List<Token>();
+
         // Grab tokens:
         while (!t.end_of_file)
         {
@@ -63,17 +73,85 @@ public class ConfigurationManager
             Tokens.Add(token);
         }
 
-        // Load stuff:
-        {
-            
-        }
+        return Tokens;
+    }
 
-        return null;
+    public Configuration InterpretConfigurationFile(string file_name, List<Token> tokens)
+    {
+        Configuration config = new Configuration(file_name);
+        int cursor = 0, total = tokens.Count;
+        Token token = tokens[cursor];
+
+        string last_section = Configuration.SECTION_GLOBAL;
+
+        while (cursor < total)
+        {
+            switch (token.Type)
+            {
+                case Token_Type.Meta_Identifier:
+                    {
+                        string s = token.Value;
+                        if (s.IsEmpty())
+                        {
+                            Logger.LogConsoleW("Configuration: Meta_Identifier with no value! ('%')", file_name);
+                            break;
+                        }
+                        bool value = s[0] != '!';
+                        if (!value) s.Substring(1, s.Length - 1); // Remove '!' from string
+
+                        if (s == "local") config.is_local = value;
+                        if (s == "hotreload") config.is_hotreload = value;
+
+                        break;
+                    }
+
+                case Token_Type.Section:
+                    {
+                        string s = token.Value;
+                        if (s.IsEmpty())
+                            s = Configuration.SECTION_GLOBAL;
+
+                        config.AddSection(s);
+                        last_section = s;
+                        break;
+                    }
+                case Token_Type.Identifier:
+                    {
+                        string name = token.Value;
+                        // Advance to the next token.
+                        if ((cursor + 1) < total) token = tokens[++cursor];
+
+                        string value = null;
+                        if (token.Type == Token_Type.Identifier || token.Type == Token_Type.Number || token.Type == Token_Type.String)
+                            value = token.Value;
+                        else if (token.Type == Token_Type.OpenParen)
+                        {
+                            string s = "(";
+                            while (token.Type != Token_Type.CloseParen)
+                            {
+                                token = tokens[++cursor]; // TODO: should we bounds-check everywhere?
+                                if (token.Type == Token_Type.Identifier || token.Type == Token_Type.Number || token.Type == Token_Type.String)
+                                    s += token.Value + ", ";
+                            }
+                            s = s.Remove(s.Length - 2, 2) + ')';
+
+                            value = s;
+                            //Logger.LogConsoleW("Configuration: Multi-values are not yet supported! ('%')", file_name);
+                        }
+
+                        config.AddVariable(last_section, name, value);
+                        break;
+                    }
+            }
+            if (cursor + 1 < total) token = tokens[++cursor];
+            else break;
+        }
+        return config;
     }
 
     #region Token parsing
 
-    public enum Token_Type { EndOfFile, Unknown, Comment, Section, Identifier, Number, OpenParen, CloseParen, String }
+    public enum Token_Type { EndOfFile, Unknown, Comment, Meta_Identifier, Section, Identifier, Number, OpenParen, CloseParen, String }
     public class Token
     {
         public Token(Token_Type type = Token_Type.Unknown) { Type = type; }
@@ -87,11 +165,19 @@ public class ConfigurationManager
         public Tokenizer(string t) { Text = t; c = Text[0]; }
         public Tokenizer(string t, int p) { Text = t; cursor = p; c = Text[p]; }
 
-        public char Advance()
+        /// <summary>
+        /// If <paramref name="return_next"/> is set to true, the returned character will be the one you advance to.<br/>
+        /// If false, the returned character will be the one you were standing on prior to advancing.
+        /// </summary>
+        public char Advance(bool return_next = true)
         {
             if (cursor + 1 < Text.Length)
-                return c = Text[++cursor];
+                c = Text[++cursor];
             else { end_of_file = true; return '\0'; }
+
+            if (return_next) return c;
+            else if (cursor > 0) return Text[cursor - 1];
+            else return '\0';
         }
         public void Backwards()
         {
@@ -111,6 +197,7 @@ public class ConfigurationManager
         public bool end_of_file;
     }
 
+    static bool parser_include_string_quotes = false;
     public Token GetToken(Tokenizer t)
     {
         // TODO: We should really use a StringBuilder for performance reasons, especially
@@ -122,14 +209,22 @@ public class ConfigurationManager
         while (!t.end_of_file && t.c.IsWhitespace()) t.Advance();
         switch (t.c)
         {
-            case '#':
+            case '/':
                 {
                     token = new Token(Token_Type.Comment);
                     while (!t.end_of_file && (t.c != '\r' && t.c != '\n'))
                     {
-                        token.Value += t.c; // Include the entire comment starting from #
+                        token.Value += t.c; // Include comment marks
                         t.Advance();
                     }
+                    break;
+                }
+            case '#':
+                {
+                    token = new Token(Token_Type.Meta_Identifier);
+                    if (t.Peek() == ' ') t.Advance();
+                    while (!t.end_of_file && !t.c.IsNewline())
+                        token.Value += t.Advance();
                     break;
                 }
             case '(': token = new Token(Token_Type.OpenParen); break;
@@ -137,8 +232,21 @@ public class ConfigurationManager
             case '"':
                 {
                     token = new Token(Token_Type.String);
-                    while (!t.end_of_file && t.c != '"')
-                        token.Value += t.Advance();
+                    int pos = 0;
+                    while (!t.end_of_file)
+                    {
+                        if (t.c == '"')
+                        {
+                            if (parser_include_string_quotes) token.Value += t.Advance(false);
+                            else t.Advance();
+
+                            if (pos > 0) break;
+                        }
+                        else
+                            token.Value += t.Advance(false);
+
+                        ++pos;
+                    }
                     break;
                 }
             case ':':
@@ -187,24 +295,26 @@ public class ConfigurationManager
 
     // -------------------- //
 
-    public static void DEBUG_TestConfig()
+    public static Configuration DEBUG_TestConfig()
     {
         ConfigurationManager m = new ConfigurationManager();
-        m.LoadConfiguration("test");
+        return m.LoadConfiguration("test");
     }
 
     public static void DEBUG_RuntimeTestConfig()
     {
+        /*
         Configuration c = new Configuration();
         c.AddVariable("test", "This is a test value.");
         c.AddVariable("test_int", 0);
 
         Logger.LogConsole("Test printing items from runtime test conf: ");
-        for (int i = 0; i < c.Variables.Count; ++i)
+        for (int i = 0; i < c.Sections.Count; ++i)
         {
-            KeyValuePair<string, object> it = c.Variables.ElementAt(i);
+            KeyValuePair<string, object> it = c.Sections.ElementAt(i);
             Logger.LogConsole("[%] %: %", i, it.Key, it.Value);
         }
         Logger.LogConsole("");
+        */
     }
 }

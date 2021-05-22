@@ -1,7 +1,11 @@
-# This is a comment.
+// This is a comment.
+config_name test
+
+# local
 
 : Testing
 test_var value
+string_var "Hi!"
 
 : Another section
 paren_var (1 2 3)

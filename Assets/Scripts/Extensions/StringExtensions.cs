@@ -80,17 +80,16 @@ public static class StringExtensions
     {
         int space_count = right_target - text.Length;
         string s = "";
-        for (; space_count > 0 ; --space_count) s += ' ';
+        for (; space_count > 0; --space_count) s += ' ';
 
         if (!after)
             return s + text;
-        else 
+        else
             return text + s;
     }
 
     /// Not sure about the naming for these... the shorter ones seem more convenient.
     // TODO: Default colors
-    ///
 
     //public static string Type(this string text, object type = null)
     public static string T(this string text, object type = null, bool standalone = true) => T(text, Colors.Unimportant, type, standalone);
@@ -147,6 +146,23 @@ public static class StringExtensions
     }
     public static int ParseInt(this string text) => int.Parse(text);
     public static float ParseFloat(this string text) => float.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
+
+    public static string RemoveExt(this string text, string ext = null)
+    {
+        if (ext != null || ext != "") return text.Replace(ext, "");
+        else if (text.Contains("."))
+        {
+            for (int i = text.Length - 1; i > 0; --i)
+            {
+                if (text[i] == '.')
+                    return text.Substring(0, i);
+            }
+        }
+        return text;
+    }
+
+    // TODO: We should also consider spaces as empty, potentially. Perhaps controllable?
+    public static bool IsEmpty(this string text) => (text == null || text == "");
 }
 
 public static class CharExtensions
