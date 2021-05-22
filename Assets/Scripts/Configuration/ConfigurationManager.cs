@@ -18,8 +18,19 @@ public class ConfigurationManager
     {
         foreach (string s in config_folders)
         {
-            string path = Path.Combine(config_basefolder, s, file_name);
-            if (File.Exists(path)) return path;
+            string path = Path.Combine(config_basefolder, s);
+            if (!Directory.Exists(path)) continue;
+
+            string file_path = Path.Combine(path, file_name);
+
+            if (File.Exists(file_path)) return file_path;
+
+            string[] dirs = Directory.GetDirectories(path, "*", SearchOption.AllDirectories);
+            foreach (string subdir in dirs)
+            {
+                string subdir_file_path = Path.Combine(subdir, file_name);
+                if (File.Exists(subdir_file_path)) return subdir_file_path;
+            }
         }
         return "";
     }
