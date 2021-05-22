@@ -222,9 +222,10 @@ public class ConfigurationManager
             case '#':
                 {
                     token = new Token(Token_Type.Meta_Identifier);
-                    if (t.Peek() == ' ') t.Advance();
-                    while (!t.end_of_file && !t.c.IsNewline())
-                        token.Value += t.Advance();
+                    t.Advance(); // Skip '#'
+                    if (t.c == ' ') t.Advance(); // Skip spaces
+                    while (!t.end_of_file && /*!t.c.IsNewline()*/ !t.c.IsWhitespace())
+                        token.Value += t.Advance(false);
                     break;
                 }
             case '(': token = new Token(Token_Type.OpenParen); break;
