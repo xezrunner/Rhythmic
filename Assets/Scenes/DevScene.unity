@@ -175,8 +175,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f0fbf93bdfe97d41a7159ea35bedf1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultSong: allthetime
-  IsEnabled: 0
+  defaultSong: perfectbrain
+  IsEnabled: 1
   IsFake: 0
   IsPlaying: 0
   IsSongOver: 0
@@ -1011,41 +1011,37 @@ MonoBehaviour:
   editorData:
     _bezierPath:
       points:
-      - {x: -2, y: 0, z: 0}
-      - {x: -22.897472, y: 44.854637, z: 316.19342}
-      - {x: -43.794945, y: 89.709274, z: 632.38684}
-      - {x: 109.41856, y: 85.44861, z: 834.92163}
-      - {x: 239.08664, y: 81.842705, z: 1006.3315}
-      - {x: 713.442, y: -108.03196, z: 931.92725}
-      - {x: 762.0523, y: -7.6396484, z: 1115.6841}
-      - {x: 849.8194, y: 173.62115, z: 1447.4615}
-      - {x: -120.49768, y: 366.86487, z: 1567.9868}
-      - {x: -135.29364, y: 740.76904, z: 1670.9993}
-      - {x: -149.71606, y: 1105.2336, z: 1771.4111}
-      - {x: 539.29706, y: 1379.4426, z: 1460.719}
-      - {x: 672.31683, y: 1706.4441, z: 1596.7368}
-      - {x: 716.8134, y: 1815.8297, z: 1642.2363}
-      - {x: 687.91907, y: 1915.344, z: 1763.2333}
-      - {x: 659.0247, y: 2014.8582, z: 1884.2302}
+      - {x: 84.31334, y: -29.456573, z: -190.0321}
+      - {x: -87.26966, y: -109.822784, z: -104.94018}
+      - {x: -21.202473, y: -32.688232, z: 56.61906}
+      - {x: -9.115715, y: -7.8386497, z: 114.876366}
+      - {x: 9.638957, y: 30.719738, z: 205.27255}
+      - {x: -66.01314, y: 30.601383, z: 395.3138}
+      - {x: -212.88826, y: 67.60248, z: 501.7658}
+      - {x: -362.50696, y: 105.29474, z: 610.2063}
+      - {x: -359.3464, y: 128.1982, z: 847.03827}
+      - {x: -366.90027, y: 153.05957, z: 921.74365}
+      - {x: -391.51062, y: 234.05743, z: 1165.1323}
+      - {x: -607.1994, y: 161.44806, z: 1087.208}
+      - {x: -977.06323, y: 229.59491, z: 919.16974}
       isClosed: 0
       space: 0
-      controlMode: 3
+      controlMode: 0
       autoControlLength: 0.3
       boundsUpToDate: 0
       bounds:
-        m_Center: {x: 0, y: 0, z: 3.5730217}
-        m_Extent: {x: 2, y: 0.14433756, z: 3.5730217}
+        m_Center: {x: 1.7155952, y: 0, z: 96.76897}
+        m_Extent: {x: 1.7155952, y: 0.14433756, z: 96.76897}
       perAnchorNormalsAngle:
       - 0
       - 0
-      - 0
-      - 0
-      - 0
-      - 0
+      - -16.046824
+      - 336.02
+      - 144.72
       globalNormalsAngle: 0
       flipNormals: 0
     vertexPathUpToDate: 1
-    vertexPathMaxAngleError: 0.3
+    vertexPathMaxAngleError: 0.05
     vertexPathMinVertexSpacing: 0.01
     showTransformTool: 1
     showPathBounds: 0
@@ -1063,7 +1059,7 @@ MonoBehaviour:
     showVertexPathOptions: 1
     showNormals: 0
     showNormalsHelpInfo: 0
-    tabIndex: 0
+    tabIndex: 1
   initialized: 1
 --- !u!114 &959839597
 MonoBehaviour:
