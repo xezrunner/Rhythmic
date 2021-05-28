@@ -248,10 +248,11 @@ public partial class DebugConsole : DebugComponent
         DebugKeys.IsEnabled = false;
         //Input_Field.Select();
     }
-    void UnfocusInputField() // TODO: This does not unfocus the input field in certain cases. Workaround in OnInputChanged()
+	// TODO: This does not unfocus the input field in certain cases. Workaround in OnInputChanged()
+    void UnfocusInputField()
     {
-        // This calls the OnSubmit() and releated events.
-        // In this case, we do not use that event, but it's good to know for future reference.
+        // This calls OnSubmit() and related events.
+        // In this case, we do not use these events, but this is good to know for future reference.
         EventSystem.current.SetSelectedGameObject(null); // Unnecessary?
         Input_Field.DeactivateInputField();
         PlayerInputHandler.IsActive = true; // TODO: we want the previous value here? locks?
@@ -365,7 +366,8 @@ public partial class DebugConsole : DebugComponent
     int history_index = -1;
     public void History_Add(string s)
     {
-        if (History != null && History.Count != 0 && History.First() == s) // Do not add to history if the command already existed as the last added one
+		// Do not add to history if the command already existed as the last added one
+        if (History != null && History.Count != 0 && History.First() == s) 
             return;
 
         History.Insert(0, s);
@@ -555,15 +557,16 @@ public partial class DebugConsole : DebugComponent
     void Update()
     {
         UPDATE_Animation();
-        UPDATE_Autocomplete();
-        UPDATE_Scroll();
-
-        if (!IsOpen && WasPressed(Keyboard.digit0Key, Keyboard.backquoteKey))
+        
+		if (!IsOpen && WasPressed(Keyboard.digit0Key, Keyboard.backquoteKey))
             _Open();
         else if (IsOpen && WasPressed(Keyboard.escapeKey))
             _Close();
 
         if (!IsOpen) return;
+		
+		UPDATE_Autocomplete();
+        UPDATE_Scroll();
 
         // Cancel scrolling animations when scrolling with mouse wheel
         if (Mouse.current != null && Mouse.current.scroll.y.ReadValue() != 0)
@@ -582,7 +585,7 @@ public partial class DebugConsole : DebugComponent
         if (WasPressed(Keyboard.downArrowKey))
             History_Next(-1);
 
-        // Editing: TODO: InputHandler shoudl have something for detecting hold + frame press
+        // Editing: TODO: InputHandler should have something for detecting hold + frame press
         if (Keyboard.ctrlKey.isPressed && Keyboard.backspaceKey.wasPressedThisFrame) InputField_WordDelete(-1);
         if (Keyboard.ctrlKey.isPressed && Keyboard.deleteKey.wasPressedThisFrame) InputField_WordDelete(1);
         //if (/* Is selecting in the input field? */ Keyboard.ctrlKey.isPressed && Keyboard.cKey.wasPressedThisFrame) InputField_ChangeText(""); // Clear input field on [Ctrl+C]

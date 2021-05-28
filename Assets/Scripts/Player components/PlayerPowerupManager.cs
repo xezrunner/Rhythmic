@@ -31,7 +31,7 @@ public partial class PlayerPowerupManager : MonoBehaviour
     private void Start() => RegisterCommands();
 
     /// Commands:
-    bool registered_commands;
+    static bool registered_commands;
     void RegisterCommands()
     {
         if (registered_commands) return;
@@ -53,6 +53,7 @@ public partial class PlayerPowerupManager : MonoBehaviour
             Instance.Current_Powerup?.Destroy();
             Instance.Current_Powerup = null;
         }
+		// TODO: bad bad bad!
         else if (char.IsDigit(args[0][0]))
         {
             int digit = args[0][0].ToString().ParseInt();

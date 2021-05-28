@@ -145,6 +145,7 @@ public class TrackStreamer : MonoBehaviour
                 else Destroy(measure.gameObject);
 
                 // Recycle notes as well:
+				// TODO: above, we do it elsewhere for measures. Same here?
                 if (AllowRecycling)
                 {
                     measure.Notes.ForEach(n => { n.ResetComponent(); destroyed_notes[++note_recycle_count] = n; });
@@ -174,6 +175,7 @@ public class TrackStreamer : MonoBehaviour
             meta_note.IsCaptured = measure.IsCaptured;
 
             Note note = track.CreateNote(meta_note, measure, i, false, powerup_type);
+			
             // Target note from meta
             if (meta_note.IsTargetNote && track.Sequence_Start_IDs[0] == meta_note.MeasureID)
                 TracksController.SetTargetNote(meta_note.TrackID, note);
