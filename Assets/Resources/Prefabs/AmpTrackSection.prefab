@@ -426,9 +426,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ModelRenderer: {fileID: 4073595771148080985}
   ModelMesh: {fileID: 1893114483968448368}
-  SeekerRenderer: {fileID: 0}
-  SeekerMesh: {fileID: 0}
-  Seeker: {fileID: 0}
   NotesContainer: {fileID: 1052880242004629714}
   ClipManager: {fileID: 0}
   ClipPlane: {fileID: 29731176791887653}
