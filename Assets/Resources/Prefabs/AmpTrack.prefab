@@ -149,6 +149,7 @@ MonoBehaviour:
   DestructFX: {fileID: 4962849655898940}
   GlobalEdgeLights: {fileID: 1055625016937415464}
   Track_Bottom_Mat: {fileID: 2100000, guid: 396d3256a4e6d3e4ea2f79ff65856f04, type: 2}
+  Track_Top_Mat: {fileID: 2100000, guid: ba259eb50b9094d429509adc2ce0fb5a, type: 2}
   Track_Bottom_Global_Mat: {fileID: 2100000, guid: 5d85cbed279b1d441a2bff4c13725ba3,
     type: 2}
   NoteDotLightMaterial: {fileID: 2100000, guid: df6cb909897b73b438cdf02e97ef3c29,

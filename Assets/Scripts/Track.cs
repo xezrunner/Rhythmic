@@ -87,8 +87,7 @@ public partial class Track : MonoBehaviour
         // Instance the measure materials so they are shared for this particular track only.
         // This has to be done in Awake(), as the Color property (which changes a TrackMaterial_Active) is being set sooner than Start().
         Track_Bottom_Mat = Instantiate(Track_Bottom_Mat);
-
-        Track_Top_Mat = Instantiate(Track_Bottom_Mat);
+        Track_Top_Mat = Instantiate(Track_Top_Mat);
 
         Track_Bottom_Global_Mat = Instantiate(Track_Bottom_Global_Mat);
         Track_Bottom_Global_Mat.SetInteger("_Enabled", 0); // Global should start off
