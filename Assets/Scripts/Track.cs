@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using PathCreation;
 using System;
 using System.Collections;
@@ -29,6 +28,7 @@ public partial class Track : MonoBehaviour
 
     [Header("Track materials")]
     public Material Track_Bottom_Mat;
+    public Material Track_Top_Mat;
     public Material Track_Bottom_Global_Mat;
 
     public Material NoteDotLightMaterial;
@@ -59,8 +59,11 @@ public partial class Track : MonoBehaviour
         set
         {
             _color = value;
-            Track_Bottom_Mat.SetColor("_Color", /*value*/ Color.white);
+            Track_Bottom_Mat.SetColor("_Color", /*value*/ Color.black);
             Track_Bottom_Mat.SetColor("_Emission", value * TracksController.LocalEmission);
+
+            Track_Top_Mat.SetColor("_Color", value);
+
             Track_Bottom_Global_Mat.SetColor("_Color", /*value*/ Color.white);
             Track_Bottom_Global_Mat.SetColor("_Emission", value * TracksController.GlobalEmission);
         }
@@ -84,6 +87,9 @@ public partial class Track : MonoBehaviour
         // Instance the measure materials so they are shared for this particular track only.
         // This has to be done in Awake(), as the Color property (which changes a TrackMaterial_Active) is being set sooner than Start().
         Track_Bottom_Mat = Instantiate(Track_Bottom_Mat);
+
+        Track_Top_Mat = Instantiate(Track_Bottom_Mat);
+
         Track_Bottom_Global_Mat = Instantiate(Track_Bottom_Global_Mat);
         Track_Bottom_Global_Mat.SetInteger("_Enabled", 0); // Global should start off
         NoteDotLightMaterial = Instantiate(NoteDotLightMaterial);
@@ -103,6 +109,7 @@ public partial class Track : MonoBehaviour
 
         // Set up ClipManager for capture clipping
         ClipManager.AddMaterial(Track_Bottom_Mat);
+        ClipManager.AddMaterial(Track_Top_Mat);
         if (RhythmicGame.GlobalEdgeLightsCaptureClipping)
             ClipManager.AddMaterial(Track_Bottom_Global_Mat);
 
@@ -250,11 +257,13 @@ public partial class Track : MonoBehaviour
 
     /// Events
     // Track capturing
+    /*
     public event EventHandler<int[]> OnTrackCaptureStart;
     public event EventHandler<int[]> OnTrackCaptured;
     // Measure capturing
     public event EventHandler<int[]> MeasureCaptureStarted; // start - end
     public event EventHandler<int[]> MeasureCaptureFinished; // start - end
+    */
 
     /// Functionality
 

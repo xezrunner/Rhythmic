@@ -71,7 +71,7 @@ public class Measure : MonoBehaviour
         ModelRenderer.materials = new Material[0];
         ModelRenderer.material = Track.Track_Bottom_Global_Mat;
     }
-    public void SetTrackMaterials(bool add_global = false)
+    public void SetTrackMaterials(bool add_global = false, bool is_sequence = false)
     {
         if (add_global)
         {
@@ -81,8 +81,17 @@ public class Measure : MonoBehaviour
         }
         else
         {
-            ModelRenderer.materials = new Material[0];
-            ModelRenderer.material = Track.Track_Bottom_Mat;
+            if (!is_sequence)
+            {
+                ModelRenderer.materials = new Material[0];
+                ModelRenderer.material = Track.Track_Bottom_Mat;
+            }
+            else
+            {
+                Material[] modelMaterials = new Material[2]
+                { Track.Track_Bottom_Mat, Track.Track_Top_Mat };
+                ModelRenderer.materials = modelMaterials;
+            }
         }
     }
 
@@ -93,6 +102,9 @@ public class Measure : MonoBehaviour
         IsEnabled = value;
         Notes.ForEach(n => n.IsEnabled = false);
         // TODO: Disable active surface! (IsFocused / IsSequence to false?)
+        IsSequence = false;
+        if (IsEmpty || CaptureState == MeasureCaptureState.Captured) SetEmptyMaterials();
+        else SetTrackMaterials();
 
         foreach (Track t in Track.TrackTwins)
             if (/*ID > 0 && */ ID < t.Measures.Count && t.Measures[ID]) t.Measures[ID].SetIsEnabled(value);
@@ -108,8 +120,12 @@ public class Measure : MonoBehaviour
 
             // Toggle edge light material
             if (Track) Track.Track_Bottom_Global_Mat.SetInteger("_Enabled", value ? 1 : 0); // TODO: Optimization?
-            if (!IsEmpty || !IsCaptured) return;
-                /*Seeker.SetActive(value ? (_isSequence && !IsCaptured ? true : false) : false);*/
+            if (IsEmpty || IsCaptured) return;
+
+            SetTrackMaterials(false, value && IsSequence);
+            //Track.Track_Top_Mat.SetInteger("_Enabled", (IsSequence && value ? 1 : 0));
+
+            /*Seeker.SetActive(value ? (_isSequence && !IsCaptured ? true : false) : false);*/
         }
     }
 
@@ -145,6 +161,8 @@ public class Measure : MonoBehaviour
     }
     public void Start()
     {
+        if (!Track) return;
+
         // TODO: optimizations below:
         if (!ModelMesh || !ModelMesh.sharedMesh)
         { Debug.LogWarning($"AmpTrackSection [init]: measure {ID} does not have a Model!"); return; }

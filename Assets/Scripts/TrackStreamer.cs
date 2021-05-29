@@ -169,6 +169,9 @@ public class TrackStreamer : MonoBehaviour
         //if (measureNotes == null || measureNotes.Length == 0)
         //{ measure.IsEmpty = true; yield break; }
 
+        if (measure.IsEmpty && measureNotes.Length > 0)
+            Logger.LogError("WTF!!!");
+
         for (int i = 0; i < measureNotes.Length; i++)
         {
             MetaNote meta_note = measureNotes[i];

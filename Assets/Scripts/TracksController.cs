@@ -161,6 +161,8 @@ public class TracksController : MonoBehaviour
     // Shared AmpNote material (TODO: move somewhere else? Into AmpNote as static?)
     public Material SharedNoteMaterial;
 
+    // TODO: There are two clip managers - one is global for the length clipping, the other is individual on each track.
+    // There should be better explanations for this, perhaps a different system for handling clipping altogether.
     bool clipping_lastVisualControlState = false; // false: has not set materials to OFF yet | true: ignore Clip() completely
     IEnumerator AddTrackMaterialsToClipper()
     {
@@ -169,6 +171,7 @@ public class TracksController : MonoBehaviour
         foreach (var t in Tracks)
         {
             clipManager.AddMaterial(t.Track_Bottom_Mat);
+            clipManager.AddMaterial(t.Track_Top_Mat);
             clipManager.AddMaterial(t.Track_Bottom_Global_Mat);
         }
 

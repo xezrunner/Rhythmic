@@ -47,8 +47,8 @@ public partial class Track
         measure.IsEmpty = meta.IsEmpty;
         measure.IsCaptured = meta.IsCaptured;
 
-        // Assign materials | TODO: improve!
-        //Material[] modelMaterials = new Material[2]
+        // assign materials | todo: improve!
+        //material[] modelmaterials = new material[2]
         //    { Track_Bottom_Global_Mat, Track_Bottom_Mat };
         //measure.ModelRenderer.materials = modelMaterials;
 
