@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-[Powerup(PowerupType.Freestyle, "Freestyle", "flow_deploy", prefab_path: "Prefabs/Powerups/FreestylePowerup", auto_destroy: false)]
+[Powerup(PowerupType.Freestyle, "Freestyle", "flow_deploy", "flow_end", prefab_path: "Prefabs/Powerups/FreestylePowerup", auto_destroy: false)]
 public class Powerup_Freestyle : Powerup
 {
     PlayerLocomotion PlayerLocomotion { get { return PlayerLocomotion.Instance; } }

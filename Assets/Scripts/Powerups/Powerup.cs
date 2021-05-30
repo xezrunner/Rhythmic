@@ -3,13 +3,14 @@ using UnityEngine;
 
 public class PowerupAttribute : Attribute
 {
-    public PowerupAttribute(PowerupType type, string name = null, string audio_name = "", int bar_length = 4, bool auto_destroy = true, string prefab_path = "")
-    { Type = type; if (name != null) Prefab_Path = prefab_path; Name = name; Audio_Name = audio_name; Bar_Length = bar_length; Auto_Destroy = auto_destroy; }
+    public PowerupAttribute(PowerupType type, string name = null, string audio_name_start = "", string audio_name_end = "", int bar_length = 4, bool auto_destroy = true, string prefab_path = "")
+    { Type = type; if (name != null) Prefab_Path = prefab_path; Name = name; Audio_Name_Start = audio_name_start; Audio_Name_End = audio_name_end; Bar_Length = bar_length; Auto_Destroy = auto_destroy; }
 
     public PowerupType Type;
     public string Prefab_Path = "";
     public string Name = "Powerup";
-    public string Audio_Name = "";
+    public string Audio_Name_Start = "";
+    public string Audio_Name_End = "";
 
     public int Bar_Length = 4;
     public bool Auto_Destroy = true;
@@ -40,7 +41,13 @@ public class Powerup : MonoBehaviour
             if (Attribute.Auto_Destroy) Destroy();
         }
     }
-    public virtual void OnPowerupFinished() => Deployed = false;
+    public virtual void OnPowerupFinished()
+    {
+        Deployed = false;
+
+        // Play sound:
+        if (Attribute.Audio_Name_End != "") PlayerPowerupManager.PlayOneShot(Attribute.Audio_Name_End);
+    }
 
     public virtual void Deploy()
     {
@@ -51,8 +58,8 @@ public class Powerup : MonoBehaviour
 
         Logger.Log("Powerup deployed! name: %.".TM(), Attribute?.Name);
 
-        // Play sound: | TODO: We might want to play sounds from the Powerup manager.
-        if (Attribute.Audio_Name != "") PlayerPowerupManager.PlayOneShot(Attribute.Audio_Name);
+        // Play sound:
+        if (Attribute.Audio_Name_Start != "") PlayerPowerupManager.PlayOneShot(Attribute.Audio_Name_Start);
     }
     public virtual void Destroy()
     {
