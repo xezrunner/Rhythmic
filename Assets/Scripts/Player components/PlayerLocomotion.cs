@@ -19,6 +19,7 @@ public class PlayerLocomotion : MonoBehaviour
     public Transform Interpolatable;
     public Transform Interpolatable_TunnelRotation;
     public Transform NonInterpolatable;
+    public Transform PlayerVisualPoint;
 
     Vector3 normalCameraPos;
     Vector3 closeCameraPos;
@@ -38,6 +39,7 @@ public class PlayerLocomotion : MonoBehaviour
     public float HorizonLength;
     public float CameraPullback = 12.8f;
     public float CameraElevation = 7.53f;
+    public float PlayerVisualPoint_Pullback;
 
     [Header("Freestyle")]
     public bool IsFreestyle = false;
@@ -71,6 +73,8 @@ public class PlayerLocomotion : MonoBehaviour
         DistanceTravelled = SongController.StartDistance;
 
         Locomotion(DistanceTravelled, true); // Position & rotate player on path right away
+
+        DebugConsole.RegisterCommand("freestyle", () => { IsFreestyle = !IsFreestyle; Logger.LogConsole("new state: %", IsFreestyle); });
     }
     void GetPath()
     {
@@ -125,6 +129,9 @@ public class PlayerLocomotion : MonoBehaviour
     Quaternion cam_rotref;
 
     public float LiveCaptDist;
+
+    Vector3 visualpoint_pos_ref;
+    public float mouse_dampen = 20f;
     void Update()
     {
         if (IsPlaying || SongController.IsPlaying)
@@ -135,18 +142,42 @@ public class PlayerLocomotion : MonoBehaviour
                 DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
             }
 
-            // Camera pullback:
-            if (false)
+            // Camera pullback toggle:
+            if (false && !IsFreestyle)
             {
                 // TODO: Keymap!
                 if (PlayerInputHandler.IsActive && Keyboard.current.nKey.wasPressedThisFrame || (Gamepad.current != null && Gamepad.current.rightStickButton.wasPressedThisFrame))
                     cameraClose = !cameraClose;
-
-                MainCamera.transform.localPosition = Vector3.SmoothDamp(MainCamera.transform.localPosition, cameraClose ? closeCameraPos : normalCameraPos, ref cam_posref, 0.2f);
-                MainCamera.transform.localRotation = QuaternionUtil.SmoothDamp(MainCamera.transform.localRotation, cameraClose ? closeRotation : normalRotation, ref cam_rotref, 0.2f);
             }
 
             Locomotion(DistanceTravelled, !SmoothEnabled);
+
+            // Camera pos & rot:
+            {
+                MainCamera.transform.localPosition = Vector3.SmoothDamp(MainCamera.transform.localPosition, cameraClose ? closeCameraPos : normalCameraPos, ref cam_posref, 0.2f);
+
+                Vector3 freestyle_dir = (PlayerVisualPoint.localPosition - MainCamera.transform.localPosition);
+                Quaternion cam_rot_target = QuaternionUtil.SmoothDamp(MainCamera.transform.localRotation, IsFreestyle ? Quaternion.LookRotation(freestyle_dir) : (cameraClose ? closeRotation : normalRotation), ref cam_rotref, 0.35f);
+                MainCamera.transform.localRotation = cam_rot_target;
+            }
+
+            // Player visual point control (with mouse):
+            {
+                //MainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+
+                Vector3 pos;
+                if (IsFreestyle) /*pos = (RhythmicGame.IsTunnelMode) ? Tunnel.center : new Vector3(0, -Tunnel.diameter, 0);*/
+                {
+                    Vector3 mouse_pos = (new Vector3(Mouse.current.position.ReadValue().x, Mouse.current.position.ReadValue().y, MainCamera.nearClipPlane));
+                    //pos = MainCamera.ScreenToWorldPoint(mouse_pos);
+                    pos = new Vector3(0, RhythmicGame.Resolution.y / 2, 0) / mouse_dampen + new Vector3(mouse_pos.x - RhythmicGame.Resolution.x / 2, mouse_pos.y - RhythmicGame.Resolution.y / 2) / mouse_dampen;
+                }
+                else pos = new Vector3(0, 0, PlayerVisualPoint_Pullback);
+
+                //if (IsFreestyle) Logger.Log("mouse pos: % | pos: %", Mouse.current.position.ReadValue(), pos);
+
+                PlayerVisualPoint.localPosition = Vector3.SmoothDamp(PlayerVisualPoint.localPosition, pos, ref visualpoint_pos_ref, 0.2f);
+            }
 
             if (SongController.IsSongOver) return;
 

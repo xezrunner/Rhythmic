@@ -49,6 +49,7 @@ public class GameStarter : MonoBehaviour
 #endif
 
         // Hide cursor
+        Cursor.lockState = CursorLockMode.Confined;
         if (!Application.isEditor) Cursor.visible = false;
 
         StartCoroutine(Load(RhythmicGame.StartWorld));
