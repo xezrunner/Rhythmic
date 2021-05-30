@@ -39,6 +39,9 @@ public class PlayerLocomotion : MonoBehaviour
     public float CameraPullback = 12.8f;
     public float CameraElevation = 7.53f;
 
+    [Header("Freestyle")]
+    public bool IsFreestyle = false;
+
     [Header("Track switching")]
     public Vector3 PositionOffset;
     public Vector3 RotationOffset;
@@ -90,37 +93,33 @@ public class PlayerLocomotion : MonoBehaviour
     /// Moves the player along the path for a given distance. <br/>
     /// If no path exists, the player is moved to the distance without taking any world contour into account.
     /// </summary>
-    public void Locomotion(float distance = 0f, bool instant = false)
+    public void Locomotion(float distance = 0f, bool no_smooth = false)
     {
         // Set the horizon length (used by sections to clip the materials)
         HorizonLength = DistanceTravelled + (RhythmicGame.HorizonMeasures * SongController.measureLengthInzPos) -
             RhythmicGame.HorizonMeasuresOffset; // TODO: the individual track streaming is visible, so we temporarily offset it
 
+        // Get & set the target position on the path - this isn't smoothened:
         Vector3 targetPos = PathTools.GetPositionOnPath(Path, distance, (!RhythmicGame.IsTunnelMode) ? PositionOffset : Vector3.zero); // no X movement in tunnel mode
         transform.position = targetPos;
 
+        // Calculate rotation on the path:
         Quaternion pathRot = PathTools.GetRotationOnPath(Path, distance, offset);
         Quaternion tunnelRot = RhythmicGame.IsTunnelMode ? Quaternion.Euler(TunnelRotation) : Quaternion.identity;
         Quaternion totalRot = PathTools.GetRotationOnPath(Path, distance, RhythmicGame.IsTunnelMode ? TunnelRotation : Vector3.zero + offset);
 
-        if (instant) // Don't do smoothing
-        {
-            NonInterpolatable.localRotation = Interpolatable.localRotation = totalRot;
-            Interpolatable_TunnelRotation.localRotation = tunnelRot;
-        }
-        else
-        {
-            NonInterpolatable.localRotation = totalRot;
-            Interpolatable.localRotation = QuaternionUtil.SmoothDamp(Interpolatable.localRotation, RhythmicGame.IsTunnelMode ? pathRot : totalRot, ref rotVelocity, SmoothDuration);
-            // Different smoothing for tunnel rotation:
-            //Interpolatable_TunnelRotation.localRotation = QuaternionUtil.SmoothDamp(Interpolatable_TunnelRotation.localRotation, tunnelRot, ref tunnelrotVelocity, TunnelSmoothDuration);
-            Interpolatable_TunnelRotation.localRotation = Quaternion.Euler(RotationOffset);
-        }
+        NonInterpolatable.localRotation = totalRot;
+        Interpolatable.localRotation = no_smooth ? totalRot : QuaternionUtil.SmoothDamp(Interpolatable.localRotation, RhythmicGame.IsTunnelMode ? pathRot : totalRot, ref rotVelocity, SmoothDuration);
+
+        // Different smoothing for tunnel rotation:
+        //Interpolatable_TunnelRotation.localRotation = QuaternionUtil.SmoothDamp(Interpolatable_TunnelRotation.localRotation, tunnelRot, ref tunnelrotVelocity, TunnelSmoothDuration);
+        Interpolatable_TunnelRotation.localRotation = no_smooth ? tunnelRot : Quaternion.Euler(RotationOffset);
     }
 
     [Header("Testing properties")]
     public bool IsPlaying; // TEMP
 
+    // TODO: This should be handled in a much cleaner and better way! (config values!)
     static bool cameraClose = false;
     Vector3 cam_posref;
     Quaternion cam_rotref;
@@ -130,16 +129,16 @@ public class PlayerLocomotion : MonoBehaviour
     {
         if (IsPlaying || SongController.IsPlaying)
         {
-            if (!SongController.IsPlaying && IsPlaying) { }
-            //DistanceTravelled += 4f * Time.deltaTime;
-            else if (SongController.IsEnabled)
+            if (SongController.IsEnabled)
             {
                 Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songTimeScale);
                 DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
             }
 
             // Camera pullback:
+            if (false)
             {
+                // TODO: Keymap!
                 if (PlayerInputHandler.IsActive && Keyboard.current.nKey.wasPressedThisFrame || (Gamepad.current != null && Gamepad.current.rightStickButton.wasPressedThisFrame))
                     cameraClose = !cameraClose;
 
@@ -152,7 +151,7 @@ public class PlayerLocomotion : MonoBehaviour
             if (SongController.IsSongOver) return;
 
             // Live note capture glow thing
-            // TODO: Improve performance!
+            // TODO: Improve performance, move to a better place (?)
             foreach (Track t in TracksController.Tracks)
             {
                 if (t == TracksController.CurrentTrack && (!t.CurrentMeasure.IsEmpty & !t.CurrentMeasure.IsCaptured)) continue;
