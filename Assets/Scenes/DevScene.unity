@@ -2629,5 +2629,20 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 2067687774329652014, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 7.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2067687774329652014, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 3.41
+      objectReference: {fileID: 0}
+    - target: {fileID: 6753995050357622352, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_Volume
+      value: 0.76
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 092cc62a45da22949af241be520f22ee, type: 3}

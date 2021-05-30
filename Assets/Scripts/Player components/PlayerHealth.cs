@@ -3,6 +3,8 @@ using UnityEngine;
 
 public enum HealthOption { Normal = 0, Invincible = 1, Off = 2}
 
+/// Really not sure whether this should be its own individual component.
+/// Somehow, I feel like this is basic enough to be in the core Player, but then the score system also got its own component...
 public partial class Player : MonoBehaviour
 {
     [Header("Health")]

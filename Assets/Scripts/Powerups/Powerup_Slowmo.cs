@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-[Powerup(PowerupType.Slowmo, "Slow motion powerup")]
+[Powerup(PowerupType.Slowmo, "Slow motion powerup", "slowmo_deploy")]
 public class Powerup_Slowmo : Powerup
 {
     Clock Clock;
