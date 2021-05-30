@@ -13,12 +13,6 @@ public class Powerup_Slowmo : Powerup
         Logger.Log("Timescale set to 0.75 | Clock: %, target: % | timeout: %".T(this).AddColor(Colors.ConvertToFloatColor(new Color(128,0,128, 255))), Clock.Fbar, start_bar + Attribute.Bar_Length, Attribute.Bar_Length);
     }
 
-    public override void Clock_OnBar(object sender, int e)
-    {
-        base.Clock_OnBar(sender, e);
-        Logger.Log("Tick: % / %".T(this).AddColor(Colors.ConvertToFloatColor(new Color(128, 0, 128, 255))), (Attribute.Bar_Length - bars_left), Attribute.Bar_Length);
-    }
-
     public override void OnPowerupFinished()
     {
         RhythmicGame.SetTimescale(1f); // TODO: Retain original timescale! | TODO: smoothness!

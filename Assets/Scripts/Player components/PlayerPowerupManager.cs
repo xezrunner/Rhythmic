@@ -86,14 +86,16 @@ public partial class PlayerPowerupManager : MonoBehaviour
         ClearPowerups();
 
         PowerupAttribute attr = (PowerupAttribute)Attribute.GetCustomAttribute(t, typeof(PowerupAttribute));
-        Powerup p = null;
+        Powerup p;
 
         if (attr.Prefab_Path != "") // Prefab:
         {
-            GameObject obj = (GameObject)Resources.Load(attr.Prefab_Path);
-            if (obj == null) { Logger.LogE("Prefab for powerup % was null!".TM(this), t.Name); return; }
+            GameObject prefab = (GameObject)Resources.Load(attr.Prefab_Path);
+            if (prefab == null) { Logger.LogE("Prefab for powerup % was null!".TM(this), t.Name); return; }
 
-            obj.name = t.Name; obj.transform.SetParent(transform);
+            GameObject obj = Instantiate(prefab);
+            obj.name = t.Name; obj.transform.SetParent(transform, false);
+
             p = (Powerup)obj.GetComponent(t);
         }
         else // Component-only:

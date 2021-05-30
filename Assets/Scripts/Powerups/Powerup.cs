@@ -26,16 +26,21 @@ public class Powerup : MonoBehaviour
     // Clock:
     [NonSerialized] public int start_bar;
     [NonSerialized] public int bars_left = -1;
+    public static bool debug_clock_tick = true;
     public virtual void Clock_OnBar(object sender, int e)
     {
+        if (!Deployed) return;
+
         bars_left = (start_bar + Attribute.Bar_Length) - e;
+        if (debug_clock_tick) Logger.Log("Tick: % / %".T(GetType().Name), (Attribute.Bar_Length - bars_left), Attribute.Bar_Length);
+
         if (e >= start_bar + Attribute.Bar_Length)
         {
             OnPowerupFinished();
             if (Attribute.Auto_Destroy) Destroy();
         }
     }
-    public virtual void OnPowerupFinished() { }
+    public virtual void OnPowerupFinished() => Deployed = false;
 
     public virtual void Deploy()
     {
