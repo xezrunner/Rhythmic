@@ -3,10 +3,11 @@ using UnityEngine;
 
 public class PowerupAttribute : Attribute
 {
-    public PowerupAttribute(PowerupType type, string name = null, string audio_name = "", int bar_length = 4, bool auto_destroy = true)
-    { Type = type; if (name != null) Name = name; Audio_Name = audio_name; Bar_Length = bar_length; Auto_Destroy = auto_destroy; }
+    public PowerupAttribute(PowerupType type, string name = null, string audio_name = "", int bar_length = 4, bool auto_destroy = true, string prefab_path = "")
+    { Type = type; if (name != null) Prefab_Path = prefab_path; Name = name; Audio_Name = audio_name; Bar_Length = bar_length; Auto_Destroy = auto_destroy; }
 
     public PowerupType Type;
+    public string Prefab_Path = "";
     public string Name = "Powerup";
     public string Audio_Name = "";
 
@@ -51,8 +52,11 @@ public class Powerup : MonoBehaviour
     public virtual void Destroy()
     {
         Clock.OnBar -= Clock_OnBar;
-        // This procedure should determine whether we have our own GameObject and make decisions based on that! For now, we're only removing the component.
-        Destroy(this);
+
+        if (Attribute.Prefab_Path != "")
+            Destroy(gameObject);
+        else
+            Destroy(this);
     }
 
 }

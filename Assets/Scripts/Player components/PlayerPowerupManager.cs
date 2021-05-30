@@ -3,16 +3,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-[Flags]
-public enum PowerupType
-{
-    All = -2,
-    UNKNOWN = -1,
-    None = 0,
-    Generic = 1,
-    Slowmo = 1 << 1
-}
-
 /// TODO:
 /// - We will want to let songs have their own powerup possibility configurations.
 public partial class PlayerPowerupManager : MonoBehaviour
@@ -68,7 +58,7 @@ public partial class PlayerPowerupManager : MonoBehaviour
         else Instance?.InventorizePowerup((PowerupType)Enum.Parse(typeof(PowerupType), args[0]));
     }
 
-    // Functionality: 
+    // Powerup mapping:
     public void STREAMER_GeneratePowerupMap()
     {
         for (int i = 0; i < TracksController.MainTracks_Count; ++i)
@@ -81,31 +71,42 @@ public partial class PlayerPowerupManager : MonoBehaviour
         }
     }
 
-    // TODO: We might want to store multiple powerups for specific game modes / settings.
+    // Functionality: 
+    /// TODO: We might want to store multiple powerups for specific game modes / settings.
     public Powerup Current_Powerup = null;
     public void InventorizePowerup(PowerupType type)
     {
-        if (type == PowerupType.None)
-        {
-            ClearPowerups();
-            return;
-        }
-
         Type t = GetPowerupForType(type);
-        if (t != null)
+        if (t == null)
         {
             ClearPowerups();
-
-            Powerup p = (Powerup)gameObject.AddComponent(t);
-            Current_Powerup = p;
-            Logger.Log("Instantiated powerup module - type: %".M(), type.ToString());
-
-            UI_Powerup_Label.text = p.Attribute?.Name;
-
             return;
         }
 
-        Logger.LogError("Could not instantiate powerup module - type: %".M(), type.ToString());
+        ClearPowerups();
+
+        PowerupAttribute attr = (PowerupAttribute)Attribute.GetCustomAttribute(t, typeof(PowerupAttribute));
+        Powerup p = null;
+
+        if (attr.Prefab_Path != "") // Prefab:
+        {
+            GameObject obj = (GameObject)Resources.Load(attr.Prefab_Path);
+            if (obj == null) { Logger.LogE("Prefab for powerup % was null!".TM(this), t.Name); return; }
+
+            obj.name = t.Name; obj.transform.SetParent(transform);
+            p = (Powerup)obj.GetComponent(t);
+        }
+        else // Component-only:
+            p = (Powerup)gameObject.AddComponent(t);
+
+        if (p == null) { Logger.LogE("p was null somehow.".TM(this)); return; }
+
+        Current_Powerup = p;
+        Logger.Log("Instantiated powerup module - type: %, is_prefab: %".M(), type.ToString(), attr.Prefab_Path != "");
+
+        UI_Powerup_Label.text = p.Attribute?.Name;
+
+        return;
     }
     public void ClearPowerups()
     {
