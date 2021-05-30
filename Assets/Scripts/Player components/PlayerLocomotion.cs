@@ -140,7 +140,7 @@ public class PlayerLocomotion : MonoBehaviour
 
             // Camera pullback:
             {
-                if (Keyboard.current.nKey.wasPressedThisFrame || (Gamepad.current != null && Gamepad.current.rightStickButton.wasPressedThisFrame))
+                if (PlayerInputHandler.IsActive && Keyboard.current.nKey.wasPressedThisFrame || (Gamepad.current != null && Gamepad.current.rightStickButton.wasPressedThisFrame))
                     cameraClose = !cameraClose;
 
                 MainCamera.transform.localPosition = Vector3.SmoothDamp(MainCamera.transform.localPosition, cameraClose ? closeCameraPos : normalCameraPos, ref cam_posref, 0.2f);
