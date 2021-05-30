@@ -129,7 +129,7 @@ public class PlayerLocomotion : MonoBehaviour
     {
         if (IsPlaying || SongController.IsPlaying)
         {
-            if (SongController.IsEnabled)
+            if (SongController.IsEnabled && SongController.IsPlaying)
             {
                 Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songTimeScale);
                 DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
