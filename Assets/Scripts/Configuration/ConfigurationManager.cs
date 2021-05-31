@@ -274,7 +274,7 @@ public class ConfigurationManager
                 {
                     token = new Token(Token_Type.Section);
                     t.Advance();
-                    while (!t.end_of_file && !t.c.IsNewline())
+                    while (!t.end_of_file && !t.Peek().IsNewline())
                         token.Value += t.Advance();
                     break;
                 }
