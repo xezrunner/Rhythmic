@@ -106,7 +106,6 @@ public partial class DebugConsole
     // Other classes are free to register console commands at any point by using RegisterCommand().
     void Console_RegisterCommands() // **********************************
     {
-
         // Console-meta commands:
         RegisterCommand("clear", _Clear);
         RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds."); // TODO: Should use a global Quit procedure to quit the game once MetaSystem and/or GameState is in place
@@ -115,7 +114,8 @@ public partial class DebugConsole
         RegisterCommand(set_autocomplete);
         RegisterCommand(console_resize, "Resizes the console height. Usage: " + nameof(console_resize).AddColor(Colors.Application) + " <height>");
         RegisterCommand(console_perf, "Prints a ton of lines into the console to test performance. Also prints the time difference in ticks.");
-
+        RegisterCommand(log);
+        
         // Test commands **************************************************
         RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
         RegisterCommand(clear_text_test);
@@ -147,9 +147,9 @@ public partial class DebugConsole
         RegisterCommand(refresh_notes, "usage: " + "refresh_notes".AddColor(Colors.Application) + " <track_id (optional)>");
         RegisterCommand(refresh_all, "usage: " + "refresh_all".AddColor(Colors.Application) + " <track_id (optional)>");
     }
-
+    
     /// You should add non-common commands from a different class.
-
+    
     void help(string[] args)
     {
         if (args.Length > 0)
@@ -188,7 +188,7 @@ public partial class DebugConsole
         if (args.Length != 1) Logger.LogConsoleE("Invalid/no arguments were passed.");
         else ChangeSize(args[0].ParseFloat());
     }
-
+    
     void test(string[] a)
     {
         if (a.Length == 0)
@@ -204,6 +204,14 @@ public partial class DebugConsole
         Log("The original text is: %", s);
         s = s.ClearColors();
         Log("The color-cleared text is: %", s);
+    }
+    void log(string[] args)
+    {
+        if (args == null || args.Length == 0)
+            return;
+        
+        string line = string.Join(" ", args);
+        Logger.Log(line);
     }
     void logger_log(string[] args) => Logger.Log(args); // TODO: "" quotes should be parsed as one individual string parameter
     void logger_parser_test(string[] args) => Logger.Log("%".M(), args);
