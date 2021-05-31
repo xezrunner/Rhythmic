@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -49,15 +48,14 @@ public partial class PlayerPowerupManager : MonoBehaviour
         // TODO: bad bad bad!
         else if (char.IsDigit(args[0][0]))
         {
-            int digit = args[0][0].ToString().ParseInt();
-            if (digit > 1)
-                digit = 1 << digit;
-
+            int digit = args[0].ParseInt();
+            digit = 1 << digit;
+            
             Instance?.InventorizePowerup((PowerupType)digit);
         }
-        else Instance?.InventorizePowerup((PowerupType)Enum.Parse(typeof(PowerupType), args[0]));
+        else Instance?.InventorizePowerup((PowerupType)Enum.Parse(typeof(PowerupType), args[0], true));
     }
-
+    
     // Powerup mapping:
     public void STREAMER_GeneratePowerupMap()
     {
@@ -70,7 +68,7 @@ public partial class PlayerPowerupManager : MonoBehaviour
             }
         }
     }
-
+    
     // Functionality: 
     /// TODO: We might want to store multiple powerups for specific game modes / settings.
     public Powerup Current_Powerup = null;
@@ -84,27 +82,27 @@ public partial class PlayerPowerupManager : MonoBehaviour
         }
 
         ClearPowerups();
-
+        
         PowerupAttribute attr = (PowerupAttribute)Attribute.GetCustomAttribute(t, typeof(PowerupAttribute));
         Powerup p;
 
-        if (attr.Prefab_Path != "") // Prefab:
+        if (attr != null && attr.Prefab_Path != "") // Prefab:
         {
             GameObject prefab = (GameObject)Resources.Load(attr.Prefab_Path);
             if (prefab == null) { Logger.LogE("Prefab for powerup % was null!".TM(this), t.Name); return; }
-
+            
             GameObject obj = Instantiate(prefab);
             obj.name = t.Name; obj.transform.SetParent(transform, false);
-
+            
             p = (Powerup)obj.GetComponent(t);
         }
         else // Component-only:
             p = (Powerup)gameObject.AddComponent(t);
-
+        
         if (p == null) { Logger.LogE("p was null somehow.".TM(this)); return; }
-
+        
         Current_Powerup = p;
-        Logger.Log("Instantiated powerup module - type: %, is_prefab: %".M(), type.ToString(), attr.Prefab_Path != "");
+        Logger.Log("Instantiated powerup module - type: %, is_prefab: %".M(), type.ToString(), attr?.Prefab_Path != "");
 
         UI_Powerup_Label.text = p.Attribute?.Name;
 

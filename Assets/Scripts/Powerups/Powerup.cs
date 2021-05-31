@@ -65,7 +65,7 @@ public class Powerup : MonoBehaviour
     {
         Clock.OnBar -= Clock_OnBar;
 
-        if (Attribute.Prefab_Path != "")
+        if (Attribute?.Prefab_Path != "")
             Destroy(gameObject);
         else
             Destroy(this);
