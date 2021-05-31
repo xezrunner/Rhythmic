@@ -27,7 +27,7 @@ public partial class PlayerPowerupManager : MonoBehaviour
     void RegisterCommands()
     {
         if (registered_commands) return;
-
+        
         DebugConsole.RegisterCommand(current_powerup);
         DebugConsole.RegisterCommand(deploy_powerup);
         DebugConsole.RegisterCommand(inventorize_powerup);

@@ -52,19 +52,22 @@ public class Powerup : MonoBehaviour
     public virtual void Deploy()
     {
         start_bar = Clock.Fbar;
-        Clock.OnBar += Clock_OnBar;
-
+        if (Attribute?.Bar_Length != -1) Clock.OnBar += Clock_OnBar;
+        
         Deployed = true;
-
+        
         Logger.Log("Powerup deployed! name: %.".TM(), Attribute?.Name);
-
+        
         // Play sound:
         if (Attribute.Audio_Name_Start != "") PlayerPowerupManager.PlayOneShot(Attribute.Audio_Name_Start);
+        
+        // Destroy immediately if Bar_Length is -1:
+        if (Attribute?.Bar_Length == -1) Destroy();
     }
     public virtual void Destroy()
     {
-        Clock.OnBar -= Clock_OnBar;
-
+        Clock.OnBar -= Clock_OnBar; // Not sure what happens if bar length is -1 in attr.
+        
         if (Attribute?.Prefab_Path != "")
             Destroy(gameObject);
         else
