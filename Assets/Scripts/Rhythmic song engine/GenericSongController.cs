@@ -62,9 +62,9 @@ public partial class GenericSongController : MonoBehaviour
         this.song_info = song_info;
         time_units = song_info.time_units;
         // Setup core time/pos units:
-        bar_length_pos = song_info.time_units.BarToPos(1);
-        pos_in_sec = song_info.time_units.pos_in_sec;
-        slop_pos = song_info.time_units.MsToPos(RhythmicGame.SlopMs);
+        bar_length_pos = time_units.BarToPos(1);
+        pos_in_sec = time_units.pos_in_sec;
+        slop_pos = time_units.MsToPos(RhythmicGame.SlopMs);
         
         audio_clips = LoadSongClips(song_info, mode);
         

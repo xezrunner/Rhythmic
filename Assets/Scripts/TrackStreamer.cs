@@ -44,7 +44,7 @@ public class TrackStreamer : MonoBehaviour
         {
             for (int i = 0; i < m_count; i++)
             {
-                MetaMeasure m = new MetaMeasure() { ID = i, StartDistance = song_info.time_units.BarToPos(i), IsEmpty = (song_info.data_notes[t, i].Length == 0) };
+                MetaMeasure m = new MetaMeasure() { ID = i, StartDistance = SongController.time_units.BarToPos(i), IsEmpty = (song_info.data_notes[t, i].Length == 0) };
                 metaMeasures[t, i] = m;
             }
         }

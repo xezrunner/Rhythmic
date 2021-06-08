@@ -28,7 +28,7 @@ public class PlayerCatching : MonoBehaviour
     public Player Player;
     public PlayerLocomotion Locomotion;
 
-    SongTimeUnit time_unit { get { return SongController.song_info.time_units; } }
+    SongTimeUnit time_unit { get { return SongController.time_units; } }
 
     public Transform CatcherContainer; // This will automatically populate the Catchers list!
     public GameObject CatcherVisuals;

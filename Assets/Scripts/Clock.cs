@@ -16,7 +16,7 @@ public class Clock : MonoBehaviour
     {
         Instance = this;
         SongController = GenericSongController.Instance;
-        time_units = SongController.song_info.time_units;
+        time_units = SongController.time_units;
     }
     
     // Clocks

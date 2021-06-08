@@ -119,7 +119,7 @@ public class DebugStats : DebugComponent
 
         // Slop stats:
         if (StatsMode > StatsMode.ShortShort)
-            AddLine($"Slop: {RhythmicGame.SlopMs} ms " + $"({SongController.song_info.time_units.MsToPos(RhythmicGame.SlopMs)} m)".AddColor(1, 1, 1, 0.80f), -1);
+            AddLine($"Slop: {RhythmicGame.SlopMs} ms " + $"({SongController.time_units.MsToPos(RhythmicGame.SlopMs)} m)".AddColor(1, 1, 1, 0.80f), -1);
         // Song start distance offset stats:
         if (StatsMode > StatsMode.ShortShort)
             AddLine($"Start distance offset: {SongController.start_distance}");
