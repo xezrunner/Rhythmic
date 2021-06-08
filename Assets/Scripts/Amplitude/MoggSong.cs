@@ -4,12 +4,8 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-public class MoggSong : MonoBehaviour
+public class MoggSong
 {
-    public SongController SongController { get { return SongController.Instance; } }
-
-    public static MoggSong Instance;
-
     // Song properties
     public int songLengthInMeasures;
     public int songCountInTime;
@@ -34,12 +30,13 @@ public class MoggSong : MonoBehaviour
     // n + 1 streaks required
     public int songBossLevel;
 
-    void Awake() => Instance = this;
-
-    List<Token> Tokens = new List<Token>();
-    public void LoadMoggSong(string songName)
+    public static List<Token> Tokens = new List<Token>();
+    public static MoggSong LoadMoggSong(string songName)
     {
         string finalPath = AmplitudeGame.AMP_GetSongFilePath(songName, AmplitudeGame.AMP_FileExtension.moggsong); // moggsong path
+        if (!File.Exists(finalPath)) return null;
+
+        MoggSong meta = new MoggSong();
 
         // TODO: error checking
         Tokenizer tokenizer;
@@ -69,20 +66,22 @@ public class MoggSong : MonoBehaviour
 
                         // Get the measure count from the time unit (MMM:_:_)
                         string[] time_values = token_value.Text.Split(':');
-                        songLengthInMeasures = time_values[0].ParseInt();
+                        meta.songLengthInMeasures = time_values[0].ParseInt();
 
                         break;
                     }
-                case "countin": songCountInTime = SetValue<int>(Tokens, ++i); break;
-                case "tunnel_scale": songFudgeFactor = SetValue<float>(Tokens, ++i); break; /// TODO: .xx values (without the leading 0) DO NOT WORK! FIX!!
-                case "bpm": songBpm = SetValue<int>(Tokens, ++i); break;
-                case "boss_level": songBossLevel = SetValue<int>(Tokens, ++i); break;
+                case "countin": meta.songCountInTime = SetValue<int>(Tokens, ++i); break;
+                case "tunnel_scale": meta.songFudgeFactor = SetValue<float>(Tokens, ++i); break; /// TODO: .xx values (without the leading 0) DO NOT WORK! FIX!!
+                case "bpm": meta.songBpm = SetValue<int>(Tokens, ++i); break;
+                case "boss_level": meta.songBossLevel = SetValue<int>(Tokens, ++i); break;
                     // TODO: freestyle tracks were previously added here. This might be the MIDI reading's job.
             }
         }
+
+        return meta;
     }
 
-    public void DebugPrintTokens()
+    public static void DebugPrintTokens()
     {
         if (!SongController.Instance.IsEnabled)
         {
@@ -126,12 +125,12 @@ public class MoggSong : MonoBehaviour
                       i.ToString("D3"), token_type, token_text);
         }
     }
-
+    
     /// TODO: separate parsing into a different (partial) class?
 
     /// <summary>Returns a specific type of value from a token. <br/>
     /// Used in setting the values parsed from the .moggsong file. </summary>
-    T SetValue<T>(List<Token> tokens, int index)
+    static T SetValue<T>(List<Token> tokens, int index)
     {
         string value = tokens[index].Text;
         object return_value = null;
@@ -144,9 +143,9 @@ public class MoggSong : MonoBehaviour
             case Type i when i == typeof(string): return_value = value; break;
             default:
                 {
-                    Logger.LogW("Weird type being set | value: % | target type: %".TM(this), tokens[index].Text, typeof(T).Name);
+                    Logger.LogW("Weird type being set | value: % | target type: %".TM("MoggSong"), tokens[index].Text, typeof(T).Name);
                     try { return_value = (T)Convert.ChangeType(value, typeof(T)); }
-                    catch (Exception ex) { Logger.LogE("Failed to convert value to type % | %".TM(this), (typeof(T).Name), ex.Message); }
+                    catch (Exception ex) { Logger.LogE("Failed to convert value to type % | %".TM("MoggSong"), (typeof(T).Name), ex.Message); }
                     break;
                 }
         }
@@ -186,9 +185,9 @@ public class MoggSong : MonoBehaviour
         public bool end_of_file = false;
     }
 
-    bool IsWhitespace(char c) => (c == ' ' || c == '\r' || c == '\n' || c == '\t');
+    static bool IsWhitespace(char c) => (c == ' ' || c == '\r' || c == '\n' || c == '\t');
 
-    Token GetToken(Tokenizer t) // TODO: naming - e? t?
+    static Token GetToken(Tokenizer t) // TODO: naming - e? t?
     {
         if (t.end_of_file) return new Token(Token_Type.EndOfFile);
 
@@ -201,7 +200,7 @@ public class MoggSong : MonoBehaviour
             case ';':
                 {
                     token = new Token(Token_Type.Comment);
-
+                    
                     while (!t.end_of_file && t.c != '\r' && t.c != '\n')
                     {
                         token.Text += t.c;

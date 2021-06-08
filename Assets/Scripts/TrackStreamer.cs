@@ -1,9 +1,7 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.Scripting;
 
 // Track streaming system
@@ -15,7 +13,7 @@ public enum FastStreamingLevel
     Notes = 1 << 0,
     Measures = 1 << 1,
     Tracks = 1 << 2,
-
+    
     All = Notes | Measures | Tracks,
     MeasuresAndNotes = Measures | Notes,
     TracksAndMeasures = Measures | Tracks,
@@ -26,39 +24,43 @@ public class TrackStreamer : MonoBehaviour
     public static TrackStreamer Instance;
 
     PlayerPowerupManager PlayerPowerupManager { get { return PlayerPowerupManager.Instance; } }
-    SongController SongController;
+    GenericSongController SongController;
     TracksController TracksController;
     Clock Clock;
 
+    SongInfo song_info;
+    
     public float StreamDelay = 0.1f;
     public float DestroyDelay = 0f;
-
+    
     public bool IsStreaming = true;
-
+    
     public MetaMeasure[,] metaMeasures;
     void CreateMetaMeasures()
     {
-        int m_count = SongController.songLengthInMeasures;
+        int m_count = song_info.song_length_bars;
         metaMeasures = new MetaMeasure[TracksController.MainTracks.Length, m_count];
         for (int t = 0; t < TracksController.MainTracks.Length; t++)
         {
             for (int i = 0; i < m_count; i++)
             {
-                MetaMeasure m = new MetaMeasure() { ID = i, StartDistance = SongController.MeasureToPos(i), IsEmpty = (SongController.songNotes[t, i].Length == 0) };
+                MetaMeasure m = new MetaMeasure() { ID = i, StartDistance = song_info.time_units.BarToPos(i), IsEmpty = (song_info.data_notes[t, i].Length == 0) };
                 metaMeasures[t, i] = m;
             }
         }
     }
-
+    
     void GC_Incremental() => GarbageCollector.CollectIncremental();
-
+    
     void Awake()
     {
         Instance = this;
-        SongController = SongController.Instance;
+        SongController = GenericSongController.Instance;
         TracksController = TracksController.Instance;
         Clock = Clock.Instance;
-
+        
+        song_info = TracksController.song_info;
+        
         Clock.OnBar += Clock_OnBar;
         CreateMetaMeasures();
     }
@@ -66,28 +68,28 @@ public class TrackStreamer : MonoBehaviour
     {
         // ---- initialize recycle arrays -----
         destroyed_measures = new Measure[TracksController.Tracks_Count][];
-        for (int i = 0; i < TracksController.Tracks_Count; ++i) destroyed_measures[i] = new Measure[SongController.songLengthInMeasures];
+        for (int i = 0; i < TracksController.Tracks_Count; ++i) destroyed_measures[i] = new Measure[song_info.song_length_bars];
 
         measure_recycle_count = new int[TracksController.Tracks_Count]; for (int i = 0; i < TracksController.Tracks_Count; ++i) measure_recycle_count[i] = -1;
         measure_recycle_counter = new int[TracksController.Tracks_Count];
 
-        destroyed_notes = new Note[SongController.total_note_count * RhythmicGame.TunnelTrackDuplicationNum]; // TODO!!! Total note count of song!!
-        Logger.Log($"TrackStreamer: Allocated {SongController.total_note_count * RhythmicGame.TunnelTrackDuplicationNum} entries for recyclable notes.");
+        destroyed_notes = new Note[song_info.total_note_count * RhythmicGame.TunnelTrackDuplicationNum]; // TODO!!! Total note count of song!!
+        Logger.Log($"TrackStreamer: Allocated {song_info.total_note_count * RhythmicGame.TunnelTrackDuplicationNum} entries for recyclable notes.");
 
         // ------ SET GARBAGE COLLECTION TO MANUAL ------ //
         if (!Application.isEditor) GarbageCollector.GCMode = GarbageCollector.Mode.Manual;
 
         // Generate the powerup map
-        PlayerPowerupManager.STREAMER_GeneratePowerupMap();
+        PlayerPowerupManager?.STREAMER_GeneratePowerupMap();
 
         // Stream in the horizon!
         //StreamMeasureRange(0, RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreaming);
-        StreamMeasureRange(0, RhythmicGame.StreamAllMeasuresOnStart ? SongController.songLengthInMeasures : RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
+        StreamMeasureRange(0, RhythmicGame.StreamAllMeasuresOnStart ? song_info.song_length_bars : RhythmicGame.HorizonMeasures, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
     }
 
     public void Clock_OnBar(object sender, int e)
     {
-        if (SongController.IsSongOver) return;
+        if (SongController.is_song_over) return;
 
         //if (RhythmicGame.StreamAllMeasuresOnStart) { }
         //else
@@ -164,14 +166,14 @@ public class TrackStreamer : MonoBehaviour
     IEnumerator _StreamNotes(int id, int trackID, Measure measure, bool immediate = false, PowerupType powerup_type = PowerupType.None)
     {
         Track track = TracksController.Tracks[trackID];
-
-        MetaNote[] measureNotes = SongController.songNotes[track.ID, id];
+        
+        MetaNote[] measureNotes = song_info.data_notes[track.ID, id];
         //if (measureNotes == null || measureNotes.Length == 0)
         //{ measure.IsEmpty = true; yield break; }
-
+        
         if (measure.IsEmpty && measureNotes.Length > 0)
             Logger.LogError("WTF!!!");
-
+        
         for (int i = 0; i < measureNotes.Length; i++)
         {
             MetaNote meta_note = measureNotes[i];
@@ -199,7 +201,7 @@ public class TrackStreamer : MonoBehaviour
         IsStreaming = true;
         if (trackID != -1) // stream measure!
         {
-            if (id >= SongController.songLengthInMeasures) { IsStreaming = false; yield break; }
+            if (id >= song_info.song_length_bars) { IsStreaming = false; yield break; }
             MetaMeasure meta = metaMeasures[trackID % TracksController.MainTracks.Length, id];
             Track track = TracksController.Tracks[trackID];
 

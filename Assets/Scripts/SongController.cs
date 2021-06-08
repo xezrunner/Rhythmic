@@ -57,7 +57,7 @@ public partial class SongController : MonoBehaviour
     public MetaNote[,][] songNotes;
 
     // INIT & LOADING
-
+    
     public virtual void Awake() => Instance = this;
     public virtual void Start()
     {
@@ -98,7 +98,7 @@ public partial class SongController : MonoBehaviour
 
     // Track  
     [NonSerialized] public TrackStreamer trackStreamer;
-
+    
     public void CreateTrackStreamer()
     {
         if (!trackStreamer & TracksController)

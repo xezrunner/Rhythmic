@@ -22,11 +22,13 @@ public class PlayerCatching : MonoBehaviour
     public static PlayerCatching Instance;
 
     Clock Clock { get { return Clock.Instance; } }
-    SongController SongController { get { return SongController.Instance; } }
+    GenericSongController SongController { get { return GenericSongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
     PlayerPowerupManager PlayerPowerupManager { get { return PlayerPowerupManager.Instance; } } // TODO: Assign like the ones below?
     public Player Player;
     public PlayerLocomotion Locomotion;
+
+    SongTimeUnit time_unit { get { return SongController.song_info.time_units; } }
 
     public Transform CatcherContainer; // This will automatically populate the Catchers list!
     public GameObject CatcherVisuals;
@@ -58,13 +60,7 @@ public class PlayerCatching : MonoBehaviour
     }
     private void Start()
     {
-        if (!SongController.IsEnabled) return;
-
-        // Assign ourselves in TracksController
-        TracksController.Catching = this;
-
-        // Set up notesToCatch array
-        TracksController.targetNotes = new Note[TracksController.MainTracks.Length];
+        if (!SongController.is_enabled) return;
 
         // Slop visualization:
         IsSlopVisualization = _isSlopVisualization;
@@ -91,7 +87,7 @@ public class PlayerCatching : MonoBehaviour
                 GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 obj.transform.position = Catchers[i].transform.position + Catchers[i].transform.right * Track.GetLocalXPosFromLaneType((LaneSide)i);
                 obj.transform.rotation = Catchers[i].transform.rotation;
-                obj.transform.localScale = new Vector3(0.5f, 0.5f, SongController.posInMs * SongController.SlopMs);
+                obj.transform.localScale = new Vector3(0.5f, 0.5f, time_unit.pos_in_ms * RhythmicGame.SlopMs);
                 obj.transform.parent = Catchers[i].transform;
                 _slopVisualizationObjects.Add(obj);
             }
@@ -107,8 +103,8 @@ public class PlayerCatching : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!SongController.IsPlaying) return;
-        if (SongController.IsSongOver) return;
+        if (!SongController.is_playing) return;
+        if (SongController.is_song_over) return;
 
         // TEMP | TODO: Move elsewhere? (partially?)
         if (Clock.Fbar >= 4) // TODO: countin
@@ -117,11 +113,11 @@ public class PlayerCatching : MonoBehaviour
             {
                 if (t.IsTrackCaptured)
                 {
-                    SongController.audioSrcList[t.ID].volume = t.IsTrackFocused ? 1f : 0.4f;
+                    SongController.audio_sources[t.ID].volume = t.IsTrackFocused ? 1f : 0.4f;
                     continue;
                 }
-                else if (t.IsTrackBeingPlayed) SongController.audioSrcList[t.ID].volume = 1f;
-                else SongController.audioSrcList[t.ID].volume = 0f;
+                else if (t.IsTrackBeingPlayed) SongController.audio_sources[t.ID].volume = 1f;
+                else SongController.audio_sources[t.ID].volume = 0f;
             }
         }
 
@@ -146,7 +142,7 @@ public class PlayerCatching : MonoBehaviour
         if (!note) { Debug.LogWarning($"Catching/HandleSlop(): No note was passed!"); HandleResult(new CatchResult()); lastIgnoreBar = Clock.Fbar; return; }
 
         // If the distance is bigger than the note distance + slop distance, we have 'ignored' the note.
-        float max_dist = note.Distance + (SongController.SlopPos / 2); // Only one axis of SlopMs is required | NOTE: there was a bug here where missing the very last note in a sequence would result in the next measure being disabled.
+        float max_dist = note.Distance + (SongController.slop_pos / 2); // Only one axis of SlopMs is required | NOTE: there was a bug here where missing the very last note in a sequence would result in the next measure being disabled.
         if (note.IsEnabled && dist > max_dist)
         {
             if (RhythmicGame.DebugCatcherSlopEvents)

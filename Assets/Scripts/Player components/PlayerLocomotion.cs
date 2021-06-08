@@ -11,7 +11,7 @@ public class PlayerLocomotion : MonoBehaviour
     public PathCreator PathCreator;
     public VertexPath Path;
     public Tunnel Tunnel { get { return Tunnel.Instance; } }
-    public SongController SongController { get { return SongController.Instance; } }
+    public GenericSongController SongController { get { return GenericSongController.Instance; } }
     public TracksController TracksController { get { return TracksController.Instance; } }
 
     [Header("Camera and containers")]
@@ -53,27 +53,6 @@ public class PlayerLocomotion : MonoBehaviour
 
     void Start()
     {
-        if (Path == null) GetPath();
-        if (!SongController.IsEnabled) return;
-
-        // Position player to tunnel
-        transform.position = !RhythmicGame.IsTunnelMode ? Tunnel.center : new Vector3(Tunnel.center.x, Tunnel.center.y - Tunnel.radius);
-
-        MainCamera.transform.position = new Vector3(Tunnel.center.x, Tunnel.center.y + CameraElevation, -CameraPullback);
-
-        normalCameraPos = MainCamera.transform.localPosition;
-        normalRotation = MainCamera.transform.localRotation;
-        closeCameraPos = normalCameraPos + (Vector3.down * 5f) + (Vector3.forward * 8.5f);
-        closeRotation = Quaternion.Euler(13f, 0, 0);
-
-        //MainCamera.transform.localPosition -= Tunnel.center;
-        // Set catcher visuals to bottom of tunnel, offset by 0.01f (up)
-        CatcherVisuals.position = new Vector3(0, 0.01f, 0);
-
-        DistanceTravelled = SongController.StartDistance;
-
-        Locomotion(DistanceTravelled, true); // Position & rotate player on path right away
-
         DebugConsole.RegisterCommand("freestyle", () => { IsFreestyle = !IsFreestyle; Logger.LogConsole("new state: %", IsFreestyle); });
     }
     void GetPath()
@@ -92,7 +71,31 @@ public class PlayerLocomotion : MonoBehaviour
         Interpolatable_TunnelRotation.localRotation = Quaternion.Euler(target);
         RotationOffset = target;
     }
+    
+    //NOTE: call this in SongController when starting for the first time (?) OR first time start control here
+    public void StartLocomotion()
+    {
+        if (Path == null) GetPath();
+        if (!SongController.is_enabled) return;
 
+        // Position player to tunnel
+        transform.position = !RhythmicGame.IsTunnelMode ? Tunnel.center : new Vector3(Tunnel.center.x, Tunnel.center.y - Tunnel.radius);
+        
+        MainCamera.transform.position = new Vector3(Tunnel.center.x, Tunnel.center.y + CameraElevation, -CameraPullback);
+        
+        normalCameraPos = MainCamera.transform.localPosition;
+        normalRotation = MainCamera.transform.localRotation;
+        closeCameraPos = normalCameraPos + (Vector3.down * 5f) + (Vector3.forward * 8.5f);
+        closeRotation = Quaternion.Euler(13f, 0, 0);
+        
+        //MainCamera.transform.localPosition -= Tunnel.center;
+        // Set catcher visuals to bottom of tunnel, offset by 0.01f (up)
+        CatcherVisuals.position = new Vector3(0, 0.01f, 0);
+        
+        DistanceTravelled = SongController.start_distance;
+        
+        Locomotion(DistanceTravelled, true); // Position & rotate player on path right away
+    }
     /// <summary>
     /// Moves the player along the path for a given distance. <br/>
     /// If no path exists, the player is moved to the distance without taking any world contour into account.
@@ -100,7 +103,7 @@ public class PlayerLocomotion : MonoBehaviour
     public void Locomotion(float distance = 0f, bool no_smooth = false)
     {
         // Set the horizon length (used by sections to clip the materials)
-        HorizonLength = DistanceTravelled + (RhythmicGame.HorizonMeasures * SongController.measureLengthInzPos) -
+        HorizonLength = DistanceTravelled + (RhythmicGame.HorizonMeasures * SongController.bar_length_pos) -
             RhythmicGame.HorizonMeasuresOffset; // TODO: the individual track streaming is visible, so we temporarily offset it
 
         // Get & set the target position on the path - this isn't smoothened:
@@ -134,11 +137,11 @@ public class PlayerLocomotion : MonoBehaviour
     public float mouse_dampen = 20f;
     void Update()
     {
-        if (IsPlaying || SongController.IsPlaying)
+        if (IsPlaying || SongController.is_playing)
         {
-            if (SongController.IsEnabled && SongController.IsPlaying)
+            if (SongController.is_enabled && SongController.is_playing)
             {
-                Step = (Speed * SongController.posInSec * Time.unscaledDeltaTime * SongController.songTimeScale);
+                Step = (Speed * SongController.pos_in_sec * Time.unscaledDeltaTime) * SongController.song_time_scale;
                 DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
             }
 
@@ -179,7 +182,7 @@ public class PlayerLocomotion : MonoBehaviour
                 PlayerVisualPoint.localPosition = Vector3.SmoothDamp(PlayerVisualPoint.localPosition, pos, ref visualpoint_pos_ref, 0.2f);
             }
 
-            if (SongController.IsSongOver) return;
+            if (SongController.is_song_over) return;
 
             // Live note capture glow thing
             // TODO: Improve performance, move to a better place (?)

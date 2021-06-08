@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -124,6 +125,7 @@ public static class StringExtensions
     }
 
     // Parsing:
+    #region Parsing
     public static bool ParseBool(this string text)
     {
         // Try parsing as boolean:
@@ -146,7 +148,50 @@ public static class StringExtensions
     }
     public static int ParseInt(this string text) => int.Parse(text);
     public static float ParseFloat(this string text) => float.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
+    
+    public static int[] ParseIntArray(this string text)
+    {
+        int cursor = 0;
+        List<int> list = new List<int>();
+        string temp_buffer = "";
+        while (cursor < text.Length)
+        {
+            char c = text[cursor];
+            if (char.IsDigit(c)) temp_buffer += c;
+            
+            if (c == ',' || c == ')' && temp_buffer != "")
+            {
+                list.Add(temp_buffer.ParseInt());
+                temp_buffer = "";
+            }
+            
+            ++cursor;
+        }
+        return list.ToArray();
+    }
 
+    public static float[] ParseFloatArray(this string text)
+    {
+        int cursor = 0;
+        List<float> list = new List<float>();
+        string temp_buffer = "";
+        while (cursor < text.Length)
+        {
+            char c = text[cursor];
+            if (char.IsDigit(c) || c == '.') temp_buffer += c;
+            
+            if (c == ',' || c == ')' && temp_buffer != "")
+            {
+                list.Add(temp_buffer.ParseFloat());
+                temp_buffer = "";
+            }
+            
+            ++cursor;
+        }
+        return list.ToArray();
+    }
+    #endregion
+    
     public static string RemoveExt(this string text, string ext = null)
     {
         if (ext != null && ext != "") return text.Replace(ext, "");

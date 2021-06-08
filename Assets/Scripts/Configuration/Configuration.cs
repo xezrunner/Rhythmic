@@ -54,4 +54,25 @@ public class Configuration
 
         return true;
     }
+    
+    public string GetVariable(string name)
+    {
+        // TODO: simplify!
+        foreach (var section in Sections)
+        {
+            foreach (var entry in section.Value)
+            {
+                if (entry.Key == name)
+                    return entry.Value;
+            }
+        }
+
+        Logger.LogW("Could not find variable '%' ('%')".T(this), name, config_name);
+        return null;
+    }
+
+    public string GetVariable(string section, string name)
+    {
+        return Sections[section][name];
+    }
 }

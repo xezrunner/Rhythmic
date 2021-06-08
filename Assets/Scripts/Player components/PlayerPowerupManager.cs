@@ -8,7 +8,7 @@ public partial class PlayerPowerupManager : MonoBehaviour
 {
     public static PlayerPowerupManager Instance;
 
-    SongController SongController { get { return SongController.Instance; } }
+    GenericSongController SongController { get { return GenericSongController.Instance; } }
     TrackStreamer TrackStreamer { get { return TrackStreamer.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
 
@@ -61,7 +61,7 @@ public partial class PlayerPowerupManager : MonoBehaviour
     {
         for (int i = 0; i < TracksController.MainTracks_Count; ++i)
         {
-            for (int x = 0; x < SongController.songLengthInMeasures; ++x)
+            for (int x = 0; x < SongController.song_info.song_length_bars; ++x)
             {
                 if (x % 2 != 0) continue;
                 TrackStreamer.metaMeasures[i, x].Powerup = PowerupType.Slowmo;

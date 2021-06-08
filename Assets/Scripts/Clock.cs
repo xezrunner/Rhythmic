@@ -47,6 +47,7 @@ public class Clock : MonoBehaviour
     // Main clock loop
     void Update()
     {
+        if (!SongController) return;
         if (!SongController.IsPlaying) return;
 
         // Smoothly interpolate clock ticks

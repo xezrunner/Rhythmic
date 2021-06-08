@@ -88,7 +88,7 @@ public partial class SongController
 
     /// Miscellaneous converters
     public float MeasureToPos(int measureID) { return StartDistance + (measureID * measureLengthInzPos); }
-
+    
     // zPos to measure/subbeat num conversion
     // TODO: revise
     // Gets the measure number for a z position (Rhythmic Game unit)
@@ -149,7 +149,7 @@ public partial class SongController
     {
         // TODO: We should prefer one over the other, probably. Doesn't look like the OG game mixes it.
         // TODO: Fix this for faster values!
-        /// NOTE: This doesn't seem to be a good solution. We need to look at the fudge factor from a closer perspective!
+        // NOTE: This doesn't seem to be a good solution. We need to look at the fudge factor from a closer perspective!
         totalFudgeFactor = (/*songFudgeFactor + */RhythmicGame.DifficultyFudgeFactor);
 
         // Seconds

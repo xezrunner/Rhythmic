@@ -10,9 +10,9 @@ public partial class Track : MonoBehaviour
     // TODO: performance accessing these might be a bit concerning?
     Clock Clock { get { return Clock.Instance; } }
     Tunnel Tunnel { get { return Tunnel.Instance; } }
-    SongController SongController { get { return SongController.Instance; } }
+    GenericSongController SongController { get { return GenericSongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
-
+    
     /// References to the contents
 
     public ClipManager ClipManager;
@@ -285,17 +285,17 @@ public partial class Track : MonoBehaviour
         // Set the color for sequence measures
         //foreach (AmpTrackSection m in Measures)
         //    if (m) m.IsSequence = false;
-
+        
         int range = Clock.Fbar + RhythmicGame.HorizonMeasures;
-        if (range > SongController.songLengthInMeasures) return;
-
+        if (range > SongController.song_info.song_length_bars) return;
+        
         for (int i = Clock.Fbar; i < Clock.Fbar + RhythmicGame.HorizonMeasures; i++)
         {
             if (i >= Measures.Count) continue;
             Measure m = Measures[i];
             if (m) m.IsSequence = false;
         }
-
+        
         for (int i = 0; i < Sequences.Count; i++)
         {
             Measure m = Sequences[i];

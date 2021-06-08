@@ -131,6 +131,8 @@ public static class DebugFunctionality
     public static bool? prevSmooth;
     public static void HandleSongOffsetting()
     {
+        if (PlayerLocomotion.Instance == null) return;
+        
         if (!prevSmooth.HasValue) prevSmooth = PlayerLocomotion.Instance.SmoothEnabled;
         PlayerLocomotion.Instance.SmoothEnabled = false; // Disable smoothing in Locomotion
         //if (SongController.IsPlaying) SongController.TogglePause();

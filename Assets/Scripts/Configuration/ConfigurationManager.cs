@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEngine;
 
 public class ConfigurationManager
@@ -14,33 +12,48 @@ public class ConfigurationManager
 
     public List<Configuration> Configurations = new List<Configuration>();
 
-    string LookupFile(string file_name)
+    public static string LookupFile(string file_name, string[] lookup_folders = null, string[] lookup_exts = null)
     {
-        foreach (string s in config_folders)
+        if (lookup_folders == null) lookup_folders = config_folders;
+        if (lookup_exts == null) lookup_exts = new string[] { config_extension }; // TODO: performance?
+        
+        // for each lookup folder: 
+        foreach (string folder in lookup_folders)
         {
-            string path = Path.Combine(config_basefolder, s);
+            string path = Path.Combine(config_basefolder, folder);
             if (!Directory.Exists(path)) continue;
-
-            string file_path = Path.Combine(path, file_name);
-
-            if (File.Exists(file_path)) return file_path;
-
+            
+            // Go into sub-directories:
+            // TODO: This was removed as it might cause ambiguity.
             string[] dirs = Directory.GetDirectories(path, "*", SearchOption.AllDirectories);
             foreach (string subdir in dirs)
             {
-                string subdir_file_path = Path.Combine(subdir, file_name);
-                if (File.Exists(subdir_file_path)) return subdir_file_path;
+                //string subdir_file_path = Path.Combine(subdir, file_name);
+                //if (File.Exists(subdir_file_path)) return subdir_file_path;
+
+                // Check whether file exists:
+                {
+                    string file_path = Path.Combine(subdir, file_name);
+                    if (File.Exists(file_path)) return file_path;
+                }
+
+                // Check with lookup extensions:
+                foreach (string ext in lookup_exts)
+                {
+                    string file_path = Path.Combine(subdir, file_name) + ext;
+                    if (File.Exists(file_path)) return file_path;
+                }
             }
         }
-        return "";
+        return null;
     }
 
-    public Configuration LoadConfiguration(string file_name)
+    public static Configuration LoadConfiguration(string file_name, string[] lookup_folders = null, string[] lookup_exts = null, bool lookup = true)
     {
-        if (!file_name.EndsWith(config_extension))
-            file_name += config_extension;
-
-        string file_path = LookupFile(file_name);
+        string file_path;
+        if (lookup) file_path = LookupFile(file_name, lookup_folders, lookup_exts);
+        // If lookup is disabled, we expect you specify the full path:
+        else file_path = file_name;
 
         if (!File.Exists(file_path))
         {
@@ -70,7 +83,7 @@ public class ConfigurationManager
     }
 
     public static bool debug_tokens = false;
-    public List<Token> ParseConfigurationFile(Tokenizer t)
+    static List<Token> ParseConfigurationFile(Tokenizer t)
     {
         List<Token> Tokens = new List<Token>();
 
@@ -89,7 +102,7 @@ public class ConfigurationManager
 
     // ***** INTERPRETATION: *****
     public static bool debug_log_cmds = true;
-    public Configuration InterpretConfigurationFile(string file_name, List<Token> tokens)
+    static Configuration InterpretConfigurationFile(string file_name, List<Token> tokens)
     {
         Configuration config = new Configuration(file_name);
         int cursor = 0, total = tokens.Count;
@@ -240,7 +253,7 @@ public class ConfigurationManager
     }
 
     static bool parser_include_string_quotes = false;
-    public Token GetToken(Tokenizer t)
+    public static Token GetToken(Tokenizer t)
     {
         // TODO: We should really use a StringBuilder for performance reasons, especially
         // if we're going to be hotloading some files!
@@ -316,7 +329,7 @@ public class ConfigurationManager
             case char x when (char.IsDigit(x) || x == '-' || x == '.'):
                 {
                     string text = "";
-                    while (!t.end_of_file && !t.c.IsWhitespace() && t.c != ')')
+                    while (!t.end_of_file && !t.c.IsWhitespace() && t.c != ',' && t.c != ')')
                     {
                         text += t.c;
                         t.Advance();
@@ -341,10 +354,8 @@ public class ConfigurationManager
     public static Configuration DEBUG_TestConfig(string file_name = "test")
     {
         if (file_name == null) file_name = "test";
-        ConfigurationManager m = new ConfigurationManager();
-        return m.LoadConfiguration(file_name);
+        return ConfigurationManager.LoadConfiguration(file_name);
     }
-
     public static void DEBUG_RuntimeTestConfig()
     {
         /*

@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class PlayerInputHandler : MonoBehaviour
 {
-    SongController SongController { get { return SongController.Instance; } }
-
+    GenericSongController SongController { get { return GenericSongController.Instance; } }
+    
     public static PlayerInputHandler Instance;
-
+    
     public Player Player;
     public PlayerTrackSwitching TrackSwitching;
     public PlayerCatching Catching;
@@ -23,7 +23,7 @@ public class PlayerInputHandler : MonoBehaviour
         }
         set
         {
-            if (Instance == null) Logger.LogMethodW($"requested (set = {value}), but instance is null!", "AmpPlayerInputHandler");
+            //if (Instance == null) Logger.LogMethodW($"requested (set = {value}), but instance is null!", "AmpPlayerInputHandler");
             _isActive = value;
             if (Instance) Instance.gameObject.SetActive(value);
         }

@@ -128,46 +128,48 @@ public partial class DebugKeys : DebugComponent
                 RhythmicGame.SetAVCalibrationOffset(RhythmicGame.AVCalibrationOffsetMs - RhythmicGame.AVCalibrationStepMs);
         }
 
+        // Timescale
+        DEBUG_HandleTimescale();
+        
+        if (Input.GetKeyDown(KeyCode.Keypad0)) // progressive slowmo test (tut)
+            DoFailTest();
+
+        if (Player.Instance == null) return;
+        
         // Track capturing debug
         if (Input.GetKeyDown(KeyCode.H)) // current track, 5
             DEBUG_CaptureMeasureAmount(TracksController.CurrentTrack, RhythmicGame.TrackCaptureLength);
-
+        
         else if (Input.GetKeyDown(KeyCode.Keypad5)) // 5
             DEBUG_CaptureMeasureAmount(null, RhythmicGame.TrackCaptureLength);
-
+        
         else if (Input.GetKeyDown(KeyCode.Keypad6)) // all!
             DEBUG_CaptureMeasureAmount(null, SongController.Instance.songLengthInMeasures);
-
+        
         if (Keyboard.current.numpadMultiplyKey.wasPressedThisFrame)
             TracksController.IncrementTargetNote(TracksController.CurrentTrack);
-
+        
         // Track restoration (buggy!)
         if (Input.GetKeyDown(KeyCode.Keypad7))
             DEBUG_RestoreCapturedTracks();
-
+        
         // Song offsetting
         HandleSongOffsetting();
-
+        
         // Enable IsPlaying property in Locomotion
         if (Keyboard.current.shiftKey.isPressed && Keyboard.current.numpadMinusKey.wasPressedThisFrame)
         {
             PlayerLocomotion.Instance.IsPlaying = !PlayerLocomotion.Instance.IsPlaying;
             Logger.Log($"DEBUG: Locomotion IsPlaying: {PlayerLocomotion.Instance.IsPlaying}");
         }
-
+        
         // Quick track switching
         if (Input.GetKeyDown(KeyCode.Q)) // First track (0)
             PlayerTrackSwitching.Instance.SwitchToTrack(0, true);
         else if (Input.GetKeyDown(KeyCode.P)) // Last track
             PlayerTrackSwitching.Instance.SwitchToTrack(TracksController.Instance.Tracks.Length - 1, true);
-
-        // Timescale
-        DEBUG_HandleTimescale();
-
-        if (Input.GetKeyDown(KeyCode.Keypad0)) // progressive slowmo test (tut)
-            DoFailTest();
     }
-
+    
     public IEnumerator DoFailTest_Coroutine()
     {
         float elapsed_ms = 0f;
