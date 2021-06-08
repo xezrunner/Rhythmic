@@ -197,6 +197,13 @@ public partial class GenericSongController : MonoBehaviour
         else TogglePause();
     }
     
+    public void SetPlayingState(bool state)
+    {
+        if (state && song_position == 0f) Play();
+        else if (state) Unpause();
+        else Pause();
+    }
+    
     /// <summary>Adds to the song position. Use negative values to travel backwards.</summary>
     // NOTE: Backwards travel is unstable/untested/not implemented!
     public void OffsetSong(float offset)
@@ -214,5 +221,13 @@ public partial class GenericSongController : MonoBehaviour
         }
         
         if (prev_is_playing) Unpause();
+    }
+    
+    static bool prev_playing_state_before_focus_loss;
+    void OnApplicationFocus(bool has_focus)
+    {
+        Logger.LogConsoleW("Application focus state: %", has_focus);
+        if (!has_focus) prev_playing_state_before_focus_loss = is_playing;
+        if (prev_playing_state_before_focus_loss) SetPlayingState(has_focus);
     }
 }
