@@ -248,6 +248,16 @@ PrefabInstance:
       propertyPath: m_BackGroundColor.r
       value: 0.038803846
       objectReference: {fileID: 0}
+    - target: {fileID: 1225588844458036999, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588844716873967, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1225588844875742811, guid: 092cc62a45da22949af241be520f22ee,
         type: 3}
       propertyPath: m_RootOrder
@@ -312,6 +322,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225588846118522919, guid: 092cc62a45da22949af241be520f22ee,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 092cc62a45da22949af241be520f22ee, type: 3}

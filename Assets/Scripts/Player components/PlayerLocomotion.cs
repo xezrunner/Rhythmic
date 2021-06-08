@@ -36,7 +36,7 @@ public class PlayerLocomotion : MonoBehaviour
     public float Speed = 4f;
     public float Step;
     public float DistanceTravelled;
-    public float DistanceTravelled_SmoothFactor = 0.1f; // NOTE: 0.05f for accuracy!
+    public float DistanceTravelled_SmoothFactor = 0.1f; // NOTE: 0.05f for accuracy! | NOTE: should probably scale with timescale
     public float HorizonLength;
     public float CameraPullback = 12.8f;
     public float CameraElevation = 7.53f;
@@ -55,6 +55,14 @@ public class PlayerLocomotion : MonoBehaviour
     void Start()
     {
         DebugConsole.RegisterCommand("freestyle", () => { IsFreestyle = !IsFreestyle; Logger.LogConsole("new state: %", IsFreestyle); });
+        DebugConsole.RegisterCommand("distance_smooth", (string[] args) => { DistanceTravelled_SmoothFactor = args[0].ParseFloat(); });
+        DebugConsole.RegisterCommand("distance_newsmooth", (string[] args) =>
+        {
+            if (args.Length == 0) PlayerLocomotion.DistanceTravelled_NewSmooth = !PlayerLocomotion.DistanceTravelled_NewSmooth;
+            else PlayerLocomotion.DistanceTravelled_NewSmooth = args[0].ParseBool();
+            Logger.Log("New value: %", PlayerLocomotion.DistanceTravelled_NewSmooth);
+            DistanceTravelled = SongController.time_units.SecToPos(SongController.song_position);
+        });
     }
     void GetPath()
     {
@@ -66,35 +74,35 @@ public class PlayerLocomotion : MonoBehaviour
     Quaternion rotVelocity; // Temporary value holding current rotation velocity (ref)
 
     public Vector3 offset;
-    
+
     public void SetTunnelRotationImmediate(Vector3 target)
     {
         Interpolatable_TunnelRotation.localRotation = Quaternion.Euler(target);
         RotationOffset = target;
     }
-    
+
     //NOTE: call this in SongController when starting for the first time (?) OR first time start control here
     public void StartLocomotion()
     {
         if (Path == null) GetPath();
         if (!SongController.is_enabled) return;
-        
+
         // Position player to tunnel
         transform.position = !RhythmicGame.IsTunnelMode ? Tunnel.center : new Vector3(Tunnel.center.x, Tunnel.center.y - Tunnel.radius);
-        
+
         MainCamera.transform.position = new Vector3(Tunnel.center.x, Tunnel.center.y + CameraElevation, -CameraPullback);
-        
+
         normalCameraPos = MainCamera.transform.localPosition;
         normalRotation = MainCamera.transform.localRotation;
         closeCameraPos = normalCameraPos + (Vector3.down * 5f) + (Vector3.forward * 8.5f);
         closeRotation = Quaternion.Euler(13f, 0, 0);
-        
+
         //MainCamera.transform.localPosition -= Tunnel.center;
         // Set catcher visuals to bottom of tunnel, offset by 0.01f (up)
         CatcherVisuals.position = new Vector3(0, 0.01f, 0);
-        
+
         DistanceTravelled = SongController.start_distance;
-        
+
         Locomotion(DistanceTravelled, true); // Position & rotate player on path right away
     }
     /// <summary>
@@ -106,37 +114,38 @@ public class PlayerLocomotion : MonoBehaviour
         // Set the horizon length (used by sections to clip the materials)
         HorizonLength = DistanceTravelled + (RhythmicGame.HorizonMeasures * SongController.bar_length_pos) -
             RhythmicGame.HorizonMeasuresOffset; // TODO: the individual track streaming is visible, so we temporarily offset it
-        
+
         // Get & set the target position on the path - this isn't smoothened:
         Vector3 targetPos = PathTools.GetPositionOnPath(Path, distance, (!RhythmicGame.IsTunnelMode) ? PositionOffset : Vector3.zero); // no X movement in tunnel mode
         transform.position = targetPos;
-        
+
         // Calculate rotation on the path:
         Quaternion pathRot = PathTools.GetRotationOnPath(Path, distance, offset);
         Quaternion tunnelRot = RhythmicGame.IsTunnelMode ? Quaternion.Euler(TunnelRotation) : Quaternion.identity;
         Quaternion totalRot = PathTools.GetRotationOnPath(Path, distance, RhythmicGame.IsTunnelMode ? TunnelRotation : Vector3.zero + offset);
-        
+
         NonInterpolatable.localRotation = totalRot;
         Interpolatable.localRotation = no_smooth ? totalRot : QuaternionUtil.SmoothDamp(Interpolatable.localRotation, RhythmicGame.IsTunnelMode ? pathRot : totalRot, ref rotVelocity, SmoothDuration);
-        
+
         // Different smoothing for tunnel rotation:
         //Interpolatable_TunnelRotation.localRotation = QuaternionUtil.SmoothDamp(Interpolatable_TunnelRotation.localRotation, tunnelRot, ref tunnelrotVelocity, TunnelSmoothDuration);
         Interpolatable_TunnelRotation.localRotation = no_smooth ? tunnelRot : Quaternion.Euler(RotationOffset);
     }
-    
+
     [Header("Testing properties")]
     public bool _IsPlaying; // TEMP
-    
+
     // TODO: This should be handled in a much cleaner and better way! (config values!)
     static bool cameraClose = false;
     Vector3 cam_posref;
     Quaternion cam_rotref;
 
     public float LiveCaptDist;
-    
+
     Vector3 freestyle_visualpoint_pos_ref;
     public float freestyle_mouse_dampen = 20f;
 
+    public static bool DistanceTravelled_NewSmooth = true;
     float dist_ref;
     void Update()
     {
@@ -147,10 +156,13 @@ public class PlayerLocomotion : MonoBehaviour
             if (SongController.is_enabled && SongController.is_playing)
             {
                 Step = (Speed * SongController.pos_in_sec * Time.unscaledDeltaTime) * SongController.song_time_scale;
-                //DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
-                DistanceTravelled = Mathf.SmoothDamp(DistanceTravelled, SongController.song_info.time_units.SecToPos(SongController.song_position), ref dist_ref, DistanceTravelled_SmoothFactor, 10000f);
+                if (!PlayerLocomotion.DistanceTravelled_NewSmooth)
+                    DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
+                // TODO / NOTE: Not sure whether this is correct. Will have to experiment more.
+                else
+                    DistanceTravelled = Mathf.SmoothDamp(DistanceTravelled, SongController.time_units.SecToPos(SongController.song_position), ref dist_ref, DistanceTravelled_SmoothFactor, 10000f);
             }
-            
+
             // Camera pullback toggle:
             if (false && !IsFreestyle)
             {
@@ -158,7 +170,7 @@ public class PlayerLocomotion : MonoBehaviour
                 if (PlayerInputHandler.IsActive && Keyboard.current.nKey.wasPressedThisFrame || (Gamepad.current != null && Gamepad.current.rightStickButton.wasPressedThisFrame))
                     cameraClose = !cameraClose;
             }
-            
+
             Locomotion(DistanceTravelled, !SmoothEnabled);
 
             // Camera pos & rot:
