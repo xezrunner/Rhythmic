@@ -8,18 +8,18 @@ public partial class Logger
     public static void LogUnity(string text, CLogType logType) => GetUnityLogHandlerForLogType(logType)(text.AddColor(Colors.GetColorForCLogType(logType)));
 
     /// Standard warn/error:
-    public static string LogWarning(string text, LogTarget logTarget = LogTarget.All, params string[] args) => Log(text, CLogType.Warning, logTarget, args);
-    public static string LogWarning(string text, params string[] args) => Log(text, CLogType.Warning, args);
-    public static string LogW(string text, params string[] args) => LogWarning(text, args);
-
-    public static string LogError(string text, LogTarget logTarget = LogTarget.All, params string[] args) => Log(text, CLogType.Error, logTarget, args);
-    public static string LogError(string text, params string[] args) => Log(text, CLogType.Error, args);
-    public static string LogE(string text, params string[] args) => LogError(text, args);
-
+    public static string LogWarning(string text, LogTarget logTarget = LogTarget.All, params object[] args) => Log(text, CLogType.Warning, logTarget, args);
+    public static string LogWarning(string text, params object[] args) => Log(text, CLogType.Warning, args);
+    public static string LogW(string text, params object[] args) => LogWarning(text, args);
+    
+    public static string LogError(string text, LogTarget logTarget = LogTarget.All, params object[] args) => Log(text, CLogType.Error, logTarget, args);
+    public static string LogError(string text, params object[] args) => Log(text, CLogType.Error, args);
+    public static string LogE(string text, params object[] args) => LogError(text, args);
+    
     /// Object logging:
     public static string LogObject(object obj, bool printIndex = true, char separatorChar = ',', LogTarget logTarget = LogTarget.All) => Log(obj, 0, printIndex, separatorChar, logTarget);
     public static string LogObjectWarning(object obj, bool printIndex = true, char separatorChar = ',', LogTarget logTarget = LogTarget.All) => Log(obj, CLogType.Warning, printIndex, separatorChar, logTarget);
-
+    
     /// Console-only logging:
     public static string LogConsole(string text, params object[] args) => Log(text, CLogType.Info, LogTarget.DebugConsole, args);
     public static string LogConsoleW(string text, params object[] args) => Log(text, CLogType.Warning, LogTarget.DebugConsole, args);

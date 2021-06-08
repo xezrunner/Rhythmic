@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using UnityEngine;
 
 /// <summary>
@@ -25,7 +24,7 @@ public enum LogTarget
 public static partial class Logger
 {
     public static LogTarget CurrentLogTarget = LogTarget.All;
-
+    
     /// Unity logging:
     static Action<object> GetUnityLogHandlerForLogType(CLogType logType)
     {
