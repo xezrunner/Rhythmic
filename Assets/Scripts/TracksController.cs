@@ -15,50 +15,50 @@ public class TracksController : MonoBehaviour
     [Header("Editor test variables")]
     public Vector3 TestTrackSectionPos;
     public float TestTrackSectionRot;
-
+    
     public static TracksController Instance;
     public GenericSongController SongController { get { return GenericSongController.Instance; } }
     TrackStreamer TrackStreamer { get { return TrackStreamer.Instance; } }
     Clock Clock { get { return Clock.Instance; } }
-
+    
     [Header("Common")]
     public Tunnel Tunnel;
-
+    
     [Header("Prefabs")]
     public GameObject TrackPrefab; // Change to public property?
     public GameObject SeekerPrefab;
-
+    
     [Header("Properties")]
     public int CurrentRealTrackID = -1; // This is the RealID of the track that the player is currently on | -1 is none
     public int CurrentTrackID = -1; // This is the ID of the track that the player is currently on | -1 is none
     public Track CurrentTrack; // The track that the player is currently on
     public Measure CurrentMeasure { get { return CurrentTrack.CurrentMeasure; } }
-
+    
     public float LocalEmission = 1.5f; // Local material
     public float GlobalEmission = 2f; // Global material
-
+    
     [Header("Variables")]
     public Track[] MainTracks;
     public Track[] Tracks;
     public int MainTracks_Count = 0;
     public int Tracks_Count = 0;
-
+    
     public Track[][] TrackSets;
     public Track[] CurrentTrackSet;
     public int CurrentTrackSetID;
     public List<string> songTracks = new List<string>();
-
+    
     // Clipping
     public ClipManager clipManager;
     GameObject lengthPlane;
-
+    
     // Seeker
     public static bool SeekerEnabled = true;
     public GameObject Seeker;
     public MeshRenderer SeekerRenderer;
     public MeshFilter SeekerMesh;
     static Vector3[] og_vertsSeeker;
-
+    
     /// Functionality
     
     public SongInfo song_info;
@@ -93,7 +93,7 @@ public class TracksController : MonoBehaviour
         StartCoroutine(AddTrackMaterialsToClipper());
         StartCoroutine(RefreshSequences_Init());
         StartCoroutine(_Seeker_Init_WaitForStart());
-
+        
         PlayerLocomotion.Instance.StartLocomotion();
     }
     
@@ -136,103 +136,103 @@ public class TracksController : MonoBehaviour
         SeekerMesh = Seeker.GetComponent<MeshFilter>();
         SeekerRenderer = Seeker.GetComponent<MeshRenderer>();
         SeekerRenderer.material = (Material)Resources.Load("Materials/EdgeLightMaterial");
-
+        
         if (og_vertsSeeker == null)
         {
             og_vertsSeeker = new Vector3[SeekerMesh.mesh.vertices.Length];
             SeekerMesh.mesh.vertices.CopyTo(og_vertsSeeker, 0);
         }
     }
-
+    
     int seeker_lastTrackID = -1;
     int seeker_lastSequenceID = -1;
     void DeformSeeker(Measure m, int count = 1)
     {
         if (!SeekerEnabled) { Seeker.SetActive(false); return; }
-
+        
         if (!m.IsEnabled || !m.IsSequence || m.IsEmpty || m.IsCaptured) Seeker.SetActive(false);
         else Seeker.SetActive(true);
-
+        
         seeker_lastTrackID = m.Track.RealID;
         seeker_lastSequenceID = m.ID;
-
+        
         MeshDeformer.DeformMesh(PathTools.Path, SeekerMesh.mesh, m.Position, m.Rotation, ogVerts: og_vertsSeeker, offset: new Vector3(0, 0.018f, 0), RhythmicGame.TrackWidth + 0.05f, -1, m.Length * count, movePivotToStart: false); // TODO: unneccessary parameters
     }
-
+    
     IEnumerator _Seeker_Init_WaitForStart()
     {
         while (!CurrentTrack || CurrentTrack.Sequences.Count == 0) yield return null;
         DeformSeeker(CurrentTrack.Sequences[0], CurrentTrack.Sequences.Count);
     }
-
+    
     public void RefreshSeeker()
     {
         if (CurrentTrack && CurrentTrack.Sequences.Count > 0 && (CurrentTrack.Sequences[0].ID != seeker_lastSequenceID || CurrentTrack.RealID != seeker_lastTrackID))
             DeformSeeker(CurrentTrack.Sequences[0], CurrentTrack.Sequences.Count);
     }
-
+    
     // Shared AmpNote material (TODO: move somewhere else? Into AmpNote as static?)
     public Material SharedNoteMaterial;
-
+    
     // TODO: There are two clip managers - one is global for the length clipping, the other is individual on each track.
     // There should be better explanations for this, perhaps a different system for handling clipping altogether.
     bool clipping_lastVisualControlState = false; // false: has not set materials to OFF yet | true: ignore Clip() completely
     IEnumerator AddTrackMaterialsToClipper()
     {
         while (Tracks.Last().Measures?.Count < RhythmicGame.HorizonMeasures) yield return null;
-
+        
         foreach (var t in Tracks)
         {
             clipManager.AddMaterial(t.Track_Bottom_Mat);
             clipManager.AddMaterial(t.Track_Top_Mat);
             clipManager.AddMaterial(t.Track_Bottom_Global_Mat);
         }
-
+        
         // Instantiate a shared Note Material | (TODO: move somewhere else? Into AmpNote as static?)
         SharedNoteMaterial = Instantiate((Material)Resources.Load("Materials/note-test/note_material"));
-
+        
         // TODO: Bug - when changing the note material, clipping stays as notes get recycled?
         //clipManager.AddMaterial(SharedNoteMaterial);
-
+        
         LengthClip();
     }
-
+    
     // WARNING! Paths should not traverse backwards, as the global edge lights are going to be visible ahead of the path!
     // TODO: either fix this, or design paths in a way that they don't traverse backwards!
     public void LengthClip()
     {
         if (PlayerLocomotion.Instance == null)
         { Logger.LogConsoleW("PlayerLocomotion is null - cannot gather distance!".TM(this)); return; }
-
+        
         // Visual clipping control - disable all clipping!
         // TODO: is comparing a static variable slow?
         if (RhythmicGame.DisableTrackLengthClipping)
         {
             if (!clipping_lastVisualControlState) // Do this once
                 clipManager.materials.ForEach(m => m.SetFloat("_PlaneEnabled", 0));
-
+            
             clipping_lastVisualControlState = true;
             return;
         }
         else clipping_lastVisualControlState = false;
-
+        
         // Calculate clip plane offset based on measure draw distance
         float dist = PlayerLocomotion.Instance.HorizonLength;
-
+        
         Vector3 planePos = PathTools.GetPositionOnPath(PathTools.Path, dist);
         Quaternion planeRot = PathTools.GetRotationOnPath(PathTools.Path, dist, new Vector3(90, 0, 0));
-
+        
         lengthPlane.transform.position = planePos;
         lengthPlane.transform.rotation = planeRot;
-
+        
         clipManager.Clip();
     }
     void Update()
     {
         // Clipmanager update
-        if ((SongController && SongController.is_playing) && (PlayerLocomotion.Instance && PlayerLocomotion.Instance.IsPlaying)) LengthClip();
+        if ((SongController && SongController.is_playing) || (PlayerLocomotion.Instance && PlayerLocomotion.Instance._IsPlaying)) LengthClip();
     }
-
+    
     /// Events
     public event EventHandler<int[]> OnTrackSwitched;
     private void Tracks_OnTrackSwitched(object sender, int[] e) // NOTE: RealID is sent in e[1]

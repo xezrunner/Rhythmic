@@ -19,7 +19,7 @@ public class DebugStats : DebugComponent
 
     Clock Clock { get { return Clock.Instance; } }
     WorldSystem WorldSystem { get { return WorldSystem.Instance; } }
-    SongController SongController { get { return SongController.Instance; } }
+    GenericSongController SongController { get { return GenericSongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
     PlayerLocomotion AmpPlayerLocomotion { get { return PlayerLocomotion.Instance; } }
 
@@ -44,14 +44,14 @@ public class DebugStats : DebugComponent
         if (StatsMode == StatsMode.None) return;
 
         // SongController status (disabled):
-        if (!SongController.IsEnabled) AddLine($"SongController Disabled");
+        if (!SongController.is_enabled) AddLine($"SongController Disabled");
 
         // World name:
         if (StatsMode > StatsMode.ShortShort && WorldSystem.Instance)
             AddLine($"World: {WorldSystem.Name}");
 
         // No stats from this point onwards if SongController and others don't exist!
-        if (!SongController.IsEnabled) return;
+        if (!SongController.is_enabled) return;
         if (!TracksController || !Clock || !AmpPlayerLocomotion)
         {
             AddLine("\nMajor gameplay components are missing! G_LOGIC_MISSING 0x00000000".AddColor(Colors.Error));
@@ -59,14 +59,14 @@ public class DebugStats : DebugComponent
         }
 
         // Song stats:
-        AddLine($"Song: {SongController.songName}  " + $"BPM: {SongController.songBpm}".AddColor(0.6f), 2);
+        AddLine($"Song: {SongController.song_info.song_name}  " + $"BPM: {SongController.song_info.song_bpm}".AddColor(0.6f), 2);
 
         /// --- END OF BASIC INFO ---
         /// Add stuff below:
 
         // Locomotion stats:
         {
-            AddLine($"Locomotion dist: {AmpPlayerLocomotion.DistanceTravelled.ToString("0.000")}" + $"/{(SongController.measureLengthInzPos * SongController.songLengthInMeasures).ToString("0.000")}".AddColor(.65f));
+            AddLine($"Locomotion dist: {AmpPlayerLocomotion.DistanceTravelled.ToString("0.000")}" + $"/{(SongController.bar_length_pos * SongController.song_info.song_length_bars).ToString("0.000")}".AddColor(.65f));
             AddLine($"Locomotion pos: {AmpPlayerLocomotion.transform.position}");
             AddLine($"Locomotion rot: [non-interp: {AmpPlayerLocomotion.NonInterpolatable.rotation.eulerAngles}]  " +
                                     //$"[interp: {AmpPlayerLocomotion.Interpolatable.rotation.eulerAngles}]");
@@ -119,18 +119,18 @@ public class DebugStats : DebugComponent
 
         // Slop stats:
         if (StatsMode > StatsMode.ShortShort)
-            AddLine($"Slop: {SongController.SlopMs} ms " + $"({SongController.SlopPos} m)".AddColor(1, 1, 1, 0.80f), -1);
+            AddLine($"Slop: {RhythmicGame.SlopMs} ms " + $"({SongController.song_info.time_units.MsToPos(RhythmicGame.SlopMs)} m)".AddColor(1, 1, 1, 0.80f), -1);
         // Song start distance offset stats:
         if (StatsMode > StatsMode.ShortShort)
-            AddLine($"Start distance offset: {SongController.StartDistance}");
+            AddLine($"Start distance offset: {SongController.start_distance}");
 
         // Timescale stats:
         if (StatsMode > StatsMode.ShortShort)
-            AddLine($"Timescale: [song: {SongController.songTimeScale.ToString("0.00")}]  [world: {Time.timeScale.ToString("0.00")}]", -1);
+            AddLine($"Timescale: [song: {SongController.song_time_scale.ToString("0.00")}]  [world: {Time.timeScale.ToString("0.00")}]", -1);
 
         // Clock stats:
         AddLine($"Clock seconds: {Clock.seconds}".AddColor(1, 1, 1, 0.8f) + $" ({Clock.seconds * 1000} ms)".AddColor(0.54f));
-        AddLine($"Clock bar: {(int)Clock.bar}  Fbar: {Clock.Fbar}  ".AddColor(1, 1, 1, 0.8f) + $"({SongController.songLengthInMeasures})".AddColor(1, 1, 1, 0.6f));
+        AddLine($"Clock bar: {(int)Clock.bar}  Fbar: {Clock.Fbar}  ".AddColor(1, 1, 1, 0.8f) + $"({SongController.song_info.song_length_bars})".AddColor(1, 1, 1, 0.6f));
         AddLine($"Clock beat: {(int)Clock.beat % 8} ({(int)Clock.beat})".AddColor(1, 1, 1, 0.8f));
 
         // More goes here...

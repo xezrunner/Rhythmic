@@ -9,6 +9,7 @@ public class SongInfo
     public float song_bpm;
     public float song_length;
     public int song_countin;
+    public float song_length_sec;
     public int song_length_bars;
     public List<string> song_tracks;
     public List<string> midi_tracks;

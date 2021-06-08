@@ -243,7 +243,7 @@ public class PlayerTrackSwitching : MonoBehaviour
 
     private void Update() // TODO: LateUpdate?
     {
-        if (!SongController.is_playing && !Locomotion.IsPlaying) return;
+        if (!SongController.is_playing && !Locomotion._IsPlaying) return;
 
         Locomotion.PositionOffset = Vector3.SmoothDamp(Locomotion.PositionOffset, targetPos, ref pos_vel, Duration, 100f, PositionEasingStrength * Time.deltaTime);
         Locomotion.RotationOffset = Vector3.SmoothDamp(Locomotion.RotationOffset, RhythmicGame.IsTunnelMode ? targetRot : Vector3.zero,

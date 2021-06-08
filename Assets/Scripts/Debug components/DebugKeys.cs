@@ -159,8 +159,8 @@ public partial class DebugKeys : DebugComponent
         // Enable IsPlaying property in Locomotion
         if (Keyboard.current.shiftKey.isPressed && Keyboard.current.numpadMinusKey.wasPressedThisFrame)
         {
-            PlayerLocomotion.Instance.IsPlaying = !PlayerLocomotion.Instance.IsPlaying;
-            Logger.Log($"DEBUG: Locomotion IsPlaying: {PlayerLocomotion.Instance.IsPlaying}");
+            PlayerLocomotion.Instance._IsPlaying = !PlayerLocomotion.Instance._IsPlaying;
+            Logger.Log($"DEBUG: Locomotion IsPlaying: {PlayerLocomotion.Instance._IsPlaying}");
         }
         
         // Quick track switching

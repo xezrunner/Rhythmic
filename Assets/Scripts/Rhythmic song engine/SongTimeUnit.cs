@@ -25,20 +25,24 @@ public class SongTimeUnit
     public int bar_ticks = 1920;
     
     // TODO: Ticks should probably be of type 'long'.
-    public float ms_in_tick;
-    public float TickToMs(long ticks) => ms_in_tick * ticks;
     public float tick_in_ms;
     public float MsToTick(float ms) => tick_in_ms * ms;
+    public float tick_in_sec;
+    public float SecToTick(float sec) => tick_in_sec * sec;
     
+    public float ms_in_tick;
+    public float TickToMs(long ticks) => ms_in_tick * ticks;
+    
+    public float pos_in_sec;
+    public float SecToPos(float sec) => pos_in_sec * sec;
     public float pos_in_tick; // How many posonds are there in a tick?
     public float TickToPos(long ticks) => pos_in_tick * ticks;
     public float pos_in_bar;
     public float BarToPos(int bar) => TickToPos(bar_ticks * bar);
-    
     public float pos_in_ms;
     public float MsToPos(float ms) => pos_in_ms * ms;
-    public float pos_in_sec;
-    public float SecToPos(float sec) => pos_in_sec * sec;
+    
+    
     
     void CalculateTimeUnits() 
     {
@@ -48,20 +52,14 @@ public class SongTimeUnit
         ms_per_beat = (60000f / song_bpm);
         sec_per_beat = (60f / song_bpm);
         
-        ms_in_tick = 60000f / (song_bpm * beat_ticks);
         tick_in_ms = (song_bpm * beat_ticks) / 60000f;
-        pos_in_tick = (4f / 480f) + ((4f / 480f) * song_tunnel_scale); // TODO: is this correct?
+        tick_in_sec = (song_bpm * beat_ticks) / 60f;
         
+        ms_in_tick = 60000f / (song_bpm * beat_ticks);
+        
+        pos_in_tick = (4f / 480f) + ((4f / 480f) * song_tunnel_scale); // TODO: is this correct?
         pos_in_sec = (4f / sec_per_beat) + ((4f / sec_per_beat) * song_tunnel_scale);
         pos_in_ms = (4f / ms_per_beat) + ((4f / ms_per_beat) * song_tunnel_scale);
-        
-
-        
-        /// ----------- ///
-
-        Logger.Log("ms_in_tick: %", ms_in_tick);
-        Logger.Log("tick_in_ms: %", tick_in_ms);
-        Logger.Log("pos_in_tick: %", pos_in_tick);
     }
 
 

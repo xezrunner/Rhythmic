@@ -65,7 +65,7 @@ public class PlayerLocomotion : MonoBehaviour
     Quaternion rotVelocity; // Temporary value holding current rotation velocity (ref)
 
     public Vector3 offset;
-
+    
     public void SetTunnelRotationImmediate(Vector3 target)
     {
         Interpolatable_TunnelRotation.localRotation = Quaternion.Euler(target);
@@ -77,7 +77,7 @@ public class PlayerLocomotion : MonoBehaviour
     {
         if (Path == null) GetPath();
         if (!SongController.is_enabled) return;
-
+        
         // Position player to tunnel
         transform.position = !RhythmicGame.IsTunnelMode ? Tunnel.center : new Vector3(Tunnel.center.x, Tunnel.center.y - Tunnel.radius);
         
@@ -105,27 +105,27 @@ public class PlayerLocomotion : MonoBehaviour
         // Set the horizon length (used by sections to clip the materials)
         HorizonLength = DistanceTravelled + (RhythmicGame.HorizonMeasures * SongController.bar_length_pos) -
             RhythmicGame.HorizonMeasuresOffset; // TODO: the individual track streaming is visible, so we temporarily offset it
-
+        
         // Get & set the target position on the path - this isn't smoothened:
         Vector3 targetPos = PathTools.GetPositionOnPath(Path, distance, (!RhythmicGame.IsTunnelMode) ? PositionOffset : Vector3.zero); // no X movement in tunnel mode
         transform.position = targetPos;
-
+        
         // Calculate rotation on the path:
         Quaternion pathRot = PathTools.GetRotationOnPath(Path, distance, offset);
         Quaternion tunnelRot = RhythmicGame.IsTunnelMode ? Quaternion.Euler(TunnelRotation) : Quaternion.identity;
         Quaternion totalRot = PathTools.GetRotationOnPath(Path, distance, RhythmicGame.IsTunnelMode ? TunnelRotation : Vector3.zero + offset);
-
+        
         NonInterpolatable.localRotation = totalRot;
         Interpolatable.localRotation = no_smooth ? totalRot : QuaternionUtil.SmoothDamp(Interpolatable.localRotation, RhythmicGame.IsTunnelMode ? pathRot : totalRot, ref rotVelocity, SmoothDuration);
-
+        
         // Different smoothing for tunnel rotation:
         //Interpolatable_TunnelRotation.localRotation = QuaternionUtil.SmoothDamp(Interpolatable_TunnelRotation.localRotation, tunnelRot, ref tunnelrotVelocity, TunnelSmoothDuration);
         Interpolatable_TunnelRotation.localRotation = no_smooth ? tunnelRot : Quaternion.Euler(RotationOffset);
     }
-
+    
     [Header("Testing properties")]
-    public bool IsPlaying; // TEMP
-
+    public bool _IsPlaying; // TEMP
+    
     // TODO: This should be handled in a much cleaner and better way! (config values!)
     static bool cameraClose = false;
     Vector3 cam_posref;
@@ -137,7 +137,7 @@ public class PlayerLocomotion : MonoBehaviour
     public float mouse_dampen = 20f;
     void Update()
     {
-        if (IsPlaying || SongController.is_playing)
+        if (_IsPlaying || SongController.is_playing)
         {
             if (SongController.is_enabled && SongController.is_playing)
             {
