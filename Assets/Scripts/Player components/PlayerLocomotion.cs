@@ -36,6 +36,7 @@ public class PlayerLocomotion : MonoBehaviour
     public float Speed = 4f;
     public float Step;
     public float DistanceTravelled;
+    public float DistanceTravelled_SmoothFactor = 0.1f; // NOTE: 0.05f for accuracy!
     public float HorizonLength;
     public float CameraPullback = 12.8f;
     public float CameraElevation = 7.53f;
@@ -132,19 +133,24 @@ public class PlayerLocomotion : MonoBehaviour
     Quaternion cam_rotref;
 
     public float LiveCaptDist;
+    
+    Vector3 freestyle_visualpoint_pos_ref;
+    public float freestyle_mouse_dampen = 20f;
 
-    Vector3 visualpoint_pos_ref;
-    public float mouse_dampen = 20f;
+    float dist_ref;
     void Update()
     {
+        /// TODO TODO TODO: Improve this!!!
+
         if (_IsPlaying || SongController.is_playing)
         {
             if (SongController.is_enabled && SongController.is_playing)
             {
                 Step = (Speed * SongController.pos_in_sec * Time.unscaledDeltaTime) * SongController.song_time_scale;
-                DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
+                //DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
+                DistanceTravelled = Mathf.SmoothDamp(DistanceTravelled, SongController.song_info.time_units.SecToPos(SongController.song_position), ref dist_ref, DistanceTravelled_SmoothFactor, 10000f);
             }
-
+            
             // Camera pullback toggle:
             if (false && !IsFreestyle)
             {
@@ -152,7 +158,7 @@ public class PlayerLocomotion : MonoBehaviour
                 if (PlayerInputHandler.IsActive && Keyboard.current.nKey.wasPressedThisFrame || (Gamepad.current != null && Gamepad.current.rightStickButton.wasPressedThisFrame))
                     cameraClose = !cameraClose;
             }
-
+            
             Locomotion(DistanceTravelled, !SmoothEnabled);
 
             // Camera pos & rot:
@@ -173,13 +179,13 @@ public class PlayerLocomotion : MonoBehaviour
                 {
                     Vector3 mouse_pos = (new Vector3(Mouse.current.position.ReadValue().x, Mouse.current.position.ReadValue().y, MainCamera.nearClipPlane));
                     //pos = MainCamera.ScreenToWorldPoint(mouse_pos);
-                    pos = new Vector3(0, RhythmicGame.Resolution.y / 2, 0) / mouse_dampen + new Vector3(mouse_pos.x - RhythmicGame.Resolution.x / 2, mouse_pos.y - RhythmicGame.Resolution.y / 2) / mouse_dampen;
+                    pos = new Vector3(0, RhythmicGame.Resolution.y / 2, 0) / freestyle_mouse_dampen + new Vector3(mouse_pos.x - RhythmicGame.Resolution.x / 2, mouse_pos.y - RhythmicGame.Resolution.y / 2) / freestyle_mouse_dampen;
                 }
                 else pos = new Vector3(0, 0, PlayerVisualPoint_Pullback);
 
                 //if (IsFreestyle) Logger.Log("mouse pos: % | pos: %", Mouse.current.position.ReadValue(), pos);
 
-                PlayerVisualPoint.localPosition = Vector3.SmoothDamp(PlayerVisualPoint.localPosition, pos, ref visualpoint_pos_ref, 0.2f);
+                PlayerVisualPoint.localPosition = Vector3.SmoothDamp(PlayerVisualPoint.localPosition, pos, ref freestyle_visualpoint_pos_ref, 0.2f);
             }
 
             if (SongController.is_song_over) return;

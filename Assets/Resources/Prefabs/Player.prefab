@@ -5495,6 +5495,7 @@ MonoBehaviour:
   Speed: 1
   Step: 0
   DistanceTravelled: 0
+  DistanceTravelled_SmoothFactor: 0.1
   HorizonLength: 0
   CameraPullback: 12.8
   CameraElevation: 7.53
@@ -5504,9 +5505,9 @@ MonoBehaviour:
   RotationOffset: {x: 0, y: 0, z: 0}
   TunnelRotation: {x: 0, y: 0, z: 0}
   offset: {x: 0, y: 0, z: 0}
-  IsPlaying: 0
+  _IsPlaying: 0
   LiveCaptDist: 0
-  mouse_dampen: 50
+  freestyle_mouse_dampen: 20
 --- !u!114 &1225588844875742808
 MonoBehaviour:
   m_ObjectHideFlags: 0

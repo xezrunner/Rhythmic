@@ -25,6 +25,7 @@ public partial class GenericSongController : MonoBehaviour
     /// TODO: Do we really need all these props? They're in the SongMetaFile anyway.
     [Header("Song props")]
     public SongInfo song_info; // TODO: Rename to song_info!!!
+    public SongTimeUnit time_units;
     
     // TODO: Start distance implementation!
     public float start_distance;
@@ -59,6 +60,7 @@ public partial class GenericSongController : MonoBehaviour
             return;
         }
         this.song_info = song_info;
+        time_units = song_info.time_units;
         // Setup core time/pos units:
         bar_length_pos = song_info.time_units.BarToPos(1);
         pos_in_sec = song_info.time_units.pos_in_sec;
@@ -221,6 +223,12 @@ public partial class GenericSongController : MonoBehaviour
         }
         
         if (prev_is_playing) Unpause();
+    }
+    
+    void Update()
+    {
+        song_position = audio_sources[0].time; // TODO: this is bad!!!
+        if (Keyboard.current.xKey.isPressed) OffsetSong(5);
     }
     
     static bool prev_playing_state_before_focus_loss;

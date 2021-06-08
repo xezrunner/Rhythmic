@@ -523,15 +523,18 @@ MonoBehaviour:
   is_enabled: 1
   is_fake: 0
   is_song_over: 0
-  song_tracks: []
   start_distance: 0
   pos_in_sec: 0
   bar_length_pos: 0
   slop_pos: 0
+  audio_clips: []
+  audio_sources_container: {fileID: 0}
+  audio_sources: []
   TracksController: {fileID: 0}
   TrackStreamer: {fileID: 0}
-  audio_src_list: []
   is_playing: 0
+  song_position: 0
+  song_delta_time: 0
   song_time_scale: 1
 --- !u!4 &2031012699
 Transform:
