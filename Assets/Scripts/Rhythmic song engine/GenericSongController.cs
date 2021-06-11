@@ -227,7 +227,7 @@ public partial class GenericSongController : MonoBehaviour
     
     void Update()
     {
-        song_position = audio_sources[0].time; // TODO: this is bad!!!
+        if (is_playing) song_position = audio_sources[0].time; // TODO: this is bad!!!
         if (Keyboard.current.xKey.isPressed) OffsetSong(5);
     }
     
