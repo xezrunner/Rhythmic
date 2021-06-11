@@ -14,7 +14,7 @@ public class PlayerTrackSwitching : MonoBehaviour
     public Player Player;
     Clock Clock { get { return Clock.Instance; } }
     Tunnel Tunnel { get { return Tunnel.Instance; } }
-    SongController SongController { get { return SongController.Instance; } }
+    GenericSongController SongController { get { return GenericSongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
     public PlayerLocomotion Locomotion;
 
@@ -36,15 +36,15 @@ public class PlayerTrackSwitching : MonoBehaviour
     // TODO: proper loading waiting!
     IEnumerator WaitForStart()
     {
-        if (!SongController.IsEnabled) yield break;
-
+        if (!SongController.is_enabled) yield break;
+        
         while (!TracksController || !TracksController.IsLoaded) yield return null;
         SwitchToTrack(StartTrackID, true);
     }
-
+    
     public int Seek_FindTrackID(int current_id, int target_id, HDirection direction)
     {
-        if (Clock.Fbar < SongController.songCountIn) return target_id; // COUNTIN: do not do seeking at countin!
+        if (Clock.Fbar < SongController.song_info.song_countin) return target_id; // COUNTIN: do not do seeking at countin!
 
         int tracks_count = TracksController.Tracks_Count;
         int i_dir = (direction == HDirection.Left) ? -1 : 1;
@@ -243,7 +243,7 @@ public class PlayerTrackSwitching : MonoBehaviour
 
     private void Update() // TODO: LateUpdate?
     {
-        if (!SongController.IsPlaying && !Locomotion.IsPlaying) return;
+        if (!SongController.is_playing && !Locomotion._IsPlaying) return;
 
         Locomotion.PositionOffset = Vector3.SmoothDamp(Locomotion.PositionOffset, targetPos, ref pos_vel, Duration, 100f, PositionEasingStrength * Time.deltaTime);
         Locomotion.RotationOffset = Vector3.SmoothDamp(Locomotion.RotationOffset, RhythmicGame.IsTunnelMode ? targetRot : Vector3.zero,

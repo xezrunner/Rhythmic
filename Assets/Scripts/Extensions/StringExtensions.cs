@@ -1,7 +1,9 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using static System.Globalization.CultureInfo;
 
 public static class StringExtensions
 {
@@ -124,6 +126,7 @@ public static class StringExtensions
     }
 
     // Parsing:
+    #region Parsing
     public static bool ParseBool(this string text)
     {
         // Try parsing as boolean:
@@ -147,6 +150,49 @@ public static class StringExtensions
     public static int ParseInt(this string text) => int.Parse(text);
     public static float ParseFloat(this string text) => float.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
 
+    public static int[] ParseIntArray(this string text)
+    {
+        int cursor = 0;
+        List<int> list = new List<int>();
+        string temp_buffer = "";
+        while (cursor < text.Length)
+        {
+            char c = text[cursor];
+            if (char.IsDigit(c)) temp_buffer += c;
+
+            if (c == ',' || c == ')' && temp_buffer != "")
+            {
+                list.Add(temp_buffer.ParseInt());
+                temp_buffer = "";
+            }
+
+            ++cursor;
+        }
+        return list.ToArray();
+    }
+
+    public static float[] ParseFloatArray(this string text)
+    {
+        int cursor = 0;
+        List<float> list = new List<float>();
+        string temp_buffer = "";
+        while (cursor < text.Length)
+        {
+            char c = text[cursor];
+            if (char.IsDigit(c) || c == '.') temp_buffer += c;
+
+            if (c == ',' || c == ')' && temp_buffer != "")
+            {
+                list.Add(temp_buffer.ParseFloat());
+                temp_buffer = "";
+            }
+
+            ++cursor;
+        }
+        return list.ToArray();
+    }
+    #endregion
+
     public static string RemoveExt(this string text, string ext = null)
     {
         if (ext != null && ext != "") return text.Replace(ext, "");
@@ -161,6 +207,18 @@ public static class StringExtensions
         return text;
     }
 
+    public static bool BeginsWith(this string text, string test, bool ignore_case = true) => text.StartsWith(test, ignore_case, CurrentCulture);
+    public static bool BeginsWith(string test, bool ignore_case, bool opmode_all = false, params string[] text)
+    {
+        foreach (string t in text)
+        {
+            bool value = t.BeginsWith(test, ignore_case);
+            if (opmode_all && !value) return false;
+            else if (!opmode_all && value) return true;
+        }
+        return false;
+    }
+    
     // TODO: We should also consider spaces as empty, potentially. Perhaps controllable?
     public static bool IsEmpty(this string text) => (text == null || text == "");
 }

@@ -15,208 +15,224 @@ public class TracksController : MonoBehaviour
     [Header("Editor test variables")]
     public Vector3 TestTrackSectionPos;
     public float TestTrackSectionRot;
-
+    
     public static TracksController Instance;
-    public SongController SongController { get { return SongController.Instance; } }
+    public GenericSongController SongController { get { return GenericSongController.Instance; } }
     TrackStreamer TrackStreamer { get { return TrackStreamer.Instance; } }
     Clock Clock { get { return Clock.Instance; } }
-
+    
     [Header("Common")]
     public Tunnel Tunnel;
-    public PlayerCatching Catching;
-
+    
     [Header("Prefabs")]
     public GameObject TrackPrefab; // Change to public property?
     public GameObject SeekerPrefab;
-
+    
     [Header("Properties")]
     public int CurrentRealTrackID = -1; // This is the RealID of the track that the player is currently on | -1 is none
     public int CurrentTrackID = -1; // This is the ID of the track that the player is currently on | -1 is none
     public Track CurrentTrack; // The track that the player is currently on
     public Measure CurrentMeasure { get { return CurrentTrack.CurrentMeasure; } }
-
+    
     public float LocalEmission = 1.5f; // Local material
     public float GlobalEmission = 2f; // Global material
-
+    
     [Header("Variables")]
     public Track[] MainTracks;
     public Track[] Tracks;
     public int MainTracks_Count = 0;
     public int Tracks_Count = 0;
-
+    
     public Track[][] TrackSets;
     public Track[] CurrentTrackSet;
     public int CurrentTrackSetID;
     public List<string> songTracks = new List<string>();
-
+    
     // Clipping
     public ClipManager clipManager;
     GameObject lengthPlane;
-
+    
     // Seeker
     public static bool SeekerEnabled = true;
     public GameObject Seeker;
     public MeshRenderer SeekerRenderer;
     public MeshFilter SeekerMesh;
     static Vector3[] og_vertsSeeker;
-
+    
     /// Functionality
-
-    void Awake()
+    
+    public SongInfo song_info;
+    
+    public void Init(SongInfo song_info)
     {
-        Instance = this; // static instance
-        gameObject.layer = 11; // Assign to Tracks layer
-
-        TrackPrefab = (GameObject)Resources.Load("Prefabs/AmpTrack");
-        SeekerPrefab = (GameObject)Resources.Load("Models/seeker_frame");
-
-        OnTrackSwitched += Tracks_OnTrackSwitched;
-
-        // Create a list of playable song tracks in string form
-        // Used for tunnel and track creation
-        songTracks.Clear();
-
-        foreach (string s in SongController.songTracks)
+        if (song_info == null || song_info.song_tracks == null || song_info.song_tracks.Count <= 0)
+        { Logger.LogError("Error in song_info.".TM(this)); return; }
+        
+        this.song_info = song_info;
+        
+        foreach (string s in song_info.song_tracks)
         {
             var inst = Track.InstrumentFromString(s);
-
+            
             if (inst == Track.InstrumentType.FREESTYLE & !RhythmicGame.PlayableFreestyleTracks) continue;
             if (inst == Track.InstrumentType.bg_click) continue;
             songTracks.Add(s);
         }
-
+        
         // Create Tunnel component (must have songTracks ready before this!)
         Tunnel = gameObject.AddComponent<Tunnel>();
         Tunnel.Init(songTracks.Count * RhythmicGame.TunnelTrackDuplicationNum);
-
+        
         // Create tracks!
         CreateTracks();
         Tracks_Count = Tracks.Length;
         MainTracks_Count = MainTracks.Length;
-
+        
+        targetNotes = new Note[MainTracks.Length];
+        
+        StartCoroutine(AddTrackMaterialsToClipper());
         StartCoroutine(RefreshSequences_Init());
-
+        StartCoroutine(_Seeker_Init_WaitForStart());
+        
+        PlayerLocomotion.Instance.StartLocomotion();
+    }
+    
+    void Awake()
+    {
+        Instance = this; // static instance
+        gameObject.layer = 11; // Assign to Tracks layer
+        
+        TrackPrefab = (GameObject)Resources.Load("Prefabs/AmpTrack");
+        SeekerPrefab = (GameObject)Resources.Load("Models/seeker_frame");
+        
+        OnTrackSwitched += Tracks_OnTrackSwitched;
+        
+        // Create a list of playable song tracks in string form
+        // Used for tunnel and track creation
+        songTracks.Clear();
+        
+        //if (!SongController) return;
+        
         // Clip manager init
-
+        
         clipManager = gameObject.AddComponent<ClipManager>();
-
+        
         lengthPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
         lengthPlane.name = "Length clip plane";
         lengthPlane.transform.parent = transform;
         lengthPlane.GetComponent<MeshRenderer>().enabled = false;
-
+        
         // TODO: might not be needed if we force mostly straight paths or fall back to 'local' global edge lights.
         //inversePlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
         //inversePlane.name = "Clip behind plane";
         //inversePlane.transform.parent = transform;
         //inversePlane.GetComponent<MeshRenderer>().enabled = false;
-
+        
         clipManager.plane = lengthPlane;
         //clipManager.inverse_plane = inversePlane;
-
-        StartCoroutine(AddTrackMaterialsToClipper());
-
+        
         // Instantiate seeker
         Seeker = Instantiate(SeekerPrefab); Seeker.SetActive(false);
         SeekerMesh = Seeker.GetComponent<MeshFilter>();
         SeekerRenderer = Seeker.GetComponent<MeshRenderer>();
         SeekerRenderer.material = (Material)Resources.Load("Materials/EdgeLightMaterial");
-
+        
         if (og_vertsSeeker == null)
         {
             og_vertsSeeker = new Vector3[SeekerMesh.mesh.vertices.Length];
             SeekerMesh.mesh.vertices.CopyTo(og_vertsSeeker, 0);
         }
-
-        StartCoroutine(_Seeker_Init_WaitForStart());
     }
-
+    
     int seeker_lastTrackID = -1;
     int seeker_lastSequenceID = -1;
     void DeformSeeker(Measure m, int count = 1)
     {
         if (!SeekerEnabled) { Seeker.SetActive(false); return; }
-
+        
         if (!m.IsEnabled || !m.IsSequence || m.IsEmpty || m.IsCaptured) Seeker.SetActive(false);
         else Seeker.SetActive(true);
-
+        
         seeker_lastTrackID = m.Track.RealID;
         seeker_lastSequenceID = m.ID;
-
+        
         MeshDeformer.DeformMesh(PathTools.Path, SeekerMesh.mesh, m.Position, m.Rotation, ogVerts: og_vertsSeeker, offset: new Vector3(0, 0.018f, 0), RhythmicGame.TrackWidth + 0.05f, -1, m.Length * count, movePivotToStart: false); // TODO: unneccessary parameters
     }
-
+    
     IEnumerator _Seeker_Init_WaitForStart()
     {
         while (!CurrentTrack || CurrentTrack.Sequences.Count == 0) yield return null;
         DeformSeeker(CurrentTrack.Sequences[0], CurrentTrack.Sequences.Count);
     }
-
+    
     public void RefreshSeeker()
     {
         if (CurrentTrack && CurrentTrack.Sequences.Count > 0 && (CurrentTrack.Sequences[0].ID != seeker_lastSequenceID || CurrentTrack.RealID != seeker_lastTrackID))
             DeformSeeker(CurrentTrack.Sequences[0], CurrentTrack.Sequences.Count);
     }
-
+    
     // Shared AmpNote material (TODO: move somewhere else? Into AmpNote as static?)
     public Material SharedNoteMaterial;
-
+    
     // TODO: There are two clip managers - one is global for the length clipping, the other is individual on each track.
     // There should be better explanations for this, perhaps a different system for handling clipping altogether.
     bool clipping_lastVisualControlState = false; // false: has not set materials to OFF yet | true: ignore Clip() completely
     IEnumerator AddTrackMaterialsToClipper()
     {
-        while (Tracks.Last().Measures.Count < RhythmicGame.HorizonMeasures) yield return null;
-
+        while (Tracks.Last().Measures?.Count < RhythmicGame.HorizonMeasures) yield return null;
+        
         foreach (var t in Tracks)
         {
             clipManager.AddMaterial(t.Track_Bottom_Mat);
             clipManager.AddMaterial(t.Track_Top_Mat);
             clipManager.AddMaterial(t.Track_Bottom_Global_Mat);
         }
-
+        
         // Instantiate a shared Note Material | (TODO: move somewhere else? Into AmpNote as static?)
         SharedNoteMaterial = Instantiate((Material)Resources.Load("Materials/note-test/note_material"));
-
+        
         // TODO: Bug - when changing the note material, clipping stays as notes get recycled?
         //clipManager.AddMaterial(SharedNoteMaterial);
-
+        
         LengthClip();
     }
-
+    
     // WARNING! Paths should not traverse backwards, as the global edge lights are going to be visible ahead of the path!
     // TODO: either fix this, or design paths in a way that they don't traverse backwards!
     public void LengthClip()
     {
+        if (PlayerLocomotion.Instance == null)
+        { Logger.LogConsoleW("PlayerLocomotion is null - cannot gather distance!".TM(this)); return; }
+        
         // Visual clipping control - disable all clipping!
         // TODO: is comparing a static variable slow?
         if (RhythmicGame.DisableTrackLengthClipping)
         {
             if (!clipping_lastVisualControlState) // Do this once
                 clipManager.materials.ForEach(m => m.SetFloat("_PlaneEnabled", 0));
-
+            
             clipping_lastVisualControlState = true;
             return;
         }
         else clipping_lastVisualControlState = false;
-
+        
         // Calculate clip plane offset based on measure draw distance
         float dist = PlayerLocomotion.Instance.HorizonLength;
-
+        
         Vector3 planePos = PathTools.GetPositionOnPath(PathTools.Path, dist);
         Quaternion planeRot = PathTools.GetRotationOnPath(PathTools.Path, dist, new Vector3(90, 0, 0));
-
+        
         lengthPlane.transform.position = planePos;
         lengthPlane.transform.rotation = planeRot;
-
+        
         clipManager.Clip();
     }
     void Update()
     {
         // Clipmanager update
-        if (SongController.IsPlaying || PlayerLocomotion.Instance.IsPlaying) LengthClip();
+        if ((SongController && SongController.is_playing) || (PlayerLocomotion.Instance && PlayerLocomotion.Instance._IsPlaying)) LengthClip();
     }
-
+    
     /// Events
     public event EventHandler<int[]> OnTrackSwitched;
     private void Tracks_OnTrackSwitched(object sender, int[] e) // NOTE: RealID is sent in e[1]
@@ -305,6 +321,8 @@ public class TracksController : MonoBehaviour
     public Note[] targetNotes;
     public void SetTargetNote(int track_id, Note note)
     {
+        if (targetNotes == null || targetNotes.Length == 0)
+        { Logger.LogConsoleW("target_notes are null!".TM(this)); return; }
         targetNotes[track_id] = note;
         //note.Color = Color.green; // TODO: TEMP!
     }
@@ -331,10 +349,10 @@ public class TracksController : MonoBehaviour
 
                 // TODO: better checks here!
                 if ((track.Sequence_Start_IDs[0] == -1) ||
-                    (SongController.songNotes[t, track.Sequence_Start_IDs[0]] == null) ||
-                    (SongController.songNotes[t, track.Sequence_Start_IDs[0]].Length == 0)) continue;
+                    (song_info.data_notes[t, track.Sequence_Start_IDs[0]] == null) ||
+                    (song_info.data_notes[t, track.Sequence_Start_IDs[0]].Length == 0)) continue;
 
-                SongController.songNotes[t, track.Sequence_Start_IDs[0]][0].IsTargetNote = true;
+                song_info.data_notes[t, track.Sequence_Start_IDs[0]][0].IsTargetNote = true;
             }
             else
             {
@@ -397,7 +415,7 @@ public class TracksController : MonoBehaviour
 
             track.ClearSequences();
 
-            for (int i = Clock.Fbar + measure_offset, total = 0; i < SongController.songLengthInMeasures; i++)
+            for (int i = Clock.Fbar + measure_offset, total = 0; i < song_info.song_length_bars; i++)
             {
                 if (track.Sequences.Count == RhythmicGame.SequenceAmount)
                     break;
@@ -405,7 +423,7 @@ public class TracksController : MonoBehaviour
                 if (i >= track.Measures.Count) // META
                 {
                     MetaMeasure meta_measure = TrackStreamer.metaMeasures[t, i];
-                    MetaNote[] meta_notes = SongController.songNotes[t, i];
+                    MetaNote[] meta_notes = song_info.data_notes[t, i];
                     if (meta_notes == null || meta_notes.Length == 0 || meta_measure.IsCaptured)
                         continue;
 
@@ -520,7 +538,7 @@ public class TracksController : MonoBehaviour
         // Immediately consider all measures as captured (isCaptured returns true even when capturing)
         for (int i = start; i < end; i++)
         {
-            if (i >= SongController.songLengthInMeasures) continue;
+            if (i >= song_info.song_length_bars) continue;
             if (i >= track.Measures.Count) // META!
             {
                 TrackStreamer.metaMeasures[track.ID, i].IsCaptured = true;
@@ -543,7 +561,7 @@ public class TracksController : MonoBehaviour
         // Init capture process - wait for captures to finish before proceeding to next one
         for (int i = start; i < end; i++)
         {
-            if (i >= SongController.songLengthInMeasures) continue;
+            if (i >= song_info.song_length_bars) continue;
             if (i < track.Measures.Count && track.Measures[i])
                 yield return track.CaptureMeasure(track.Measures[i]);
             // META is now set above!

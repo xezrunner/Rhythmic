@@ -43,7 +43,7 @@ public partial class Track
         measure.Track = this;
         measure.ID = meta.ID;
         measure.Instrument = Instrument;
-        measure.Length = SongController.measureLengthInzPos;
+        measure.Length = SongController.bar_length_pos; // TODO: We should have a variable like 'bar_length_pos' in SongTimeUnits
         measure.IsEmpty = meta.IsEmpty;
         measure.IsCaptured = meta.IsCaptured;
 

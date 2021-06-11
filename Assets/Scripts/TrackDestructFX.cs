@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class TrackDestructFX : MonoBehaviour
 {
-    FXProperties FXProps { get { return FXProperties.Instance; } }
+    static FXProperties FXProps;
 
     public Light Light;
     public GameObject LightObject;
@@ -33,6 +33,12 @@ public class TrackDestructFX : MonoBehaviour
 
     private void Awake()
     {
+        FXProps = FXProperties.Instance;
+        if (FXProps == null)
+        {
+            FXProps = Player.Instance.gameObject.AddComponent<FXProperties>();
+            Logger.LogW("There was no global FXProperties component - added one to the player.".T(this));
+        }
         Policy = FXProps.Destruct_Policy;
     }
     void Start()

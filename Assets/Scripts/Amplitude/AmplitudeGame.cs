@@ -54,7 +54,7 @@ public static class AmplitudeGame
 
     public static int[] CurrentNoteNumberSet { get { return difficultyNoteNumbers[(int)RhythmicGame.Difficulty]; } }
 
-    public static LaneSide GetLaneTypeFromNoteNumber(int num)
+    public static LaneSide GetLaneSideFromNoteNumber(int num)
     {
         int? index = Array.IndexOf(CurrentNoteNumberSet, num);
 
