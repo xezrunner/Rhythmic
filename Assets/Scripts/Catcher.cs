@@ -35,7 +35,8 @@ public class Catcher : MonoBehaviour
     // Animations
     // Effects
     // ... //
-
+    
+    // TODO TODO: This stuff is weird - we should be looking at time (Clock) rather than distance!
     CatchResult GenerateFail(float dist)
     {
         // Evaluate whether we are under a measure and return the appropriate fail catch result

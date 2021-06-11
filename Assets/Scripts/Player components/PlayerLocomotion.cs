@@ -1,34 +1,36 @@
-﻿using PathCreation;
+﻿using System.Collections;
+using PathCreation;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerLocomotion : MonoBehaviour
 {
     public static PlayerLocomotion Instance;
-
+    
     [Header("Common")]
-    public Player Player;
-    public PathCreator PathCreator;
-    public VertexPath Path;
-    public Tunnel Tunnel { get { return Tunnel.Instance; } }
-    public GenericSongController SongController { get { return GenericSongController.Instance; } }
-    public TracksController TracksController { get { return TracksController.Instance; } }
-
+    Player Player;
+    Clock Clock;
+    PathCreator PathCreator;
+    VertexPath Path;
+    Tunnel Tunnel { get { return Tunnel.Instance; } }
+    GenericSongController SongController { get { return GenericSongController.Instance; } }
+    TracksController TracksController { get { return TracksController.Instance; } }
+    
     [Header("Camera and containers")]
     public Camera MainCamera;
     public Transform Interpolatable;
     public Transform Interpolatable_TunnelRotation;
     public Transform NonInterpolatable;
     public Transform PlayerVisualPoint;
-
+    
     Vector3 normalCameraPos;
     Vector3 closeCameraPos;
     Quaternion normalRotation;
     Quaternion closeRotation;
-
+    
     [Header("Contents")]
     public Transform CatcherVisuals;
-
+    
     [Header("Properties")]
     public bool SmoothEnabled = true;
     public float SmoothDuration = 1.0f;
@@ -41,21 +43,23 @@ public class PlayerLocomotion : MonoBehaviour
     public float CameraPullback = 12.8f;
     public float CameraElevation = 7.53f;
     public float PlayerVisualPoint_Pullback;
-
+    
     [Header("Freestyle")]
     public bool IsFreestyle = false;
-
+    
     [Header("Track switching")]
     public Vector3 PositionOffset;
     public Vector3 RotationOffset;
     public Vector3 TunnelRotation;
-
+    
     private void Awake() => Instance = this;
-
+    
     void Start()
     {
+        StartCoroutine(GetClock_Coroutine());
+
         DebugConsole.RegisterCommand("freestyle", () => { IsFreestyle = !IsFreestyle; Logger.LogConsole("new state: %", IsFreestyle); });
-        DebugConsole.RegisterCommand("distance_smooth", (string[] args) => { DistanceTravelled_SmoothFactor = args[0].ParseFloat(); });
+        DebugConsole.RegisterCommand("distance_smooth", (string[] args) => { if (args.Length == 0) Logger.Log("Distance smooth value: %", DistanceTravelled_SmoothFactor); else DistanceTravelled_SmoothFactor = args[0].ParseFloat(); });
         DebugConsole.RegisterCommand("distance_newsmooth", (string[] args) =>
         {
             if (args.Length == 0) PlayerLocomotion.DistanceTravelled_NewSmooth = !PlayerLocomotion.DistanceTravelled_NewSmooth;
@@ -63,6 +67,11 @@ public class PlayerLocomotion : MonoBehaviour
             Logger.Log("New value: %", PlayerLocomotion.DistanceTravelled_NewSmooth);
             DistanceTravelled = SongController.time_units.SecToPos(SongController.song_position);
         });
+    }
+    IEnumerator GetClock_Coroutine()
+    {
+        while (Clock.Instance == null) yield return null;
+        Clock = Clock.Instance;
     }
     void GetPath()
     {
@@ -160,7 +169,9 @@ public class PlayerLocomotion : MonoBehaviour
                     DistanceTravelled = Mathf.MoveTowards(DistanceTravelled, float.MaxValue, Step);
                 // TODO / NOTE: Not sure whether this is correct. Will have to experiment more.
                 else
-                    DistanceTravelled = Mathf.SmoothDamp(DistanceTravelled, SongController.time_units.SecToPos(SongController.song_position), ref dist_ref, DistanceTravelled_SmoothFactor, 10000f);
+                    //DistanceTravelled = Mathf.SmoothDamp(DistanceTravelled, SongController.time_units.SecToPos(SongController.song_position), ref dist_ref, DistanceTravelled_SmoothFactor, 10000f);
+                    //DistanceTravelled = Mathf.SmoothDamp(DistanceTravelled, Clock.pos, ref dist_ref, DistanceTravelled_SmoothFactor, 10000f);
+                    DistanceTravelled = Clock.pos_smooth;
             }
 
             // Camera pullback toggle:

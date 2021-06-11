@@ -224,7 +224,7 @@ public partial class SongController : MonoBehaviour
     public void SetSongSpeed(float speed)
     {
         songTimeScale = speed;
-
+        
         // Changing the pitch of AudioSources also changes their speed
         audioSrcList.ForEach(src => src.pitch = speed);
     }
@@ -235,7 +235,7 @@ public partial class SongController : MonoBehaviour
         foreach (AudioSource src in audioSrcList)
         {
             float finalTime = src.time + offset;
-
+            
             if (finalTime < 0)
                 Logger.LogMethodE($"Song time cannot be a negative value! [finalTime: {finalTime}]", this);
             else if (src.clip && finalTime > src.clip.length)
@@ -244,10 +244,10 @@ public partial class SongController : MonoBehaviour
                 src.time += offset;
         }
     }
-
+    
     // GAMEPLAY
     /// Functions that relate to gameplay ///
-
+    
     // Vibrate controller to the beat
     public void BeatVibration() => VibrationController.VibrateLinear(beatHaptics);
 }

@@ -249,16 +249,6 @@ PrefabInstance:
       propertyPath: m_BackGroundColor.r
       value: 0.038803846
       objectReference: {fileID: 0}
-    - target: {fileID: 1225588844458036999, guid: 092cc62a45da22949af241be520f22ee,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1225588844716873967, guid: 092cc62a45da22949af241be520f22ee,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 1225588844875742811, guid: 092cc62a45da22949af241be520f22ee,
         type: 3}
       propertyPath: m_RootOrder
@@ -324,10 +314,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 1225588846118522919, guid: 092cc62a45da22949af241be520f22ee,
+    - target: {fileID: 6753995050357622352, guid: 092cc62a45da22949af241be520f22ee,
         type: 3}
-      propertyPath: m_IsActive
-      value: 0
+      propertyPath: m_Volume
+      value: 0.64
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 092cc62a45da22949af241be520f22ee, type: 3}
@@ -554,6 +544,7 @@ MonoBehaviour:
   song_position: 0
   song_delta_time: 0
   song_time_scale: 1
+  is_setting_smooth_timescale: 0
 --- !u!4 &2031012699
 Transform:
   m_ObjectHideFlags: 0
