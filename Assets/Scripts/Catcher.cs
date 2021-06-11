@@ -1,14 +1,12 @@
 #undef VISUALIZE_SLOP
 
-using System.Collections.Generic;
-using System.Security.Cryptography;
 using UnityEngine;
 
 public enum CatcherSide { Left = 0, Center = 1, Right = 2 }
 
 public class Catcher : MonoBehaviour
 {
-    SongController SongController { get { return SongController.Instance; } }
+    GenericSongController SongController { get { return GenericSongController.Instance; } }
     TracksController TracksController { get { return TracksController.Instance; } }
     GameState GameState { get { return GameState.Instance; } }
 
@@ -48,9 +46,9 @@ public class Catcher : MonoBehaviour
         if (measure.IsEmpty || measure.IsCaptured)
             return new CatchResult(this, CatchResultType.Empty, null);
 
-        float slopMs = SongController.SlopMs;
-        float slopzPos = SongController.SecToPos(slopMs / 1000f);
-
+        float slopMs = RhythmicGame.SlopMs;
+        float slopzPos = SongController.time_units.SecToPos(slopMs / 1000f);
+        
         float mStart = measure.Position.z;
         float mLength = measure.Length;
         float mFrac = (mStart - dist) / mLength; // Fraction (0-1) player distance in the measure
@@ -82,7 +80,7 @@ public class Catcher : MonoBehaviour
         {
             float targetDist = target.Distance;
 
-            float slopPos = SongController.SlopPos / 2;
+            float slopPos = SongController.time_units.MsToPos(RhythmicGame.SlopMs) / 2;
 
             // Evaluate where we hit
             float diff = Mathf.Abs(dist - targetDist); // meters

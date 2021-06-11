@@ -6,6 +6,7 @@ using static DebugFunctionality;
 [DebugComponent(DebugComponentFlag.DebugKeys, DebugComponentType.Component)]
 public partial class DebugKeys : DebugComponent
 {
+    public static GenericSongController SongController { get { return GenericSongController.Instance; } }
     public static TracksController TracksController { get { return TracksController.Instance; } }
     public static DebugUI DebugUI { get { return DebugUI.Instance; } }
 
@@ -144,7 +145,7 @@ public partial class DebugKeys : DebugComponent
             DEBUG_CaptureMeasureAmount(null, RhythmicGame.TrackCaptureLength);
         
         else if (Input.GetKeyDown(KeyCode.Keypad6)) // all!
-            DEBUG_CaptureMeasureAmount(null, SongController.Instance.songLengthInMeasures);
+            DEBUG_CaptureMeasureAmount(null, SongController.song_info.song_length_bars);
         
         if (Keyboard.current.numpadMultiplyKey.wasPressedThisFrame)
             TracksController.IncrementTargetNote(TracksController.CurrentTrack);

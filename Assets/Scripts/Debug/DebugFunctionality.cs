@@ -8,45 +8,16 @@ public static class DebugFunctionality
 
     public static DebugUI DebugUI { get { return DebugUI.Instance; } }
     public static Clock Clock { get { return Clock.Instance; } }
-    public static SongController SongController { get { return SongController.Instance; } }
+    public static GenericSongController SongController { get { return GenericSongController.Instance; } }
     public static TracksController TracksController { get { return TracksController.Instance; } }
 
     public static void AddToDebugLine(string text) => DebugUI.AddToDebugLine(text);
 
-    // ----
-    #region Android song switching
-#if UNITY_ANDROID
-    int android_songcounter = 0;
-
-    public static void Android_HandleSongSwitching()
-    {
-        // Test code for changing songs on an Android device
-        if (Touchscreen.current != null)
-        {
-            if (Touchscreen.current.press.wasPressedThisFrame)
-            {
-                if (android_songcounter == 4) android_songcounter = 0;
-                switch (android_songcounter)
-                {
-                    case 0:
-                        AMP_ChangeSong("tut0"); break;
-                    case 1:
-                        AMP_ChangeSong("perfectbrain"); break;
-                    case 2:
-                        AMP_ChangeSong("dreamer"); break;
-                    case 3:
-                        AMP_ChangeSong("dalatecht"); break;
-                }
-                android_songcounter++;
-            }
-        }
-    }
-#endif
-    #endregion
+    // ---- //
 
     public static void AMP_ChangeSong(string value)
     {
-        SongController.songName = value;
+        GenericSongController.default_song = value;
         AddToDebugLine($"Song changed: {value} - press R to restart.");
     }
     public static void HandleSongSwitching()
@@ -59,10 +30,6 @@ public static class DebugFunctionality
             AMP_ChangeSong("dreamer");
         else if (Input.GetKeyDown(KeyCode.Alpha3))
             AMP_ChangeSong("dalatecht");
-
-#if UNITY_ANDROID
-      Android_HandleSongSwitching();  
-#endif
     }
 
     // -----
@@ -124,8 +91,8 @@ public static class DebugFunctionality
 
     public static void DEBUG_OffsetSong(float offset = 2f)
     {
-        PlayerLocomotion.Instance.DistanceTravelled += offset * SongController.posInSec;
-        SongController.Instance.OffsetSong(offset);
+        SongController.OffsetSong(offset);
+        PlayerLocomotion.Instance.DistanceTravelled += offset * SongController.time_units.pos_in_sec;
         Clock.Instance.seconds += offset;
     }
     public static bool? prevSmooth;
@@ -136,13 +103,13 @@ public static class DebugFunctionality
         if (!prevSmooth.HasValue) prevSmooth = PlayerLocomotion.Instance.SmoothEnabled;
         PlayerLocomotion.Instance.SmoothEnabled = false; // Disable smoothing in Locomotion
         //if (SongController.IsPlaying) SongController.TogglePause();
-
+        
         if (!Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.numpad8Key.wasPressedThisFrame) // DOESN'T WORK FOR SOME REASON
         {
             TrackStreamer.Instance.AllowRecycling = false;
 
-            DEBUG_OffsetSong(SongController.TickToSec(SongController.measureTicks * 4));
-            Clock.Instance.bar = SongController.SecToTick(Clock.Instance.seconds) / SongController.measureTicks;
+            DEBUG_OffsetSong(SongController.time_units.TickToSec(SongController.time_units.bar_ticks * 4));
+            Clock.Instance.bar = SongController.time_units.SecToTick(Clock.Instance.seconds) / SongController.time_units.bar_ticks;
             for (int i = Clock.Instance.Fbar; i < Clock.Instance.Fbar + RhythmicGame.HorizonMeasures; i++)
                 TrackStreamer.Instance.StreamMeasure(i, -1, RhythmicGame.FastStreamingLevel.HasFlag(FastStreamingLevel.Measures));
 

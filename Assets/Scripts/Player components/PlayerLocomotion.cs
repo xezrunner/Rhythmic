@@ -153,7 +153,7 @@ public class PlayerLocomotion : MonoBehaviour
 
         if (_IsPlaying || SongController.is_playing)
         {
-            if (SongController.is_enabled && SongController.is_playing)
+            if ((SongController.is_enabled && SongController.is_playing))
             {
                 Step = (Speed * SongController.pos_in_sec * Time.unscaledDeltaTime) * SongController.song_time_scale;
                 if (!PlayerLocomotion.DistanceTravelled_NewSmooth)

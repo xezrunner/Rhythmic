@@ -17,6 +17,9 @@ public partial class GenericSongController : MonoBehaviour
 {
     public static GenericSongController Instance;
     
+    // TODO: This is for testing purposes only!
+    public static string default_song = "allthetime";
+
     [Header("Controller props")]
     public bool is_enabled = true;
     public bool is_fake;
@@ -45,7 +48,7 @@ public partial class GenericSongController : MonoBehaviour
         if (!is_enabled) { Logger.LogW("Song controller disabled."); return; }
         if (is_fake) Logger.LogW("Song controller is in fake mode.");
         
-        LoadSong("allthetime", GameLogic.AMPLITUDE); // NOTE: temp
+        LoadSong(default_song, GameLogic.AMPLITUDE); // NOTE: temp
     }
     
     public void LoadSong(string song_name, GameLogic mode = GameLogic.RHYTHMIC)
@@ -223,6 +226,7 @@ public partial class GenericSongController : MonoBehaviour
         }
         
         if (prev_is_playing) Unpause();
+        Pause();
     }
     
     void Update()

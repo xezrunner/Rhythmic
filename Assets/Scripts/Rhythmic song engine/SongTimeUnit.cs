@@ -32,7 +32,9 @@ public class SongTimeUnit
     
     public float ms_in_tick;
     public float TickToMs(long ticks) => ms_in_tick * ticks;
-    
+    public float sec_in_tick;
+    public float TickToSec(long ticks) => sec_in_tick * ticks;
+
     public float pos_in_sec;
     public float SecToPos(float sec) => pos_in_sec * sec;
     public float pos_in_tick; // How many posonds are there in a tick?
@@ -56,6 +58,7 @@ public class SongTimeUnit
         tick_in_sec = (song_bpm * beat_ticks) / 60f;
         
         ms_in_tick = 60000f / (song_bpm * beat_ticks);
+        sec_in_tick = 60f / (song_bpm * beat_ticks);
         
         pos_in_tick = (4f / 480f) + ((4f / 480f) * song_tunnel_scale); // TODO: is this correct?
         pos_in_sec = (4f / sec_per_beat) + ((4f / sec_per_beat) * song_tunnel_scale);
