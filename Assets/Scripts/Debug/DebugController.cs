@@ -50,7 +50,10 @@ public partial class DebugController : MonoBehaviour
         { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(this);
-        Event_System.gameObject.SetActive(true);
+
+        // TODO / NOTE: This might not be good - MetaSystem has an event system, but if we came first and then we load Meta, Unity will complain.
+        if (GameObject.FindObjectOfType<EventSystem>() != null) Destroy(Event_System);
+        
         // TODO: Temporary solution for creating a GameState - might not be needed:
         if (GameState.Instance == null && GameObject.Find("GameState") && GameObject.Find("Gamestate") == null) GameState.CreateGameState(); // Create GameState in case game was started abnormally
     }
