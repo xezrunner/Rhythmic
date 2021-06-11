@@ -41,17 +41,39 @@ public partial class GenericSongController : MonoBehaviour
 
     public GameObject audio_sources_container;
     public List<AudioSource> audio_sources;
-
-    public virtual void Awake() => Instance = this;
-    public virtual void Start()
+    
+    public void Awake()
+    {
+        Instance = this;
+        CreateRequiredObjects();
+    }
+    public void Start()
     {
         if (!is_enabled) { Logger.LogW("Song controller disabled."); return; }
         if (is_fake) Logger.LogW("Song controller is in fake mode.");
-
+        
         LoadSong(default_song, GameLogic.AMPLITUDE); // NOTE: temp
-
+        
         DebugConsole.RegisterCommand("set_song_timescale", (string[] args) => SetSongTimescale(args[0].ParseFloat()));
         DebugConsole.RegisterCommand("set_song_timescale_smooth", (string[] args) => { Logger.Log("0: % 1: %", args[0], args.Length > 1 ? args[1] : "-"); SetSongTimescale_Smooth(args[0].ParseFloat(), args.Length > 1 ? args[1].ParseFloat() : 0.3f); });
+    }
+    void CreateRequiredObjects()
+    {
+        // TODO: We should probably use Tags instead!
+        // TODO: InstantiatePrefab() function!
+        if (!GameObject.Find("DebugController"))
+        {
+            GameObject debug_ctrl_prefab = (GameObject)Resources.Load("Prefabs/Debug/DebugController");
+            GameObject obj = Instantiate(debug_ctrl_prefab);
+            // TODO: Debug console loads quite late - we miss some messages before/at its initialization process. | Redirect Unity logger / grab stuff from there?
+            Logger.LogConsoleW("DebugController created from SongController.");
+        }
+        if (!GameObject.Find("Player"))
+        {
+            GameObject player_prefab = (GameObject)Resources.Load("Prefabs/Player");
+            GameObject obj = Instantiate(player_prefab);
+            Logger.LogConsoleW("Player created from SongController.");
+        }
     }
 
     public void LoadSong(string song_name, GameLogic mode = GameLogic.RHYTHMIC)
@@ -261,36 +283,36 @@ public partial class GenericSongController : MonoBehaviour
         is_setting_smooth_timescale = false;
         yield return null; // Cancel any other of possible running coroutines
         is_setting_smooth_timescale = true;
-        
+
         float t = 0f;
         float elapsed_time = 0f;
         float scale_temp = song_time_scale;
-        
+
         // Using a timeout of 5 seconds
         while (is_setting_smooth_timescale)
         {
             song_time_scale = Mathf.Lerp(scale_temp, value, t);
-            
+
             int count = audio_sources.Count;
             for (int i = 0; i < count; ++i)
             {
                 AudioSource src = audio_sources[i];
                 src.pitch = song_time_scale;
             }
-            
+
             elapsed_time += Time.unscaledDeltaTime;
             t = elapsed_time / time;
-            
+
             if (!is_setting_smooth_timescale) yield break;
             else if (t == 1f) break;
             else yield return null;
         }
-        
+
         is_setting_smooth_timescale = false;
         SetSongTimescale(value);
         yield break;
     }
-    
+
     static bool prev_playing_state_before_focus_loss;
     void OnApplicationFocus(bool has_focus)
     {
