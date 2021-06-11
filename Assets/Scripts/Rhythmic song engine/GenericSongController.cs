@@ -16,29 +16,31 @@ This is a base for a song controller class.
 public partial class GenericSongController : MonoBehaviour
 {
     public static GenericSongController Instance;
+    public GameState GameState;
+    public RhythmicGame GameProps;
 
     // TODO: This is for testing purposes only!
     public static string default_song = "allthetime";
-
+    
     [Header("Controller props")]
     public bool is_enabled = true;
     public bool is_fake;
     public bool is_song_over;
-
+    
     /// TODO: Do we really need all these props? They're in the SongMetaFile anyway.
     [Header("Song props")]
     public SongInfo song_info; // TODO: Rename to song_info!!!
     public SongTimeUnit time_units;
-
+    
     // TODO: Start distance implementation!
     public float start_distance;
     public float pos_in_sec;
     public float bar_length_pos;
     public float slop_pos;
-
+    
     bool audio_clips_loaded = false;
     public List<AudioClip> audio_clips;
-
+    
     public GameObject audio_sources_container;
     public List<AudioSource> audio_sources;
     
@@ -46,6 +48,9 @@ public partial class GenericSongController : MonoBehaviour
     {
         Instance = this;
         CreateRequiredObjects();
+
+        DebugConsole.RegisterCommand("set_song_timescale", (string[] args) => SetSongTimescale(args[0].ParseFloat()));
+        DebugConsole.RegisterCommand("set_song_timescale_smooth", (string[] args) => { Logger.Log("0: % 1: %", args[0], args.Length > 1 ? args[1] : "-"); SetSongTimescale_Smooth(args[0].ParseFloat(), args.Length > 1 ? args[1].ParseFloat() : 0.3f); });
     }
     public void Start()
     {
@@ -54,8 +59,8 @@ public partial class GenericSongController : MonoBehaviour
         
         LoadSong(default_song, GameLogic.AMPLITUDE); // NOTE: temp
         
-        DebugConsole.RegisterCommand("set_song_timescale", (string[] args) => SetSongTimescale(args[0].ParseFloat()));
-        DebugConsole.RegisterCommand("set_song_timescale_smooth", (string[] args) => { Logger.Log("0: % 1: %", args[0], args.Length > 1 ? args[1] : "-"); SetSongTimescale_Smooth(args[0].ParseFloat(), args.Length > 1 ? args[1].ParseFloat() : 0.3f); });
+        GameState = GameState.Instance;
+        GameProps = GameState.Props;
     }
     void CreateRequiredObjects()
     {
@@ -75,7 +80,7 @@ public partial class GenericSongController : MonoBehaviour
             Logger.LogConsoleW("Player created from SongController.");
         }
     }
-
+    
     public void LoadSong(string song_name, GameLogic mode = GameLogic.RHYTHMIC)
     {
         // Validate song existence && load song data:
@@ -93,18 +98,18 @@ public partial class GenericSongController : MonoBehaviour
         bar_length_pos = time_units.BarToPos(1);
         pos_in_sec = time_units.pos_in_sec;
         slop_pos = time_units.MsToPos(RhythmicGame.SlopMs);
-
+        
         audio_clips = LoadSongClips(song_info, mode);
-
+        
         CreateClock();
         CreateTracksController(song_info);
         CreateTrackStreamer();
     }
-
+    
     List<AudioClip> LoadSongClips(SongInfo info, GameLogic mode = GameLogic.RHYTHMIC)
     {
         List<AudioClip> clips = null;
-
+        
         // TODO: This looks nasty:
         if (mode == GameLogic.AMPLITUDE) StartCoroutine(AMPLITUDE_LoadAudioClips(info));
         else if (mode == GameLogic.RHYTHMIC) Logger.LogE("Not yet implemented for RHYTHMIC!".M());

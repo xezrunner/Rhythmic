@@ -3,15 +3,22 @@
 [Powerup(PowerupType.Slowmo, "Slow motion", "slowmo_deploy", bar_length: 3)]
 public class Powerup_Slowmo : Powerup
 {
-    GenericSongController SongController { get { return GenericSongController.Instance; } }
-
+    GenericSongController SongController;
+    SongInfo song_info;
+    RhythmicGame Props;
+    
     public float Slowdown_Value = 0.75f;
     public float Slowdown_Ramp_Ticks = 960;
     float slowdown_ramp_sec = 1f;
     
     void Start()
     {
-        // Set the length of the slowdown ramp to 960 ticks:
+        SongController = GenericSongController.Instance;
+        Props = SongController.GameProps;
+        
+        // TODO: Difficulty-based slowdown values!
+        Slowdown_Value = song_info.slowmo_rate;
+        Slowdown_Ramp_Ticks = Props.slowdown_ramp_ticks;
         slowdown_ramp_sec = SongController.time_units.sec_in_tick * Slowdown_Ramp_Ticks;
     }
     

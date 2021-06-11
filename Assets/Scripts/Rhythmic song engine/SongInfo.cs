@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 public class SongInfo
 {
@@ -15,10 +14,12 @@ public class SongInfo
     public List<string> midi_tracks;
     
     // :Props
+    public int[] difficulty_fudge_factors; // size: 6
     public int[] checkpoint_bars;
     public float[] synesth_rate;
     public float slowmo_rate = 0.75f;
     public float tunnel_scale = 1.0f;
+    // TODO: TrackCaptureLength equivalent -> for measure groups as well!
     
     /// Data:
     public SongTimeUnit time_units;
