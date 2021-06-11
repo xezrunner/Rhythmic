@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using static Logger;
 using static InputHandler;
-using UnityEngine.SceneManagement;
 
 public enum GameMode { Metagame, Gameplay, Practice, Editor, UNKNOWN = -1 }
 public enum GameMatchType { Singleplayer = 0, LocalMultiplayer = 1, OnlineMultiplayer = 2 }
@@ -23,25 +23,25 @@ public class GameState : MonoBehaviour
 
         var gStateObj = new GameObject("Game state");
         var gState = gStateObj.AddComponent<GameState>();
-        DontDestroyOnLoad(gStateObj); // Keep as global entity
 
         Instance = gState;
     }
 
     public RhythmicGame Props;
     public bool IsLoading = false;
-
+    
     public StartupTarget StartupTarget = StartupTarget.UNINITIALIZED;
     public string StartupTarget_IngameScene = "RH_Main"; // @Prop
 
     void Awake()
     {
         if (!Instance) Instance = this; else Destroy(gameObject);
+        DontDestroyOnLoad(gameObject); // Keep as global entity
+
         CreateProps();
-        
         DebugConsole.RegisterCommand("scene", (string[] args) => LoadScene(args[0]));
     }
-    
+
     Keyboard Keys = Keyboard.current;
     void Start()
     {
@@ -77,8 +77,13 @@ public class GameState : MonoBehaviour
         else if (StartupTarget == StartupTarget.UNINITIALIZED)
             LogE("Uninitialized StartupTarget!".TM(this));
     }
-
+    
     void CreateProps() => Props = new RhythmicGame();
+    
+    void CreateGame()
+    {
+        
+    }
     
     // TODO: Move to a better place?
     public static void LoadScene(string scene_name) => SceneManager.LoadSceneAsync(scene_name, LoadSceneMode.Single);

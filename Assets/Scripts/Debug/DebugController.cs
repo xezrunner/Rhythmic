@@ -51,7 +51,8 @@ public partial class DebugController : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(this);
         Event_System.gameObject.SetActive(true);
-        if (GameState.Instance == null) GameState.CreateGameState(); // Create GameState in case game was started abnormally
+        // TODO: Temporary solution for creating a GameState - might not be needed:
+        if (GameState.Instance == null && GameObject.Find("GameState") && GameObject.Find("Gamestate") == null) GameState.CreateGameState(); // Create GameState in case game was started abnormally
     }
     void Start()
     {
