@@ -1,6 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -19,8 +17,8 @@ public class GameStarter : MonoBehaviour
 
     void Awake()
     {
-        GameState.IsLoading = true;
-
+        GameState.Instance.IsLoading = true;
+        
         Debug.LogFormat("GAME [init]: Game type is {0}", RhythmicGame.GameLogic.ToString());
 
 #if UNITY_ANDROID
@@ -28,9 +26,9 @@ public class GameStarter : MonoBehaviour
 #elif UNITY_STANDALONE
         RhythmicGame.SetFramerate(200, 1);
 #endif
-
+        
         GameState.CreateGameState();
-
+        
         ppfx = GameObject.Find("ppfx");
 
         ppv = ppfx.GetComponent<PostProcessVolume>();

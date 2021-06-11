@@ -51,7 +51,7 @@ public partial class DebugController : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(this);
         Event_System.gameObject.SetActive(true);
-        GameState.CreateGameState(); // Create GameState in case game was started abnormally
+        if (GameState.Instance == null) GameState.CreateGameState(); // Create GameState in case game was started abnormally
     }
     void Start()
     {
@@ -133,7 +133,7 @@ public partial class DebugController : MonoBehaviour
                     com_obj.name = com_type.Name;
 
                     // Special case: DebugUI goes under UICanvas!
-                    Transform parent = (com_attr.ComponentType == DebugComponentType.Prefab_UI) ? UICanvas.transform 
+                    Transform parent = (com_attr.ComponentType == DebugComponentType.Prefab_UI) ? UICanvas.transform
                                        : transform;
                     com_obj.transform.SetParent(parent, false); // If attaching to UICanvas, the param worldPositionStays needs to be false.
                 }

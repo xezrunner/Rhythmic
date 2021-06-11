@@ -21,7 +21,7 @@ public class Catcher : MonoBehaviour
     {
         get
         {
-            if (GameState.GameMatchTpye == GameMatchType.Singleplayer)
+            if (GameState.GameMatchType == GameMatchType.Singleplayer)
                 return Side.ToString();
             else
                 return $"{Player.Name}_{Side.ToString()}"; // Return the player name + catcher side ["Player1_Center"]

@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// Props class
+/// Gameplay properties are stored here. Songs can override these - props should be recreated on each load.
+
 /// <summary>
 /// The game supports playing Amplitude songs. By using AMPLITUDE, the game will use a different
 /// logic compared to the default RHYTHMIC song format. <br/>
@@ -9,8 +12,15 @@ using UnityEngine.SceneManagement;
 public enum GameLogic { AMPLITUDE, RHYTHMIC }
 
 // TODO: Some props here could be moved to their respective class!
-public static class RhythmicGame
+public class RhythmicGame
 {
+    public static RhythmicGame Instance;
+    public RhythmicGame()
+    {
+        Instance = this; // An instance gets created by GameState/<static>CreateGameState()
+        // TODO: Load song-specific props if needed!
+    }
+
     // Temporary stuff / hacks:
 
     public static int HACK_FudgeSongMeasureLength = 4;
