@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using UnityEngine;
 
 // These take in strings as parameters.
 // It was initially developed with it taking in objects, but it shouldn't really matter.
@@ -101,11 +102,15 @@ public partial class DebugConsole
     }
 
     // ----- Common commands ----- //
-
+    
     // This is the main procedure for registering common console commands.
     // Other classes are free to register console commands at any point by using RegisterCommand().
     void Console_RegisterCommands() // **********************************
     {
+        RegisterCommand(timescale); RegisterCommand("set_timescale", timescale);
+        RegisterCommand(set_quickline);
+        DebugConsole.RegisterCommand("scene", (string[] args) => GameState.LoadScene(args[0]));
+
         // Console-meta commands:
         RegisterCommand("clear", _Clear);
         RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds."); // TODO: Should use a global Quit procedure to quit the game once MetaSystem and/or GameState is in place
@@ -115,7 +120,7 @@ public partial class DebugConsole
         RegisterCommand(console_resize, "Resizes the console height. Usage: " + nameof(console_resize).AddColor(Colors.Application) + " <height>");
         RegisterCommand(console_perf, "Prints a ton of lines into the console to test performance. Also prints the time difference in ticks.");
         RegisterCommand(log);
-
+        
         // Test commands **************************************************
         RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
         RegisterCommand(clear_text_test);
@@ -152,6 +157,10 @@ public partial class DebugConsole
     }
 
     /// You should add non-common commands from a different class.
+
+    void timescale(string[] args) { if (args.Length == 0f) Logger.LogConsole("Timescale: %", Time.timeScale); else Time.timeScale = args[0].ParseFloat(); }
+
+    void set_quickline(string[] args) { if (args.Length == 0f) Logger.LogConsole("Quickline: %", DebugUI.Instance.IsDebugLineOn); else DebugUI.Instance.IsDebugLineOn = args[0].ParseBool(); }
 
     void help(string[] args)
     {
@@ -286,13 +295,13 @@ public partial class DebugConsole
     void song_test(string[] args)
     {
         string song_name = (args.Length == 0) ? /*"song_test"*/ "allthetime" : args[0];
-
+        
         GameLogic mode;
         if (args.Length == 0)
             mode = GameLogic.AMPLITUDE;
         else
-            mode = args.Contains("amp") ? GameLogic.AMPLITUDE : GameLogic.RHYTHMIC;
-        
+            mode = (args.Contains("amp") || args.Contains("AMP")) ? GameLogic.AMPLITUDE : GameLogic.RHYTHMIC;
+
         GenericSongController.Instance?.LoadSong(song_name, mode);
     }
 

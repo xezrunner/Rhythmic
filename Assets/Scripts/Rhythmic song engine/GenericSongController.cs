@@ -60,10 +60,12 @@ public partial class GenericSongController : MonoBehaviour
         LoadSong(default_song, GameLogic.AMPLITUDE); // NOTE: temp
         
         GameState = GameState.Instance;
-        GameProps = GameState.Props;
+        if (GameState) GameProps = GameState.Props;
     }
     void CreateRequiredObjects()
     {
+        if (GameState.Instance == null)
+            GameState.CreateGameState();
         // TODO: We should probably use Tags instead!
         // TODO: InstantiatePrefab() function!
         if (!GameObject.Find("DebugController"))
