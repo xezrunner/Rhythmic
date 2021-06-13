@@ -48,7 +48,8 @@ public partial class GenericSongController : MonoBehaviour
     {
         Instance = this;
         CreateRequiredObjects();
-
+        
+        // TODO: Clean these up
         DebugConsole.RegisterCommand("set_song_timescale", (string[] args) => SetSongTimescale(args[0].ParseFloat()));
         DebugConsole.RegisterCommand("set_song_timescale_smooth", (string[] args) => { Logger.Log("0: % 1: %", args[0], args.Length > 1 ? args[1] : "-"); SetSongTimescale_Smooth(args[0].ParseFloat(), args.Length > 1 ? args[1].ParseFloat() : 0.3f); });
     }
@@ -111,16 +112,17 @@ public partial class GenericSongController : MonoBehaviour
     List<AudioClip> LoadSongClips(SongInfo info, GameLogic mode = GameLogic.RHYTHMIC)
     {
         List<AudioClip> clips = null;
+        audio_clips_loaded = false;
         
         // TODO: This looks nasty:
         if (mode == GameLogic.AMPLITUDE) StartCoroutine(AMPLITUDE_LoadAudioClips(info));
         else if (mode == GameLogic.RHYTHMIC) Logger.LogE("Not yet implemented for RHYTHMIC!".M());
-
+        
         StartCoroutine(CreateAudioSourcesFromClips());
-
+        
         return clips;
     }
-
+    
     const float _audio_src_creation_timeout_ms = 10000;
     float _audio_src_creation_timeout_elapsed_ms;
     IEnumerator CreateAudioSourcesFromClips()
