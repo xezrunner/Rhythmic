@@ -12,7 +12,7 @@ public class IntroMovie : MonoBehaviour
     public TMP_Text xesign_text;
     public TMP_Text rhythmic_text;
 
-    public test2 progress_indicator;
+    public FontLoadingIndicator progress_indicator;
     
     [Header("Properties")]
     public float fade_factor = 0.05f;
