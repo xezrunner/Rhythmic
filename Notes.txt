@@ -1,1 +1,3 @@
 Skybox color: #002635
+
+NOTE: | TODO: Resources.UnloadUnusedAssets()

@@ -112,6 +112,7 @@ public partial class DebugConsole
         RegisterCommand(timescale); RegisterCommand("set_timescale", timescale, null, "ts");
         RegisterCommand(set_quickline);
         DebugConsole.RegisterCommand("scene", (string[] args) => GameState.LoadScene(args[0]), null, "s");
+        DebugConsole.RegisterCommand("meta", () => GameState.LoadScene("MetaSystem"), null, "m"); // TODO: We could have a situation where multiple commands may have the same aliases! Warn, possibly?
         
         // Console-meta commands:
         RegisterCommand("clear", _Clear, null, "cls");
