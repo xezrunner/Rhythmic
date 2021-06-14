@@ -87,8 +87,8 @@ GameObject:
   - component: {fileID: 1698633765591259177}
   - component: {fileID: 8553873976123669283}
   - component: {fileID: 617203012774825392}
-  - component: {fileID: 4863271752583482152}
   - component: {fileID: 4863271752583482153}
+  - component: {fileID: 7336319131154824290}
   m_Layer: 5
   m_Name: Mask
   m_TagString: Untagged
@@ -155,24 +155,6 @@ MonoBehaviour:
   m_FillOrigin: 2
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4863271752583482152
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4745062752823388156}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 985451b00b20eb04cab12b550997e4ec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Mask: {fileID: 617203012774825392}
-  Arc: {fileID: 130797998}
-  Speed: 1
-  RotSpeed: 150
-  Value: 0
-  Mask_Value: 0
 --- !u!114 &4863271752583482153
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -186,6 +168,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 1
+--- !u!114 &7336319131154824290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4745062752823388156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 985451b00b20eb04cab12b550997e4ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Mask: {fileID: 617203012774825392}
+  Arc: {fileID: 130797998}
+  Speed: 0.25
+  RotSpeed: 150
+  Value: 0
+  Mask_Value: 0
 --- !u!1 &4779594420192526912
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,11 +3,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using static Logger;
 
-public class test : MonoBehaviour
+public class TESTLoadingIndicator : MonoBehaviour
 {
     public Image Mask;
     public Image Arc;
-
+    
     public float Speed = 0.25f;
     public float RotSpeed = 150f;
 
