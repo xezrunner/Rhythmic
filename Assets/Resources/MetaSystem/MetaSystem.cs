@@ -12,13 +12,13 @@ public class MetaSystem : MonoBehaviour
     public static MetaSystem Instance;
 
     public Canvas UI_Canvas;
-
+    
     void Awake()
     {
         if (DetectOtherInstances()) return; // Do not continue execution if we already have an instance.
         Instance = this;
     }
-
+    
     static bool META_DestroyOtherInstObjects = true; // Whether to destroy GameObjects, or just the components only.
     bool DetectOtherInstances()
     {
@@ -51,15 +51,22 @@ public class MetaSystem : MonoBehaviour
 
         return false;
     }
-
+    
     void Start()
     {
         if (UI_Canvas) Log("We got a UI canvas!".T(this));
         else LogW("We don't have a UI Canvas!".T(this));
     }
-
+    
     public void BUTTON_StartIntroScene() => UI_LoadPage("MetaSystem/Intro/Intro_Xesign");
     public void BUTTON_PreloadIntroScene() => UI_LoadPage("MetaSystem/Intro/Intro_Xesign", true);
+    
+    public MetaButton Maskability_Button;
+    public void BUTTON_ToggleMaskability()
+    {
+        MetaButton.Maskability = !MetaButton.Maskability;
+        Maskability_Button.SetText(Logger.ParseArgs("Control maskability: %", MetaButton.Maskability ? "ON" : "OFF"));
+    }
 
     // ------- UI land ------- //
 
@@ -94,11 +101,11 @@ public class MetaSystem : MonoBehaviour
                     else { LogE("This page is pre-loaded already: '%'".M(), page_path); return false; }
                 }
             }
-            
+
             if (!prefab) prefab = (GameObject)Resources.Load(page_path);
             prefab.name = page_path;
             if (prefab == null) { LogE("Invalid page request: '%' as type: %".M(), page_path, page_type); return false; }
-            
+
             if (!preload_only) // Adding prefab to UI canvas:
             {
                 obj_inst = Instantiate(prefab, UI_Canvas.transform); obj_inst.name = prefab.name;
@@ -114,9 +121,9 @@ public class MetaSystem : MonoBehaviour
                 Log("Successfully pre-loaded: '%'", page_path);
             }
         }
-        
+
         /// TODO: Scenes (?)
-        
+
         return true;
     }
 }

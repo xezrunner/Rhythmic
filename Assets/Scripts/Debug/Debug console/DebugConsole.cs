@@ -130,7 +130,8 @@ public partial class DebugConsole : DebugComponent
         State = ConsoleState.Closed;
 
         // TODO: Mouse cursor visibility / locking mechanism should be in a different utilitarian class as static functions (probably)
-        if (!Application.isEditor) Cursor.visible = false; // Mouse cursor
+        // TODO!: TEMP, remove this:
+        if (!UnityEngine.SceneManagement.SceneManager.GetActiveScene().name.StartsWith("Meta") && !Application.isEditor) Cursor.visible = false; // Mouse cursor
 
         Animate(target_height, anim);
     }
@@ -281,7 +282,7 @@ public partial class DebugConsole : DebugComponent
         Vector3 c_trans = Input_Field.textComponent.transform.TransformPoint(Input_Field.textComponent.textInfo.characterInfo[last_index].bottomRight);
         UI_Autocomplete.rectTransform.position = new Vector2(c_trans.x + autocomplete_padding_x, UI_Autocomplete.rectTransform.position.y);
     }
-
+    
     int autocomplete_index = -1;
     List<string> autocomplete_commands;
     bool is_autocompleting = false;

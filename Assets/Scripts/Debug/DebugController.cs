@@ -50,7 +50,7 @@ public partial class DebugController : MonoBehaviour
         { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(this);
-
+        
         // TODO / NOTE: This might not be good - MetaSystem has an event system, but if we came first and then we load Meta, Unity will complain.
         {
             EventSystem[] event_systems = GameObject.FindObjectsOfType<EventSystem>();
