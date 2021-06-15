@@ -153,3 +153,4 @@ MonoBehaviour:
   Framerate: 60
   start_char: 57600
   end_char: 57718
+  is_playing: 0

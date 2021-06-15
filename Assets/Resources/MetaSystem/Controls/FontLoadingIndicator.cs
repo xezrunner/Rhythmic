@@ -15,15 +15,15 @@ public class FontLoadingIndicator : MonoBehaviour
         if (is_playing) Play();
         else Stop();
     }
-    
+
     [Header("Default values: ")]
-    public bool is_playing;
+    public bool is_playing = true;
     public bool IsPlaying
     {
         get { return is_playing; }
         set { is_playing = value; if (!is_playing) Play(); else Stop(); }
     }
-    
+
     public void Play()
     {
         StartCoroutine(Main_Coroutine());
@@ -34,6 +34,7 @@ public class FontLoadingIndicator : MonoBehaviour
     {
         stop_requested = true;
         Text.text = null;
+        stop_requested = false; // TODO: what?
     }
 
     bool stop_requested = false;
