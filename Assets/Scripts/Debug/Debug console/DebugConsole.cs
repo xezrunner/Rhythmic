@@ -163,8 +163,9 @@ public partial class DebugConsole : DebugComponent
         UI_RectTrans.sizeDelta = new Vector3(UI_RectTrans.sizeDelta.x, current_height);
 
         ScrollConsole(false);
-
-        if (anim_t < 1.0) anim_t += Time.unscaledDeltaTime * Animation_Speed;
+        
+        // TODO!: For some reason, higher framerates make the animation faster.
+        if (anim_t < 1.0) anim_t += Animation_Speed * Time.unscaledDeltaTime;
         else is_animating = false;
     }
 
