@@ -108,7 +108,7 @@ RectTransform:
   m_Children:
   - {fileID: 7593015725010277789}
   m_Father: {fileID: 6205758820944057222}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -182,7 +182,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6205758820944057222}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -320,8 +320,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7640521159170287949}
-  - {fileID: 6205758820920487748}
   - {fileID: 4408039987536142343}
+  - {fileID: 6205758820920487748}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -432,6 +432,8 @@ MonoBehaviour:
   UI_ParticleSystem: {fileID: 9106735525114165977}
   UI_Particle: {fileID: 6323971780645588787}
   Ripple_Size_Add: 0.1
+  Ripple_Fade_In_Sec: 0.1
+  Ripple_Fade_Out_Sec: 0.3
   Ripple_Speed_Slow: 1
   Ripple_Speed_Click: 3
   Ripple_Down_Finish_Delay_Sec: 0.26
@@ -1991,7 +1993,16 @@ ParticleSystem:
         m_Curve:
         - serializedVersion: 3
           time: 0
-          value: -1
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.05
+          value: 1
           inSlope: 0
           outSlope: 0
           tangentMode: 0
@@ -2015,7 +2026,16 @@ ParticleSystem:
         m_Curve:
         - serializedVersion: 3
           time: 0
-          value: 1
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.05
+          value: -1
           inSlope: 0
           outSlope: 0
           tangentMode: 0

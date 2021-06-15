@@ -5,8 +5,6 @@ using UnityEngine.UI;
 using TMPro;
 using Coffee.UIExtensions;
 
-/// Not even sure whether we should keep this / whether this is needed.
-
 public class MetaButton : Button
 {
     public static bool Maskability = true;
@@ -60,7 +58,10 @@ public class MetaButton : Button
     protected override void Start()
     {
         base.Start();
-        og_colors = colors;        
+        og_colors = colors;
+        
+        // TODO: Temporary?
+        UI_Text.SetText(gameObject.name);
     }
     
     ColorBlock og_colors;
@@ -69,10 +70,12 @@ public class MetaButton : Button
     float ripple_speed;
     
     public float Ripple_Size_Add = 0.1f;
+    public float Ripple_Fade_In_Sec = 0.1f;
+    public float Ripple_Fade_Out_Sec = 0.3f;
     public float Ripple_Speed_Slow = 1f;
     public float Ripple_Speed_Click = 3f;
     public float Ripple_Down_Finish_Delay_Sec = 0.26f;
-
+    
     // TODO: Should probably do something if the mouse leaves the button while being pressed.
     // TODO!: Handle a mouse potentially not being present!
     IEnumerator RIPPLE_PressCoroutine()
@@ -80,16 +83,19 @@ public class MetaButton : Button
         UI_Particle.maskable = Maskability;
 
         float t = 0f;
-        float target = Width * (1f + Ripple_Size_Add); // Offset for rounded/spherical corners
-        Vector2 center = new Vector2(-Width / 2f, 0);// = new Vector2(Width / 2f, -Height / 2f);
+        float target = Width * (1f + Ripple_Size_Add); // + Offset for rounded/spherical corners
+        Vector2 center = new Vector2(-Width / 2f, 0); // TODO!: This works only for buttons that are left-aligned / in a container! Does not work on centered (pos) button!
         is_ripple_down_anim = true;
         
+        // TODO: When you release the button, it becomes normalColor. However, this looks weird with the ripple effect animation.
+        // So here, we make the normalColor and highlightedColor the same as pressedColor until the ripple animation finishes.
         var new_colors = colors;
         new_colors.normalColor = new_colors.pressedColor;
         new_colors.highlightedColor = new_colors.pressedColor;
         colors = new_colors;
         
-        UI_RippleImage.CrossFadeAlpha(1f, 0f, false);
+        // Fade in the ripple effect:
+        UI_RippleImage.CrossFadeAlpha(1f, Ripple_Fade_In_Sec, false);
         
         UI_ParticleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         UI_ParticleSystem.Play();
@@ -97,6 +103,8 @@ public class MetaButton : Button
         while (is_ripple_down_anim)
         {
             float value = Mathf.Lerp(0f, target, t);
+
+            // Expand size:
             UI_Ripple.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, value);
             UI_Ripple.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, value);
             
@@ -105,7 +113,7 @@ public class MetaButton : Button
             Vector2 mouse_target;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(UI_RectTrans, mouse_pos, null, out mouse_target);
             
-            // Return to center towards end of animation:
+            // Return to center towards end of animation: 
             Vector3 result = Vector3.Lerp(mouse_target, center, t);
             
             UI_Ripple.localPosition = result;
@@ -132,7 +140,7 @@ public class MetaButton : Button
         // Wait for down animation to finish:
         while (is_ripple_down_anim) yield return null;
 
-        UI_RippleImage.CrossFadeAlpha(0f, 0.3f, false);
+        UI_RippleImage.CrossFadeAlpha(0f, Ripple_Fade_Out_Sec, false);
     }
 
     void Update()
