@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Logger;
@@ -12,13 +11,16 @@ public class MetaSystem : MonoBehaviour
     public static MetaSystem Instance;
 
     public Canvas UI_Canvas;
-    
+    public GameObject DebugButtons_Container;
+
+    public void SetDebugButtons(bool value) => DebugButtons_Container.SetActive(value);
+
     void Awake()
     {
         if (DetectOtherInstances()) return; // Do not continue execution if we already have an instance.
         Instance = this;
     }
-    
+
     static bool META_DestroyOtherInstObjects = true; // Whether to destroy GameObjects, or just the components only.
     bool DetectOtherInstances()
     {
@@ -51,22 +53,24 @@ public class MetaSystem : MonoBehaviour
 
         return false;
     }
-    
+
     void Start()
     {
         if (UI_Canvas) Log("We got a UI canvas!".T(this));
         else LogW("We don't have a UI Canvas!".T(this));
     }
-    
-    public void BUTTON_StartIntroScene() => UI_LoadPage("MetaSystem/Intro/Intro_Xesign");
-    public void BUTTON_PreloadIntroScene() => UI_LoadPage("MetaSystem/Intro/Intro_Xesign", true);
-    
+
     public MetaButton Maskability_Button;
     public void BUTTON_ToggleMaskability()
     {
         MetaButton.Maskability = !MetaButton.Maskability;
         Maskability_Button.SetText(Logger.ParseArgs("Control maskability: %", MetaButton.Maskability ? "ON" : "OFF"));
     }
+
+    public void BUTTON_StartIntroScene() => UI_LoadPage("Intro/Intro_Xesign");
+    public void BUTTON_PreloadIntroScene() => UI_LoadPage("Intro/Intro_Xesign", true);
+    public void BUTTON_StartMainMenu() { UI_LoadPage("MainMenu/MainMenuUI"); SetDebugButtons(false); }
+    public void BUTTON_PreloadMainMenu() => UI_LoadPage("MainMenu/MainMenuUI", true);
 
     // ------- UI land ------- //
 
@@ -79,6 +83,7 @@ public class MetaSystem : MonoBehaviour
     public List<GameObject> Pages = new List<GameObject>();
     public List<GameObject> Preloaded_Pages = new List<GameObject>();
 
+    /// <param name="page_path">Starts from 'MetaSystem/'</param>
     /// <param name="preload_only">When true, the page will not show up / start executing immediately.</param>
     /// <returns>True if successful, false if unsuccessful.</returns>
     public bool UI_LoadPage(string page_path, bool preload_only = false, UIPageType page_type = UIPageType.Prefab)
@@ -102,7 +107,7 @@ public class MetaSystem : MonoBehaviour
                 }
             }
 
-            if (!prefab) prefab = (GameObject)Resources.Load(page_path);
+            if (!prefab) prefab = (GameObject)Resources.Load("MetaSystem/" + page_path);
             prefab.name = page_path;
             if (prefab == null) { LogE("Invalid page request: '%' as type: %".M(), page_path, page_type); return false; }
 
@@ -123,6 +128,40 @@ public class MetaSystem : MonoBehaviour
         }
 
         /// TODO: Scenes (?)
+
+        return true;
+    }
+
+    public bool UI_UnloadPage(GameObject page_obj, bool check_pages = true)
+    {
+        if (page_obj == null) return false;
+        GameObject obj = null;
+        
+        if (check_pages)
+        {
+            obj = Pages.Find(x => x.name == page_obj.name);
+            if (!obj)
+                Preloaded_Pages.Find(x => x.name == page_obj.name);
+            if (!obj)
+                LogW("UI Page % was not in Pages or Preloaded_Pages list!".M(), page_obj.name);
+        }
+        
+        Pages.Remove(page_obj); Preloaded_Pages.Remove(page_obj);
+        Destroy(page_obj);
+        
+        return true;
+    }
+
+    public bool UI_UnloadPage(string page_path)
+    {
+        // TODO: We'll need some kind of detection for Scene-type UIs, if we want to have those.
+        GameObject obj = Pages.Find(x => x.name == page_path);
+        if (obj == null) obj = Preloaded_Pages.Find(x => x.name == page_path);
+
+        // Not found: 
+        if (obj == null) { LogE("Could not find page for unloading: '%'".M(), page_path); return false; }
+
+        UI_UnloadPage(obj);
 
         return true;
     }

@@ -53,13 +53,17 @@ public static partial class Logger
     public static string ParseArgs(string text, params object[] args)
     {
         string s = "";
-
+        
         int c = 0, arg_i = 0;
         for (; c < text.Length; ++c)
         {
             if (text[c] == '%')
             {
                 if (c - 1 > 0 && text[c - 1] == '\\') continue;
+
+                // TODO!: This does not work for some reason!
+                if (args == null || args.Length == 0) LogW("String includes argument placeholder(s), but no args were specified!".M());
+                
                 if (arg_i >= args.Length) LogMethodE($"There was no argument at {arg_i} - total count: {args.Length}", "Logger");
                 else
                 {

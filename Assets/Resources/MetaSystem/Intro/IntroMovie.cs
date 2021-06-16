@@ -6,19 +6,22 @@ using static Logger;
 
 public class IntroMovie : MonoBehaviour
 {
+    MetaSystem MetaSystem;
+    
     public AudioSource audio_src;
     public List<AudioClip> audio_clips = new List<AudioClip>();
-
+    
     public TMP_Text xesign_text;
     public TMP_Text rhythmic_text;
-
+    
     public FontLoadingIndicator progress_indicator;
     
     [Header("Properties")]
     public float fade_factor = 0.05f;
     public float audio_target_vol = 0.1f;
     
-    void Start()
+    void Awake() => MetaSystem = MetaSystem.Instance;
+        void Start()
     {
         StartCoroutine(Main_Coroutine());
     }
@@ -91,5 +94,9 @@ public class IntroMovie : MonoBehaviour
             //xesign_text.color = new Color(xesign_text.color.r, xesign_text.color.g, xesign_text.color.b, xesign_text.color.a - Time.deltaTime);
             yield return null;
         }
+        
+        MetaSystem.UI_UnloadPage(gameObject);
+        MetaSystem.UI_LoadPage("MainMenu/MainMenuUI");
+        MetaSystem.SetDebugButtons(false);
     }
 }

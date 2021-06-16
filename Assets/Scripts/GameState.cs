@@ -85,7 +85,7 @@ public class GameState : MonoBehaviour
         
     }
     
-    // TODO: Move to a better place?
+    // TODO: Move to a better place? Global game utilities-like (static) class?
     public static void LoadScene(string scene_name) => SceneManager.LoadSceneAsync(scene_name, LoadSceneMode.Single);
 
     // ----------------------------------------
