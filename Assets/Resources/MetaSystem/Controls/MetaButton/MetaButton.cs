@@ -36,7 +36,7 @@ public class MetaButton : Button
         get { return UI_RectTrans.sizeDelta.y; }
         set { UI_RectTrans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, value); }
     }
-
+    
     // Ripple:
     public void RIPPLE_OnPressed()
     {
@@ -84,7 +84,14 @@ public class MetaButton : Button
 
         float t = 0f;
         float target = Width * (1f + Ripple_Size_Add); // + Offset for rounded/spherical corners
-        Vector2 center = new Vector2(-Width / 2f, 0); // TODO!: This works only for buttons that are left-aligned / in a container! Does not work on centered (pos) button!
+        
+        //Vector2 center = new Vector2(-Width / 2f, 0); // TODO!: This works only for buttons that are left-aligned / in a container! Does not work on centered (pos) button!
+        Vector2 center = new Vector2(0f, 0); // TODO!: This works only for buttons that are left-aligned / in a container! Does not work on centered (pos) button! | Anchor has to be |0.5, 0.5| for all buttons
+        var obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        obj.transform.parent = gameObject.transform;
+        obj.transform.localPosition = center;
+        obj.transform.localScale = new Vector3(2f, 2f, 2f);
+        
         is_ripple_down_anim = true;
         
         // TODO: When you release the button, it becomes normalColor. However, this looks weird with the ripple effect animation.

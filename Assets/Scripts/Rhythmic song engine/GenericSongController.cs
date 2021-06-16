@@ -58,15 +58,18 @@ public partial class GenericSongController : MonoBehaviour
         if (!is_enabled) { Logger.LogW("Song controller disabled."); return; }
         if (is_fake) Logger.LogW("Song controller is in fake mode.");
         
-        LoadSong(default_song, GameLogic.AMPLITUDE); // NOTE: temp
+        // NOTE: / TEMP:
+        //LoadSong(default_song, GameLogic.AMPLITUDE);
+        LoadSong(GameState.current_song_name, GameLogic.AMPLITUDE);
         
         GameState = GameState.Instance;
         if (GameState) GameProps = GameState.Props;
     }
     void CreateRequiredObjects()
     {
-        if (GameState.Instance == null)
-            GameState.CreateGameState();
+        if (GameState.Instance == null) GameState = GameState.CreateGameState();
+        else GameState = GameState.Instance;
+        
         // TODO: We should probably use Tags instead!
         // TODO: InstantiatePrefab() function!
         if (!GameObject.Find("DebugController"))

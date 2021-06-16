@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -65,16 +66,22 @@ public class MetaSystem : MonoBehaviour
         DontDestroyOnLoad(UI_Canvas);  // UI Canvas
     }
     
-    /// We cannot really fade all UI elements easily.
+    /// TODO!: We cannot really fade all UI elements easily.
     /// Need to figure something out here.
+    public float META_FadeoutSec = 0.3f;
     public void META_SetVisibility(bool value)
     {
-        // TODO: improve!
-        UI_Tint.CrossFadeAlpha(value ? 1f : 0f, 0.3f, false);
+        UI_Tint.CrossFadeAlpha(value ? 1f : 0f, META_FadeoutSec, false);
+        StartCoroutine(SetVisibility_Coroutine(value));
+    }
+    IEnumerator SetVisibility_Coroutine(bool value)
+    {
+        yield return new WaitForSeconds(META_FadeoutSec);
+        UI_Canvas.gameObject.SetActive(value);
     }
     
     // TEST:
-    public bool META_Visibility = true;
+    [SerializeField] bool META_Visibility = true;
     bool META_last_vis = true;
     void Update()
     {

@@ -383,7 +383,7 @@ PrefabInstance:
     - target: {fileID: 6205758820944057222, guid: c237dbdb81c5aac479f276bcee5a13ee,
         type: 3}
       propertyPath: m_Pivot.x
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6205758820944057222, guid: c237dbdb81c5aac479f276bcee5a13ee,
         type: 3}
@@ -761,6 +761,7 @@ MonoBehaviour:
   UI_Canvas: {fileID: 2103576506}
   DebugButtons_Container: {fileID: 846634406}
   UI_Tint: {fileID: 321508027}
+  META_FadeoutSec: 0.3
   META_Visibility: 1
   Maskability_Button: {fileID: 0}
   Pages: []
@@ -996,7 +997,7 @@ PrefabInstance:
     - target: {fileID: 6205758820944057222, guid: c237dbdb81c5aac479f276bcee5a13ee,
         type: 3}
       propertyPath: m_Pivot.x
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6205758820944057222, guid: c237dbdb81c5aac479f276bcee5a13ee,
         type: 3}
@@ -1170,7 +1171,7 @@ PrefabInstance:
     - target: {fileID: 6205758820944057222, guid: c237dbdb81c5aac479f276bcee5a13ee,
         type: 3}
       propertyPath: m_Pivot.x
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6205758820944057222, guid: c237dbdb81c5aac479f276bcee5a13ee,
         type: 3}
@@ -1326,6 +1327,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 846634407}
     m_Modifications:
+    - target: {fileID: 4408039987536142343, guid: c237dbdb81c5aac479f276bcee5a13ee,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4408039987536142343, guid: c237dbdb81c5aac479f276bcee5a13ee,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4408039987536142343, guid: c237dbdb81c5aac479f276bcee5a13ee,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6205758820944057222, guid: c237dbdb81c5aac479f276bcee5a13ee,
         type: 3}
       propertyPath: m_Pivot.x
@@ -1643,7 +1659,7 @@ PrefabInstance:
     - target: {fileID: 6205758820944057222, guid: c237dbdb81c5aac479f276bcee5a13ee,
         type: 3}
       propertyPath: m_Pivot.x
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6205758820944057222, guid: c237dbdb81c5aac479f276bcee5a13ee,
         type: 3}
@@ -1988,7 +2004,7 @@ GameObject:
   - component: {fileID: 2103576509}
   - component: {fileID: 2103576511}
   m_Layer: 5
-  m_Name: 'Main :: UI_Canvas'
+  m_Name: UI_Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
