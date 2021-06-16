@@ -91,29 +91,28 @@ public class TrackDestructFX : MonoBehaviour
     public void Play(bool proximity = true)
     {
         if (!proximity || IsPlaying) return;
-
+        
         IsPlaying = true;
-
+        
         //StartCoroutine(AnimateLight(0, 10));
         Light.intensity = 7;
-
-
+        
         SparkleParticles.Play();
         BaseParticles.Play();
         for (int i = 0; i < 2; i++)
             ShardParticles[i].Play();
     }
-
+    
     public void Stop()
     {
         //StartCoroutine(AnimateLight(10, 0));
         Light.intensity = 0;
-
+        
         BaseParticles.Stop();
         SparkleParticles.Stop();
         for (int i = 0; i < 2; i++)
             ShardParticles[i].Stop();
-
+        
         IsPlaying = false;
     }
 }
