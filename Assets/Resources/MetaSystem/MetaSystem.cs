@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using static Logger;
 
 /* TODO:
@@ -12,15 +13,16 @@ public class MetaSystem : MonoBehaviour
 
     public Canvas UI_Canvas;
     public GameObject DebugButtons_Container;
+    public Image UI_Tint;
 
     public void SetDebugButtons(bool value) => DebugButtons_Container.SetActive(value);
-
+    
     void Awake()
     {
         if (DetectOtherInstances()) return; // Do not continue execution if we already have an instance.
         Instance = this;
     }
-
+    
     static bool META_DestroyOtherInstObjects = true; // Whether to destroy GameObjects, or just the components only.
     bool DetectOtherInstances()
     {
@@ -30,10 +32,10 @@ public class MetaSystem : MonoBehaviour
             LogE("Another instance of MetaSystem was detected - destroying object '%'!".T(this), gameObject.name);
             if (META_DestroyOtherInstObjects) Destroy(gameObject);
             else Destroy(this);
-
+            
             return true;
         }
-
+        
         /// This might not be needed:
         #region GameObject checking: 
         // MetaSystem[] instances = GameObject.FindObjectsOfType<MetaSystem>();
@@ -42,10 +44,10 @@ public class MetaSystem : MonoBehaviour
         //     if (inst != Instance)
         //     {
         //         LogE("Another instance of MetaSystem was detected - destroying object '%'!".T(this), gameObject.name);
-
+        
         //         if (META_DestroyOtherInstObjects) Destroy(gameObject);
         //         else Destroy(this);
-
+        
         //         return true;
         //     }
         // }
@@ -58,6 +60,29 @@ public class MetaSystem : MonoBehaviour
     {
         if (UI_Canvas) Log("We got a UI canvas!".T(this));
         else LogW("We don't have a UI Canvas!".T(this));
+
+        DontDestroyOnLoad(gameObject); // MetaSystem
+        DontDestroyOnLoad(UI_Canvas);  // UI Canvas
+    }
+    
+    /// We cannot really fade all UI elements easily.
+    /// Need to figure something out here.
+    public void META_SetVisibility(bool value)
+    {
+        // TODO: improve!
+        UI_Tint.CrossFadeAlpha(value ? 1f : 0f, 0.3f, false);
+    }
+    
+    // TEST:
+    public bool META_Visibility = true;
+    bool META_last_vis = true;
+    void Update()
+    {
+        if (META_Visibility != META_last_vis)
+        {
+            META_last_vis = META_Visibility;
+            META_SetVisibility(META_Visibility);
+        }
     }
 
     public MetaButton Maskability_Button;
@@ -136,7 +161,7 @@ public class MetaSystem : MonoBehaviour
     {
         if (page_obj == null) return false;
         GameObject obj = null;
-        
+
         if (check_pages)
         {
             obj = Pages.Find(x => x.name == page_obj.name);
@@ -145,10 +170,10 @@ public class MetaSystem : MonoBehaviour
             if (!obj)
                 LogW("UI Page % was not in Pages or Preloaded_Pages list!".M(), page_obj.name);
         }
-        
+
         Pages.Remove(page_obj); Preloaded_Pages.Remove(page_obj);
         Destroy(page_obj);
-        
+
         return true;
     }
 
