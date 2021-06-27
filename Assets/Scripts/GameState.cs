@@ -12,24 +12,29 @@ public class GameState : MonoBehaviour
 {
     public static GameState Instance;
 
+    bool is_state_startup = false;
+
     // Only call this once when initializing the game.
-    public static void CreateGameState()
+    public static GameState CreateGameState(bool from_startup = false)
     {
         if (RhythmicGame.GameState)
         {
             LogW("Attempted to create a GameState when one already exists - ignoring!".M());
-            return;
+            return null;
         }
 
-        var gStateObj = new GameObject("Game state");
-        var gState = gStateObj.AddComponent<GameState>();
+        var obj = new GameObject("Game state");
+        var game_state = obj.AddComponent<GameState>();
 
-        Instance = gState;
+        game_state.is_state_startup = from_startup;
+
+        Instance = game_state;
+        return game_state;
     }
 
     public RhythmicGame Props;
     public bool IsLoading = false;
-    
+
     public StartupTarget StartupTarget = StartupTarget.UNINITIALIZED;
     public string StartupTarget_IngameScene = "RH_Main"; // @Prop
 
@@ -50,21 +55,25 @@ public class GameState : MonoBehaviour
         // MetaSystem can be initialized by this component.
 
         // BUILD:  Hold [SHIFT] to jump into a default game | TODO: only in debug builds! | TODO: skip cinematic intros!
-        if (!Application.isEditor) StartupTarget = !(Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed) ? StartupTarget.Startup : StartupTarget.Ingame;
-        // EDITOR: Hold [SHIFT] to start into Metagame, hold [CTRL + SHIFT] to fully start the game, [ALT] to jump into a default game
-        else if (Application.isEditor)
+        if (is_state_startup)
         {
-            StartupTarget = StartupTarget.NONE; // Does not load anything automatically on startup.
-            if (Keyboard.current != null)
-            {
-                // NOTE: The new input system does not register keys before the game was started.
-                // Should probably try to use the Win32 APIs to get the keys here.
-                bool shift = IsPressed(Keys.leftShiftKey); bool ctrl = IsPressed(Keys.leftCtrlKey);
-                bool alt = IsPressed(Keys.altKey);
 
-                if (shift && ctrl) StartupTarget = StartupTarget.Startup;
-                else if (shift) StartupTarget = StartupTarget.Metagame;
-                else if (alt) StartupTarget = StartupTarget.Ingame;
+            if (!Application.isEditor) StartupTarget = !(Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed) ? StartupTarget.Startup : StartupTarget.Ingame;
+            // EDITOR: Hold [SHIFT] to start into Metagame, hold [CTRL + SHIFT] to fully start the game, [ALT] to jump into a default game
+            else if (Application.isEditor)
+            {
+                StartupTarget = StartupTarget.NONE; // Does not load anything automatically on startup.
+                if (Keyboard.current != null)
+                {
+                    // NOTE: The new input system does not register keys before the game was started.
+                    // Should probably try to use the Win32 APIs to get the keys here.
+                    bool shift = IsPressed(Keys.leftShiftKey); bool ctrl = IsPressed(Keys.leftCtrlKey);
+                    bool alt = IsPressed(Keys.altKey);
+
+                    if (shift && ctrl) StartupTarget = StartupTarget.Startup;
+                    else if (shift) StartupTarget = StartupTarget.Metagame;
+                    else if (alt) StartupTarget = StartupTarget.Ingame;
+                }
             }
         }
 
@@ -77,15 +86,15 @@ public class GameState : MonoBehaviour
         else if (StartupTarget == StartupTarget.UNINITIALIZED)
             LogE("Uninitialized StartupTarget!".TM(this));
     }
-    
+
     void CreateProps() => Props = new RhythmicGame();
-    
+
     void CreateGame()
     {
-        
+
     }
-    
-    // TODO: Move to a better place?
+
+    // TODO: Move to a better place? Global game utilities-like (static) class?
     public static void LoadScene(string scene_name) => SceneManager.LoadSceneAsync(scene_name, LoadSceneMode.Single);
 
     // ----------------------------------------
@@ -94,4 +103,6 @@ public class GameState : MonoBehaviour
     public GameMatchType GameMatchType = GameMatchType.Singleplayer;
 
     public bool IsGamePaused = false;
+
+    public string current_song_name = "allthetime";
 }

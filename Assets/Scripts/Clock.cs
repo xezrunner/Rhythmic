@@ -33,6 +33,9 @@ public class Clock : MonoBehaviour
     // F stands for Floor (TODO: ambigious between float?) | TODO: Performance!
     public int Fbar { get { return Mathf.FloorToInt(bar); } } // TODO: Naming confusion for float?
     public int Fbeat { get { return Mathf.FloorToInt(beat); } }
+    
+    float last_song_position;
+    public float song_deltatime;
 
 #if TICK_EVENTS
     int lastTick = -1;
@@ -47,7 +50,7 @@ public class Clock : MonoBehaviour
     public event EventHandler<int> OnBar;
     public event EventHandler<int> OnBeat;
     //public event EventHandler<int> OnSubbeat;
-
+    
     //public event EventHandler OnPlayerSlop;
     
     public float smooth_factor = 0.1f;
@@ -65,6 +68,9 @@ public class Clock : MonoBehaviour
         float skew = SongController.song_position - seconds_smooth - delta; // The difference in time between the song and the current Clock time
         float smooth_delta = delta + smooth_factor * skew; // Smoothen the difference with + (factor * skew)
         seconds_smooth += delta + smooth_factor * skew; // The smoothened seconds equal fixedDeltaTime + (factor * skew)
+        
+        song_deltatime = SongController.song_position - last_song_position;
+        last_song_position = SongController.song_position;
         
         // Set tick, bar, beat and subbeat values based on seconds
         tick = time_units.tick_in_sec * seconds; // 1

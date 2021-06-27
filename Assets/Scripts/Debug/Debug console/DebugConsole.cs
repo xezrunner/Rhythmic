@@ -130,7 +130,8 @@ public partial class DebugConsole : DebugComponent
         State = ConsoleState.Closed;
 
         // TODO: Mouse cursor visibility / locking mechanism should be in a different utilitarian class as static functions (probably)
-        if (!Application.isEditor) Cursor.visible = false; // Mouse cursor
+        // TODO!: TEMP, remove this:
+        if (!UnityEngine.SceneManagement.SceneManager.GetActiveScene().name.StartsWith("Meta") && !Application.isEditor) Cursor.visible = false; // Mouse cursor
 
         Animate(target_height, anim);
     }
@@ -162,8 +163,9 @@ public partial class DebugConsole : DebugComponent
         UI_RectTrans.sizeDelta = new Vector3(UI_RectTrans.sizeDelta.x, current_height);
 
         ScrollConsole(false);
-
-        if (anim_t < 1.0) anim_t += Time.unscaledDeltaTime * Animation_Speed;
+        
+        // TODO!: For some reason, higher framerates make the animation faster.
+        if (anim_t < 1.0) anim_t += Animation_Speed * Time.unscaledDeltaTime;
         else is_animating = false;
     }
 
@@ -247,7 +249,7 @@ public partial class DebugConsole : DebugComponent
         DebugKeys.IsEnabled = false;
         //Input_Field.Select();
     }
-	// TODO: This does not unfocus the input field in certain cases. Workaround in OnInputChanged()
+    // TODO: This does not unfocus the input field in certain cases. Workaround in OnInputChanged()
     void UnfocusInputField()
     {
         // This calls OnSubmit() and related events.
@@ -281,7 +283,7 @@ public partial class DebugConsole : DebugComponent
         Vector3 c_trans = Input_Field.textComponent.transform.TransformPoint(Input_Field.textComponent.textInfo.characterInfo[last_index].bottomRight);
         UI_Autocomplete.rectTransform.position = new Vector2(c_trans.x + autocomplete_padding_x, UI_Autocomplete.rectTransform.position.y);
     }
-
+    
     int autocomplete_index = -1;
     List<string> autocomplete_commands;
     bool is_autocompleting = false;
@@ -365,8 +367,8 @@ public partial class DebugConsole : DebugComponent
     int history_index = -1;
     public void History_Add(string s)
     {
-		// Do not add to history if the command already existed as the last added one
-        if (History != null && History.Count != 0 && History.First() == s) 
+        // Do not add to history if the command already existed as the last added one
+        if (History != null && History.Count != 0 && History.First() == s)
             return;
 
         History.Insert(0, s);
@@ -475,36 +477,49 @@ public partial class DebugConsole : DebugComponent
     public static void ExecuteCommand(string command, params string[] args) => Instance?.ProcessCommand(command, args);
     public void ProcessCommand(string command, params string[] args)
     {
+        if (command == "" || Commands == null || Commands.Count == 0) return;
+
+        ConsoleCommand c = Commands[0];
         bool found = false;
 
         // Find the command and call it with the args:
+        // TODO: Better searching! (hashmaps?)
         for (int i = 0; i < Commands_Count; ++i)
         {
-            ConsoleCommand c = Commands[i];
-            if (c.Command == command)
+            c = Commands[i];
+
+            if (c.Command == command) found = true;
+            else
             {
-                found = true;
-
-                bool is_exclusive_help = args.Contains("--help");
-                // TODO: What kind of shenanigans should we do here? Perhaps we should let commands show their help text inside themselves. (DebugConsole/ShowHelpText(string command) ?)
-                //bool is_help = (is_exclusive_help || (!c.is_action_empty && args.Length == 0)); // TODO: this definitely isn't always correct. Once we have a better search algo, use that to display help text for any command by string!
-
-                if (is_exclusive_help) Help_Command(command);
-
-                if (!is_exclusive_help)
-                {
-                    bool result = c.Invoke(args); // Invoke command action!
-                    if (!result)
-                    {
-                        Write($" | " + "? ".AddColor(Colors.IO));
-                        Help_Command(command); // TODO: we might only want to show help for one-liners
-                    }
-                }
-                if (ReturnOnFoundCommand) return;
+                foreach (string alias in c.Aliases)
+                    if (alias == command) { found = true; break; }
             }
+            
+            if (found) break;
+        }
+        
+        if (!found)
+        {
+            _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
+            return;
         }
 
-        if (!found && command != "") _Log("Command not found: " + "%".AddColor(Colors.Unimportant), command);
+        bool is_exclusive_help = args.Contains("--help");
+        // TODO: What kind of shenanigans should we do here? Perhaps we should let commands show their help text inside themselves. (DebugConsole/ShowHelpText(string command) ?)
+        //bool is_help = (is_exclusive_help || (!c.is_action_empty && args.Length == 0)); // TODO: this definitely isn't always correct. Once we have a better search algo, use that to display help text for any command by string!
+
+        if (is_exclusive_help) Help_Command(command);
+
+        if (!is_exclusive_help)
+        {
+            bool result = c.Invoke(args); // Invoke command action!
+            if (!result)
+            {
+                Write($" | " + "? ".AddColor(Colors.IO));
+                Help_Command(command); // TODO: we might only want to show help for one-liners
+            }
+        }
+        if (ReturnOnFoundCommand) return;
     }
 
     public static void parse_input_out(string input, out string cmd, out string[] args)
@@ -556,15 +571,15 @@ public partial class DebugConsole : DebugComponent
     void Update()
     {
         UPDATE_Animation();
-        
-		if (!IsOpen && WasPressed(Keyboard.digit0Key, Keyboard.backquoteKey))
+
+        if (!IsOpen && WasPressed(Keyboard.digit0Key, Keyboard.backquoteKey))
             _Open();
         else if (IsOpen && WasPressed(Keyboard.escapeKey))
             _Close();
 
         if (!IsOpen) return;
-		
-		UPDATE_Autocomplete();
+
+        UPDATE_Autocomplete();
         UPDATE_Scroll();
 
         // Cancel scrolling animations when scrolling with mouse wheel

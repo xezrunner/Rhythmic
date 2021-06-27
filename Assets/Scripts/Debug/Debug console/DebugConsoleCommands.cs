@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using UnityEngine;
 
 // These take in strings as parameters.
 // It was initially developed with it taking in objects, but it shouldn't really matter.
@@ -10,8 +11,8 @@ using System.Linq;
 // parameters given in the console (separated by spaces).
 public struct ConsoleCommand
 {
-    public ConsoleCommand(string command, Action action, string helpText = "") { Command = command; Action_Empty = action; Action_Param = null; is_action_empty = true; HelpText = helpText; }
-    public ConsoleCommand(string command, Action<string[]> action, string helpText = "") { Command = command; Action_Param = action; Action_Empty = null; is_action_empty = false; HelpText = helpText; }
+    public ConsoleCommand(string command, Action action, string helpText = "", params string[] aliases) { Command = command; Action_Empty = action; Action_Param = null; is_action_empty = true; HelpText = helpText; Aliases = aliases; }
+    public ConsoleCommand(string command, Action<string[]> action, string helpText = "", params string[] aliases) { Command = command; Action_Param = action; Action_Empty = null; is_action_empty = false; HelpText = helpText; Aliases = aliases; }
 
     public string Command;
     public string HelpText; // --help is a hard-coded argument that'll give you the help text without invoking the command.
@@ -19,6 +20,8 @@ public struct ConsoleCommand
     public bool is_action_empty; // HACK!
     public Action Action_Empty;
     public Action<string[]> Action_Param;
+
+    public string[] Aliases;
 
     /// <returns>Whether we encountered an error.</returns>
     public bool Invoke(params string[] args)
@@ -56,34 +59,34 @@ public partial class DebugConsole
     #region Public -> RegisterCommand
     //public static void RegisterCommand(string command, Action<string[]> action) => Instance?._RegisterCommand(command, action);
 
-    public static void RegisterCommand(string command, Action<string[]> action, string helpText = "") => Instance?._RegisterCommand(command, action, helpText); // Parameters
-    public static void RegisterCommand(string command, Action action, string helpText = "") => Instance?._RegisterCommand(command, action, helpText); // Empty
+    public static void RegisterCommand(string command, Action<string[]> action, string helpText = "", params string[] aliases) => Instance?._RegisterCommand(command, action, helpText, aliases); // Parameters
+    public static void RegisterCommand(string command, Action action, string helpText = "", params string[] aliases) => Instance?._RegisterCommand(command, action, helpText, aliases); // Empty
 
     // Name-less register overloads
-    public static void RegisterCommand(Action action, string helpText = "") => Instance?._RegisterCommand(action.Method.Name, action, helpText); //Empty
-    public static void RegisterCommand(Action<string[]> action, string helpText = "") => Instance?._RegisterCommand(action.Method.Name, action, helpText); // Parameters
-
+    public static void RegisterCommand(Action action, string helpText = "", params string[] aliases) => Instance?._RegisterCommand(action.Method.Name, action, helpText, aliases); //Empty
+    public static void RegisterCommand(Action<string[]> action, string helpText = "", params string[] aliases) => Instance?._RegisterCommand(action.Method.Name, action, helpText, aliases); // Parameters
+    
     #endregion
-
-    void _RegisterCommand(string command, Action<string[]> action, string helpText = "") // Parameters
+    
+    void _RegisterCommand(string command, Action<string[]> action, string helpText = "", params string[] aliases) // Parameters
     {
         if (RegisterCommand_CheckDuplication(command)) return;
-
-        ConsoleCommand c = new ConsoleCommand(command, action, helpText);
+        
+        ConsoleCommand c = new ConsoleCommand(command, action, helpText, aliases);
         Commands.Add(c); ++Commands_Count;
     }
-    void _RegisterCommand(string command, Action action, string helpText = "") // Empty
+    void _RegisterCommand(string command, Action action, string helpText = "", params string[] aliases) // Empty
     {
         if (RegisterCommand_CheckDuplication(command)) return;
-
-        ConsoleCommand c = new ConsoleCommand(command, action, helpText);
+        
+        ConsoleCommand c = new ConsoleCommand(command, action, helpText, aliases);
         Commands.Add(c); ++Commands_Count;
     }
-
+    
     // Name-less register overloads
     void _RegisterCommand(Action action, string helpText = "") => _RegisterCommand(action.Method.Name, action, helpText); //Empty
     void _RegisterCommand(Action<string[]> action, string helpText = "") => _RegisterCommand(action.Method.Name, action, helpText); // Parameters
-
+    
     // Displays the help text for any command:
     public static void Help_Command(string command) => Instance?._Help_Command(command);
     void _Help_Command(string command)
@@ -99,23 +102,28 @@ public partial class DebugConsole
             }
         }
     }
-
+    
     // ----- Common commands ----- //
-
+    
     // This is the main procedure for registering common console commands.
     // Other classes are free to register console commands at any point by using RegisterCommand().
     void Console_RegisterCommands() // **********************************
     {
+        RegisterCommand(timescale); RegisterCommand("set_timescale", timescale, null, "ts");
+        RegisterCommand(set_quickline);
+        DebugConsole.RegisterCommand("scene", (string[] args) => GameState.LoadScene(args[0]), null, "s");
+        DebugConsole.RegisterCommand("meta", () => GameState.LoadScene("MetaSystem"), null, "m"); // TODO: We could have a situation where multiple commands may have the same aliases! Warn, possibly?
+        
         // Console-meta commands:
-        RegisterCommand("clear", _Clear);
-        RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds."); // TODO: Should use a global Quit procedure to quit the game once MetaSystem and/or GameState is in place
+        RegisterCommand("clear", _Clear, null, "cls");
+        RegisterCommand("quit", MainMenu.QuitGame, "Stops the game in the editor / quits the game in builds.", "q"); // TODO: Should use a global Quit procedure to quit the game once MetaSystem and/or GameState is in place
         RegisterCommand(help, "Lists all commands / gives help text for particular commands. usage: " + "help".AddColor(Colors.Application) + " <command>");
         RegisterCommand(toggle_autocomplete);
         RegisterCommand(set_autocomplete);
         RegisterCommand(console_resize, "Resizes the console height. Usage: " + nameof(console_resize).AddColor(Colors.Application) + " <height>");
         RegisterCommand(console_perf, "Prints a ton of lines into the console to test performance. Also prints the time difference in ticks.");
         RegisterCommand(log);
-
+        
         // Test commands **************************************************
         RegisterCommand(test, $"usage: {"test".AddColor(Colors.Application)} <arguments>"); // temp!
         RegisterCommand(clear_text_test);
@@ -127,22 +135,22 @@ public partial class DebugConsole
         RegisterCommand(set_console_line_limit, "Sets the console amount of lines allowed in the console.");
         RegisterCommand(set_console_text_limit, "Sets the maximum amount of characters allowed in a line.");
         RegisterCommand(moggsong_parser_debug_print, "Prints the tokens used during .moggsong file parsing.");
-
+        
         RegisterCommand(conf_set_parser_debug);
         RegisterCommand(conf_test);
-
+        
         RegisterCommand(song_test);
-
+        
         RegisterCommand(start_console_server);
         RegisterCommand(stop_console_server);
-
+        
         RegisterCommand(change_amp_folder);
         RegisterCommand(change_ogg_folder);
-
+        
         // Common commands:
         RegisterCommand(song, $"usage: {"song".AddColor(Colors.Application)} <song_name>");
         RegisterCommand(world, $"usage: {"world".AddColor(Colors.Application)} <relative world path, starting from Scenes/>");
-
+        
         RegisterCommand(switch_to_track, $"usage: {"switch_to_track".AddColor(Colors.Application)} <track_id>");
         RegisterCommand(capture_measure_range);
         RegisterCommand(capture_measure_amount);
@@ -150,8 +158,12 @@ public partial class DebugConsole
         RegisterCommand(refresh_notes, "usage: " + "refresh_notes".AddColor(Colors.Application) + " <track_id (optional)>");
         RegisterCommand(refresh_all, "usage: " + "refresh_all".AddColor(Colors.Application) + " <track_id (optional)>");
     }
-
+    
     /// You should add non-common commands from a different class.
+    
+    void timescale(string[] args) { if (args.Length == 0f) Logger.LogConsole("Timescale: %", Time.timeScale); else Time.timeScale = args[0].ParseFloat(); }
+    
+    void set_quickline(string[] args) { if (args.Length == 0f) Logger.LogConsole("Quickline: %", DebugUI.Instance.IsDebugLineOn); else DebugUI.Instance.IsDebugLineOn = args[0].ParseBool(); }
 
     void help(string[] args)
     {
@@ -291,8 +303,8 @@ public partial class DebugConsole
         if (args.Length == 0)
             mode = GameLogic.AMPLITUDE;
         else
-            mode = args.Contains("amp") ? GameLogic.AMPLITUDE : GameLogic.RHYTHMIC;
-        
+            mode = (args.Contains("amp") || args.Contains("AMP")) ? GameLogic.AMPLITUDE : GameLogic.RHYTHMIC;
+
         GenericSongController.Instance?.LoadSong(song_name, mode);
     }
 

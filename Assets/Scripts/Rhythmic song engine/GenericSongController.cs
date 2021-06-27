@@ -48,7 +48,8 @@ public partial class GenericSongController : MonoBehaviour
     {
         Instance = this;
         CreateRequiredObjects();
-
+        
+        // TODO: Clean these up
         DebugConsole.RegisterCommand("set_song_timescale", (string[] args) => SetSongTimescale(args[0].ParseFloat()));
         DebugConsole.RegisterCommand("set_song_timescale_smooth", (string[] args) => { Logger.Log("0: % 1: %", args[0], args.Length > 1 ? args[1] : "-"); SetSongTimescale_Smooth(args[0].ParseFloat(), args.Length > 1 ? args[1].ParseFloat() : 0.3f); });
     }
@@ -57,13 +58,18 @@ public partial class GenericSongController : MonoBehaviour
         if (!is_enabled) { Logger.LogW("Song controller disabled."); return; }
         if (is_fake) Logger.LogW("Song controller is in fake mode.");
         
-        LoadSong(default_song, GameLogic.AMPLITUDE); // NOTE: temp
+        // NOTE: / TEMP:
+        //LoadSong(default_song, GameLogic.AMPLITUDE);
+        LoadSong(GameState.current_song_name, GameLogic.AMPLITUDE);
         
         GameState = GameState.Instance;
-        GameProps = GameState.Props;
+        if (GameState) GameProps = GameState.Props;
     }
     void CreateRequiredObjects()
     {
+        if (GameState.Instance == null) GameState = GameState.CreateGameState();
+        else GameState = GameState.Instance;
+        
         // TODO: We should probably use Tags instead!
         // TODO: InstantiatePrefab() function!
         if (!GameObject.Find("DebugController"))
@@ -109,16 +115,17 @@ public partial class GenericSongController : MonoBehaviour
     List<AudioClip> LoadSongClips(SongInfo info, GameLogic mode = GameLogic.RHYTHMIC)
     {
         List<AudioClip> clips = null;
+        audio_clips_loaded = false;
         
         // TODO: This looks nasty:
         if (mode == GameLogic.AMPLITUDE) StartCoroutine(AMPLITUDE_LoadAudioClips(info));
         else if (mode == GameLogic.RHYTHMIC) Logger.LogE("Not yet implemented for RHYTHMIC!".M());
-
+        
         StartCoroutine(CreateAudioSourcesFromClips());
-
+        
         return clips;
     }
-
+    
     const float _audio_src_creation_timeout_ms = 10000;
     float _audio_src_creation_timeout_elapsed_ms;
     IEnumerator CreateAudioSourcesFromClips()

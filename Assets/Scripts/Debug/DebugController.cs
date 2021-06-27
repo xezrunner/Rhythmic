@@ -50,16 +50,18 @@ public partial class DebugController : MonoBehaviour
         { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(this);
-        Event_System.gameObject.SetActive(true);
+        
+        // TODO / NOTE: This might not be good - MetaSystem has an event system, but if we came first and then we load Meta, Unity will complain.
+        {
+            EventSystem[] event_systems = GameObject.FindObjectsOfType<EventSystem>();
+            foreach (EventSystem sys in event_systems) if (sys != Event_System) sys.enabled = false;
+        }
+        EventSystem.current = Event_System;
+        //if (GameObject.FindObjectOfType<EventSystem>() != null) Event_System.enabled = false;
+        
         // TODO: Temporary solution for creating a GameState - might not be needed:
         if (GameState.Instance == null && GameObject.Find("GameState") && GameObject.Find("Gamestate") == null) GameState.CreateGameState(); // Create GameState in case game was started abnormally
-    }
-    void Start()
-    {
-        // TODO TODO TODO!!! This causes a Unity bug where the editor locks up when the server is not properly closed & disposed!
-        // Start Rhythmic Console Server (for standalone console app)
-        //ConsoleServer.StartConsoleServer();
-
+    
         if (RhythmicGame.DebugControllerFlags == DebugComponentFlag.Uninitialized)
             State = DefaultState;
         else
@@ -68,7 +70,13 @@ public partial class DebugController : MonoBehaviour
             State = RhythmicGame.DebugControllerFlags;
             if (needsInit) HandleState();
         }
-
+    }
+    void Start()
+    {
+        // TODO TODO TODO!!! This causes a Unity bug where the editor locks up when the server is not properly closed & disposed!
+        // Start Rhythmic Console Server (for standalone console app)
+        //ConsoleServer.StartConsoleServer();
+        
         // Automatically activate DebugStats (TODO: should make DebugStats an additive component)
         // TODO: DebugStats shouldn't auto-activate based on whether the flag is present. (prop: AutoShowDebugStats?)
         if (RhythmicGame.AutoLoadDebugStats)
@@ -77,10 +85,10 @@ public partial class DebugController : MonoBehaviour
             DebugStats._Instance.StatsMode = StatsMode.DefaultAutoLoad;
         }
     }
-
+    
     // TODO: ActiveComponents list?
     public static bool CreateContainersForComponents = true;
-
+    
     void HandleState()
     {
         // Activate / Deactivate components:
