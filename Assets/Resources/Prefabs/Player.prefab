@@ -5446,6 +5446,7 @@ MonoBehaviour:
   Name: 
   AVPlayerOffset: 0
   CameraPullbackOffset: 0
+  ChromaticSeparation_FX: {fileID: 1225588845251898409}
   HealthMode: 0
   Health: 8
   Score: 0

@@ -36,6 +36,7 @@ public class Clock : MonoBehaviour
     
     float last_song_position;
     public float song_deltatime;
+    public float song_deltatime_smooth;
 
 #if TICK_EVENTS
     int lastTick = -1;
@@ -70,6 +71,7 @@ public class Clock : MonoBehaviour
         seconds_smooth += delta + smooth_factor * skew; // The smoothened seconds equal fixedDeltaTime + (factor * skew)
         
         song_deltatime = SongController.song_position - last_song_position;
+        song_deltatime_smooth = smooth_delta; // TODO: Clear up naming here?
         last_song_position = SongController.song_position;
         
         // Set tick, bar, beat and subbeat values based on seconds
