@@ -70,7 +70,6 @@ public class Configuration
         Logger.LogW("Could not find variable '%' ('%')".T(this), name, config_name);
         return null;
     }
-
     public string GetVariable(string section, string name)
     {
         return Sections[section][name];
