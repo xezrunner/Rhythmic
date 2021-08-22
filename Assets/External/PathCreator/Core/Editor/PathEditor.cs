@@ -157,6 +157,14 @@ namespace PathCreationEditor
                                     Undo.RecordObject(creator, "Set Angle");
                                     creator.bezierPath.SetAnchorNormalAngle(anchorIndex, newAngle);
                                 }
+
+                                var xz_currentfunky = creator.bezierPath.GetFunkyAngle(anchorIndex);
+                                var xz_funkyangle = EditorGUILayout.FloatField("Funky angle", xz_currentfunky);
+                                if (xz_funkyangle != xz_currentfunky)
+                                {
+                                    Undo.RecordObject(creator, "Set Funky angle");
+                                    creator.bezierPath.SetFunkyAngle(anchorIndex, xz_funkyangle);
+                                }
                             }
                         }
                     }

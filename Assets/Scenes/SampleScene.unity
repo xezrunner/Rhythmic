@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.40930477, g: 0.43301845, b: 0.44056708, a: 1}
+  m_IndirectSpecularColor: {r: 0.13311231, g: 0.11151647, b: 0.08969896, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -380,7 +380,8 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: NaN, z: 0, w: 0}
+  m_BoundingSphereOverride: {x: 7.6565414e+28, y: 9.023931e-33, z: 1.8062397e+28,
+    w: 1.648987e+28}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -392,14 +393,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705507993}
-  m_LocalRotation: {x: 0.95779574, y: -0.009472058, z: 0.28553134, w: 0.03177339}
+  m_LocalRotation: {x: 0.96359265, y: 0.02250508, z: 0.25216472, w: -0.08599827}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 176.2, y: -33.2, z: 0}
+  m_LocalEulerAnglesHint: {x: 190.2, y: -29.33, z: 0}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -493,8 +494,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1014655458}
-  - component: {fileID: 1014655457}
   - component: {fileID: 1014655459}
+  - component: {fileID: 1014655460}
   m_Layer: 0
   m_Name: Path
   m_TagString: Untagged
@@ -502,67 +503,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1014655457
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1014655456}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e5ac92bc18f545cc84cd886ece82b4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  editorData:
-    _bezierPath:
-      points:
-      - {x: -2.792579, y: -0.77248955, z: -14.813293}
-      - {x: 6.1670055, y: -0.31821823, z: -15.067823}
-      - {x: 11.692215, y: 4.2044883, z: 18.179783}
-      - {x: 33.240276, y: 3.0056777, z: 27.098808}
-      - {x: 47.370735, y: 2.21954, z: 32.947594}
-      - {x: 48.815315, y: 12.076156, z: 46.25522}
-      - {x: 40.527916, y: 21.693295, z: 58.019165}
-      - {x: 36.317074, y: 26.579779, z: 63.996445}
-      - {x: 43.626823, y: 29.904938, z: 65.12816}
-      - {x: 50.936577, y: 33.230095, z: 66.259865}
-      isClosed: 0
-      space: 0
-      controlMode: 0
-      autoControlLength: 0.3
-      boundsUpToDate: 0
-      bounds:
-        m_Center: {x: 0, y: 0, z: 0}
-        m_Extent: {x: 0, y: 0, z: 0}
-      perAnchorNormalsAngle:
-      - 0
-      - 32.239975
-      - 0
-      - 0
-      globalNormalsAngle: 78
-      flipNormals: 0
-    vertexPathUpToDate: 1
-    vertexPathMaxAngleError: 0.3
-    vertexPathMinVertexSpacing: 0.01
-    showTransformTool: 1
-    showPathBounds: 0
-    showPerSegmentBounds: 0
-    displayAnchorPoints: 1
-    displayControlPoints: 1
-    bezierHandleScale: 10.33
-    globalDisplaySettingsFoldout: 0
-    keepConstantHandleSize: 0
-    showNormalsInVertexMode: 1
-    showBezierPathInVertexMode: 0
-    showDisplayOptions: 1
-    showPathOptions: 1
-    showVertexPathDisplayOptions: 1
-    showVertexPathOptions: 1
-    showNormals: 1
-    showNormalsHelpInfo: 0
-    tabIndex: 0
-  initialized: 1
 --- !u!4 &1014655458
 Transform:
   m_ObjectHideFlags: 0
@@ -591,6 +531,77 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PATH_Multithreading: 0
+--- !u!114 &1014655460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1014655456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e5ac92bc18f545cc84cd886ece82b4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  editorData:
+    _bezierPath:
+      points:
+      - {x: 7.147073, y: 5.901332, z: 5.511071}
+      - {x: 17.873634, y: 11.264612, z: 5.511071}
+      - {x: 33.69018, y: 26.847198, z: 19.124636}
+      - {x: 36.185787, y: 32.229473, z: 35.082355}
+      - {x: 41.496952, y: 43.684067, z: 69.043686}
+      - {x: 64.66865, y: 60.09732, z: 64.951965}
+      - {x: 87.62575, y: 76.5101, z: 60.87849}
+      - {x: 101.600624, y: 86.5012, z: 58.398808}
+      - {x: 98.743546, y: 89.718, z: 74.3616}
+      - {x: 95.886475, y: 92.9348, z: 90.3244}
+      - {x: 92.048996, y: 97.25545, z: 111.76486}
+      - {x: 109.19351, y: 108.71787, z: 92.34497}
+      - {x: 126.33802, y: 120.1803, z: 72.92509}
+      isClosed: 0
+      space: 0
+      controlMode: 0
+      autoControlLength: 0.3
+      boundsUpToDate: 0
+      bounds:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+      perAnchorNormalsAngle:
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      globalNormalsAngle: 160
+      flipNormals: 0
+      per_anchor_funky_angles:
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+    vertexPathUpToDate: 0
+    vertexPathMaxAngleError: 0.3
+    vertexPathMinVertexSpacing: 0.01
+    showTransformTool: 1
+    showPathBounds: 0
+    showPerSegmentBounds: 0
+    displayAnchorPoints: 1
+    displayControlPoints: 1
+    bezierHandleScale: 1
+    globalDisplaySettingsFoldout: 0
+    keepConstantHandleSize: 1
+    showNormalsInVertexMode: 1
+    showBezierPathInVertexMode: 0
+    showDisplayOptions: 1
+    showPathOptions: 1
+    showVertexPathDisplayOptions: 1
+    showVertexPathOptions: 1
+    showNormals: 1
+    showNormalsHelpInfo: 0
+    tabIndex: 0
+  initialized: 1
 --- !u!1 &1049840150 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 910772e37b7082e4dba40a284c3910e8,
@@ -609,7 +620,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce04afb1ea9d78f4d99ffff58472d6f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pos: {x: 0, y: 0, z: 0}
+  pos: {x: 3.6, y: 0, z: 50}
   euler_rot: {x: 0, y: 0, z: 0}
   pathcreator: {fileID: 0}
   mesh: {fileID: 0}
@@ -707,7 +718,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce04afb1ea9d78f4d99ffff58472d6f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pos: {x: 0, y: 0, z: 20}
+  pos: {x: 0, y: 0, z: 50}
   euler_rot: {x: 0, y: 0, z: 0}
   pathcreator: {fileID: 0}
   mesh: {fileID: 0}
@@ -779,7 +790,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
+      objectReference: {fileID: 2100000, guid: 6e95c4fe035590f45b396c7b98299a54, type: 2}
     - target: {fileID: 919132149155446097, guid: 910772e37b7082e4dba40a284c3910e8,
         type: 3}
       propertyPath: m_Name
@@ -788,7 +799,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 910772e37b7082e4dba40a284c3910e8,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 910772e37b7082e4dba40a284c3910e8, type: 3}

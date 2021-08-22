@@ -22,6 +22,7 @@ namespace PathCreation
         public readonly Vector3[] localPoints;
         public readonly Vector3[] localTangents;
         public readonly Vector3[] localNormals;
+        public readonly float[] funky_angles;
 
         /// Percentage along the path at each vertex (0 being start of path, and 1 being the end)
         public readonly float[] times;
@@ -71,6 +72,8 @@ namespace PathCreation
             localPoints = new Vector3[numVerts];
             localNormals = new Vector3[numVerts];
             localTangents = new Vector3[numVerts];
+            funky_angles = new float[numVerts];
+
             cumulativeLengthAtEachVertex = new float[numVerts];
             times = new float[numVerts];
             bounds = new Bounds((pathSplitData.minMax.Min + pathSplitData.minMax.Max) / 2, pathSplitData.minMax.Max - pathSplitData.minMax.Min);
@@ -80,7 +83,7 @@ namespace PathCreation
             Vector3 lastRotationAxis = up;
 
             // Loop through the data and assign to arrays.
-            for (int i = 0; i < localPoints.Length; i++)
+            for (int i = 0; i < localPoints.Length; ++i)
             {
                 localPoints[i] = pathSplitData.vertices[i];
                 localTangents[i] = pathSplitData.tangents[i];
@@ -147,6 +150,10 @@ namespace PathCreation
                     float endAngle = bezierPath.GetAnchorNormalAngle(nextAnchorIndex) + bezierPath.GlobalNormalsAngle;
                     float deltaAngle = Mathf.DeltaAngle(startAngle, endAngle);
 
+                    float funky_start = bezierPath.GetFunkyAngle(anchorIndex);
+                    float funky_end = bezierPath.GetFunkyAngle(nextAnchorIndex);
+                    float funky_delta = funky_end - funky_start;
+
                     int startVertIndex = pathSplitData.anchorVertexMap[anchorIndex];
                     int endVertIndex = pathSplitData.anchorVertexMap[anchorIndex + 1];
 
@@ -162,6 +169,7 @@ namespace PathCreation
                         float angle = startAngle + deltaAngle * t;
                         Quaternion rot = Quaternion.AngleAxis(angle, localTangents[vertIndex]);
                         localNormals[vertIndex] = (rot * localNormals[vertIndex]) * ((bezierPath.FlipNormals) ? -1 : 1);
+                        funky_angles[vertIndex] = funky_start + (funky_delta * t);
                     }
                 }
             }
@@ -245,7 +253,8 @@ namespace PathCreation
             return Vector3.Lerp(GetPoint(data.previousIndex), GetPoint(data.nextIndex), data.percentBetweenIndices);
         }
 
-        public static bool XZ_EnableRot =  true;
+        public static bool XZ_EnableRot = true;
+
         public Vector3 XZ_GetPointAtTime(float t, Vector3 pos_offset, float x_rot,  EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
         {
             var data = CalculatePercentOnPathData(t, endOfPathInstruction);
@@ -278,9 +287,21 @@ namespace PathCreation
             return Quaternion.LookRotation(MathUtility.TransformDirection(direction, transform, space), MathUtility.TransformDirection(normal, transform, space));
         }
 
+        public float XZ_GetMultForRotOffset(float t)
+        {
+            if (t < 0f) return funky_angles[0];
+            else if (t > 1f) return funky_angles[funky_angles.Length - 1];
+
+            var data = CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
+            return Mathf.Lerp(funky_angles[data.previousIndex], funky_angles[data.nextIndex], data.percentBetweenIndices);
+        }
+
         public Quaternion XZ_GetRotation(float t, float x)
         {
-            x *= 0.01f;
+            x *= XZ_GetMultForRotOffset(t);
+            //Debug.Log(x);
+            //x *= 0.1f;
+
             var data = CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
             Vector3 direction = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
             Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices) + new Vector3(0, 0, x);
