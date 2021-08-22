@@ -1,13 +1,10 @@
 {
-    "name": "PathCreatorEditor",
+    "name": "Xesign.Shared",
     "rootNamespace": "",
     "references": [
-        "PathCreator",
-        "Xesign.Shared"
+        "GUID:75469ad4d38634e559750d17036d5f7c"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

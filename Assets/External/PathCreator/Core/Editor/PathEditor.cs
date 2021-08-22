@@ -135,7 +135,7 @@ namespace PathCreationEditor
                     // If a point has been selected
                     if (handleIndexToDisplayAsTransform != -1)
                     {
-                        EditorGUILayout.LabelField("Selected Point:");
+                        EditorGUILayout.LabelField("Selected Point: %".Parse(handleIndexToDisplayAsTransform / 3));
 
                         using (new EditorGUI.IndentLevelScope())
                         {
@@ -605,12 +605,14 @@ namespace PathCreationEditor
 
             PathHandle.HandleColours handleColours = (isAnchorPoint) ? splineAnchorColours : splineControlColours;
             if (i == handleIndexToDisplayAsTransform)
-            {
                 handleColours.defaultColour = (isAnchorPoint) ? globalDisplaySettings.anchorSelected : globalDisplaySettings.controlSelected;
-            }
+
             var cap = capFunctions[(isAnchorPoint) ? globalDisplaySettings.anchorShape : globalDisplaySettings.controlShape];
             PathHandle.HandleInputType handleInputType;
             handlePosition = PathHandle.DrawHandle(handlePosition, bezierPath.Space, isInteractive, handleSize, cap, handleColours, out handleInputType, i);
+
+            // Draw index as text in the Scene GUI:
+            Handles.Label(handlePosition, (isAnchorPoint ? i / 3 : i).ToString(), EditorStyles.boldLabel);
 
             if (doTransformHandle)
             {

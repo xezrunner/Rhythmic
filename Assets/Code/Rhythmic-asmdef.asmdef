@@ -1,13 +1,11 @@
 {
-    "name": "PathCreatorEditor",
+    "name": "Rhythmic",
     "rootNamespace": "",
     "references": [
-        "PathCreator",
-        "Xesign.Shared"
+        "GUID:626070ea3273cb844a310aa4f53b31fa",
+        "GUID:33566c168fe72eb43a1a9fd50f58eac6"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
