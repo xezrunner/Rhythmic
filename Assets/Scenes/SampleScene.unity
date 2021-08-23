@@ -657,7 +657,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1014655456}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.25, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -692,50 +692,30 @@ MonoBehaviour:
   editorData:
     _bezierPath:
       points:
-      - {x: -35, y: 0, z: 0}
-      - {x: -3.3798265, y: 0, z: 24.329714}
-      - {x: 28.240347, y: 0, z: 48.659428}
-      - {x: 49.076874, y: 0, z: 77.27891}
-      - {x: 68.377846, y: 0, z: 103.78926}
-      - {x: 103.614136, y: -8.214299, z: 143.36348}
-      - {x: 93.28072, y: 0, z: 173.38135}
-      - {x: 80.97188, y: 9.784627, z: 209.13773}
-      - {x: 22.708431, y: 36.639404, z: 227.44928}
-      - {x: -14.958664, y: 44.186043, z: 220.37794}
-      - {x: -47.976765, y: 50.80125, z: 214.17938}
-      - {x: -98.60349, y: 50.65226, z: 178.78061}
-      - {x: -96.585464, y: 40.81691, z: 146.04573}
-      - {x: -90.93132, y: 13.260057, z: 54.328598}
-      - {x: 31.693794, y: -22.342552, z: 24.256508}
-      - {x: 154.31891, y: -57.94516, z: -5.8155823}
+      - {x: -2, y: 0, z: 0}
+      - {x: -1, y: 0.5, z: 0}
+      - {x: 3.1684527, y: 8.327034, z: 12.169849}
+      - {x: -8.180656, y: 10.37377, z: 24.194931}
       isClosed: 0
       space: 0
-      controlMode: 3
-      autoControlLength: 0.31
+      controlMode: 0
+      autoControlLength: 0.3
       boundsUpToDate: 0
       bounds:
-        m_Center: {x: 23.90445, y: 20.03795, z: -27.435072}
-        m_Extent: {x: 58.90445, y: 24.785154, z: 54.34207}
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
       perAnchorNormalsAngle:
       - 0
       - 0
-      - 0
-      - 180
-      - 0
-      - 0
-      globalNormalsAngle: 90
+      globalNormalsAngle: 0
       flipNormals: 0
       per_anchor_funky_angles:
-      - 2
-      - 1.867
-      - 5
-      - -12.5
       - 0
       - 0
       funky_angle_global: 0
-      funky_angle_global_offset: -10.94
-    vertexPathUpToDate: 0
-    vertexPathMaxAngleError: 0
+      funky_angle_global_offset: 0
+    vertexPathUpToDate: 1
+    vertexPathMaxAngleError: 0.3
     vertexPathMinVertexSpacing: 0.1
     showTransformTool: 1
     showPathBounds: 0

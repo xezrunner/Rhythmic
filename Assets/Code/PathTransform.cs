@@ -36,9 +36,9 @@ public partial class PathTransform : MonoBehaviour
         //trans = transform;
 
         // MeshDeformer:
-        deformer = MeshDeformer.Instance;
-        if (!deformer)
-        { LogE("MeshDeformer instance not found! - %".T(this), gameObject.name); return; }
+        //deformer = MeshDeformer.Instance;
+        //if (!deformer)
+        //{ LogE("MeshDeformer instance not found! - %".T(this), gameObject.name); return; }
 
         // PathCreator and path:
         if (!pathcreator) pathcreator = FindObjectOfType<PathCreator>();
