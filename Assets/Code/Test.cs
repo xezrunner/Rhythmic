@@ -27,15 +27,15 @@ public class Test : MonoBehaviour
 
         GameObject m = (GameObject)Resources.Load("Models/track_bottom");
 
-        float d = 25;
+        float d = 0;
 
-        for (int i = 0; i < 7*6; ++i)
+        for (int i = 0; i < (path.length / 30)*6; ++i)
         {
             GameObject obj = Instantiate(m);
             PathTransform t = obj.AddComponent<PathTransform>();
             t.pos = new Vector3(10.8f - (3.6f * (i % 6)), 0, d);
 
-            if (i % 6 == 0) d += 25;
+            if (i % 6 == 0) d += 30;
         }
 
         st.Stop();
