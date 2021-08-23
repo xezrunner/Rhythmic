@@ -1,7 +1,6 @@
 using PathCreation;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 using static Logger;
 
@@ -9,13 +8,6 @@ using static Logger;
 public partial class PathTransform : MonoBehaviour
 {
     //Transform trans;
-    MeshDeformer deformer;
-
-    Vector3 prev_pos;
-    [HideInInspector] public Vector3 pos;
-
-    Vector3 prev_rot;
-    [HideInInspector] public Vector3 euler_rot;
 
     public PathCreator pathcreator;
     public VertexPath path { get { return pathcreator.path; } }
@@ -26,19 +18,19 @@ public partial class PathTransform : MonoBehaviour
     public int vertex_count;
     List<Vector3> OG_vertices;
     List<Vector3> vertices;
-
     Vector3 max_values;
 
     public bool AutoDeform = true;
 
+    Vector3 prev_pos;
+    [HideInInspector] public Vector3 pos;
+
+    Vector3 prev_rot;
+    [HideInInspector] public Vector3 euler_rot;
+
     void Awake()
     {
         //trans = transform;
-
-        // MeshDeformer:
-        //deformer = MeshDeformer.Instance;
-        //if (!deformer)
-        //{ LogE("MeshDeformer instance not found! - %".T(this), gameObject.name); return; }
 
         // PathCreator and path:
         if (!pathcreator) pathcreator = FindObjectOfType<PathCreator>();
@@ -53,8 +45,6 @@ public partial class PathTransform : MonoBehaviour
 
         Deform();
     }
-
-    private void Pathcreator_pathUpdated() => Deform();
 
     void InitMesh()
     {
@@ -81,60 +71,18 @@ public partial class PathTransform : MonoBehaviour
             Mathf.Abs(OG_vertices.Max(v => v.y)),
             Mathf.Abs(OG_vertices.Max(v => v.z)));
     }
-
-    void OnDestroy() => pathcreator.pathUpdated -= Pathcreator_pathUpdated;
-
     public void Restore_OG() => mesh.SetVertices(OG_vertices);
 
     void Update()
     {
         if (!AutoDeform) return;
+        if (prev_pos == pos && prev_rot == euler_rot) return;
 
-        //if (AutoDeform && trans.hasChanged)
-        //    Deform();
-
-        if (prev_pos != pos || prev_rot != euler_rot)
-        {
-            prev_pos = pos;
-            prev_rot = euler_rot;
-            Deform();
-        }
+        prev_pos = pos;
+        prev_rot = euler_rot;
+        Deform();
     }
 
-    // Unity Menu item for creating a new PathTransform object
-    [MenuItem("GameObject/Create PathTransform object", priority = 0)]
-    public static void Create()
-    {
-        GameObject obj = new GameObject() { name = "PathTransform object" };
-        obj.AddComponent<PathTransform>();
-    }
-}
-
-[CustomEditor(typeof(PathTransform))]
-[CanEditMultipleObjects]
-public class PathTransformEditor : Editor
-{
-    PathTransform main;
-    void Awake() => main = (PathTransform)target;
-
-    SerializedProperty pos;
-    SerializedProperty rot;
-
-    void OnEnable()
-    {
-        pos = serializedObject.FindProperty("pos");
-        rot = serializedObject.FindProperty("euler_rot");
-    }
-
-    public override void OnInspectorGUI()
-    {
-        serializedObject.Update();
-
-        EditorGUILayout.PropertyField(pos);
-        EditorGUILayout.PropertyField(rot);
-
-        serializedObject.ApplyModifiedProperties();
-
-        base.OnInspectorGUI();
-    }
+    private void Pathcreator_pathUpdated() => Deform();
+    void OnDestroy() => pathcreator.pathUpdated -= Pathcreator_pathUpdated;
 }

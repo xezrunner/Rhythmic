@@ -3,7 +3,7 @@ using static Logger;
 
 public partial class PathTransform
 {
-    int deform_counter = -1;
+    // int deform_counter = -1;
     public void Deform()
     {
         if (Application.isEditor && !Application.isPlaying) return;
