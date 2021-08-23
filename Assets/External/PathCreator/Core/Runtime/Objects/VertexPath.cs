@@ -28,6 +28,8 @@ namespace PathCreation
         public readonly Vector3[] localTangents;
         public readonly Vector3[] localNormals;
         public readonly float[] funky_angles;
+        public float funky_angle_global;
+        public float funky_angle_global_offset;
 
         /// Percentage along the path at each vertex (0 being start of path, and 1 being the end)
         public readonly float[] times;
@@ -81,6 +83,8 @@ namespace PathCreation
             localNormals = new Vector3[numVerts];
             localTangents = new Vector3[numVerts];
             funky_angles = new float[numVerts];
+            funky_angle_global = bezierPath.funky_angle_global;
+            funky_angle_global_offset = bezierPath.funky_angle_global_offset;
 
             cumulativeLengthAtEachVertex = new float[numVerts];
             times = new float[numVerts];
@@ -233,10 +237,13 @@ namespace PathCreation
             return GetPointAtTime(t, endOfPathInstruction);
         }
 
-        public Vector3 XZ_GetPointAtDistance(float dst, Vector3 pos, float x_rot = 0f, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
+        public Vector3 XZ_GetPointAtDistance(float dst, Vector3 pos = default, float x_rot = 0f, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
         {
             float t = dst / length;
-            return XZ_GetPointAtTime(t, pos, x_rot, endOfPathInstruction);
+
+            Vector3 result = XZ_GetPointAtTime(t, pos, x_rot, endOfPathInstruction);
+
+            return result;
         }
 
         /// Gets forward direction on path based on distance travelled.
@@ -260,7 +267,7 @@ namespace PathCreation
             return GetRotation(t, endOfPathInstruction);
         }
 
-        public Quaternion XZ_GetRotationAtDistance(float dst, float x, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
+        public Quaternion XZ_GetRotationAtDistance(float dst, float x = 0f, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
         {
             float t = dst / length;
             return XZ_GetRotation(t, x);
@@ -279,7 +286,17 @@ namespace PathCreation
         {
             var data = CalculatePercentOnPathData(t, endOfPathInstruction);
             var rot = XZ_GetRotation(t, XZ_EnableRot ? x_rot : 0f);
-            return Vector3.Lerp(GetPoint(data.previousIndex), GetPoint(data.nextIndex), data.percentBetweenIndices) + (rot * pos_offset);
+            Vector3 result = Vector3.Lerp(GetPoint(data.previousIndex), GetPoint(data.nextIndex), data.percentBetweenIndices) + (rot * pos_offset);
+
+            // If we are before or beyond the path, 'extrapolate':
+            if (t < 0 || t > 1)
+            {
+                // Subtract the length if we are beyond the path, to get the delta between the desired and full length:
+                float z = (t * length) - (t > 1 ? length : 0);
+                result += rot * new Vector3(0, 0, z); // Add as Z
+            }
+
+            return result;
         }
 
         /// Gets forward direction on path based on 'time' (where 0 is start, and 1 is end of path).
@@ -321,20 +338,23 @@ namespace PathCreation
 
         public float XZ_GetMultForRotOffset(float t)
         {
-            if (t < 0f) return funky_angles[0];
-            else if (t > 1f) return funky_angles[funky_angles.Length - 1];
+            if (t < 0f) return (funky_angle_global + funky_angles[0]);
+            else if (t > 1f) return (funky_angle_global + funky_angles[funky_angles.Length - 1]);
 
             var data = CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
-            return Mathf.Lerp(funky_angles[data.previousIndex], funky_angles[data.nextIndex], data.percentBetweenIndices);
+            return funky_angle_global + Mathf.Lerp(funky_angles[data.previousIndex], funky_angles[data.nextIndex], data.percentBetweenIndices);
         }
 
         public Quaternion XZ_GetRotation(float t, float x)
         {
+            x += funky_angle_global_offset;
             x *= XZ_GetMultForRotOffset(t);
+            x *= 0.01f;
 
             var data = CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
             Vector3 direction = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
-            Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices) + new Vector3(0, 0, x);
+            Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices)
+                       + new Vector3(0, 0, x);
 #if XZ_OPTIMIZE_TRANS
             return Quaternion.LookRotation(direction, normal);
 #else
@@ -363,9 +383,9 @@ namespace PathCreation
             return Mathf.Lerp(cumulativeLengthAtEachVertex[data.previousIndex], cumulativeLengthAtEachVertex[data.nextIndex], data.percentBetweenIndices);
         }
 
-#endregion
+        #endregion
 
-#region Internal methods
+        #region Internal methods
 
         /// For a given value 't' between 0 and 1, calculate the indices of the two vertices before and after t. 
         /// Also calculate how far t is between those two vertices as a percentage between 0 and 1.
@@ -473,7 +493,7 @@ namespace PathCreation
             }
         }
 
-#endregion
+        #endregion
 
     }
 

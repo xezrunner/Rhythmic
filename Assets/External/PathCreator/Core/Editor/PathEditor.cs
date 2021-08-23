@@ -132,6 +132,23 @@ namespace PathCreationEditor
                         handleIndexToDisplayAsTransform = -1;
                     }
 
+                    // TODO: naming!
+                    var xz_g_currentfunky = creator.bezierPath.funky_angle_global;
+                    var xz_g_funkyangle = EditorGUILayout.FloatField("Global funky angle", xz_g_currentfunky);
+                    if (xz_g_funkyangle != xz_g_currentfunky)
+                    {
+                        Undo.RecordObject(creator, "Set Global funky angle");
+                        creator.bezierPath.SetGlobalFunkyAngle(xz_g_funkyangle);
+                    }
+
+                    var xz_g_currentfunky_offset = creator.bezierPath.funky_angle_global_offset;
+                    var xz_g_funkyangle_offset = EditorGUILayout.FloatField("Global funky angle offset", xz_g_currentfunky_offset);
+                    if (xz_g_funkyangle_offset != xz_g_currentfunky_offset)
+                    {
+                        Undo.RecordObject(creator, "Set Global funky angle offset");
+                        creator.bezierPath.SetGlobalFunkyAngleOffset(xz_g_funkyangle_offset);
+                    }
+
                     // If a point has been selected
                     if (handleIndexToDisplayAsTransform != -1)
                     {

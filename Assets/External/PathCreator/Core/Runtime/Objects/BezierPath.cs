@@ -48,6 +48,10 @@ namespace PathCreation
 
         [SerializeField, HideInInspector]
         List<float> per_anchor_funky_angles;
+        [SerializeField, HideInInspector]
+        public float funky_angle_global;
+        [SerializeField, HideInInspector]
+        public float funky_angle_global_offset;
 
         #endregion
 
@@ -579,6 +583,18 @@ namespace PathCreation
             if (per_anchor_funky_angles[index] == angle) return;
 
             per_anchor_funky_angles[index] = angle;
+            NotifyPathModified();
+        }
+
+        public void SetGlobalFunkyAngle(float angle)
+        {
+            funky_angle_global = angle;
+            NotifyPathModified();
+        }
+
+        public void SetGlobalFunkyAngleOffset(float offset)
+        {
+            funky_angle_global_offset = offset;
             NotifyPathModified();
         }
 

@@ -20,6 +20,9 @@ public class Test : MonoBehaviour
 
     void Start()
     {
+        Vector3 v = path.XZ_GetPointAtDistance(0f);
+        Vector3 v1 = path.XZ_GetPointAtDistance(-10f);
+
         Stopwatch st = Stopwatch.StartNew();
 
         GameObject m = (GameObject)Resources.Load("Models/track_bottom");
@@ -30,7 +33,7 @@ public class Test : MonoBehaviour
         {
             GameObject obj = Instantiate(m);
             PathTransform t = obj.AddComponent<PathTransform>();
-            t.pos = new Vector3(3.6f * (i % 6), 0, d);
+            t.pos = new Vector3(10.8f - (3.6f * (i % 6)), 0, d);
 
             if (i % 6 == 0) d += 25;
         }
