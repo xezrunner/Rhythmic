@@ -20,7 +20,7 @@ public partial class PathTransform : MonoBehaviour
     public PathCreator pathcreator;
     public VertexPath path { get { return pathcreator.path; } }
 
-    MeshFilter mesh_filter;
+    public MeshFilter mesh_filter;
     public Mesh mesh;
 
     public int vertex_count;
@@ -58,6 +58,12 @@ public partial class PathTransform : MonoBehaviour
 
     void InitMesh()
     {
+        if (mesh_filter.sharedMesh == null)
+        {
+            LogW("There is no mesh for the PathTransform object %.", gameObject.name);
+            return;
+        }
+
         mesh = mesh_filter.mesh;
         vertex_count = mesh.vertexCount;
 

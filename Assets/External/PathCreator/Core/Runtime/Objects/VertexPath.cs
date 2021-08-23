@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#define XZ_OPTIMIZE_TRANS
+
+using System.Collections.Generic;
 using PathCreation.Utility;
 using UnityEngine;
 
@@ -15,6 +17,9 @@ namespace PathCreation
 
     public class VertexPath
     {
+        public Transform trans;
+        public Vector3 trans_pos;
+
         #region Fields
 
         public readonly PathSpace space;
@@ -64,6 +69,9 @@ namespace PathCreation
         VertexPath(BezierPath bezierPath, VertexPathUtility.PathSplitData pathSplitData, Transform transform)
         {
             this.transform = transform;
+            trans = transform;
+            trans_pos = trans.position;
+
             space = bezierPath.Space;
             isClosedLoop = bezierPath.IsClosed;
             int numVerts = pathSplitData.vertices.Count;
@@ -193,61 +201,73 @@ namespace PathCreation
 
         public Vector3 GetTangent(int index)
         {
+#if XZ_OPTIMIZE_TRANS 
+            return trans_pos + localTangents[index];
+#else
             return MathUtility.TransformDirection(localTangents[index], transform, space);
+#endif
         }
 
         public Vector3 GetNormal(int index)
         {
+#if XZ_OPTIMIZE_TRANS
+            return trans_pos + localNormals[index];
+#else
             return MathUtility.TransformDirection(localNormals[index], transform, space);
+#endif
         }
 
         public Vector3 GetPoint(int index)
         {
+#if XZ_OPTIMIZE_TRANS
+            return trans_pos + localPoints[index];
+#else
             return MathUtility.TransformPoint(localPoints[index], transform, space);
+#endif
         }
 
         /// Gets point on path based on distance travelled.
-        public Vector3 GetPointAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
+        public Vector3 GetPointAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
         {
             float t = dst / length;
             return GetPointAtTime(t, endOfPathInstruction);
         }
 
-        public Vector3 XZ_GetPointAtDistance(float dst, Vector3 pos, float x_rot = 0f, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
+        public Vector3 XZ_GetPointAtDistance(float dst, Vector3 pos, float x_rot = 0f, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
         {
             float t = dst / length;
             return XZ_GetPointAtTime(t, pos, x_rot, endOfPathInstruction);
         }
 
         /// Gets forward direction on path based on distance travelled.
-        public Vector3 GetDirectionAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
+        public Vector3 GetDirectionAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
         {
             float t = dst / length;
             return GetDirection(t, endOfPathInstruction);
         }
 
         /// Gets normal vector on path based on distance travelled.
-        public Vector3 GetNormalAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
+        public Vector3 GetNormalAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
         {
             float t = dst / length;
             return GetNormal(t, endOfPathInstruction);
         }
 
         /// Gets a rotation that will orient an object in the direction of the path at this point, with local up point along the path's normal
-        public Quaternion GetRotationAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
+        public Quaternion GetRotationAtDistance(float dst, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
         {
             float t = dst / length;
             return GetRotation(t, endOfPathInstruction);
         }
 
-        public Quaternion XZ_GetRotationAtDistance(float dst, float x, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
+        public Quaternion XZ_GetRotationAtDistance(float dst, float x, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
         {
             float t = dst / length;
             return XZ_GetRotation(t, x);
         }
 
         /// Gets point on path based on 'time' (where 0 is start, and 1 is end of path).
-        public Vector3 GetPointAtTime(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
+        public Vector3 GetPointAtTime(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
         {
             var data = CalculatePercentOnPathData(t, endOfPathInstruction);
             return Vector3.Lerp(GetPoint(data.previousIndex), GetPoint(data.nextIndex), data.percentBetweenIndices);
@@ -255,7 +275,7 @@ namespace PathCreation
 
         public static bool XZ_EnableRot = true;
 
-        public Vector3 XZ_GetPointAtTime(float t, Vector3 pos_offset, float x_rot,  EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
+        public Vector3 XZ_GetPointAtTime(float t, Vector3 pos_offset, float x_rot, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
         {
             var data = CalculatePercentOnPathData(t, endOfPathInstruction);
             var rot = XZ_GetRotation(t, XZ_EnableRot ? x_rot : 0f);
@@ -263,28 +283,40 @@ namespace PathCreation
         }
 
         /// Gets forward direction on path based on 'time' (where 0 is start, and 1 is end of path).
-        public Vector3 GetDirection(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
+        public Vector3 GetDirection(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
         {
             var data = CalculatePercentOnPathData(t, endOfPathInstruction);
             Vector3 dir = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
+#if XZ_OPTIMIZE_TRANS
+            return dir;
+#else
             return MathUtility.TransformDirection(dir, transform, space);
+#endif
         }
 
         /// Gets normal vector on path based on 'time' (where 0 is start, and 1 is end of path).
-        public Vector3 GetNormal(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
+        public Vector3 GetNormal(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
         {
             var data = CalculatePercentOnPathData(t, endOfPathInstruction);
             Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices);
+#if XZ_OPTIMIZE_TRANS
+            return normal;
+#else
             return MathUtility.TransformDirection(normal, transform, space);
+#endif
         }
 
         /// Gets a rotation that will orient an object in the direction of the path at this point, with local up point along the path's normal
-        public Quaternion GetRotation(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Loop)
+        public Quaternion GetRotation(float t, EndOfPathInstruction endOfPathInstruction = EndOfPathInstruction.Stop)
         {
             var data = CalculatePercentOnPathData(t, endOfPathInstruction);
             Vector3 direction = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
             Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices);
+#if XZ_OPTIMIZE_TRANS
+            return Quaternion.LookRotation(direction, normal);
+#else
             return Quaternion.LookRotation(MathUtility.TransformDirection(direction, transform, space), MathUtility.TransformDirection(normal, transform, space));
+#endif
         }
 
         public float XZ_GetMultForRotOffset(float t)
@@ -299,13 +331,15 @@ namespace PathCreation
         public Quaternion XZ_GetRotation(float t, float x)
         {
             x *= XZ_GetMultForRotOffset(t);
-            //Debug.Log(x);
-            //x *= 0.1f;
 
             var data = CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
             Vector3 direction = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
             Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices) + new Vector3(0, 0, x);
+#if XZ_OPTIMIZE_TRANS
+            return Quaternion.LookRotation(direction, normal);
+#else
             return Quaternion.LookRotation(MathUtility.TransformDirection(direction, transform, space), MathUtility.TransformDirection(normal, transform, space));
+#endif
         }
 
         /// Finds the closest point on the path from any point in the world
@@ -329,9 +363,9 @@ namespace PathCreation
             return Mathf.Lerp(cumulativeLengthAtEachVertex[data.previousIndex], cumulativeLengthAtEachVertex[data.nextIndex], data.percentBetweenIndices);
         }
 
-        #endregion
+#endregion
 
-        #region Internal methods
+#region Internal methods
 
         /// For a given value 't' between 0 and 1, calculate the indices of the two vertices before and after t. 
         /// Also calculate how far t is between those two vertices as a percentage between 0 and 1.
@@ -439,7 +473,7 @@ namespace PathCreation
             }
         }
 
-        #endregion
+#endregion
 
     }
 
