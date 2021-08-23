@@ -547,6 +547,7 @@ MonoBehaviour:
   speed: 20
   offset: {x: -7.6, y: 5, z: 0}
   rot_offset: {x: 23, y: 0, z: 0}
+  smooth: 1
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -657,7 +658,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1014655456}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.25, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -693,24 +694,49 @@ MonoBehaviour:
     _bezierPath:
       points:
       - {x: -2, y: 0, z: 0}
-      - {x: -1, y: 0.5, z: 0}
-      - {x: 3.1684527, y: 8.327034, z: 12.169849}
-      - {x: -8.180656, y: 10.37377, z: 24.194931}
+      - {x: 8.371212, y: 0, z: -4.1529083}
+      - {x: 13.931816, y: 0, z: -6.278028}
+      - {x: 24.429445, y: 0, z: -4.6732063}
+      - {x: 35.37298, y: 0, z: -3.0002174}
+      - {x: 42.950665, y: -0.08174273, z: 16.194532}
+      - {x: 43.869026, y: -0.000022888184, z: 29.109863}
+      - {x: 45.107777, y: 0.110206604, z: 46.53097}
+      - {x: 54.06357, y: 1.6600571, z: 59.367767}
+      - {x: 71.97089, y: 0, z: 68.211876}
+      - {x: 107.85889, y: -3.3269155, z: 85.936325}
+      - {x: 147.74246, y: 0.0000038146973, z: 57.85074}
+      - {x: 172.38953, y: 0.0000076293945, z: 32.384674}
+      - {x: 202.23175, y: 0.0000122481615, z: 1.5508194}
+      - {x: 181.89139, y: 0, z: -38.174828}
+      - {x: 145.4483, y: 0, z: -49.097282}
+      - {x: 120.94321, y: 0, z: -56.441772}
+      - {x: 83.279755, y: 0, z: -40.837456}
+      - {x: 93.90358, y: 0, z: 3.5090847}
       isClosed: 0
       space: 0
       controlMode: 0
       autoControlLength: 0.3
       boundsUpToDate: 0
       bounds:
-        m_Center: {x: 0, y: 0, z: 0}
-        m_Extent: {x: 0, y: 0, z: 0}
+        m_Center: {x: 34.985443, y: 0, z: 31.501238}
+        m_Extent: {x: 36.985443, y: 0, z: 36.71064}
       perAnchorNormalsAngle:
       - 0
       - 0
-      globalNormalsAngle: 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      globalNormalsAngle: 90
       flipNormals: 0
       per_anchor_funky_angles:
       - 0
+      - 0
+      - 0
+      - 0
+      - -10
+      - -2
       - 0
       funky_angle_global: 0
       funky_angle_global_offset: 0
