@@ -41,22 +41,26 @@ public class PlayerLocomotion : MonoBehaviour
         LOCOMOTION_Step();
     }
 
+    public float rot_smoothness = 0.5f;
+    Quaternion rot_ref;
     public void LOCOMOTION_Step()
     {
-        if (!temp_isplaying || !pathcreator) return;
+        if (!pathcreator) return;
 
         // TODO: separate interp-able vs non-interp-able
         trans.localPosition = path.XZ_GetPointAtDistance(distance, pos_offset, pos_offset.x);
-        trans.localRotation = path.XZ_GetRotationAtDistance(distance, pos_offset.x) * Quaternion.Euler(rot_offset); // TODO: simpify this! (?)
+        // trans.localRotation = path.XZ_GetRotationAtDistance(distance, pos_offset.x) * Quaternion.Euler(rot_offset); // TODO: simpify this! (?)
+        trans.localRotation = QuaternionUtil.SmoothDamp(trans.localRotation, path.XZ_GetRotationAtDistance(distance, pos_offset.x) * Quaternion.Euler(rot_offset), ref rot_ref, rot_smoothness);
     }
 
     public float temp_speed = 5f;
     public bool temp_isplaying = false;
     public void Update()
     {
-        if (!temp_isplaying || !pathcreator) return;
+        if (!pathcreator) return;
         LOCOMOTION_Step();
 
+        if (!temp_isplaying) return;
         distance += temp_speed * Time.deltaTime;
     }
 }
