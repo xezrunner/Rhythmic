@@ -46,7 +46,7 @@ public class Test : MonoBehaviour
         //}
 
         st.Stop();
-        Log("Generated % objects - time: %ms", (path.length / 30) * 6, st.ElapsedMilliseconds);
+        Log("Generated % objects - time: %ms", (int)(path.length / 30) * 6, st.ElapsedMilliseconds);
     }
 
     float dist_smooth;
