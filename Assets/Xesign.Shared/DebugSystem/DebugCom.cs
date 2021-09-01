@@ -11,7 +11,7 @@ public class DebugComAttribute : Attribute
         this.update_freq = update_freq;
     }
 
-    public bool is_prefab { get { return prefab_path != null; } }
+    public bool is_prefab { get { return !prefab_path.IsEmpty(); } }
     public string prefab_path = null;
     public float update_freq = -1;
 }
@@ -19,17 +19,16 @@ public class DebugComAttribute : Attribute
 public class DebugCom : MonoBehaviour
 {
     public DebugComAttribute Attribute;
-    public Transform Prefab_Parent;
+    [HideInInspector] public Transform Prefab_Parent;
 
-    public void Awake()
+    public virtual void Awake()
     {
         Attribute = (DebugComAttribute)System.Attribute.GetCustomAttribute(GetType(), typeof(DebugComAttribute));
         if (Attribute == null) Attribute = new DebugComAttribute();
-    }
-    public void Start()
-    {
+
         // In case we have specified a prefab, but no parent was assigned:
-        if (Attribute.is_prefab && !Prefab_Parent)
+        // TODO: Revisit a way that we could check for whether a prefab has a parent transform!
+        if (Attribute.is_prefab && gameObject.name == "DebugSystem")
         {
             DebugSystem.Instance.AddUIDebugPrefab(Attribute.prefab_path);
             Destroy(this);
@@ -41,8 +40,8 @@ public class DebugCom : MonoBehaviour
         else Destroy(this);
     }
 
-    public string id; // TODO: Performance!
-    public string text;
+    [HideInInspector] public string id; // TODO: Performance!
+    [HideInInspector] public string text;
 
     public void Clear() => text = "";
     public void Write(string t, params object[] args) => text += t.Parse(args); // TODO: Performance?

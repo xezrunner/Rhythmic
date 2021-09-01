@@ -827,7 +827,7 @@ MonoBehaviour:
   distance: 0
   rot_smoothness: 0.5
   temp_speed: 80
-  temp_isplaying: 1
+  temp_isplaying: 0
 --- !u!114 &1645221816
 MonoBehaviour:
   m_ObjectHideFlags: 0

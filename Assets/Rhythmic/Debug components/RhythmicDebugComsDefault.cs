@@ -6,7 +6,8 @@ public class RhythmicDebugComsDefault : DebugSystemStartupComs
 {
     List<Type> list = new List<Type>()
     {
-        typeof(ExampleDebugCom),
+        //typeof(ExampleDebugCom),
+        typeof(DebugConsole),
     };
 
     public override List<Type> GetStartupComsTypeList() => list;

@@ -59,8 +59,9 @@ public class DebugSystem : MonoBehaviour
             return;
 
         DebugCom com = (DebugCom)gameObject.AddComponent(type);
+        if (!com) return;
+
         if (id != "") com.id = id; // Assign ID in case we want a component to be unique
-        components.Add(com);
     }
     public void AddUIDebugPrefab(string prefab_path, string id = "")
     {
@@ -68,6 +69,8 @@ public class DebugSystem : MonoBehaviour
         if (!prefab && LogE("Prefab was null! - '%'".TM(this), prefab_path)) return;
 
         GameObject obj = Instantiate(prefab, UI_Canvas.transform);
+        obj.name.Insert(0, "dP - ");
+
         DebugCom com = obj.GetComponent<DebugCom>();
         com.Prefab_Parent = obj.transform;
 
@@ -164,7 +167,7 @@ public class DebugSystem : MonoBehaviour
     [MenuItem("GameObject/Create DebugSystem", priority = 0)]
     public static void CreateDebugSystemPrefab()
     {
-        UnityEngine.Object prefab = Resources.Load("Prefabs/DebugSystem");
+        UnityEngine.Object prefab = Resources.Load("Prefabs/DebugSystem/DebugSystem");
         PrefabUtility.InstantiatePrefab(prefab);
     }
 #endif

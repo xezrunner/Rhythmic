@@ -22,7 +22,7 @@ public class TrackStreamer : MonoBehaviour
 
     public void Start()
     {
-        Test();
+        //Test();
     }
 
     #region Testing
