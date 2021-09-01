@@ -1,4 +1,7 @@
+#define DYNAMIC
+
 using PathCreation;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,18 +10,25 @@ using static Logger;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public partial class PathTransform : MonoBehaviour
 {
+    public static bool PATHTRANSFORM_DynamicUpdate = false;
+
     //Transform trans;
 
+    public static PathCreator pathcreator_global;
     public PathCreator pathcreator;
+#if UNITY_EDITOR && DYNAMIC // || UNITY_EDITOR
     public VertexPath path { get { return pathcreator.path; } }
+#else
+    public VertexPath path;
+#endif
 
     public MeshFilter mesh_filter;
-    public Mesh mesh;
+    [NonSerialized] public Mesh mesh;
 
     public int vertex_count;
     List<Vector3> OG_vertices;
     List<Vector3> vertices;
-    Vector3 max_values;
+    [NonSerialized] public Vector3 max_values;
 
     public bool AutoDeform = true;
 
@@ -32,15 +42,30 @@ public partial class PathTransform : MonoBehaviour
     {
         //trans = transform;
 
-        // PathCreator and path:
-        if (!pathcreator) pathcreator = FindObjectOfType<PathCreator>();
+        // PathCreator and path: | TODO: Improve this!
         if (!pathcreator)
-        { LogW("No PathCreators were found! - %".T(this), gameObject.name); return; }
-        //path = pathcreator.path;
-        pathcreator.pathUpdated += Pathcreator_pathUpdated;
+        {
+            if (!pathcreator_global) pathcreator_global = FindObjectOfType<PathCreator>();
+            if (!pathcreator_global && LogE("Could not find a global PathCreator candidate!".T(this))) return;
+
+            pathcreator = pathcreator_global;
+        }
+
+        if (!pathcreator && LogW("No PathCreators were found! - %".T(this), gameObject.name)) return;
+
+        // Assign path once in release builds for performance:
+#if !UNITY_EDITOR || !DYNAMIC //!UNITY_EDITOR
+        path = pathcreator.path;
+#endif
+
+        // Subscribe to path update events to reflect path changes dynamically:
+#if DYNAMIC && UNITY_EDITOR
+        if (PATHTRANSFORM_DynamicUpdate)
+            pathcreator.pathUpdated += Pathcreator_pathUpdated;
+#endif
 
         // Mesh:
-        mesh_filter = GetComponent<MeshFilter>();
+        if (!mesh_filter) mesh_filter = GetComponent<MeshFilter>();
         InitMesh();
 
         Deform();
@@ -84,5 +109,8 @@ public partial class PathTransform : MonoBehaviour
     }
 
     private void Pathcreator_pathUpdated() => Deform();
+
+#if UNITY_EDITOR && DYNAMIC
     void OnDestroy() => pathcreator.pathUpdated -= Pathcreator_pathUpdated;
+#endif
 }
