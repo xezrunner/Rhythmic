@@ -319,7 +319,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startup_manager: {fileID: 0}
   components: []
-  UI_Canvas: {fileID: 3539898943129461173}
+  UI_Canvas: {fileID: 3539898943129461168}
   DebugMenu_Text: {fileID: 5079922551261014443}
   QuickLine_Text: {fileID: 3992068257007854915}
   DebugComponent_Text: {fileID: 1931637837459889470}

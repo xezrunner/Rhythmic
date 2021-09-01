@@ -14,7 +14,7 @@ public class DebugSystem : MonoBehaviour
     public List<DebugCom> components = new List<DebugCom>();
 
     [Header("Content references")]
-    public Canvas UI_Canvas;
+    public RectTransform UI_Canvas;
     public TMP_Text DebugMenu_Text;
     public TMP_Text QuickLine_Text;
     public TMP_Text DebugComponent_Text;
@@ -61,7 +61,7 @@ public class DebugSystem : MonoBehaviour
         DebugCom com = (DebugCom)gameObject.AddComponent(type);
         if (!com) return;
 
-        if (id != "") com.id = id; // Assign ID in case we want a component to be unique
+        if (id != "") com.com_id = id; // Assign ID in case we want a component to be unique
     }
     public void AddUIDebugPrefab(string prefab_path, string id = "")
     {
@@ -81,7 +81,7 @@ public class DebugSystem : MonoBehaviour
             return;
         }
 
-        if (id != "") com.id = id;
+        if (id != "") com.com_id = id;
         components.Add(com);
     }
 
@@ -93,7 +93,7 @@ public class DebugSystem : MonoBehaviour
         // Remove all occurances of given type.
         int found = 0;
         foreach (DebugCom com in components)
-            if (com.GetType() == type) { com.Destroy(); ++found; }
+            if (com.GetType() == type) { com.Com_Destroy(); ++found; }
 
         if (found == 0) LogW("There was no component of type '%'.".T(this), type.Name);
     }
@@ -101,7 +101,7 @@ public class DebugSystem : MonoBehaviour
     {
         // Remove unique item.
         foreach (DebugCom com in components)
-            if (com.id == id) { com.Destroy(); return; }
+            if (com.com_id == id) { com.Com_Destroy(); return; }
 
         LogW("There was no component with ID '%'.".T(this), id);
     }
@@ -137,7 +137,7 @@ public class DebugSystem : MonoBehaviour
     public void HandleCurrentComponent()
     {
         if (!CurrentComponent) return;
-        DebugComponent_Text.SetText(CurrentComponent.Main());
+        DebugComponent_Text.SetText(CurrentComponent.Com_Main());
     }
 
     float elapsed_t;

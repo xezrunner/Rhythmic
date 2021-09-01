@@ -1,35 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 [DebugCom("Prefabs/DebugSystem/DebugConsole")]
-public class DebugConsole : DebugCom
+public partial class DebugConsole : DebugCom
 {
-    public RectTransform UI_Panel_Trans;
-
-    public RectTransform UI_TextContainer;
-    public TMP_InputField UI_InputField;
+    public static DebugConsole Instance;
+    DebugSystem DebugSystem;
 
     public override void Awake()
     {
         base.Awake();
-        // UI_Line_Prefab = (GameObject)Resources.Load("Prefabs/DebugSystem/DebugConsoleLine");
+        Instance = this;
+        DebugSystem = DebugSystem.Instance;
     }
 
-    public GameObject UI_Line_Prefab;
-    public void UI_AddLine(string text, Color? color = null)
+    public void Update()
     {
-        GameObject obj = Instantiate(UI_Line_Prefab, UI_TextContainer);
-        TMP_Text line = obj.GetComponent<TMP_Text>();
-
-        line.SetText(text);
-        if (color.HasValue) line.color = color.Value;
-    }
-
-    public void UI_ClearLines()
-    {
-        foreach (RectTransform t in UI_TextContainer)
-            Destroy(t);
+        UPDATE_Input();
+        UPDATE_Openness();
+        UPDATE_Scroll();
     }
 }

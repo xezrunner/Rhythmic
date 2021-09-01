@@ -6,17 +6,17 @@ public class ExampleDebugCom : DebugCom
 {
     public static ExampleDebugCom Instance;
 
-    public override string Main()
+    public override string Com_Main()
     {
         if (!Instance) Instance = this;
         //Write("This is a test - %, %, %", 1, 2, 3);
-        return text;
+        return com_text;
     }
 
     public void Add(string t)
     {
-        text += t + "\n";
-        Main();
+        com_text += t + "\n";
+        Com_Main();
         DebugSystem.Instance.HandleCurrentComponent();
     }
 }

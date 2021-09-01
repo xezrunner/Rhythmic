@@ -34,20 +34,20 @@ public class DebugCom : MonoBehaviour
             Destroy(this);
         }
     }
-    public void Destroy()
+    public void Com_Destroy()
     {
         if (Attribute.is_prefab) Destroy(Prefab_Parent);
         else Destroy(this);
     }
 
-    [HideInInspector] public string id; // TODO: Performance!
-    [HideInInspector] public string text;
+    [HideInInspector] public string com_id; // TODO: Performance!
+    [HideInInspector] public string com_text;
 
-    public void Clear() => text = "";
-    public void Write(string t, params object[] args) => text += t.Parse(args); // TODO: Performance?
+    public void Com_Clear() => com_text = "";
+    public void Com_Write(string t, params object[] args) => com_text += t.Parse(args); // TODO: Performance?
     // public void WriteLn(string t) => Text += t + "\n";
 
     /// This function is called when the component is active and requested.
     /// It is also called on every update frequency tick.
-    public virtual string Main() { return text; }
+    public virtual string Com_Main() { return com_text; }
 }
