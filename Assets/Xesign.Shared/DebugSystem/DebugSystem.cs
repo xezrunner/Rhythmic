@@ -160,10 +160,12 @@ public class DebugSystem : MonoBehaviour
 
     // --------------- //
 
+#if UNITY_EDITOR
     [MenuItem("GameObject/Create DebugSystem", priority = 0)]
     public static void CreateDebugSystemPrefab()
     {
         UnityEngine.Object prefab = Resources.Load("Prefabs/DebugSystem");
         PrefabUtility.InstantiatePrefab(prefab);
     }
+#endif
 }

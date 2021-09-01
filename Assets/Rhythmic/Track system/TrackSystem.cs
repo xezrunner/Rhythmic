@@ -1,6 +1,8 @@
 using PathCreation;
 using System.Diagnostics;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using static Logger;
 
 public class TrackSystem : MonoBehaviour
@@ -15,6 +17,9 @@ public class TrackSystem : MonoBehaviour
 #else
     public VertexPath path;
 #endif
+
+    [Header("Prefabs")]
+    public GameObject Track_Prefab;
 
     public void Awake()
     {
@@ -33,21 +38,30 @@ public class TrackSystem : MonoBehaviour
     {
         Stopwatch st = Stopwatch.StartNew();
 
-        GameObject m = (GameObject)Resources.Load("Models/track_bottom");
-
         float d = 0;
-        int count = (int)(path.length / 30) * 6;
+        //int count = (int)(path.length / 30) * 6;
+        int count = 300 * 6;
 
         for (int i = 0; i < count; ++i)
         {
-            GameObject obj = Instantiate(m);
-            PathTransform t = obj.AddComponent<PathTransform>();
-            t.pos = new Vector3(10.8f - (3.6f * (i % 6)), 0, d);
+            GameObject obj = Instantiate(Track_Prefab);
 
+            PathTransform p_trans = obj.GetComponent<PathTransform>();
+            p_trans.pos = new Vector3(10.8f - (3.6f * (i % 6)), 0, d);
             if (i % 6 == 0) d += 30;
+
+            Track t = obj.GetComponent<Track>();
+            t.id_weak = t.id_real = i;
         }
 
         st.Stop();
-        Log("Generated % objects - time: %ms", count, st.ElapsedMilliseconds);
+        Log("time: %ms".TM(this), st.ElapsedMilliseconds);
+        ExampleDebugCom.Instance.Add("time: %ms".Parse(st.ElapsedMilliseconds).TM(this));
+    }
+
+    void Update()
+    {
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+            SceneManager.LoadScene("test0");
     }
 }

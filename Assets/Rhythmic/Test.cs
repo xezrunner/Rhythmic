@@ -1,6 +1,5 @@
 using PathCreation;
 using System.Diagnostics;
-using UnityEditor;
 using UnityEngine;
 using static Logger;
 
@@ -71,17 +70,5 @@ public class Test : MonoBehaviour
         dist_smooth += delta + 0.1f * skew; // The smoothened seconds equal fixedDeltaTime + (factor * skew)
 
         dist += speed * Time.deltaTime;
-    }
-}
-
-[CustomEditor(typeof(Test))]
-public class MeshDeformerEditor : Editor
-{
-    Test main;
-    void Awake() => main = (Test)target;
-
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
     }
 }
