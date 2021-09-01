@@ -1,4 +1,5 @@
 using PathCreation;
+using System.Collections;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -36,31 +37,60 @@ public class TrackSystem : MonoBehaviour
 
     public void Start()
     {
-        Stopwatch st = Stopwatch.StartNew();
+        inst_st = Stopwatch.StartNew();
+    }
 
-        float d = 0;
-        //int count = (int)(path.length / 30) * 6;
-        int count = 300 * 6;
+    public float inst_delay_ms = 1000f;
 
-        for (int i = 0; i < count; ++i)
+    Stopwatch inst_st;
+    bool is_inst_test = true;
+    public float inst_time_ms = 0f;
+    int inst_i = -1;
+    float inst_d = 0;
+    int inst_count = 300 * 6;
+    void UPDATE_InstTest()
+    {
+        if (!is_inst_test) return;
+        if (inst_delay_ms <= 0) goto instantiation;
+
+        if (inst_time_ms < inst_delay_ms)
+        {
+            inst_time_ms += Time.unscaledDeltaTime * 1000f;
+            return;
+        }
+
+        inst_time_ms = 0f;
+
+    instantiation:
+        if (inst_i > inst_count)
+        {
+            is_inst_test = false;
+            inst_st.Stop();
+            Log("created: %  time: %ms".TM(this), inst_count, inst_st.ElapsedMilliseconds);
+            ExampleDebugCom.Instance.Add("time: %ms".Parse(inst_st.ElapsedMilliseconds).TM(this));
+
+            return;
+        }
+        // Instantiation:
         {
             GameObject obj = Instantiate(Track_Prefab);
 
             PathTransform p_trans = obj.GetComponent<PathTransform>();
-            p_trans.pos = new Vector3(10.8f - (3.6f * (i % 6)), 0, d);
-            if (i % 6 == 0) d += 30;
+            p_trans.pos = new Vector3(10.8f - (3.6f * (inst_i % 6)), 0, inst_d);
+            if (inst_i % 6 == 0) inst_d += 30;
 
             Track t = obj.GetComponent<Track>();
-            t.id_weak = t.id_real = i;
+            t.id_weak = t.id_real = inst_i;
+
+            ++inst_i;
         }
 
-        st.Stop();
-        Log("time: %ms".TM(this), st.ElapsedMilliseconds);
-        ExampleDebugCom.Instance.Add("time: %ms".Parse(st.ElapsedMilliseconds).TM(this));
     }
 
     void Update()
     {
+        UPDATE_InstTest();
+
         if (Keyboard.current.rKey.wasPressedThisFrame)
             SceneManager.LoadScene("test0");
     }
