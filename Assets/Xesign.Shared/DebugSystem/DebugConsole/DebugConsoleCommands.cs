@@ -50,6 +50,7 @@ public class DebugConsoleCommands
             RegisterDefaultCommands();
     }
 
+    public static bool COMMANDS_AutoTrimCmdPrefix         = true; // Whether to automatically trim the 'cmd_' prefix from commands during registration.
     public static bool COMMANDS_RegisterDefaultCommands = true; // Whether to register default commands,
     public static bool COMMANDS_PreventDuplication      = true; // Whether duplicate aliases should be prevented. Duplicate aliases will be rejected.
     public static bool COMMANDS_PreventAliasDuplication = true; // Whether duplicate aliases should be prevented. Duplicate aliases will be rejected.
@@ -76,6 +77,10 @@ public class DebugConsoleCommands
                     command.aliases.Remove(alias);
                 }
         }
+
+        // Remove 'cmd_' prefix from commands (default commands are prefixed like that)
+        if (COMMANDS_AutoTrimCmdPrefix && command.command.StartsWith("cmd_"))
+            command.command = command.command.Remove(0, "cmd_".Length);
 
         registered_commands.Add(command);
         ++commands_count;
