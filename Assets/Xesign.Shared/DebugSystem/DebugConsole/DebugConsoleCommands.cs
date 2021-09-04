@@ -50,15 +50,17 @@ public class DebugConsoleCommands
             RegisterDefaultCommands();
     }
 
-    public static bool COMMANDS_RegisterDefaultCommands = true; // Whether to register default commands
-    public static bool COMMANDS_PreventDuplication = true; // Whether duplicate aliases should be prevented. Duplicate aliases will be rejected.
+    public static bool COMMANDS_RegisterDefaultCommands = true; // Whether to register default commands,
+    public static bool COMMANDS_PreventDuplication      = true; // Whether duplicate aliases should be prevented. Duplicate aliases will be rejected.
     public static bool COMMANDS_PreventAliasDuplication = true; // Whether duplicate aliases should be prevented. Duplicate aliases will be rejected.
 
     public List<ConsoleCommand> registered_commands = new List<ConsoleCommand>();
     public int commands_count;
 
-    public bool RegisterCommand(string command, Action action, params string[] aliases) => RegisterCommand(new ConsoleCommand(command, action, aliases));
+    public bool RegisterCommand(string command, Action action, params string[] aliases)                     => RegisterCommand(new ConsoleCommand(command, action, aliases));
     public bool RegisterCommand(string command, Action<string[]> action_with_args, params string[] aliases) => RegisterCommand(new ConsoleCommand(command, action_with_args, aliases));
+    public bool RegisterCommand(Action action, params string[] aliases)                                     => RegisterCommand(new ConsoleCommand(action.ToString(), action, aliases));
+    public bool RegisterCommand(Action<string[]> action_args, params string[] aliases)                      => RegisterCommand(new ConsoleCommand(action_args.Method.Name, action_args, aliases));
     public bool RegisterCommand(ConsoleCommand command)
     {
         foreach (ConsoleCommand c in registered_commands)
@@ -94,6 +96,16 @@ public class DebugConsoleCommands
     public void RegisterDefaultCommands()
     {
         RegisterCommand("test", cmd_test);
+        RegisterCommand("help", cmd_help);
+    }
+}
+
+public static class DebugConsoleDefaultCommands
+{
+    public static void cmd_test() => Log("Test command");
+    public static void cmd_help()
+    {
+
     }
 }
 

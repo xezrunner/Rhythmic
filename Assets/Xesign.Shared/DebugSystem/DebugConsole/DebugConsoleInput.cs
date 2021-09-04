@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine.InputSystem;
 using static Logger;
 
@@ -9,6 +10,7 @@ public enum WordDeleteDir { Left = 0, Right = 1 }
 public partial class DebugConsole : DebugCom
 {
     // Input field: 
+    public TMP_InputField Input_Field;
     [NonSerialized] public string Input_Text = "";
 
     public void OnInputChanged()

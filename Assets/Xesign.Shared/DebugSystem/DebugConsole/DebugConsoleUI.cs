@@ -10,7 +10,6 @@ public partial class DebugConsole : DebugCom
 
     public ScrollRect UI_TextScrollRect;
     public RectTransform UI_TextContainer;
-    public TMP_InputField Input_Field;
 
     void UI_Start()
     {
