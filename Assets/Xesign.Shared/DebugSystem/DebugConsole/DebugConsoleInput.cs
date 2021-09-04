@@ -24,7 +24,6 @@ public partial class DebugConsole : DebugCom
 
         // tba
     }
-    public void OnInputEditingEnd() { }
 
     public void InputField_ChangeText(string text, int new_caret = -1) => InputField_ChangeText(text, true, new_caret);
     public void InputField_ChangeText(string text, bool change_caret, int new_caret = -1)
@@ -68,7 +67,7 @@ public partial class DebugConsole : DebugCom
     bool keyboard_missing_warned;
     void UPDATE_Input()
     {
-        if (Keyboard == null && !keyboard_missing_warned) LogW("No keyboard was found.".T(this));
+        if (Keyboard == null && !keyboard_missing_warned && LogW("No keyboard was found.".T(this))) keyboard_missing_warned = true; 
         if (Keyboard == null) return;
 
         // Open, close, size:

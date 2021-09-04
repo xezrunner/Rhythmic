@@ -12,7 +12,7 @@ public partial class DebugConsole : DebugCom
     public RectTransform UI_TextContainer;
     public TMP_InputField Input_Field;
 
-    public void Start()
+    void UI_Start()
     {
         _Close(false);
         UI_line_objects = new GameObject[Max_Lines];
@@ -155,5 +155,5 @@ public partial class DebugConsole : DebugCom
     void UnfocusInputField() => Input_Field.DeactivateInputField();
 
     // Text: 
-    
+
 }

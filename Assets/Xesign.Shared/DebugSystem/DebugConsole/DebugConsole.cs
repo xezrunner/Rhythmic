@@ -12,6 +12,10 @@ public partial class DebugConsole : DebugCom
         Instance = this;
         DebugSystem = DebugSystem.Instance;
     }
+    public void Start()
+    {
+        UI_Start();
+    }
 
     public bool ConsoleLog(string text, params object[] args)
     {
