@@ -78,6 +78,10 @@ public partial class DebugConsole : DebugCom
         if (Keyboard.tabKey.wasPressedThisFrame)
             ChangeSize(!is_compact);
 
+        // Submit:
+        if (Keyboard.enterKey.wasPressedThisFrame || Keyboard.numpadEnterKey.wasPressedThisFrame)
+            ProcessInput(Input_Text);
+
         // Input field extras:
         // Word delete:
         if (Keyboard.ctrlKey.isPressed && Keyboard.backspaceKey.wasPressedThisFrame)
