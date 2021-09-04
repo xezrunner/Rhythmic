@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public partial class DebugConsole : DebugCom
@@ -39,12 +38,15 @@ public partial class DebugConsole : DebugCom
     {
         if (compact.HasValue) is_compact = compact.Value;
         is_open = true;
+        FocusInputField();
 
         Animate_Openness(is_open, anim);
     }
     public void _Close(bool anim = true)
     {
         is_open = false;
+        UnfocusInputField();
+
         Animate_Openness(is_open, anim);
     }
 
@@ -147,6 +149,16 @@ public partial class DebugConsole : DebugCom
     {
         foreach (GameObject obj in UI_line_objects)
             Destroy(obj.gameObject);
+    }
+
+    void FocusInputField()
+    {
+        UI_InputField.ActivateInputField();
+    }
+
+    void UnfocusInputField()
+    {
+        UI_InputField.DeactivateInputField();
     }
 
     // Text: 
