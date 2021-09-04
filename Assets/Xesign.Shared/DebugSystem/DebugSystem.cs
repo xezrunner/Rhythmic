@@ -58,6 +58,15 @@ public class DebugSystem : MonoBehaviour
         if (type.BaseType != typeof(DebugCom) && LogE("Invalid type passed: %".TM(this), type.Name))
             return;
 
+        DebugComAttribute attr = (DebugComAttribute)Attribute.GetCustomAttribute(type, typeof(DebugComAttribute));
+        
+        // If we have a prefab, redirect to prefab procedure:
+        if (attr.is_prefab)
+        {
+            AddUIDebugPrefab(attr.prefab_path);
+            return;
+        }
+
         DebugCom com = (DebugCom)gameObject.AddComponent(type);
         if (!com) return;
 

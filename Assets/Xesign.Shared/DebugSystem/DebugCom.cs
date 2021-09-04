@@ -25,14 +25,6 @@ public class DebugCom : MonoBehaviour
     {
         Attribute = (DebugComAttribute)System.Attribute.GetCustomAttribute(GetType(), typeof(DebugComAttribute));
         if (Attribute == null) Attribute = new DebugComAttribute();
-
-        // In case we have specified a prefab, but no parent was assigned:
-        // TODO: Revisit a way that we could check for whether a prefab has a parent transform!
-        if (Attribute.is_prefab && gameObject.name == "DebugSystem")
-        {
-            DebugSystem.Instance.AddUIDebugPrefab(Attribute.prefab_path);
-            Destroy(this);
-        }
     }
     public void Com_Destroy()
     {
