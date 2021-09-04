@@ -60,7 +60,7 @@ public class DebugConsoleCommands
             RegisterDefaultCommands();
     }
 
-    public static bool COMMANDS_AutoTrimCmdPrefix         = true; // Whether to automatically trim the 'cmd_' prefix from commands during registration.
+    public static bool COMMANDS_AutoTrimCmdPrefix       = true; // Whether to automatically trim the 'cmd_' prefix from commands during registration.
     public static bool COMMANDS_RegisterDefaultCommands = true; // Whether to register default commands,
     public static bool COMMANDS_PreventDuplication      = true; // Whether duplicate aliases should be prevented. Duplicate aliases will be rejected.
     public static bool COMMANDS_PreventAliasDuplication = true; // Whether duplicate aliases should be prevented. Duplicate aliases will be rejected.
@@ -117,9 +117,14 @@ public class DebugConsoleCommands
 
 public static class DebugConsoleDefaultCommands
 {
+    static DebugConsoleCommands cmdsystem = DebugConsole.Instance.cmdsystem;
+
     public static void cmd_test() => Log("Test command");
     public static void cmd_help()
     {
-
+        DebugConsole.ConsoleLog("Listing commands...");
+        foreach (ConsoleCommand c in cmdsystem.registered_commands)
+            DebugConsole.ConsoleLog(c.command + (!c.help_text.IsEmpty() ? " - " + c.help_text : null));
+        DebugConsole.ConsoleLog("Total commands: %", cmdsystem.commands_count);
     }
 }

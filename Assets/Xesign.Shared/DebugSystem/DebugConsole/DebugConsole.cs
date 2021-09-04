@@ -18,7 +18,7 @@ public partial class DebugConsole : DebugCom
         COMMANDS_Start();
     }
 
-    public bool ConsoleLog(string text, params object[] args)
+    public static bool ConsoleLog(string text, params object[] args)
     {
         if (Instance) return Instance._ConsoleLog(text, args);
         else throw new Exception("No debug console!");
