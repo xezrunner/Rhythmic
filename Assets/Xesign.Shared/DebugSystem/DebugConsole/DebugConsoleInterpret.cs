@@ -7,7 +7,8 @@ public partial class DebugConsole : DebugCom
 {
     public bool ProcessInput(string input)
     {
-        FocusInputField(); // Unity drops focus on submit by default.
+        InputField_Focus(); // Unity drops focus on submit by default.
+        InputField_Clear();
         if (input.IsEmpty()) return false;
 
         string[] split_input = input.Split(' ');

@@ -38,14 +38,14 @@ public partial class DebugConsole : DebugCom
     {
         if (compact.HasValue) is_compact = compact.Value;
         is_open = true;
-        FocusInputField();
+        InputField_Focus();
 
         Animate_Openness(is_open, anim);
     }
     public void _Close(bool anim = true)
     {
         is_open = false;
-        UnfocusInputField();
+        InputField_Unfocus();
 
         Animate_Openness(is_open, anim);
     }
@@ -150,10 +150,4 @@ public partial class DebugConsole : DebugCom
         foreach (GameObject obj in UI_line_objects)
             Destroy(obj.gameObject);
     }
-
-    void FocusInputField() => Input_Field.ActivateInputField();
-    void UnfocusInputField() => Input_Field.DeactivateInputField();
-
-    // Text: 
-
 }

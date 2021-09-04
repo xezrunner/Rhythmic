@@ -32,7 +32,12 @@ public partial class DebugConsole : DebugCom
         if (change_caret)
             Input_Field.caretPosition = (new_caret == -1 ? text.Length : new_caret);
     }
-    void InputField_WordDelete(WordDeleteDir dir)
+
+    void InputField_Focus()   => Input_Field.ActivateInputField();
+    void InputField_Unfocus() => Input_Field.DeactivateInputField();
+    void InputField_Clear()   => InputField_ChangeText("");
+
+    void HandleWordDelete(WordDeleteDir dir)
     {
         if (Input_Text.IsEmpty()) return;
 
@@ -85,8 +90,8 @@ public partial class DebugConsole : DebugCom
         // Input field extras:
         // Word delete:
         if (Keyboard.ctrlKey.isPressed && Keyboard.backspaceKey.wasPressedThisFrame)
-            InputField_WordDelete(WordDeleteDir.Left);
+            HandleWordDelete(WordDeleteDir.Left);
         if (Keyboard.ctrlKey.isPressed && Keyboard.deleteKey.wasPressedThisFrame)
-            InputField_WordDelete(WordDeleteDir.Right);
+            HandleWordDelete(WordDeleteDir.Right);
     }
 }
