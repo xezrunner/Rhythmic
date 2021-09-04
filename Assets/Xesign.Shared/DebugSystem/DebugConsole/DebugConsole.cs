@@ -9,7 +9,6 @@ public partial class DebugConsole : DebugCom
     public override void Awake()
     {
         base.Awake();
-        Logger.Log("awake");
         Instance = this;
         DebugSystem = DebugSystem.Instance;
     }

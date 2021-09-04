@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.InputSystem;
-using static InputHandler;
 using static Logger;
 
 public enum WordDeleteDir { Left = 0, Right = 1 }
@@ -84,7 +83,7 @@ public partial class DebugConsole : DebugCom
         // Word delete:
         if (Keyboard.ctrlKey.isPressed && Keyboard.backspaceKey.wasPressedThisFrame)
             InputField_WordDelete(WordDeleteDir.Left);
-        if (ArePressed(Keyboard.ctrlKey, Keyboard.deleteKey))
+        if (Keyboard.ctrlKey.isPressed && Keyboard.deleteKey.wasPressedThisFrame)
             InputField_WordDelete(WordDeleteDir.Right);
     }
 }
