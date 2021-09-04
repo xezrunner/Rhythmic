@@ -1,6 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System;
 
 [DebugCom("Prefabs/DebugSystem/DebugConsole")]
 public partial class DebugConsole : DebugCom
@@ -11,9 +9,22 @@ public partial class DebugConsole : DebugCom
     public override void Awake()
     {
         base.Awake();
+        Logger.Log("awake");
         Instance = this;
         DebugSystem = DebugSystem.Instance;
     }
+
+    public bool ConsoleLog(string text, params object[] args)
+    {
+        if (Instance) return Instance._ConsoleLog(text, args);
+        else throw new Exception("No debug console!");
+    }
+    public bool _ConsoleLog(string text, params object[] args)
+    {
+        UI_AddLine(text.Parse(args));
+        return true;
+    }
+    public void Clear() => UI_ClearLines();
 
     public void Update()
     {

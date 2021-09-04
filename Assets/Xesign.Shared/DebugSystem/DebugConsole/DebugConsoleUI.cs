@@ -10,7 +10,7 @@ public partial class DebugConsole : DebugCom
 
     public ScrollRect UI_TextScrollRect;
     public RectTransform UI_TextContainer;
-    public TMP_InputField UI_InputField;
+    public TMP_InputField Input_Field;
 
     public void Start()
     {
@@ -151,26 +151,9 @@ public partial class DebugConsole : DebugCom
             Destroy(obj.gameObject);
     }
 
-    void FocusInputField()
-    {
-        UI_InputField.ActivateInputField();
-    }
-
-    void UnfocusInputField()
-    {
-        UI_InputField.DeactivateInputField();
-    }
+    void FocusInputField() => Input_Field.ActivateInputField();
+    void UnfocusInputField() => Input_Field.DeactivateInputField();
 
     // Text: 
-    public bool Log(string text, params object[] args)
-    {
-        if (Instance) return Instance._Log(text, args);
-        else throw new Exception("No debug console!");
-    }
-    public bool _Log(string text, params object[] args)
-    {
-        UI_AddLine(text.Parse(args));
-        return true;
-    }
-    public void Clear() => UI_ClearLines();
+    
 }

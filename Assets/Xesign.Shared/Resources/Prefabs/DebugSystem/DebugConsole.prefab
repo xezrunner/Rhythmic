@@ -323,11 +323,10 @@ MonoBehaviour:
   Prefab_Parent: {fileID: 0}
   com_id: 
   com_text: 
-  Input_Text: 
   UI_Panel_Trans: {fileID: 2831919932521667626}
   UI_TextScrollRect: {fileID: 5553321414060198717}
   UI_TextContainer: {fileID: 8570232408964247909}
-  UI_InputField: {fileID: 348947564830156404}
+  Input_Field: {fileID: 348947564830156404}
   is_open: 0
   is_compact: 1
   Compact_Height: 290
@@ -492,13 +491,13 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2120044455005947097}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 7813206313835761900}
+        m_TargetAssemblyTypeName: DebugConsole, Xesign.Shared
+        m_MethodName: OnInputChanged
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -855,11 +854,11 @@ RectTransform:
   m_Father: {fileID: 5232770076719012772}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &9201136737574896123
 MonoBehaviour:
   m_ObjectHideFlags: 0
