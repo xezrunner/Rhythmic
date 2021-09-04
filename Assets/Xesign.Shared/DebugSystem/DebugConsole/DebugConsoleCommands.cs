@@ -7,19 +7,19 @@ using static Logger;
 public struct ConsoleCommand
 {
     #region Ctors
-    public ConsoleCommand(string command, Action action, params string[] aliases)
+    public ConsoleCommand(string command, Action action_empty, params string[] aliases)
     {
         this.command = command;
-        this.action = action;
-        this.action_with_args = null;
+        this.action_empty = action_empty;
+        this.action_args = null;
         this.aliases = aliases.ToList();
         this.help_text = "";
     }
-    public ConsoleCommand(string command, Action<string[]> action_with_args, params string[] aliases)
+    public ConsoleCommand(string command, Action<string[]> action_args, params string[] aliases)
     {
         this.command = command;
-        this.action = null;
-        this.action_with_args = action_with_args;
+        this.action_empty = null;
+        this.action_args = action_args;
         this.aliases = aliases.ToList();
         this.help_text = "";
     }
@@ -29,9 +29,17 @@ public struct ConsoleCommand
     public List<string> aliases;
     public string help_text;
 
-    public bool is_action_empty { get { return action == null; } }
-    public Action action;
-    public Action<string[]> action_with_args;
+    public bool is_action_empty { get { return action_empty != null; } }
+    public Action action_empty;
+    public Action<string[]> action_args;
+
+    public void Invoke(string[] args = null)
+    {
+        if (is_action_empty) Invoke_Empty();
+        else Invoke_Args(args);
+    }
+    public void Invoke_Empty() => action_empty();
+    public void Invoke_Args(string[] args) => action_args(args);
 }
 
 public class DebugConsoleCommands
