@@ -5,7 +5,7 @@ using static Logger;
 
 public partial class DebugConsole : DebugCom
 {
-    public bool ProcessInput(string input)
+    public bool DEBUGCONSOLE_Submit(string input)
     {
         InputField_Focus(); // Unity drops focus on submit by default.
         InputField_Clear();

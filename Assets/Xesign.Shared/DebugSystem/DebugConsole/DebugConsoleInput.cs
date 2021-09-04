@@ -85,7 +85,7 @@ public partial class DebugConsole : DebugCom
 
         // Submit:
         if (Keyboard.enterKey.wasPressedThisFrame || Keyboard.numpadEnterKey.wasPressedThisFrame)
-            ProcessInput(Input_Text);
+            DEBUGCONSOLE_Submit(Input_Text);
 
         // Input field extras:
         // Word delete:
