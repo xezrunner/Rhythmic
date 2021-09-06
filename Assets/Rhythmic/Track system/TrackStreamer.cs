@@ -22,7 +22,7 @@ public class TrackStreamer : MonoBehaviour
 
     public void Start()
     {
-        //Test();
+        Test();
     }
 
     #region Testing
@@ -53,11 +53,9 @@ public class TrackStreamer : MonoBehaviour
             test_timer.Stop();
 
             Log("created: %  time: %ms".TM(this), test_count, test_timer.ElapsedMilliseconds);
-            ExampleDebugCom.Instance.Add("created: %  time: %ms".Parse(test_count, test_timer.ElapsedMilliseconds).TM(this));
 
             string individual = "individual inst: average: %, low: %, max: %".Parse(test_i_times.Average(), test_i_times.Min(), test_i_times.Max());
             Log(individual.TM(this));
-            ExampleDebugCom.Instance.Add(individual.TM(this));
 
             return;
         }
