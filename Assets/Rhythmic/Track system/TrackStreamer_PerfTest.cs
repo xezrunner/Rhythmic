@@ -15,7 +15,7 @@ public partial class TrackStreamer
     int test_count = 300 * 6;
     int test_i = -1; float test_d = 0;
     float test_time;
-    void Test()
+    void PerfTest()
     {
         test_active = true;
         test_timer = Stopwatch.StartNew();
