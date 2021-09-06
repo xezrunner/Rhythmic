@@ -15,6 +15,7 @@ public partial class DebugConsole : DebugCom
     public void Start()
     {
         UI_Start();
+        INPUT_Start();
         COMMANDS_Start();
     }
 

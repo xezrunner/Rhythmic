@@ -9,6 +9,13 @@ public enum WordDeleteDir { Left = 0, Right = 1 }
 
 public partial class DebugConsole : DebugCom
 {
+    Keyboard Keyboard = Keyboard.current;
+    void INPUT_Start()
+    {
+        if (Keyboard == null)
+            LogW("No keyboard was found.".T(this));
+    }
+
     // Input field: 
     public TMP_InputField Input_Field;
     [NonSerialized] public string Input_Text = "";
@@ -70,11 +77,8 @@ public partial class DebugConsole : DebugCom
     // ----- //
 
     // Input (keys):
-    Keyboard Keyboard = Keyboard.current;
-    bool keyboard_missing_warned;
     void UPDATE_Input()
-    {
-        if (Keyboard == null && !keyboard_missing_warned && LogW("No keyboard was found.".T(this))) keyboard_missing_warned = true; 
+    { 
         if (Keyboard == null) return;
 
         // Open, close, size:
