@@ -59,6 +59,7 @@ public class DebugSystem : MonoBehaviour
             return;
 
         DebugComAttribute attr = (DebugComAttribute)Attribute.GetCustomAttribute(type, typeof(DebugComAttribute));
+        if (attr == null) attr = new DebugComAttribute();
         
         // If we have a prefab, redirect to prefab procedure:
         if (attr.is_prefab)
