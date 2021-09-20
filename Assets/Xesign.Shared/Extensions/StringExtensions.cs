@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
+using static Logger;
 
 public static class StringExtensions
 {
@@ -234,6 +235,26 @@ public static class StringExtensions
         return s.ToString();
     }
 
+    public static string GetExt(this string text, bool include_dot = true)
+    {
+        bool success = false;
+        string ext = "";
+        for (int i = text.Length; i > 0; ++i)
+        {
+            if (text[i] == '.')
+            {
+                if (include_dot) ext += text[i];
+                success = true;
+                break;
+            }
+            ext += text[i];
+        }
+
+        if (success) return ext;
+
+        LogE("Couldn't find extension from string '%'!", text);
+        return "";
+    }
     public static string RemoveExt(this string text, string ext = null)
     {
         if (ext != null && ext != "") return text.Replace(ext, "");

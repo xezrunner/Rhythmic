@@ -124,7 +124,7 @@ public class DebugSystem : MonoBehaviour
     {
         if (components == null || components.Count == 0) return;
         CurrentComponent = components[0];
-        Log("Switched to '%'.".T(this), CurrentComponent.GetType().Name);
+        // Log("Switched to '%'.".T(this), CurrentComponent.GetType().Name);
         HandleCurrentComponent();
     }
     public void SwitchToComponent(Type type)

@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using PathCreation;
 
 using static Logger;
+using System.Collections.Generic;
 
 public class TrackSystem : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class TrackSystem : MonoBehaviour
     public WorldSystem worldsystem;
 
     public XZ_Path path;
+
+    public List<Track> Tracks = new List<Track>();
 
     public void Awake()
     {

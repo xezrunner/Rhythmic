@@ -1,6 +1,8 @@
 using UnityEngine;
 using static Logger;
 
+public enum Song_Type { RHYTHMIC, AMPLITUDE }
+
 public class GameState : MonoBehaviour
 {
     public static GameState Instance;
@@ -8,7 +10,7 @@ public class GameState : MonoBehaviour
 
     public GameVariables variables;
 
-    public void Awake()
+    public void Start()
     {
         if (Instance)
         {
@@ -18,7 +20,7 @@ public class GameState : MonoBehaviour
         }
         Instance = this;
 
-        Log("GameState created.".T(this));
+        // Log("GameState created.".T(this));
 
         STARTUP_Main();
     }
@@ -26,8 +28,12 @@ public class GameState : MonoBehaviour
     void STARTUP_Main()
     {
         STARTUP_InitVariables();
-    }
 
+        // TODO: Create systems / handle meta too!
+        // For now, we'll just start the song system with an example song:
+        if (!SongSystem.Instance && LogE("Can't find the SongSystem!")) return;
+        SongSystem.Instance.InitializeSong();
+    }
     void STARTUP_InitVariables()
     {
         if (!variables) variables = gameObject.AddComponent<GameVariables>();
