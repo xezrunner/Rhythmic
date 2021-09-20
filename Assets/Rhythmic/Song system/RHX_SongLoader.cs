@@ -60,25 +60,84 @@ public static class RHX_SongLoader
         using (TextReader r = File.OpenText(file_path))
         {
             string text = r.ReadToEnd();
-
+            List<RHX_Token> tokens = new RHX_Tokenizer(text).Tokenize();
+            foreach (RHX_Token t in tokens)
+            {
+                Log("Type: % lhs: % rhs: %", t.type, t.lhs, t.rhs);
+            }
         }
 
 
         return null;
     }
 
-    
+
 }
 
-public enum RHX_Token_Type { test }
+public enum RHX_Token_Type { Comment, Section, Variable, NoteDecl, CheckpointDecl }
 public struct RHX_Token
 {
-    
+    public RHX_Token(RHX_Token_Type type, string lhs = null, object rhs = null)
+    {
+        this.type = type;
+        this.lhs = lhs;
+        this.rhs = rhs;
+    }
+
+    public RHX_Token_Type type;
+    public string lhs;
+    public object rhs;
 }
 
 public class RHX_Tokenizer
 {
-    public RHX_Tokenizer(string text) { Text = text; }
+    public RHX_Tokenizer(string text) { Text = text; c = text[0]; }
 
     public string Text;
+
+    char c;
+    int c_index;
+
+    char Advance()
+    {
+        ++c_index;
+        if (c_index >= Text.Length) return '\0';
+        c = Text[c_index];
+        return c;
+    }
+    char Peek(int count = 1)
+    {
+        if (c_index + count >= Text.Length) return '\0';
+        return Text[c_index + count];
+    }
+
+    public List<RHX_Token> Tokenize()
+    {
+        List<RHX_Token> list = new List<RHX_Token>();
+
+        while (c_index < Text.Length)
+        {
+            if (c.IsWhitespace()) { Advance(); continue; }
+
+            switch (c)
+            {
+                case '/':
+                    {
+                        if (Peek() == '/') Advance();
+                        if (Peek() == ' ') Advance();
+
+                        string s = null;
+                        while (Peek() != '\n' && c_index < Text.Length)
+                            s += Advance();
+
+                        list.Add(new RHX_Token(RHX_Token_Type.Comment, s));
+                        break;
+                    }
+            }
+
+            Advance();
+        }
+
+        return list;
+    }
 }

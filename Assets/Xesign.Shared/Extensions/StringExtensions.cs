@@ -239,7 +239,7 @@ public static class StringExtensions
     {
         bool success = false;
         string ext = "";
-        for (int i = text.Length; i > 0; ++i)
+        for (int i = text.Length - 1; i > 0; --i)
         {
             if (text[i] == '.')
             {
@@ -250,7 +250,7 @@ public static class StringExtensions
             ext += text[i];
         }
 
-        if (success) return ext;
+        if (success) return ext.Reverse();
 
         LogE("Couldn't find extension from string '%'!", text);
         return "";
