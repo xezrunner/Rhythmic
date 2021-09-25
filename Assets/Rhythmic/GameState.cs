@@ -32,7 +32,7 @@ public class GameState : MonoBehaviour
         // TODO: Create systems / handle meta too!
         // For now, we'll just start the song system with an example song:
         if (!SongSystem.Instance && LogE("Can't find the SongSystem!")) return;
-        SongSystem.Instance.InitializeSong();
+        SongSystem.Instance.InitializeSong("allthetime", Song_Type.AMPLITUDE);
     }
     void STARTUP_InitVariables()
     {

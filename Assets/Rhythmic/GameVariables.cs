@@ -9,7 +9,10 @@ public class GameVariables : MonoBehaviour
     public int bar_ticks = 1920;
 
     [Header("AMP properties")]
-    public List<string> AMP_song_lookup_paths;
+    public List<string> AMP_song_lookup_paths = new List<string>
+    {
+        "C:/amp_ps3/songs"
+    };
 
     [Header("RHX properties")]
     public List<string> RHX_song_lookup_paths = new List<string>

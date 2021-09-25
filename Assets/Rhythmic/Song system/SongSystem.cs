@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using static Logger;
 
 public class SongSystem : MonoBehaviour
@@ -16,12 +17,23 @@ public class SongSystem : MonoBehaviour
         Instance = this;
     }
 
+    SongLoader song_loader;
+    void AddSongLoader(Song_Type type)
+    {
+        Type type_to_add = SongLoader.GetSongLoaderType(type);
+        song_loader = (SongLoader)gameObject.AddComponent(type_to_add);
+    }
+    void RemoveSongLoader() => Destroy(song_loader);
+
     public void InitializeSong(string song_name = null, Song_Type song_type = Song_Type.RHYTHMIC)
     {
         if (song_name == null) song_name = song_to_load; // test
 
-        if (song_type == Song_Type.RHYTHMIC)  song = RHX_SongLoader.LoadSong(song_name);
-        if (song_type == Song_Type.AMPLITUDE) song = AMP_SongLoader.LoadSong(song_name);
+        if (song_loader) RemoveSongLoader();
+        AddSongLoader(song_type);
+
+        if (song_type == Song_Type.RHYTHMIC)  song = song_loader.LoadSong(song_name);
+        if (song_type == Song_Type.AMPLITUDE) song = song_loader.LoadSong(song_name);
 
         if (song == null && LogE("Failed to load song %".TM(this), song_name)) return;
         Log("Current song: %".T(this), song_name); // TODO: grab name from the song itself
