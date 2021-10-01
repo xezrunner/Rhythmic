@@ -808,6 +808,7 @@ GameObject:
   - component: {fileID: 1604034153}
   - component: {fileID: 1604034152}
   - component: {fileID: 1604034154}
+  - component: {fileID: 1604034155}
   m_Layer: 0
   m_Name: Track system
   m_TagString: Untagged
@@ -827,9 +828,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 522c5ad0e6f356a4cbe88553f3a227d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Vars: {fileID: 0}
-  pathcreator: {fileID: 0}
+  Vars: {fileID: 1010333593}
+  pathcreator: {fileID: 715843508}
   worldsystem: {fileID: 0}
+  streamer: {fileID: 1604034154}
   Tracks: []
 --- !u!4 &1604034153
 Transform:
@@ -862,8 +864,23 @@ MonoBehaviour:
   trans: {fileID: 1604034153}
   Track_Prefab: {fileID: 6631329235390064955, guid: 142bd608f63b5ff46b21e98dda2612a6,
     type: 3}
-  perftest_mode: 0
   tracks: []
+--- !u!114 &1604034155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1604034151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8101440ec5d03740b9288fe2420c00d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  trans: {fileID: 0}
+  Track_Prefab: {fileID: 6631329235390064955, guid: 142bd608f63b5ff46b21e98dda2612a6,
+    type: 3}
+  perftest_mode: 0
   test_i_times: []
 --- !u!1 &1645221814
 GameObject:

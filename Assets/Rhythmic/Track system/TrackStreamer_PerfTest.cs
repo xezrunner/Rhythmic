@@ -4,8 +4,30 @@ using System.Linq;
 using UnityEngine;
 using static Logger;
 
-public partial class TrackStreamer
+public class TrackStreamer_PerfTest : MonoBehaviour
 {
+    GameVariables Vars;
+    public Transform trans;
+
+    public GameObject Track_Prefab;
+
+    public bool perftest_mode = false;
+    
+    void Awake()
+    {
+        Vars = GameState.Variables;
+        if (!trans) trans = transform;
+    }
+
+    public void Start()
+    {
+        if (perftest_mode)
+        {
+            PerfTest();
+            return;
+        }
+    }
+
     Stopwatch test_timer;
     Stopwatch test_i_timer;
     public List<float> test_i_times;
@@ -68,5 +90,10 @@ public partial class TrackStreamer
         test_i_times.Add(test_i_timer.ElapsedMilliseconds);
 
         ++test_i;
+    }
+
+    void Update()
+    {
+        UPDATE_Test();
     }
 }

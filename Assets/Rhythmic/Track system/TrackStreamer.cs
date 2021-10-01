@@ -12,8 +12,6 @@ public partial class TrackStreamer : MonoBehaviour
     [Header("Prefabs")]
     public GameObject Track_Prefab;
 
-    public bool perftest_mode = false;
-
     public List<Track> tracks = new();
 
     public void Awake()
@@ -25,15 +23,6 @@ public partial class TrackStreamer : MonoBehaviour
 
     public void Start()
     {
-        if (perftest_mode)
-        {
-            PerfTest();
-            return;
-        }
-    }
-
-    public void Update()
-    {
-        UPDATE_Test();
+        
     }
 }
