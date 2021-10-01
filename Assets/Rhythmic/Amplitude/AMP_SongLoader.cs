@@ -34,9 +34,17 @@ public class AMP_SongLoader : SongLoader
 
     Song LoadSongFile(string file_path)
     {
-        AMP_MoggSong moggsong = new AMP_MoggSong(file_path);
+        AMP_MoggSong m = new AMP_MoggSong(file_path);
+        Song song = new Song()
+        {
+            name = m.song_name,
+            friendly_name = m.friendly_name,
+            file_path = file_path,
+            bpm = m.bpm,
+            duration_bars = m.length_bars,
+            tunnel_scale = m.tunnel_scale
+        };
 
-
-        return null;
+        return song;
     }
 }

@@ -10,9 +10,12 @@ public class TrackSystem : MonoBehaviour
 {
     public static TrackSystem Instance;
     public GameVariables Vars;
+    SongSystem SongSystem;
+    Song song;
 
     public PathCreator pathcreator;
     public WorldSystem worldsystem;
+    public TrackStreamer streamer;
 
     public XZ_Path path;
 
@@ -24,7 +27,17 @@ public class TrackSystem : MonoBehaviour
         Vars = GameState.Variables; // class by reference, so this does reflect changes.
 
         path = new XZ_Path(pathcreator, false);
+        if (!streamer) GetComponent<TrackStreamer>();
+        if (!streamer) streamer = gameObject.AddComponent<TrackStreamer>();
     }
+    void Start()
+    {
+        SongSystem = SongSystem.Instance;
+        song = SongSystem.song;
+        Log("Initialized with song: %".T(this), song.name);
+    }
+
+
 
     void Update()
     {

@@ -33,6 +33,8 @@ public class AMP_MoggSong
     public static bool MOGGSONG_DebugLogTokens = false;
     public static bool MOGGSONG_DebugLogComments = false;
 
+    public string song_name;
+    public string friendly_name;
     public int length_bars;
     public int countin_bars;
     public float tunnel_scale;
@@ -60,16 +62,19 @@ public class AMP_MoggSong
 
             // TODO: READ THESE BETTER!!!
 
-            if (t0.value == "length")            length_bars  = t1.value.ParseInt();
-            else if (t0.value == "countin")      countin_bars = t1.value.ParseInt();
-            else if (t0.value == "tunnel_scale") tunnel_scale = t1.value.ParseFloat();
-            else if (t0.value == "bpm")          bpm          = t1.value.ParseFloat();
-            else if (t0.value == "boss_level")   boss_level   = t1.value.ParseInt();
+            if (t0.value == "mogg_path")         song_name     = t1.value.RemoveExt();   
+            else if (t0.value == "title")             friendly_name = t1.value;
+            else if (t0.value == "length")       length_bars   = t1.value.ParseInt();
+            else if (t0.value == "countin")      countin_bars  = t1.value.ParseInt();
+            else if (t0.value == "tunnel_scale") tunnel_scale  = t1.value.ParseFloat();
+            else if (t0.value == "bpm")          bpm           = t1.value.ParseFloat();
+            else if (t0.value == "boss_level")   boss_level    = t1.value.ParseInt();
+            else if (t0.value == "boss_level")   boss_level    = t1.value.ParseInt();
         }
     }
 }
 
-public enum MoggSong_Token_Type { Unknown = -1, Comment, Identifier, Number, OpenParen, CloseParen, OpenBrace, CloseBrace, StringQuotes, TimeUnitColon, TimeUnit }
+public enum MoggSong_Token_Type { Unknown = -1, Comment, Identifier, Number, OpenParen, CloseParen, OpenBrace, CloseBrace, StringQuotes, TimeUnitColon }
 public struct MoggSong_Token
 {
     /*
@@ -144,7 +149,7 @@ public class AMP_MoggSong_Parser
             {
                 // Comments: 
                 case ';':
-                case ':': // TEMP
+                // case ':': // TEMP
                     {
                         string s = null;
                         while (Peek() != '\n' && c_index < Text.Length)
@@ -159,6 +164,7 @@ public class AMP_MoggSong_Parser
                 case ')': t = new MoggSong_Token(MoggSong_Token_Type.CloseParen); break;
                 case '{': t = new MoggSong_Token(MoggSong_Token_Type.OpenBrace); break;
                 case '}': t = new MoggSong_Token(MoggSong_Token_Type.CloseBrace); break;
+                case ':': t = new MoggSong_Token(MoggSong_Token_Type.TimeUnitColon); break;
                 /*
             case ':':
                 {
