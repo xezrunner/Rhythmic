@@ -26,7 +26,10 @@ public static class StringExtensions
         if (PARSE_CHECK_PLACEHOLDER_COUNT)
         {
             int placeholder_count = text.Count(c => c == placeholder_char);
-            if (placeholder_count != args.Length) throw new Exception("Placeholder count and argument count do not match!" + $"  P: {placeholder_count} A: {args.Length}");
+            // TODO: We changed this so that you can supplement more arguments, but not less.
+            // If you have more arguments, we just ignore the rest.
+            // This should be an optional hacky behavior!
+            if (args.Length < placeholder_count) throw new Exception("Placeholder count and argument count do not match!" + $"  P: {placeholder_count} A: {args.Length}");
         }
 
 #if PARSE_USE_STRINGBUILDER

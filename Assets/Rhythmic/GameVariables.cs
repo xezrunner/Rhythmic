@@ -11,7 +11,7 @@ public class GameVariables : MonoBehaviour
     [Header("AMP properties")]
     public List<string> AMP_song_lookup_paths = new List<string>
     {
-        "C:/amp_ps3/songs"
+        "G:/amp_ps3/songs"
     };
 
     [Header("RHX properties")]

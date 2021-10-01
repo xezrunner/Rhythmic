@@ -32,13 +32,11 @@ public class AMP_SongLoader : SongLoader
         return song;
     }
 
+    // This function first loads the moggsong:
     Song LoadSongFile(string file_path)
     {
+        AMP_MoggSong moggsong = new AMP_MoggSong(file_path);
+
         return null;
     }
-}
-
-public class MoggSong
-{
-
 }
