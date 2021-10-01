@@ -30,20 +30,30 @@ public class AMP_MoggSong
         }
     }
 
+    public static bool MOGGSONG_DebugLogTokens = false;
+    public static bool MOGGSONG_DebugLogComments = false;
     public void Interpret()
     {
         if (Tokens == null || Tokens.Count == 0) { LogE("Empty tokens!".TM(this)); return; }
 
         for (int i = 0; i < tokens_count; ++i)
         {
-            MoggSong_Token t = Tokens[i];
-            if (t.type != MoggSong_Token_Type.Comment)
-            {
-                string s = "moggsong: [%]: Type: %";
-                if (!t.value.IsEmpty()) s += " | Value: '%'";
+            MoggSong_Token t0 = Tokens[i];
+            MoggSong_Token t1 = Tokens[i + 1];
 
-                Log(s, i, t.type, t.value);
+            if (MOGGSONG_DebugLogTokens)
+            {
+                if (t0.type == MoggSong_Token_Type.Comment && !MOGGSONG_DebugLogComments) continue;
+
+                string s = "moggsong: [%]: Type: %";
+                if (!t0.value.IsEmpty()) s += " | Value: '%'";
+
+                Log(s, i, t0.type, t0.value);
             }
+
+            if (t0.value == "length") Log("got length: %", t1.value);
+            else if (t0.value == "countin") Log("got countin: %", t1.value);
+            else if (t0.value == "tunnel_scale") Log("got tunnel_scale: %", t1.value);
         }
     }
 }
@@ -51,12 +61,14 @@ public class AMP_MoggSong
 public enum MoggSong_Token_Type { Unknown = -1, Comment, Identifier, Number, OpenParen, CloseParen, OpenBrace, CloseBrace, StringQuotes, TimeUnitColon, TimeUnit }
 public struct MoggSong_Token
 {
-    //public MoggSong_Token(MoggSong_Token_Type type, string lhs = null, string rhs = null)
-    //{
-    //    this.type = type;
-    //    this.lhs = lhs;
-    //    this.rhs = rhs;
-    //}
+    /*
+    public MoggSong_Token(MoggSong_Token_Type type, string lhs = null, string rhs = null)
+    {
+        this.type = type;
+        this.lhs = lhs;
+        this.rhs = rhs;
+    }
+    */
 
     public MoggSong_Token(MoggSong_Token_Type type, string value = null)
     {
@@ -164,7 +176,7 @@ public class AMP_MoggSong_Parser
 
                         while (!c.IsWhitespace() && c != ')')
                         {
-                            if (!is_letter && !char.IsDigit(c)) break;
+                            if (!is_letter && !char.IsDigit(c) && c != '.' && c != ',') break;
                             s += Advance();
                         }
 
