@@ -27,6 +27,9 @@ public class PathTransformEditor : Editor
         serializedObject.ApplyModifiedProperties();
 
         base.OnInspectorGUI();
+
+        EditorGUILayout.LabelField($"Max values: {main.max_values}");
+        EditorGUILayout.LabelField($"Max values: {main.max_values * 2}   (x2)");
     }
 
     // Unity Menu item for creating a new PathTransform object

@@ -39,8 +39,9 @@ public partial class TrackStreamer : MonoBehaviour
         for (int i = 0; i < song.data.track_defs.Count; ++i)
         {
             string s = song.data.track_defs[i];
-            Track t = Track.CreateTrack(s, Instrument.Bass, i, i);
+            Track t = Track.CreateTrack(s, (Instrument)i, i, i);
             tracks.Add(t);
         }
+        TrackSystem.Tracks = tracks;
     }
 }
