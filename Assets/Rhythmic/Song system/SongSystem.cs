@@ -32,8 +32,7 @@ public class SongSystem : MonoBehaviour
         if (song_loader) RemoveSongLoader();
         AddSongLoader(song_type);
 
-        if (song_type == Song_Type.RHYTHMIC)  song = song_loader.LoadSong(song_name);
-        if (song_type == Song_Type.AMPLITUDE) song = song_loader.LoadSong(song_name);
+        song = song_loader.LoadSong(song_name);
 
         if (song == null && LogE("Failed to load song %".TM(this), song_name)) return;
         Log("Current song: %".T(this), song_name); // TODO: grab name from the song itself

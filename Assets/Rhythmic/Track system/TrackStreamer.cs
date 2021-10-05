@@ -1,8 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
+using static Logger;
 
 public partial class TrackStreamer : MonoBehaviour
 {
+    SongSystem SongSystem;
+    Song song;
+
     public static TrackStreamer Instance;
     GameVariables Vars;
 
@@ -23,6 +27,20 @@ public partial class TrackStreamer : MonoBehaviour
 
     public void Start()
     {
-        
+        SongSystem = SongSystem.Instance;
+        song = SongSystem.song;
+        Log("Initialized track streamer for song %.".T(this), song.name);
+
+        STREAMER_Init();
+    }
+
+    void STREAMER_Init()
+    {
+        for (int i = 0; i < song.data.track_defs.Count; ++i)
+        {
+            string s = song.data.track_defs[i];
+            Track t = Track.CreateTrack(s, Instrument.Bass, i, i);
+            tracks.Add(t);
+        }
     }
 }

@@ -63,7 +63,7 @@ public class AMP_MoggSong
             // TODO: READ THESE BETTER!!!
 
             if (t0.value == "mogg_path")         song_name     = t1.value.RemoveExt();   
-            else if (t0.value == "title")             friendly_name = t1.value;
+            else if (t0.value == "title")        friendly_name = t1.value;
             else if (t0.value == "length")       length_bars   = t1.value.ParseInt();
             else if (t0.value == "countin")      countin_bars  = t1.value.ParseInt();
             else if (t0.value == "tunnel_scale") tunnel_scale  = t1.value.ParseFloat();
@@ -160,31 +160,11 @@ public class AMP_MoggSong_Parser
                     }
                 // NOTE: Moggsongs/DTAs seem to actually be LISP, or an internal Harmonix language very similar to/based on LISP.
                 // It might be possible that things could be declared in LISP without being enclosed in parentheses.
-                case '(': t = new MoggSong_Token(MoggSong_Token_Type.OpenParen); break;
-                case ')': t = new MoggSong_Token(MoggSong_Token_Type.CloseParen); break;
-                case '{': t = new MoggSong_Token(MoggSong_Token_Type.OpenBrace); break;
-                case '}': t = new MoggSong_Token(MoggSong_Token_Type.CloseBrace); break;
+                case '(': t = new MoggSong_Token(MoggSong_Token_Type.OpenParen);     break;
+                case ')': t = new MoggSong_Token(MoggSong_Token_Type.CloseParen);    break;
+                case '{': t = new MoggSong_Token(MoggSong_Token_Type.OpenBrace);     break;
+                case '}': t = new MoggSong_Token(MoggSong_Token_Type.CloseBrace);    break;
                 case ':': t = new MoggSong_Token(MoggSong_Token_Type.TimeUnitColon); break;
-                /*
-            case ':':
-                {
-                    // t = new MoggSong_Token(MoggSong_Token_Type.StringQuotes); break;
-
-                    // TODO: Read time units! Remove previous numerical entries from token list.
-
-                    // Assume that we want to read the entire time unit as a single token -
-                    // traverse backwards until we encounter a white space
-                    while (!c.IsWhitespace())
-                        Backwards();
-
-                    string s = null;
-                    while (Peek() != '\n' && !Peek().IsWhitespace())
-                        s += Advance();
-
-                    t = new MoggSong_Token(MoggSong_Token_Type.TimeUnit, s);
-                    break;
-                }
-                */
                 case char x: // || x == '-' || x == '.' for numbers
                     {
                         string s = null;
