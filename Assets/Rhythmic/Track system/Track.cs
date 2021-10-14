@@ -47,14 +47,16 @@ public class Track : MonoBehaviour
         measures = new Measure[song.duration_bars];
 
         // TODO: materials, setup other stuff ...
-        TEST_GenerateMeasures();
+
+        // Tests:
+        //TEST_GenerateMeasures();
     }
 
     void TEST_GenerateMeasures()
     {
         if (measures == null || measures.Length <= 0) return;
 
-        for (int i = 0; i < song.duration_bars; ++i)
+        for (int i = 0; i < /*song.duration_bars*/5; ++i)
             measures[i] = Measure.CreateMeasure(this, i);
     }
 }

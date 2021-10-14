@@ -52,8 +52,8 @@ public partial class DebugConsole : DebugCom
     bool openness_animating;
     float openness_t;
 
-    float openness_start_y;
-    float openness_target_y;
+    float openness_start_y, openness_start_y_ref;
+    float openness_target_y, openness_target_y_ref;
 
     float openness_start_height;
     float openness_target_height;
@@ -68,20 +68,20 @@ public partial class DebugConsole : DebugCom
         openness_target_height = GetTargetHeight(is_compact);
         openness_start_height = UI_Panel_Trans.sizeDelta.y;
 
-        ScrollConsole(false);
+        UI_ScrollConsole(false);
         openness_animating = true;
     }
     void UPDATE_Openness()
     {
         if (!openness_animating) return;
 
-        float y = Mathf.Lerp(openness_start_y, openness_target_y, openness_t);
-        float height = Mathf.Lerp(openness_start_height, openness_target_height, openness_t);
+        float y = Mathf.SmoothStep(openness_start_y, openness_target_y, openness_t);
+        float height = Mathf.SmoothStep(openness_start_height, openness_target_height, openness_t);
 
         UI_Panel_Trans.anchoredPosition = new Vector2(UI_Panel_Trans.anchoredPosition.x, y);
         UI_Panel_Trans.sizeDelta = new Vector2(UI_Panel_Trans.sizeDelta.x, height);
 
-        ScrollConsole();
+        UI_ScrollConsole();
 
         if (openness_t <= 1.0f) openness_t += Openness_Speed * Time.unscaledDeltaTime;
         else openness_animating = false;
@@ -98,14 +98,14 @@ public partial class DebugConsole : DebugCom
     public const float SCROLL_BOTTOM = 0f;
     public const float SCROLL_TOP = 1f;
 
-    [NonSerialized] public float Scroll_Speed = 1.0f;
+    [NonSerialized] public float Scroll_Speed = 4.5f;
 
     bool is_scrolling;
     float scroll_t;
     float scroll_target;
     float scroll_start;
-    public void ScrollConsole(bool anim = true) => ScrollConsole(SCROLL_BOTTOM, anim);
-    public void ScrollConsole(float target, bool anim = true) => StartCoroutine(_ScrollConsole(target, anim));
+    public void UI_ScrollConsole(bool anim = true) => UI_ScrollConsole(SCROLL_BOTTOM, anim);
+    public void UI_ScrollConsole(float target, bool anim = true) => StartCoroutine(_ScrollConsole(target, anim));
     IEnumerator _ScrollConsole(float target, bool anim)
     {
         yield return new WaitForEndOfFrame();

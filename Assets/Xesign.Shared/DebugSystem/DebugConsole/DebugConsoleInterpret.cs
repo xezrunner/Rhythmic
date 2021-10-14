@@ -9,6 +9,7 @@ public partial class DebugConsole : DebugCom
     {
         InputField_Focus(); // Unity drops focus on submit by default.
         InputField_Clear();
+        UI_ScrollConsole();
         ConsoleLog("> %".AddColor(0.8f), input);
 
         if (input.IsEmpty()) return false;

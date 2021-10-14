@@ -1,5 +1,10 @@
 ﻿public class Song
 {
+    public Song()
+    {
+        time_unit = new TimeUnit(this); // TODO: test!
+    }
+
     public Song_Type song_type;
 
     public string name;
@@ -12,6 +17,8 @@
     public int duration_bars;
 
     public float tunnel_scale;
+
+    public TimeUnit time_unit;
 
     public Song_Data data;
 }

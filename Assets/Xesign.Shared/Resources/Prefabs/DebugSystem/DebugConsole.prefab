@@ -323,10 +323,10 @@ MonoBehaviour:
   Prefab_Parent: {fileID: 0}
   com_id: 
   com_text: 
+  Input_Field: {fileID: 348947564830156404}
   UI_Panel_Trans: {fileID: 2831919932521667626}
   UI_TextScrollRect: {fileID: 5553321414060198717}
   UI_TextContainer: {fileID: 8570232408964247909}
-  Input_Field: {fileID: 348947564830156404}
   is_open: 0
   is_compact: 1
   Compact_Height: 290
@@ -432,10 +432,10 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0.13725491, g: 0.13725491, b: 0.13725491, a: 1}
-    m_HighlightedColor: {r: 0.1764706, g: 0.1764706, b: 0.1764706, a: 1}
-    m_PressedColor: {r: 0.21568628, g: 0.21568628, b: 0.21568628, a: 1}
-    m_SelectedColor: {r: 0.13725491, g: 0.13725491, b: 0.13725491, a: 1}
+    m_NormalColor: {r: 0, g: 0.37254903, b: 0.627451, a: 1}
+    m_HighlightedColor: {r: 0, g: 0.46491745, b: 0.7830189, a: 1}
+    m_PressedColor: {r: 0, g: 0.32488206, b: 0.5471698, a: 1}
+    m_SelectedColor: {r: 0, g: 0.37254903, b: 0.627451, a: 1}
     m_DisabledColor: {r: 0.39215687, g: 0.39215687, b: 0.39215687, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -967,8 +967,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u200B"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 06bc99cb577ced74f9bba5c596c75d2f, type: 2}
+  m_sharedMaterial: {fileID: -2392505953536363100, guid: 06bc99cb577ced74f9bba5c596c75d2f,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

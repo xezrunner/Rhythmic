@@ -2,13 +2,13 @@
 
 public class TimeUnit
 {
-    public TimeUnit(SongSystem song_system)
+    public TimeUnit(Song song)
     {
         // TODO: revise this initialization!
-        this.song_system = song_system;
-        song = song_system.song;
+        this.song_system = SongSystem.Instance; // TODO: temp?
+        this.song = song;
 
-        bpm = song_system.song.bpm;
+        bpm = song.bpm;
         if (bpm == 0 && LogE("BPM can't be 0!".T(this))) return;
 
         Vars = GameState.Variables;
@@ -27,17 +27,18 @@ public class TimeUnit
 
     // ----- //
 
-    float tick_per_ms, ms_per_tick;
-    float beat_per_ms, ms_per_beat;
-    float pos_per_tick, tick_per_pos;
-    float pos_per_ms, ms_pres_pos;
+    public long tick_per_ms;
+    public float ms_per_tick;
+    public float beat_per_ms, ms_per_beat;
+    public float pos_per_tick, tick_per_pos;
+    public float pos_per_ms, ms_pres_pos;
 
     void Calculate()
     {
         beat_per_ms = (bpm / 60000f);
         ms_per_beat = (60000f / bpm);
 
-        tick_per_ms = (bpm * beat_ticks / 60000f);
+        tick_per_ms = (long)(bpm * beat_ticks / 60000f); // TODO: is this OK?
         ms_per_tick = 60000f / (bpm * beat_ticks);
 
         // tunnel_scale has to be taken into account when calculating position:

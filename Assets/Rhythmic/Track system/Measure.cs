@@ -15,19 +15,16 @@ public class Measure : MonoBehaviour
         m.id = id;
         m.parent_track = parent_track;
 
-        m.path_trans.pos.x = (m.path_trans.max_values.x * 2) * parent_track.id_real;
-        m.path_trans.pos.z += m.path_trans.max_values.z * id;
+        Vector3 pos = new Vector3(3.68f * parent_track.id_real, 0, 32.89f * id);
+        m.trans0.pos = pos;
 
         return m;
     }
 
-    public PathTransform path_trans;
+    public PathTransform trans0;
 
     public Track parent_track;
     public int id;
-
-    public MeshRenderer mesh_renderer;
-    public MeshFilter mesh_filter;
 
     public float distance;
 
@@ -38,7 +35,7 @@ public class Measure : MonoBehaviour
 
     void Start()
     {
-        mesh_renderer.material.SetColor("_EmissionColor", RHX_Colors.track_colors[(int)parent_track.instrument]);
+        //mesh_renderer.material.SetColor("_EmissionColor", RHX_Colors.track_colors[(int)parent_track.instrument]);
     }
 }
 

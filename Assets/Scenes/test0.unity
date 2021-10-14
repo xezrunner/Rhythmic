@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.284377, g: 0.26721376, b: 0.21304315, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -159,7 +159,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.18867922, g: 0.08320304, b: 0.018511917, a: 0}
+  m_BackGroundColor: {r: 0.066037714, g: 0.066037714, b: 0.066037714, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -512,6 +512,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   song_to_load: test
   tunnel_scale_global: 0
+  is_playing: 0
+  song_progress_sec: 0
 --- !u!4 &604246063
 Transform:
   m_ObjectHideFlags: 0
@@ -525,7 +527,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &715843507
 GameObject:
@@ -559,11 +561,8 @@ MonoBehaviour:
   editorData:
     _bezierPath:
       points:
-      - {x: 7, y: 0, z: 5}
-      - {x: 7.4160013, y: 0.14522052, z: 6.1466637}
-      - {x: 24.778574, y: 2.681034, z: 54.104546}
       - {x: 38.38625, y: 5.2156305, z: 101.02426}
-      - {x: 55.627243, y: 8.426977, z: 160.47177}
+      - {x: 56.85018, y: 13.658873, z: 160.80563}
       - {x: 61.22937, y: 5.343582, z: 244.07048}
       - {x: 18.56884, y: 25.46408, z: 298.44165}
       - {x: -37.054703, y: 51.698463, z: 369.33423}
@@ -589,11 +588,9 @@ MonoBehaviour:
       - 0
       - 0
       - 0
-      - 0
       globalNormalsAngle: 90
       flipNormals: 0
       per_anchor_funky_angles:
-      - 0
       - 0
       - 0
       - 0
@@ -723,15 +720,15 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 871414534}
-  m_LocalRotation: {x: -0.040405866, y: -0.26237994, z: -0.010996967, w: 0.96405566}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalRotation: {x: 0.9990375, y: -0.02951097, z: 0.021050626, w: 0.024699053}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 342146473}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: -4.8, y: -30.45, z: 0}
+  m_LocalEulerAnglesHint: {x: 177.1, y: -2.33, z: 3.325}
 --- !u!1 &1010333590
 GameObject:
   m_ObjectHideFlags: 0
@@ -792,11 +789,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   beat_ticks: 480
   bar_ticks: 1920
+  tunnel_mode: 0
+  inst_delay_ms: 0
+  horizon_bars: 10
   AMP_song_lookup_paths:
   - 
   RHX_song_lookup_paths: []
-  tunnel_mode: 0
-  inst_delay_ms: 0
 --- !u!1 &1604034151
 GameObject:
   m_ObjectHideFlags: 0
@@ -846,7 +844,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1604034154
 MonoBehaviour:
@@ -921,6 +919,7 @@ MonoBehaviour:
   rot_smoothness: 0.5
   temp_speed: 80
   temp_isplaying: 0
+  temp_iscenter: 0
 --- !u!114 &1645221816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -947,5 +946,5 @@ Transform:
   m_Children:
   - {fileID: 140277558}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

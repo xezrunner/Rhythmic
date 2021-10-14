@@ -9,8 +9,11 @@ public class SongSystem : MonoBehaviour
     public string song_to_load;
 
     public Song song;
-    public TimeUnit song_time_unit;
     public float tunnel_scale_global;
+
+    // TODO: move these elsewhere?
+    public bool is_playing; 
+    public float song_progress_sec;
 
     public void Awake()
     {

@@ -10,7 +10,7 @@ using static Logger;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public partial class PathTransform : MonoBehaviour
 {
-    public static bool PATHTRANSFORM_DynamicUpdate = false;
+    public static bool PATHTRANSFORM_DynamicUpdate = true;
 
     //Transform trans;
 
