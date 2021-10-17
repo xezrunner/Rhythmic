@@ -42,9 +42,9 @@ public partial class DebugConsole : DebugCom
             Input_Field.caretPosition = (new_caret == -1 ? text.Length : new_caret);
     }
 
-    void InputField_Focus()   => Input_Field.ActivateInputField();
+    void InputField_Focus() => Input_Field.ActivateInputField();
     void InputField_Unfocus() => Input_Field.DeactivateInputField();
-    void InputField_Clear()   => InputField_ChangeText("");
+    void InputField_Clear() => InputField_ChangeText("");
 
     void HandleWordDelete(WordDeleteDir dir)
     {
@@ -74,11 +74,37 @@ public partial class DebugConsole : DebugCom
         InputField_ChangeText(result, false);
     }
 
+    // History navigation:
+    List<string> History = new List<string>();
+    [NonSerialized] public int History_Max = 50;
+
+    public void History_Add(string s)
+    {
+        if (History == null) return;
+        if (History.Count > 0 && History[0] == s) return;
+
+        History.Insert(0, s);
+        if (History.Count > History_Max) History.RemoveAt(History.Count - 1);
+    }
+
+    int history_index = -1;
+    public void History_Walk(int dir)
+    {
+        if (History == null || History.Count == 0) return;
+        history_index += dir;
+
+        if (history_index >= History.Count) history_index = 0;
+        else if (history_index < 0) history_index = History.Count - 1;
+
+        InputField_ChangeText(History[history_index]);
+    }
+
+
     // ----- //
 
     // Input (keys):
     void UPDATE_Input()
-    { 
+    {
         if (Keyboard == null) return;
 
         // Open, close, size:
@@ -92,6 +118,14 @@ public partial class DebugConsole : DebugCom
         // Submit:
         if (Keyboard.enterKey.wasPressedThisFrame || Keyboard.numpadEnterKey.wasPressedThisFrame)
             DEBUGCONSOLE_Submit(Input_Text);
+
+        // History navigation:
+        if (Keyboard.upArrowKey.wasPressedThisFrame) History_Walk(1);
+        else if (Keyboard.downArrowKey.wasPressedThisFrame)
+        {
+            if (history_index == 0) InputField_ChangeText("");
+            else History_Walk(-1);
+        }
 
         // Input field extras:
         // Word delete:

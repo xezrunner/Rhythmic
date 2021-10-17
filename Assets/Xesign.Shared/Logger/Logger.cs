@@ -1,13 +1,9 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using UnityEngine;
 
 public enum CLogType { None = -1, Info = 0, Unimportant = 1, Warning = 2, Error = 3, Caution = 4, Network = 5, IO = 6, Application = 7, UNKNOWN = 99 }
 public enum LogLevel { None, Warning, Error }
 [Flags]
-public enum LogTarget { Unity = 1 << 0, DebugUI = 1 << 1, All = (Unity | DebugUI) }
+public enum LogTarget { Unity = 1 << 0, DebugUI = 1 << 1, DebugConsole = 1 << 2, All = (Unity | DebugUI | DebugConsole) }
 
 public static class Logger
 {

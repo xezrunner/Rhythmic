@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using static Logger;
 
 public partial class DebugConsole : DebugCom
@@ -11,6 +8,7 @@ public partial class DebugConsole : DebugCom
         InputField_Clear();
         UI_ScrollConsole();
         ConsoleLog("> %".AddColor(0.8f), input);
+        History_Add(input);
 
         if (input.IsEmpty()) return false;
 

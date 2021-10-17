@@ -1,3 +1,4 @@
+#define UNITY_ENGINE
 #define PARSE_USE_STRINGBUILDER
 //#undef PARSE_USE_STRINGBUILDER
 
@@ -9,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
 using static Logger;
+
 
 public static class StringExtensions
 {
@@ -218,15 +220,32 @@ public static class StringExtensions
     #endregion
 
     // Type-method:
-    public static string M(this string text, [CallerMemberName] string method_name = null) =>
-        method_name + (!method_name.IsEmpty() ? "(): " : "") + text;
-    public static string T(this string text, object type = null) =>
-        type is null ? "" : ((type is string) ? type.ToString() : type.GetType().Name) + ": " + text;
+    public static string M(this string text, [CallerMemberName] string method_name = null)
+    {
+#if UNITY_ENGINE
+        return (method_name + (!method_name.IsEmpty() ? "(): " : "")).AddColor(Colors.Unimportant) + text;
+#else
+        return method_name + (!method_name.IsEmpty() ? "(): " : "") + text;
+#endif
+    }
+    public static string T(this string text, object type = null)
+    {
+#if UNITY_ENGINE
+        return (type is null ? "" : ((type is string) ? type.ToString() : type.GetType().Name) + ": ").AddColor(Colors.Unimportant) + text;
+#else
+        return type is null ? "" : ((type is string) ? type.ToString() : type.GetType().Name) + ": " + text;
+#endif
+    }
     public static string TM(this string text, object type = null, [CallerMemberName] string method_name = null)
     {
         string s_type = type is null ? "" : ((type is string) ? type.ToString() : type.GetType().Name);
         string s_method = method_name.IsEmpty() ? ": " : ("/" + method_name + "(): ");
+#if UNITY_ENGINE
+        return (s_type + s_method).AddColor(Colors.Unimportant) + text;
+#else
         return s_type + s_method + text;
+#endif
+
     }
 
     public static string Reverse(this string text)
