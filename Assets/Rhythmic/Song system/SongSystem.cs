@@ -11,6 +11,8 @@ public class SongSystem : MonoBehaviour
     public Song song;
     public float tunnel_scale_global;
 
+    Clock current_clock;
+
     // TODO: move these elsewhere?
     public bool is_playing; 
     public float song_progress_sec;
@@ -37,7 +39,15 @@ public class SongSystem : MonoBehaviour
 
         song = song_loader.LoadSong(song_name);
 
+        CreateClock();
+
         if (song == null && LogE("Failed to load song %".TM(this), song_name)) return;
         Log("Current song: %".T(this), song_name); // TODO: grab name from the song itself
+    }
+
+    void CreateClock()
+    {
+        if (current_clock) Destroy(current_clock);
+        current_clock = gameObject.AddComponent<Clock>();
     }
 }

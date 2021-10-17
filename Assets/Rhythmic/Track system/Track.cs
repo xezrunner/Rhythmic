@@ -25,6 +25,8 @@ public class Track : MonoBehaviour
         return t;
     }
 
+    public Measure AddMeasure(Measure m) => measures[++measure_index] = m;
+
     public PathTransform path_trans;
     public MeshFilter mesh_filter;
     public MeshRenderer mesh_renderer;
@@ -36,6 +38,7 @@ public class Track : MonoBehaviour
 
     public Instrument instrument;
 
+    int measure_index = -1;
     public Measure[] measures;
 
     public void Start()

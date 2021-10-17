@@ -1,10 +1,5 @@
 ﻿public class Song
 {
-    public Song()
-    {
-        time_unit = new TimeUnit(this); // TODO: test!
-    }
-
     public Song_Type song_type;
 
     public string name;
