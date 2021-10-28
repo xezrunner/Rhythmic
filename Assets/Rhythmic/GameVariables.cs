@@ -13,11 +13,12 @@ public class GameVariables : MonoBehaviour
     public bool tunnel_mode = false;
 
     [Header("Track system")]
-    /// <summary>The amount of milliseconds to wait between track instantiations.</summary>
-    public float inst_delay_ms = 0;
 
     [Header("Track streamer")]
+    /// <summary>The amount of track measures we should see / stream ahead.</summary>
     public int horizon_bars = 10;
+    /// <summary>The amount of milliseconds to wait between track measure instantiations.</summary>
+    public float stream_inst_delay_ms = 60;
 
     // ----- //
 

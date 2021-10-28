@@ -5,11 +5,13 @@ using static Logger;
 public class PlayerLocomotion : MonoBehaviour
 {
     public static PlayerLocomotion Instance;
+    public WorldSystem WorldSystem;
+    public SongSystem SongSystem;
 
     Transform trans;
     public Camera loco_camera; // Follows the path.
     public PathCreator pathcreator;
-    public WorldSystem worldsystem;
+    
 
     public Vector3 pos_offset;
     public Vector3 rot_offset;
@@ -25,7 +27,8 @@ public class PlayerLocomotion : MonoBehaviour
     {
         Instance = this;
         trans = transform;
-        worldsystem = WorldSystem.Instance;
+        WorldSystem = WorldSystem.Instance;
+        SongSystem = SongSystem.Instance;
 
         if (!pathcreator) pathcreator = WorldSystem.GetAPathCreator();
         if (!pathcreator && LogE("No pathcreator!".T(this))) return;
@@ -66,7 +69,8 @@ public class PlayerLocomotion : MonoBehaviour
         float x = Mathf.SmoothDamp(current_offset.x, temp_iscenter ? (3.62f * TrackSystem.Instance.Tracks.Count) / 2f : pos_offset.x, ref current_offset_x_ref, 0.5f);
         current_offset = new Vector3(x, pos_offset.y, pos_offset.z);
 
-        if (!temp_isplaying) return;
+        //if (!temp_isplaying) return;
+        if (!SongSystem.is_playing) return;
         distance += temp_speed * Time.deltaTime;
     }
 }

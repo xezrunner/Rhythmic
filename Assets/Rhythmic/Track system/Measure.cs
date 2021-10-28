@@ -14,6 +14,7 @@ public class Measure : MonoBehaviour
         Measure m = go.GetComponent<Measure>();
         m.id = id;
         m.parent_track = parent_track;
+        parent_track.measures[id] = m;
 
         Vector3 pos = new Vector3(3.68f * parent_track.id_real, 0, 32.89f * id);
         m.trans0.pos = pos;

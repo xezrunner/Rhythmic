@@ -41,14 +41,17 @@ public class Track : MonoBehaviour
     int measure_index = -1;
     public Measure[] measures;
 
-    public void Start()
+    void Awake()
     {
         SongSystem = SongSystem.Instance;
         song = SongSystem.song;
         TrackSystem = TrackSystem.Instance;
 
         measures = new Measure[song.duration_bars];
+    }
 
+    public void Start()
+    {
         // TODO: materials, setup other stuff ...
 
         // Tests:

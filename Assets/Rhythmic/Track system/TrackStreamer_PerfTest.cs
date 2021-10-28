@@ -62,7 +62,7 @@ public class TrackStreamer_PerfTest : MonoBehaviour
             return;
         }
 
-        if (Vars.inst_delay_ms != 0 && test_time < Vars.inst_delay_ms)
+        if (Vars.stream_inst_delay_ms != 0 && test_time < Vars.stream_inst_delay_ms)
         {
             test_time += Time.unscaledDeltaTime;
             return;

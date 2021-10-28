@@ -50,4 +50,11 @@ public class SongSystem : MonoBehaviour
         if (current_clock) Destroy(current_clock);
         current_clock = gameObject.AddComponent<Clock>();
     }
+
+    void Update()
+    {
+        // TEST:
+        if (is_playing)
+            song_progress_sec += Time.deltaTime;
+    }
 }
