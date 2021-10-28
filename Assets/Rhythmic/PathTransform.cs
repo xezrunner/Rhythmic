@@ -16,7 +16,7 @@ public partial class PathTransform : MonoBehaviour
 
     public static PathCreator pathcreator_global;
     public PathCreator pathcreator;
-#if UNITY_EDITOR && DYNAMIC // || UNITY_EDITOR
+#if UNITY_EDITOR || DYNAMIC
     public VertexPath path { get { return pathcreator.path; } }
 #else
     public VertexPath path;
@@ -38,9 +38,15 @@ public partial class PathTransform : MonoBehaviour
     Vector3 prev_rot;
     [HideInInspector] public Vector3 euler_rot;
 
+    Vector3 prev_desired_size;
+    [HideInInspector] public Vector3 desired_size = new Vector3(-1, -1, -1);
+
+    public bool push_origin_to_front = true;
+
     void Awake()
     {
         //trans = transform;
+        desired_size = new Vector3(-1, -1, -1);
 
         // PathCreator and path: | TODO: Improve this!
         if (!pathcreator)
@@ -54,7 +60,7 @@ public partial class PathTransform : MonoBehaviour
         if (!pathcreator && LogW("No PathCreators were found! - %".T(this), gameObject.name)) return;
 
         // Assign path once in release builds for performance:
-#if !UNITY_EDITOR || !DYNAMIC //!UNITY_EDITOR
+#if !UNITY_EDITOR || !DYNAMIC
         path = pathcreator.path;
 #endif
 
@@ -67,6 +73,14 @@ public partial class PathTransform : MonoBehaviour
         // Mesh:
         if (!mesh_filter) mesh_filter = GetComponent<MeshFilter>();
         InitMesh();
+
+        // TEST:
+        //if (desired_size == new Vector3(-1, -1, -1))
+        //    desired_size = max_values;
+
+        if (desired_size.x == -1) desired_size.x = max_values.x * 2;
+        if (desired_size.y == -1) desired_size.y = max_values.y * 2;
+        if (desired_size.z == -1) desired_size.z = max_values.z * 2;
 
         Deform();
     }
@@ -101,10 +115,11 @@ public partial class PathTransform : MonoBehaviour
     void Update()
     {
         if (!AutoDeform) return;
-        if (prev_pos == pos && prev_rot == euler_rot) return;
+        if (prev_pos == pos && prev_rot == euler_rot && prev_desired_size == desired_size) return;
 
         prev_pos = pos;
         prev_rot = euler_rot;
+        prev_desired_size = desired_size;
         Deform();
     }
 

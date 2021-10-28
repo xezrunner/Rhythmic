@@ -31,6 +31,7 @@ public partial class TrackStreamer : MonoBehaviour
         Clock = Clock.Instance;
         Vars = GameState.Variables;
         TrackSystem = TrackSystem.Instance;
+        tracks = TrackSystem.Tracks;
 
         song = SongSystem.song;
         Log("Initialized track streamer for song %.".T(this), song.name);
@@ -40,15 +41,6 @@ public partial class TrackStreamer : MonoBehaviour
 
     void STREAMER_Init()
     {
-        // Create the tracks: 
-        for (int i = 0; i < song.data.track_defs.Count; ++i)
-        {
-            string s = song.data.track_defs[i];
-            Track t = Track.CreateTrack(s, (Instrument)i, i, i);
-            tracks.Add(t);
-        }
-        TrackSystem.Tracks = tracks; // TODO: is this by reference?
-
         // Prepare measures based on horizon: 
         Stream(Clock.bar + Vars.horizon_bars, -1);
     }

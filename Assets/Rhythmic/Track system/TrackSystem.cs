@@ -35,7 +35,17 @@ public class TrackSystem : MonoBehaviour
         SongSystem = SongSystem.Instance;
         song = SongSystem.song;
         Log("Initialized with song: %".T(this), song.name);
-        // CreateTracks();
+        INIT_CreateTracks();
+    }
+
+    void INIT_CreateTracks()
+    {
+        for (int i = 0; i < song.data.track_defs.Count; ++i)
+        {
+            string s = song.data.track_defs[i];
+            Track t = Track.CreateTrack(s, (Instrument)i, i, i);
+            Tracks.Add(t);
+        }
     }
 
     void Update()

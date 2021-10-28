@@ -10,11 +10,13 @@ public class PathTransformEditor : Editor
 
     SerializedProperty pos;
     SerializedProperty rot;
+    SerializedProperty desired_size;
 
     void OnEnable()
     {
         pos = serializedObject.FindProperty("pos");
         rot = serializedObject.FindProperty("euler_rot");
+        desired_size = serializedObject.FindProperty("desired_size");
     }
 
     public override void OnInspectorGUI()
@@ -23,6 +25,7 @@ public class PathTransformEditor : Editor
 
         EditorGUILayout.PropertyField(pos);
         EditorGUILayout.PropertyField(rot);
+        EditorGUILayout.PropertyField(desired_size);
 
         serializedObject.ApplyModifiedProperties();
 
