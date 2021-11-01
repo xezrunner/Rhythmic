@@ -44,8 +44,8 @@ public class AMP_SongLoader : SongLoader
             duration_bars = m.length_bars,
             tunnel_scale = m.tunnel_scale
         };
-        song.data = new Song_Data(); // temp
-        song.time_unit = new TimeUnit(song);
+        song.data = new SongData(); // temp
+        song.time_info = new SongTimeInfo(song);
 
         return song;
     }

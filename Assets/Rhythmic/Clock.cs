@@ -47,11 +47,11 @@ public class Clock : MonoBehaviour
         seconds_last = SongSystem.song_progress_sec;
 
         // Calculate unit values:
-        ticks = (ulong)(ms * Song.time_unit.tick_per_ms);
+        ticks = (ulong)(ms * Song.time_info.tick_per_ms);
         // TODO: GameVariables!
         // TODO: Figure out what to do with the casting situation here:
         bar = ( (int)ticks / Vars.bar_ticks);
         beat = ((int)ticks / Vars.beat_ticks);
-        pos = ms * Song.time_unit.pos_per_ms;
+        pos = ms * Song.time_info.pos_per_ms;
     }
 }

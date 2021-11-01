@@ -1,3 +1,22 @@
-// This is a comment.
+// Testing song #0
+// RHX file parsing test
 
-:Note 32s
+:Meta
+name "test"
+friendly_name "Testing song #0"
+
+:Config
+bpm 100
+tunnel_scale 1.0
+
+:Tracks
+T:Drums {
+	:Notes {
+		2@30,1s@40
+		3f@50
+	}
+}
+
+T:Synth
+T:Synth2
+T:Vocals

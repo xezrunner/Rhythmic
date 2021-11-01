@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-public class Song_Data
+public class SongData
 {
     // TODO: Perhaps this could be an array too?
     // We *might* want to remove entries from here for policy.

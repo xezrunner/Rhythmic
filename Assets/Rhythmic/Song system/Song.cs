@@ -13,9 +13,9 @@
 
     public float tunnel_scale;
 
-    public TimeUnit time_unit;
+    public SongTimeInfo time_info;
 
-    public Song_Data data;
+    public SongData data;
 }
 
 public enum Note_Lane { Left = 1, Center = 2, Right = 3, UNKNOWN = 0 } // Move
