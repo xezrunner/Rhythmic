@@ -11,7 +11,6 @@ public partial class DebugConsole : DebugCom
         History_Add(input);
 
         if (input.IsEmpty()) return false;
-
         string[] split_input = input.Split(' ');
 
         string[] split_args = null;
@@ -20,7 +19,7 @@ public partial class DebugConsole : DebugCom
             // TODO (cleanup): do this in a better way
             split_args = new string[split_input.Length - 1];
             for (int i = 1; i < split_input.Length; ++i)
-                split_args[i] = split_input[i];
+                split_args[i - 1] = split_input[i];
         }
 
         for (int i = 0; i < cmdsystem.commands_count; ++i)

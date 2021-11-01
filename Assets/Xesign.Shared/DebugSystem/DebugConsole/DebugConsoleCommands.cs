@@ -112,7 +112,7 @@ public class DebugConsoleCommands
     {
         RegisterCommand(test);
         RegisterCommand(help);
-        RegisterCommand(set_fps);
+        RegisterCommand(fps);
     }
 }
 
@@ -121,14 +121,20 @@ public static class DebugConsoleDefaultCommands
     static DebugConsoleCommands cmdsystem = DebugConsole.Instance.cmdsystem;
 
     public static void test() => Log("Test command");
-    public static void help()
+    public static void help(string[] args)
     {
+        if (args != null && args.Length > 0)
+        {
+            // Command-specific help goes here...
+            LogW("TODO: Command-specific help!");
+            return;
+        }
         DebugConsole.ConsoleLog("Listing commands...");
         DebugConsole.ConsoleLog("Total commands: %".AddColor(Colors.Unimportant), cmdsystem.commands_count);
         foreach (ConsoleCommand c in cmdsystem.registered_commands)
             DebugConsole.ConsoleLog(c.command.AddColor(Colors.Warning) + (!c.help_text.IsEmpty() ? " - " + c.help_text.AddColor(Colors.Unimportant) : null));
     }
-    public static void set_fps(string[] args)
+    public static void fps(string[] args)
     {
         if (args == null || args.Length == 0) CoreGameUtils.SetFramerate();
         else

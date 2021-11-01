@@ -27,6 +27,7 @@ public partial class DebugConsole : DebugCom
     public bool _ConsoleLog(string text, params object[] args)
     {
         UI_AddLine(text.Parse(args));
+        if (is_open) UI_ScrollConsole();
         return true;
     }
     public void Clear() => UI_ClearLines();

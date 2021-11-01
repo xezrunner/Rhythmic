@@ -115,17 +115,26 @@ public partial class DebugConsole : DebugCom
         scroll_start = UI_TextScrollRect.verticalNormalizedPosition;
         scroll_target = target;
 
+        Scroll_Speed = (1f + UI_TextScrollRect.verticalNormalizedPosition);
         is_scrolling = true;
     }
     void UPDATE_Scroll()
     {
         if (!is_scrolling) return;
 
-        float scroll = Mathf.Lerp(scroll_start, scroll_target, scroll_t);
+        float scroll = EaseOutC(scroll_start, scroll_target, scroll_t);
         UI_TextScrollRect.verticalNormalizedPosition = scroll;
 
         if (scroll_t <= 1.0f) scroll_t += Scroll_Speed * Time.unscaledDeltaTime;
         else is_scrolling = false;
+    }
+    public static float EaseOutC(float start, float end, float value)
+    {
+        --value;
+        end -= start;
+        float result = end * (value * value * value + 1) + start;
+
+        return result;
     }
 
     // Text UI: 

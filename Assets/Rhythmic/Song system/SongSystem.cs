@@ -55,6 +55,6 @@ public class SongSystem : MonoBehaviour
     {
         // TEST:
         if (is_playing)
-            song_progress_sec += Time.deltaTime;
+            song_progress_sec += Time.deltaTime * 4;
     }
 }

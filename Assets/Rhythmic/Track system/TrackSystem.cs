@@ -50,7 +50,7 @@ public class TrackSystem : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current.rKey.wasPressedThisFrame)
-            SceneManager.LoadScene("test0");
+        //if (Keyboard.current.rKey.wasPressedThisFrame)
+        //    SceneManager.LoadScene("test0");
     }
 }
