@@ -55,6 +55,9 @@ public partial class AMP_MoggSong
 {
     public AMP_MoggSong(string path) { ReadFromPath(path); }
 
+    List<Token> tokens;
+    int tokens_count;
+
     public AMP_MoggSong ReadFromPath(string path)
     {
         if (!File.Exists(path) && LogE("File does not exist: '%'".TM(this), path)) return null;
@@ -65,7 +68,8 @@ public partial class AMP_MoggSong
         if (text.Length <= 0 && LogE("File is empty: '%'".TM(this), path)) return null;
 
         // 2. Parse!
-        List<Token> tokens = new Parser(text).Parse();
+        tokens = new Parser(text).Parse();
+        tokens_count = tokens.Count;
 
         // [DEBUG] print!
         int i = -1;
@@ -79,9 +83,46 @@ public partial class AMP_MoggSong
         }
 
         // 3. Interpret:
-
+        Interpret();
 
         return null;
+    }
+
+    // TODO: This probably isn't the best way to do things:
+
+    void Interpret()
+    {
+        if (tokens == null || tokens.Count <= 0)
+        {
+            LogE("No tokens!".TM(this));
+            return;
+        }
+
+        for (int i = 0; i < tokens_count; i++)
+        {
+            Token t = tokens[i];
+
+            switch (t.type)
+            {
+                case Token_Type.OpenParen:
+                    {
+                        t = tokens[++i];
+                        Token t_next = null;
+                        if (i + 1 < tokens_count) t_next = tokens[i + 1];
+
+                        InterpretVariable(t, t_next);
+                        break;
+                    }
+            }
+        }
+    }
+    void InterpretVariable(Token t, Token t_next)
+    {
+        switch (t.value)
+        {
+            case "mogg_path": mogg_path = t_next.value; break;
+            case "midi_path": midi_path = t_next.value; break;
+        }
     }
 
     /// - Consider both ':' and ';' as comments!
@@ -128,13 +169,13 @@ public partial class AMP_MoggSong
                     case ':':
                     case ';':
                         {
-                            string comment = "";
+                            string s = "";
                             while (!c.IsNewline() && pos < length)
                             {
-                                comment += c; // Include comment char as well.
+                                s += c; // Include comment char as well.
                                 c = text[++pos];
                             }
-                            t = new Token(Token_Type.Comment, "");
+                            t = new Token(Token_Type.Comment, s);
                             break;
                         }
 
