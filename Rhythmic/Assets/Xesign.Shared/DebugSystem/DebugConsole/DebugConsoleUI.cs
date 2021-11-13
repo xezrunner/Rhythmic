@@ -68,7 +68,7 @@ public partial class DebugConsole : DebugCom
         openness_target_height = GetTargetHeight(is_compact);
         openness_start_height = UI_Panel_Trans.sizeDelta.y;
 
-        UI_ScrollConsole(false);
+        //UI_ScrollConsole(false);
         openness_animating = true;
     }
     void UPDATE_Openness()
@@ -81,7 +81,7 @@ public partial class DebugConsole : DebugCom
         UI_Panel_Trans.anchoredPosition = new Vector2(UI_Panel_Trans.anchoredPosition.x, y);
         UI_Panel_Trans.sizeDelta = new Vector2(UI_Panel_Trans.sizeDelta.x, height);
 
-        UI_ScrollConsole();
+        UI_ScrollConsole(false);
 
         if (openness_t <= 1.0f) openness_t += Openness_Speed * Time.unscaledDeltaTime;
         else openness_animating = false;

@@ -453,6 +453,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3539898943129461170, guid: b1d4a8f2ab222514eb86abf0282f0919, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3539898943129461173, guid: b1d4a8f2ab222514eb86abf0282f0919, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 5934060291425559574, guid: b1d4a8f2ab222514eb86abf0282f0919, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
