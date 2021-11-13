@@ -155,7 +155,7 @@ public partial class AMP_MoggSong
         {
             List<Token> list = new List<Token>();
 
-            while (pos < length - 1 - 1)
+            while (pos < length - 1)
             {
                 Token t = null;
                 c = text[++pos];
