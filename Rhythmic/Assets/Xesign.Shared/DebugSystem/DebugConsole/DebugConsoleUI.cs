@@ -39,6 +39,7 @@ public partial class DebugConsole : DebugCom
         is_open = true;
         InputField_Focus();
 
+        UI_ScrollConsole(false);
         Animate_Openness(is_open, anim);
     }
     public void _Close(bool anim = true)
@@ -80,8 +81,6 @@ public partial class DebugConsole : DebugCom
 
         UI_Panel_Trans.anchoredPosition = new Vector2(UI_Panel_Trans.anchoredPosition.x, y);
         UI_Panel_Trans.sizeDelta = new Vector2(UI_Panel_Trans.sizeDelta.x, height);
-
-        UI_ScrollConsole(false);
 
         if (openness_t <= 1.0f) openness_t += Openness_Speed * Time.unscaledDeltaTime;
         else openness_animating = false;

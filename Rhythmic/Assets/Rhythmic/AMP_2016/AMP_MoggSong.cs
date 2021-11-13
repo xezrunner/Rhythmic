@@ -78,6 +78,9 @@ public partial class AMP_MoggSong
             Log(s);
         }
 
+        // 3. Interpret:
+
+
         return null;
     }
 
