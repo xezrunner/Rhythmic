@@ -2,9 +2,8 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
-    // Start is called before the first frame update
     void Start()
     {
-
+        AMP_MoggSong a = new AMP_MoggSong(@"G:\amp_ps3\songs\allthetime\allthetime.moggsong");
     }
 }
