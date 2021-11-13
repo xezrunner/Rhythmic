@@ -155,7 +155,7 @@ public partial class AMP_MoggSong
         {
             List<Token> list = new List<Token>();
 
-            while (pos < length - 1)
+            while (pos < length - 1 - 1)
             {
                 Token t = null;
                 c = text[++pos];
@@ -170,7 +170,7 @@ public partial class AMP_MoggSong
                     case ';':
                         {
                             string s = "";
-                            while (!c.IsNewline() && pos < length)
+                            while (!c.IsNewline() && pos < length - 1)
                             {
                                 s += c; // Include comment char as well.
                                 c = text[++pos];
@@ -188,7 +188,7 @@ public partial class AMP_MoggSong
                         {
                             string s = "";
                             c = text[++pos]; // Advance from "
-                            while (c != '"' && pos < length)
+                            while (c != '"' && pos < length - 1)
                             {
                                 s += c;
                                 c = text[++pos];
@@ -200,7 +200,7 @@ public partial class AMP_MoggSong
                     case char x when char.IsNumber(x):
                         {
                             string s = "";
-                            while (!c.IsWhitespace() && c != ')' && pos < length)
+                            while (!c.IsWhitespace() && c != ')' && pos < length - 1)
                             {
                                 s += c;
                                 c = text[++pos];
@@ -212,7 +212,7 @@ public partial class AMP_MoggSong
                     default: // Identifier
                         {
                             string s = "";
-                            while (!c.IsWhitespace() && c != ')' && pos < length)
+                            while (!c.IsWhitespace() && c != ')' && pos < length - 1)
                             {
                                 s += c;
                                 c = text[++pos];
