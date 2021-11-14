@@ -152,6 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d3f7beda2fd1b64e832f599f2e24142, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  game_mode: 0
+  song_system: {fileID: 0}
 --- !u!4 &333404224
 Transform:
   m_ObjectHideFlags: 0
@@ -267,7 +269,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1098744546
 Transform:
   m_ObjectHideFlags: 0

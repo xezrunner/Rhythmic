@@ -58,7 +58,7 @@ public partial class AMP_MoggSong
     List<Token> tokens;
     int tokens_count;
 
-    public static bool MOGGSONG_DebugPrintTokens = false;
+    public static bool MOGGSONG_DebugPrintTokens = true;
 
     public bool ReadFromPath(string path)
     {
@@ -238,7 +238,7 @@ public partial class AMP_MoggSong
                                 s += c;
                                 c = text[++pos];
                             }
-                            --pos;
+                            //--pos;
 
                             t = new Token(Token_Type.String, s);
                             break;
@@ -252,7 +252,7 @@ public partial class AMP_MoggSong
                                 s += c;
                                 c = text[++pos];
                             }
-                            --pos;
+                            //--pos;
 
                             t = new Token(Token_Type.Number, s);
                             break;
@@ -266,7 +266,7 @@ public partial class AMP_MoggSong
                                 s += c;
                                 c = text[++pos];
                             }
-                            --pos;
+                            //--pos;
 
                             t = new Token(Token_Type.Identifier, s);
                             break;

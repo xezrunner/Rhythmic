@@ -120,7 +120,7 @@ public partial class AMP_MidiFile
             string[] split = code.Split(':');
 
             // TODO: What should be done with freestyle tracks within the MIDI?
-            // Currently, I'm handling them through the moggsong, but the game handles them through the MIDI...
+            // Currently, I'm handling them through the moggsong, but AMP2016 handles them through the MIDI...
             if (split[0] == "FREESTYLE") continue;
 
             AMP_MidiTrack t = new AMP_MidiTrack()
