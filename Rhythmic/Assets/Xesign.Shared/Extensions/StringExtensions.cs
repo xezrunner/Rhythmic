@@ -303,6 +303,23 @@ public static class StringExtensions
         return false;
     }
 
+    public static bool ContainsAny(this string text, params string[] tests) => ContainsAny(text, false, tests);
+    public static bool ContainsAny(this string text, params char[] tests) => ContainsAny(text, false, tests);
+    public static bool ContainsAny(this string text, bool ignore_case = false, params string[] tests)
+    {
+        foreach (string s in tests)
+            if (text.Contains(s)) return true;
+
+        return false;
+    }
+    public static bool ContainsAny(this string text, bool ignore_case = false, params char[] tests)
+    {
+        foreach (char c in tests)
+            if (text.Contains(c)) return true;
+
+        return false;
+    }
+
     public static bool IsEmpty(this string text) => (text == null || text == "");
 }
 
