@@ -46,6 +46,9 @@ public partial class AMP_MidiFile
         bpm = find_bpm_from_midi(midi);
         midi_ticks = midi.DeltaTicksPerQuarterNote;
 
+        if (midi_ticks != ticks_target)
+            LogW("%: MIDI beat ticks (%) doesn't match target (%).".TM(this), Path.GetFileName(path), midi_ticks, ticks_target);
+
         tracks = find_catch_tracks(midi);
         track_count = tracks.Length;
 
