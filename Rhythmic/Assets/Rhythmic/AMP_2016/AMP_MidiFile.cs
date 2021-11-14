@@ -9,18 +9,23 @@ using static Logger;
 public partial class AMP_MidiFile
 {
     public int bpm;
+    public int midi_ticks;
+
     public AMP_MidiTrack[] tracks;
     public int track_count;
     public List<NoteOnEvent>[] note_on_events;
 }
 
-public struct AMP_MidiTrack
+public class AMP_MidiTrack
 {
     public string _text;
+    public int _midi_track_id;
     public int id;
 
-    public AMP_Instrument instrument;
+    public AMP_Instrument instrument = AMP_Instrument.UNKNOWN;
     public string name;
+
+    public List<NoteOnEvent> note_events;
 }
 
 // Functionality:
@@ -39,11 +44,12 @@ public partial class AMP_MidiFile
         MidiFile midi = new MidiFile(stream, false); // TODO: Should 'strictChecking' be true?
 
         bpm = find_bpm_from_midi(midi);
+        midi_ticks = midi.DeltaTicksPerQuarterNote;
 
         tracks = find_catch_tracks(midi);
         track_count = tracks.Length;
 
-        note_on_events = find_note_events(midi);
+        find_note_events(midi, tracks);
     }
 
     // TODO: these functions could be static?
@@ -65,9 +71,33 @@ public partial class AMP_MidiFile
         return 0;
     }
 
-    List<NoteOnEvent>[] find_note_events(MidiFile midi)
+    public static int ticks_target = 480;
+    void find_note_events(MidiFile midi, AMP_MidiTrack[] tracks)
     {
-        return null;
+        for (int i = 0; i < track_count; ++i)
+        {
+            AMP_MidiTrack track = tracks[i];
+
+            List<NoteOnEvent> notes = new List<NoteOnEvent>();
+            foreach (MidiEvent ev in midi.Events[track._midi_track_id])
+            {
+                if (ev.CommandCode != MidiCommandCode.NoteOn) continue;
+
+                NoteOnEvent note = (NoteOnEvent)ev;
+
+                // TODO: BUGFIX: Some AMP MIDIs don't have the correct tick information.
+                if (midi_ticks != ticks_target)
+                {
+                    double unitless = note.AbsoluteTime / midi_ticks;
+                    double corrected = unitless * ticks_target;
+                    note.AbsoluteTime = (long)corrected;
+                }
+
+                notes.Add(note);
+            }
+
+            track.note_events = notes;
+        }
     }
 
     const string MIDI_TRACKNAME_START = "0 SequenceTrackName T";
@@ -94,8 +124,8 @@ public partial class AMP_MidiFile
             AMP_MidiTrack t = new AMP_MidiTrack()
             {
                 _text = code,
+                _midi_track_id = i,
                 id = count,
-                instrument = AMP_Instrument.UNKNOWN,
                 name = split[2]
             };
             AMP_Instrument instrument_parse;
