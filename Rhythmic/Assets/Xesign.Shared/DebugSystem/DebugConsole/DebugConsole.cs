@@ -22,7 +22,7 @@ public partial class DebugConsole : DebugCom
     public static bool ConsoleLog(string text, params object[] args)
     {
         if (Instance) return Instance._ConsoleLog(text, args);
-        else Debug.LogError("No debug console!".TM("DebugConsole"));
+        // else Debug.LogError("No debug console!".TM("DebugConsole"));
 
         return true;
     }

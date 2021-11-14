@@ -2,7 +2,7 @@ using static Logger;
 
 public partial class DebugConsole : DebugCom
 {
-    public bool DEBUGCONSOLE_Submit(string input)
+    public bool SubmitInput(string input)
     {
         InputField_Focus(); // Unity drops focus on submit by default.
         InputField_Clear();
@@ -22,17 +22,22 @@ public partial class DebugConsole : DebugCom
                 split_args[i - 1] = split_input[i];
         }
 
+        return ExecuteCommand(split_input[0], split_args);
+    }
+
+    public bool ExecuteCommand(string command, string[] args)
+    {
         for (int i = 0; i < cmdsystem.commands_count; ++i)
         {
             ConsoleCommand cmd = cmdsystem.registered_commands[i];
-            if (cmd.command == split_input[0])
+            if (cmd.command == command)
             {
-                cmd.Invoke(split_args);
+                cmd.Invoke(args);
                 return true;
             }
         }
 
-        LogE("Failed to find command '%'.".T(this), split_input[0]);
+        LogE("Failed to find command '%'.".T(this), command);
         return false;
     }
 }

@@ -120,7 +120,7 @@ public partial class DebugConsole : DebugCom
 
         // Submit:
         if (Keyboard.enterKey.wasPressedThisFrame || Keyboard.numpadEnterKey.wasPressedThisFrame)
-            DEBUGCONSOLE_Submit(Input_Text);
+            SubmitInput(Input_Text);
 
         // History navigation:
         if (Keyboard.upArrowKey.wasPressedThisFrame) History_Walk(1);
