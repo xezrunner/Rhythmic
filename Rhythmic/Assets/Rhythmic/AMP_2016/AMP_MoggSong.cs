@@ -51,7 +51,6 @@ public struct MoggSong_TrackDef
 
 // Functionality (parsing):
 
-
 public partial class AMP_MoggSong
 {
     public AMP_MoggSong(string path) { ReadFromPath(path); }
