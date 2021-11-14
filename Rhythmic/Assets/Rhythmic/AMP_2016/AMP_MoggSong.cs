@@ -11,6 +11,7 @@ public partial class AMP_MoggSong
 
     public int length; // in bars | TODO: this might need a time unit! (format is x:y:z <- what do these mean?)
     public int countin;
+    public float bpm; // int?
 
     public List<MoggSong_TrackDef> tracks;
 
@@ -35,7 +36,6 @@ public partial class AMP_MoggSong
         public string artist_short;
         public string unlock_requirement; // TODO: enum?
         public string desc; // TODO: manual lookup?
-        public float bpm; // int?
     }
     public sect_song_metadata song_metadata;
 
@@ -114,18 +114,56 @@ public partial class AMP_MoggSong
                         Token t_next = null;
                         if (i + 1 < tokens_count) t_next = tokens[i + 1];
 
-                        InterpretVariable(t, t_next);
+                        InterpretVariable(tokens, t, t_next, ref i);
                         break;
                     }
             }
         }
     }
-    void InterpretVariable(Token t, Token t_next)
+    void InterpretVariable(List<Token> tokens, Token t, Token t_next, ref int i)
     {
+        int consecutive_closeparen = 0;
+
         switch (t.value)
         {
             case "mogg_path": mogg_path = t_next.value; break;
             case "midi_path": midi_path = t_next.value; break;
+            case "song_info":
+                {
+                    t = tokens[++i];
+                    while (consecutive_closeparen < 2)
+                    {
+                        t = tokens[++i];
+                        t_next = tokens[i + 1];
+
+                        if (t.type == Token_Type.CloseParen) ++consecutive_closeparen;
+                        if (t.type != Token_Type.Identifier) continue;
+                        consecutive_closeparen = 0;
+
+                        switch (t.value)
+                        {
+                            case "length": length = t_next.value.Split(':')[0].ParseInt(); break;
+                            case "countin": countin = t_next.value.ParseInt(); break;
+                        }
+                    }
+                    break;
+                }
+            case "tunnel_scale": tunnel_scale = t_next.value.ParseFloat(); break;
+            case "bpm": bpm = t_next.value.ParseFloat(); break;
+            case "section_start_bars":
+                {
+                    t = tokens[++i];
+                    List<int> list = new List<int>();
+                    while (t.type != Token_Type.CloseParen)
+                    {
+                        if (t.type == Token_Type.Number) list.Add(t.value.ParseInt());
+                        t = tokens[++i];
+                    }
+                    section_start_bars = list;
+                    break;
+                }
+
+                // TODO: finish these...
         }
     }
 
