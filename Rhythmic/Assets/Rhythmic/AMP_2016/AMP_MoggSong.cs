@@ -58,14 +58,13 @@ public partial class AMP_MoggSong
     List<Token> tokens;
     int tokens_count;
 
-    public AMP_MoggSong ReadFromPath(string path)
+    public bool ReadFromPath(string path)
     {
-        if (!File.Exists(path) && LogE("File does not exist: '%'".TM(this), path)) return null;
-
+        if (!File.Exists(path) && LogE("File does not exist: '%'".TM(this), path)) return false;
 
         // 1. Read in the moggsong as a text file:
         string text = File.ReadAllText(path);
-        if (text.Length <= 0 && LogE("File is empty: '%'".TM(this), path)) return null;
+        if (text.Length <= 0 && LogE("File is empty: '%'".TM(this), path)) return false;
 
         // 2. Parse!
         tokens = new Parser(text).Parse();
@@ -85,7 +84,7 @@ public partial class AMP_MoggSong
         // 3. Interpret:
         Interpret();
 
-        return null;
+        return true;
     }
 
     // TODO: This probably isn't the best way to do things:
@@ -163,6 +162,7 @@ public partial class AMP_MoggSong
                 switch (c)
                 {
                     case ' ':
+                    case '\t':
                     case '\r':
                     case '\n': continue;
 
@@ -175,6 +175,8 @@ public partial class AMP_MoggSong
                                 s += c; // Include comment char as well.
                                 c = text[++pos];
                             }
+                            --pos;
+
                             t = new Token(Token_Type.Comment, s);
                             break;
                         }
@@ -186,13 +188,15 @@ public partial class AMP_MoggSong
 
                     case '"':
                         {
-                            string s = "";
                             c = text[++pos]; // Advance from "
+                            string s = "";
                             while (c != '"' && pos < length - 1)
                             {
                                 s += c;
                                 c = text[++pos];
                             }
+                            --pos;
+
                             t = new Token(Token_Type.String, s);
                             break;
                         }
@@ -205,6 +209,8 @@ public partial class AMP_MoggSong
                                 s += c;
                                 c = text[++pos];
                             }
+                            --pos;
+
                             t = new Token(Token_Type.Number, s);
                             break;
                         }
@@ -217,6 +223,8 @@ public partial class AMP_MoggSong
                                 s += c;
                                 c = text[++pos];
                             }
+                            --pos;
+
                             t = new Token(Token_Type.Identifier, s);
                             break;
                         }
