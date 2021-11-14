@@ -131,10 +131,16 @@ public partial class DebugConsole : DebugCom
         }
 
         // Input field extras:
-        // Word delete:
-        if (Keyboard.ctrlKey.isPressed && Keyboard.backspaceKey.wasPressedThisFrame)
-            HandleWordDelete(WordDeleteDir.Left);
-        if (Keyboard.ctrlKey.isPressed && Keyboard.deleteKey.wasPressedThisFrame)
-            HandleWordDelete(WordDeleteDir.Right);
+        if (Keyboard.ctrlKey.isPressed)
+        {
+            // Word delete:
+            if (Keyboard.backspaceKey.wasPressedThisFrame) HandleWordDelete(WordDeleteDir.Left);
+            else if (Keyboard.deleteKey.wasPressedThisFrame) HandleWordDelete(WordDeleteDir.Right);
+
+            if (Keyboard.homeKey.wasPressedThisFrame) UI_ScrollConsole(SCROLL_TOP);
+            else if (Keyboard.endKey.wasPressedThisFrame) UI_ScrollConsole(SCROLL_BOTTOM);
+
+        }
+
     }
 }
