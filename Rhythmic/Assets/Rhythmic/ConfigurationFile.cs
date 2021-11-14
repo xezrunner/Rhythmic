@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using static Logger;
@@ -9,6 +10,8 @@ public class ConfigurationFile
     {
         public string name;
         public Entry_Type type;
+        public object value_obj;
+        public Type value_type;
     }
     public class Entry<T> : Entry
     {
@@ -17,14 +20,16 @@ public class ConfigurationFile
             this.type = type;
             this.name = name;
             this.value = value;
+            value_obj = value;
+            value_type = typeof(T);
         }
         public T value;
     }
 
-    public abstract class Value { }
+    public abstract class Value { public object value_obj; }
     public class Value<T> : Value
     {
-        public Value(T value) { this.value = value; }
+        public Value(T value) { this.value = value; value_obj = value; }
         public T value;
     }
 
@@ -76,7 +81,7 @@ public class ConfigurationFile
     {
         directory = new Dictionary<string, List<Entry>>();
 
-        string sect_name = "";
+        string sect_name = "none";
         List<Entry> sect_list = new List<Entry>();
         directory.Add(sect_name, sect_list);
 
@@ -89,6 +94,7 @@ public class ConfigurationFile
                 case Token_Type.Section:
                     {
                         sect_name = t.value;
+                        sect_list = new List<Entry>();
                         directory.Add(sect_name, sect_list);
                         break;
                     }
