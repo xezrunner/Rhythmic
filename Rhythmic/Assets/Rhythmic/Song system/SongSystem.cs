@@ -6,8 +6,6 @@ public class SongSystem : MonoBehaviour
     public static SongSystem Instance;
     GameState GameState = GameState.Instance;
 
-    public string song_name;
-
     void Awake()
     {
         Instance = this;
@@ -15,11 +13,14 @@ public class SongSystem : MonoBehaviour
 
     void Start()
     {
-        if (song_name.IsEmpty() && LogW("No song!".T(this))) return;
+        if (song == null && LogW("No song!".T(this))) return;
     }
 
     public AudioSystem audio_system;
+    public TrackSystem track_system;
     public Clock clock;
+
+    public Song song;
 
     public bool LoadSong(string song_name, GameMode game_mode)
     {
@@ -33,8 +34,8 @@ public class SongSystem : MonoBehaviour
         }
 
         if (song == null) return false;
+        this.song = song;
 
-        this.song_name = song_name;
         GameState.game_mode = game_mode;
 
         // Create Clock:
@@ -46,6 +47,11 @@ public class SongSystem : MonoBehaviour
         audiosystem_obj.transform.SetParent(transform);
         audio_system = audiosystem_obj.AddComponent<AudioSystem>();
         audio_system.SetupAudioSystem(song);
+
+        // Create TrackSystem:
+        GameObject tracksystem_obj = new GameObject("TrackSystem");
+        track_system = tracksystem_obj.AddComponent<TrackSystem>();
+        track_system.SetupTrackSystem(song);
 
         return true;
     }

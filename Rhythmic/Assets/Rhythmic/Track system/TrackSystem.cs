@@ -1,0 +1,25 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class TrackSystem : MonoBehaviour
+{
+    GameState GameState = GameState.Instance;
+    SongSystem SongSystem = SongSystem.Instance;
+
+    public Track[] tracks;
+
+    public void SetupTrackSystem(Song song)
+    {
+        // Create tracks:
+        tracks = new Track[song.track_count];
+        for (int i = 0; i < song.track_count; ++i)
+        {
+            GameObject obj = new GameObject(song.tracks[i].name);
+            obj.transform.SetParent(transform);
+            tracks[i] = new Track(song, i, obj.transform);
+        }
+    }
+
+
+}

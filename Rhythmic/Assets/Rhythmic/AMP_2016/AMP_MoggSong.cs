@@ -58,7 +58,7 @@ public partial class AMP_MoggSong
     List<Token> tokens;
     int tokens_count;
 
-    public static bool MOGGSONG_DebugPrintTokens = true;
+    public static bool MOGGSONG_DebugPrintTokens = false;
 
     public bool ReadFromPath(string path)
     {
