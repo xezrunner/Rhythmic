@@ -25,6 +25,9 @@ public static class AMP_SongLoader
             string track_name_for_audio = midi_track._text.Replace(':', '_');
             string audio_path = Path.Combine(AMP_Constants.AUDIO_PATH, song_name, "audio", track_name_for_audio + ".ogg");
 
+            if (!File.Exists(audio_path))
+                LogW("The audio for song % doesn't exist at '%'.".TM(nameof(AMP_SongLoader)), song_name, audio_path);
+
             // TODO: refer to Song.cs/Song_Instrument!
             Song_Instrument instrument = Song_Instrument.UNKNOWN;
             instrument = (Song_Instrument)midi_track.instrument;

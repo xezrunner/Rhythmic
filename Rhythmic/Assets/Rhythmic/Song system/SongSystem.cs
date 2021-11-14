@@ -4,6 +4,7 @@ using static Logger;
 public class SongSystem : MonoBehaviour
 {
     public static SongSystem Instance;
+    GameState GameState = GameState.Instance;
 
     public string song_name;
 
@@ -16,6 +17,9 @@ public class SongSystem : MonoBehaviour
     {
         if (song_name.IsEmpty() && LogW("No song!".T(this))) return;
     }
+
+    public AudioSystem audio_system;
+    public Clock clock;
 
     public bool LoadSong(string song_name, GameMode game_mode)
     {
@@ -31,6 +35,18 @@ public class SongSystem : MonoBehaviour
         if (song == null) return false;
 
         this.song_name = song_name;
+        GameState.game_mode = game_mode;
+
+        // Create Clock:
+        clock = gameObject.AddComponent<Clock>();
+        clock.SetupClock();
+
+        // Create AudioSystem:
+        GameObject audiosystem_obj = new GameObject("AudioSystem");
+        audiosystem_obj.transform.SetParent(transform);
+        audio_system = audiosystem_obj.AddComponent<AudioSystem>();
+        audio_system.SetupAudioSystem(song);
+
         return true;
     }
 

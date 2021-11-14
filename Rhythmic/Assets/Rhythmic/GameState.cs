@@ -7,6 +7,10 @@ public enum GameMode { Rhythmic = 0, Amplitude2016 = 1 }
 
 public class GameState : MonoBehaviour
 {
+    public static GameState Instance;
+
+    void Awake() { Instance = this; }
+
     void Start()
     {
         // Initialize Variables:
@@ -18,6 +22,8 @@ public class GameState : MonoBehaviour
         // Initialize SongSystem:
         INIT_SongSystem("allthetime");
     }
+
+    public GameMode game_mode;
 
     public static bool INIT_DebugPrintVariables = false;
     void INIT_Variables()
