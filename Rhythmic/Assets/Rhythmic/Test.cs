@@ -7,5 +7,7 @@ public class Test : MonoBehaviour
     {
         AMP_MoggSong a = new AMP_MoggSong(@"G:\amp_ps3\songs\allthetime\allthetime.moggsong");
         Log("mogg_path: %  midi_path: %" , a.mogg_path, a.midi_path);
+
+        ConfigurationFile file = new ConfigurationFile(@"H:\Repositories\Rhythmic-git\Rhythmic\Assets\Variables.conf");
     }
 }
