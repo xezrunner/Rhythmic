@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using static Logger;
 
@@ -11,6 +12,15 @@ public class Test : MonoBehaviour
         AMP_MidiFile b = new AMP_MidiFile(@"G:\amp_ps3\songs\allthetime\allthetime.mid");
         Log("MidiFile CHECK: bpm: %", b.bpm);
         foreach (AMP_MidiTrack t in b.tracks)
-            Log("  - text: %  id: %  instrument: %  name: %  |  note event count: %", t._text, t.id, t.instrument, t.name, t.note_events.Count);
+        {
+            Log("  - %:  id: %  instrument: %  name: %  |  note event count: %",
+                t._text.AddColor(Colors.Application), t.id, t.instrument, t.name, t.note_events.Count);
+
+            for (int i = 0; i < 10; ++i)
+            {
+                Log("    - [%] % (%) %", i, AMP_Constants.GetNoteLaneIndexFromCode(t.note_events[i].NoteNumber), t.note_events[i].NoteNumber,
+                    ((AMP_NoteLane)t.note_events[i].NoteNumber).ToString().AddColor(Colors.Application));
+            }
+        }
     }
 }
