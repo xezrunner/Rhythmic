@@ -162,20 +162,26 @@ public class ConfigurationFile
                         }
 
                         if (entry != null)
+                        {
                             sect_list.Add(entry);
-                        // If we didn't just add a list, we can safely jump 2 tokens ahead (value + 1).
-                        if (entry.type != Entry_Type.List) // TODO: This is weird.
-                            i += 2;
+
+                            // If we didn't just add a list, we can safely jump 2 tokens ahead (value + 1).
+                            if (entry.type != Entry_Type.List) // TODO: This is weird.
+                                i += 2;
+                        }
 
                         break;
                     }
                 case Token_Type.OpenParen: // Configuration-function
-                    InterpretFunction(tokens, i); break;
+                    {
+                        InterpretFunction(tokens, ref i);
+                        break;
+                    }
             }
         }
     }
 
-    void InterpretFunction(List<Token> tokens, int i)
+    void InterpretFunction(List<Token> tokens, ref int i)
     {
         Token t = tokens[++i];
         string cmd = t.value;
@@ -213,11 +219,9 @@ public class ConfigurationFile
                     Log("%: Executing command '%' with args '%'.".TM(this),
                             name.AddColor(Colors.Unimportant), cmd.AddColor(Colors.Application), args_s.AddColor(Colors.Unimportant));
                     DebugConsole.ExecuteCommand(cmd, args.ToArray());
-                    break;
+                    return; // EXIT!
                 }
         }
-
-
     }
 
     public enum Token_Type { Comment, Section, Identifier, Number, String, OpenParen, CloseParen, OpenBrace, CloseBrace, Newline }
