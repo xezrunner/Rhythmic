@@ -138,7 +138,7 @@ public partial class DebugConsole : DebugCom
             else if (Keyboard.deleteKey.wasPressedThisFrame) HandleWordDelete(WordDeleteDir.Right);
 
             if (Keyboard.homeKey.wasPressedThisFrame) UI_ScrollConsole(SCROLL_TOP);
-            else if (Keyboard.endKey.wasPressedThisFrame) UI_ScrollConsole(SCROLL_BOTTOM);
+            else if (Keyboard.endKey.wasPressedThisFrame || Keyboard.tabKey.wasPressedThisFrame) UI_ScrollConsole(SCROLL_BOTTOM);
 
         }
 
