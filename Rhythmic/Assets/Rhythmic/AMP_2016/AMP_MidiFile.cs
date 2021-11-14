@@ -13,7 +13,6 @@ public partial class AMP_MidiFile
 
     public AMP_MidiTrack[] tracks;
     public int track_count;
-    public List<NoteOnEvent>[] note_on_events;
 }
 
 public class AMP_MidiTrack
@@ -126,7 +125,7 @@ public partial class AMP_MidiFile
 
             AMP_MidiTrack t = new AMP_MidiTrack()
             {
-                _text = code,
+                _text = "T% %".Parse(i, code),
                 _midi_track_id = i,
                 id = count,
                 name = split[2]
