@@ -292,7 +292,7 @@ public static class StringExtensions
     }
 
     public static bool BeginsWith(this string text, string test, bool ignore_case = true) => text.StartsWith(test, ignore_case, CultureInfo.CurrentCulture);
-    public static bool BeginsWith(string test, bool ignore_case, bool opmode_all = false, params string[] text)
+    public static bool BeginsWith(this string test, bool ignore_case, bool opmode_all = false, params string[] text)
     {
         foreach (string t in text)
         {
