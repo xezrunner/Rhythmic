@@ -51,12 +51,15 @@ public struct MoggSong_TrackDef
 
 // Functionality (parsing):
 
+
 public partial class AMP_MoggSong
 {
     public AMP_MoggSong(string path) { ReadFromPath(path); }
 
     List<Token> tokens;
     int tokens_count;
+
+    public static bool MOGGSONG_DebugPrintTokens = false;
 
     public bool ReadFromPath(string path)
     {
@@ -71,14 +74,17 @@ public partial class AMP_MoggSong
         tokens_count = tokens.Count;
 
         // [DEBUG] print!
-        int i = -1;
-        Log("BEGIN TOKEN PRINT!  Length: %", tokens.Count);
-        foreach (Token t in tokens)
+        if (MOGGSONG_DebugPrintTokens)
         {
-            string s = "[%]: Type: %".Parse(++i, t.type);
-            if (t.type == Token_Type.Identifier || t.type == Token_Type.Number || t.type == Token_Type.String || t.type == Token_Type.Comment)
-                s += "  Value: %".Parse(t.value);
-            Log(s);
+            int i = -1;
+            Log("BEGIN TOKEN PRINT!  Length: %", tokens.Count);
+            foreach (Token t in tokens)
+            {
+                string s = "[%]: Type: %".Parse(++i, t.type);
+                if (t.type == Token_Type.Identifier || t.type == Token_Type.Number || t.type == Token_Type.String || t.type == Token_Type.Comment)
+                    s += "  Value: %".Parse(t.value);
+                Log(s);
+            }
         }
 
         // 3. Interpret:
