@@ -170,35 +170,54 @@ public class ConfigurationFile
                         break;
                     }
                 case Token_Type.OpenParen: // Configuration-function
-                    {
-                        t = tokens[++i];
-
-                        string cmd = t.value;
-                        t = tokens[++i];
-                        List<string> args = new List<string>();
-
-                        while (t.type != Token_Type.CloseParen)
-                        {
-                            args.Add(t.value);
-                            t = tokens[++i];
-                        }
-
-                        //sect_list.Add(new Entry<bool>(Entry_Type.Function, t.value, true));
-
-                        string args_s = "";
-                        if (args.Count > 0)
-                        {
-                            foreach (string s in args) args_s += " " + s;
-                            args_s = args_s.Substring(1, args_s.Length - 1);
-                        }
-
-                        Log("%: Executing command '%' with args '%'.".TM(this),
-                            name.AddColor(Colors.Unimportant), cmd.AddColor(Colors.Application), args_s.AddColor(Colors.Unimportant));
-                        DebugConsole.ExecuteCommand(cmd, args.ToArray());
-                        break;
-                    }
+                    InterpretFunction(tokens, i); break;
             }
         }
+    }
+
+    void InterpretFunction(List<Token> tokens, int i)
+    {
+        Token t = tokens[++i];
+        string cmd = t.value;
+
+        switch (cmd)
+        {
+            case "debugsystem":
+                {
+                    // TODO: Component arguments!
+                    DebugSystem.CreateDebugSystemObject();
+                    break;
+                }
+
+            default: // If this isn't a special function, call it as a console command.
+                {
+                    t = tokens[++i];
+                    List<string> args = new List<string>();
+
+
+                    while (t.type != Token_Type.CloseParen)
+                    {
+                        args.Add(t.value);
+                        t = tokens[++i];
+                    }
+
+                    //sect_list.Add(new Entry<bool>(Entry_Type.Function, t.value, true));
+
+                    string args_s = "";
+                    if (args.Count > 0)
+                    {
+                        foreach (string s in args) args_s += " " + s;
+                        args_s = args_s.Substring(1, args_s.Length - 1);
+                    }
+
+                    Log("%: Executing command '%' with args '%'.".TM(this),
+                            name.AddColor(Colors.Unimportant), cmd.AddColor(Colors.Application), args_s.AddColor(Colors.Unimportant));
+                    DebugConsole.ExecuteCommand(cmd, args.ToArray());
+                    break;
+                }
+        }
+
+
     }
 
     public enum Token_Type { Comment, Section, Identifier, Number, String, OpenParen, CloseParen, OpenBrace, CloseBrace, Newline }

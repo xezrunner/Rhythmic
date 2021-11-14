@@ -11,6 +11,8 @@ using UnityEngine.InputSystem.UI;
 
 public class DebugSystem : MonoBehaviour
 {
+    public const string PREFAB_PATH = "Prefabs/DebugSystem";
+
     public static DebugSystem Instance;
 
     public DebugSystemStartupManager startup_manager;
@@ -184,11 +186,17 @@ public class DebugSystem : MonoBehaviour
 
     // --------------- //
 
+    public static GameObject CreateDebugSystemObject()
+    {
+        GameObject prefab = (GameObject)Resources.Load(PREFAB_PATH);
+        return Instantiate(prefab);
+    }
+
 #if UNITY_EDITOR
     [MenuItem("GameObject/Create DebugSystem", priority = 0)]
-    public static void CreateDebugSystemPrefab()
+    public static void EDITOR_CreateDebugSystemPrefab()
     {
-        UnityEngine.Object prefab = Resources.Load("Prefabs/DebugSystem/DebugSystem");
+        UnityEngine.Object prefab = Resources.Load(PREFAB_PATH);
         PrefabUtility.InstantiatePrefab(prefab);
     }
 #endif
