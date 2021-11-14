@@ -22,10 +22,10 @@ public partial class DebugConsole : DebugCom
                 split_args[i - 1] = split_input[i];
         }
 
-        return ExecuteCommand(split_input[0], split_args);
+        return _ExecuteCommand(split_input[0], split_args);
     }
 
-    public bool ExecuteCommand(string command, string[] args)
+    public bool _ExecuteCommand(string command, string[] args)
     {
         for (int i = 0; i < cmdsystem.commands_count; ++i)
         {
@@ -38,6 +38,11 @@ public partial class DebugConsole : DebugCom
         }
 
         LogE("Failed to find command '%'.".T(this), command);
+        return false;
+    }
+    public static bool ExecuteCommand(string command, string[] args)
+    {
+        if (Instance) return Instance._ExecuteCommand(command, args);
         return false;
     }
 }
