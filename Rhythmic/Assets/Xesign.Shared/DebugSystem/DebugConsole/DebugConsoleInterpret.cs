@@ -30,7 +30,7 @@ public partial class DebugConsole : DebugCom
         for (int i = 0; i < cmdsystem.commands_count; ++i)
         {
             ConsoleCommand cmd = cmdsystem.registered_commands[i];
-            if (cmd.command == command)
+            if (cmd.command == command || cmd.aliases.Contains(command))
             {
                 cmd.Invoke(args);
                 return true;
