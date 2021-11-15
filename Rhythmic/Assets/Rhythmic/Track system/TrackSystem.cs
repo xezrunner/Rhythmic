@@ -26,5 +26,6 @@ public class TrackSystem : MonoBehaviour
 
         // Create streamer:
         streamer = gameObject.AddComponent<TrackStreamer>();
+        streamer.SetupTrackStreamer(this);
     }
 }
