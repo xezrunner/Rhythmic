@@ -1,0 +1,18 @@
+{
+    "name": "Rhythmic.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b4a82de9d4d792e4a86cc9292e387ce6"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
