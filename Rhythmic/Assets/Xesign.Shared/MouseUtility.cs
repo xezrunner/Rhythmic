@@ -14,7 +14,7 @@ public class MouseUtility
     {
         Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
         Cursor.visible = visible;
-        current_state = new(locked, visible);
+        current_state = (locked, visible);
     }
 
     public static void Lock() => Set();

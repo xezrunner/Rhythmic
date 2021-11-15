@@ -70,7 +70,7 @@ public partial class DebugConsole : DebugCom
         }
 
         // Reconstruct string:
-        string result = string.Join(' ', split[0]) + string.Join(' ', split[1]);
+        string result = string.Join(" ", split[0]) + string.Join(" ", split[1]);
         InputField_ChangeText(result, false);
     }
 
