@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using static DebugConsoleDefaultCommands;
 using static Logger;
+using UnityEngine;
 
 public partial class DebugConsole : DebugCom
 {
@@ -113,6 +114,7 @@ public class DebugConsoleCommands
         RegisterCommand(test);
         RegisterCommand(help);
         RegisterCommand(fps);
+        RegisterCommand(timescale, "ts");
     }
 }
 
@@ -143,5 +145,10 @@ public static class DebugConsoleDefaultCommands
             int vsync = args[1].ParseInt();
             CoreGameUtils.SetFramerate(fps, vsync);
         }
+    }
+    public static void timescale(string[] args)
+    {
+        if (args.Length == 0 && DebugConsole.ConsoleLog("timescale: argument required!")) return;
+        Time.timeScale = args[0].ParseFloat();
     }
 }
