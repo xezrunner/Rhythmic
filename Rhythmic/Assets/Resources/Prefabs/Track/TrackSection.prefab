@@ -30,7 +30,6 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -117,4 +116,9 @@ MonoBehaviour:
   pos: {x: 0, y: 0, z: 0}
   euler_rot: {x: 0, y: 0, z: 0}
   desired_size: {x: -1, y: -1, z: -1}
-  push_origin_to_front: 1
+  origin_mode: 1
+  origin_custom: 0
+  prev_min_clip_frac: 0
+  prev_max_clip_frac: 1
+  min_clip_frac: 0
+  max_clip_frac: 1
