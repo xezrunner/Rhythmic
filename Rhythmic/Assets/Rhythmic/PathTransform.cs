@@ -10,6 +10,14 @@ using static Logger;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public partial class PathTransform : MonoBehaviour
 {
+    public enum OriginMode
+    {
+        Default = 0, Center = 0, // The origin point of the model is not altered.
+        Front = 1, // The origin point moves to the front of the model - changing size Z alters length.
+        Back = 2, // The origin point moves to the back of the model - changin size Z alters inverse length (!).
+        Custom = 3
+    }
+
     public static bool PATHTRANSFORM_DynamicUpdate = true;
 
     //Transform trans;
@@ -29,6 +37,7 @@ public partial class PathTransform : MonoBehaviour
     List<Vector3> OG_vertices;
     List<Vector3> vertices;
     [NonSerialized] public Vector3 max_values;
+    [NonSerialized] public Vector3 max_values_double; // cache
 
     public bool AutoDeform = true;
 
@@ -41,7 +50,9 @@ public partial class PathTransform : MonoBehaviour
     Vector3 prev_desired_size;
     [HideInInspector] public Vector3 desired_size = new Vector3(-1, -1, -1);
 
-    public bool push_origin_to_front = true;
+    OriginMode prev_origin_mode;
+    public OriginMode origin_mode = OriginMode.Default;
+    public float origin_custom = 0f;
 
     void Awake()
     {
@@ -109,17 +120,24 @@ public partial class PathTransform : MonoBehaviour
             Mathf.Abs(OG_vertices.Max(v => v.x)),
             Mathf.Abs(OG_vertices.Max(v => v.y)),
             Mathf.Abs(OG_vertices.Max(v => v.z)));
+        max_values_double = (max_values * 2);
     }
     public void Restore_OG() => mesh.SetVertices(OG_vertices);
 
     void Update()
     {
         if (!AutoDeform) return;
-        if (prev_pos == pos && prev_rot == euler_rot && prev_desired_size == desired_size) return;
+
+        // Check previous value and update deformation if any has changed.
+        if (prev_pos == pos && prev_rot == euler_rot && prev_desired_size == desired_size 
+            && prev_origin_mode == origin_mode 
+            ) return;
 
         prev_pos = pos;
         prev_rot = euler_rot;
         prev_desired_size = desired_size;
+
+        prev_origin_mode = origin_mode;
         Deform();
     }
 
