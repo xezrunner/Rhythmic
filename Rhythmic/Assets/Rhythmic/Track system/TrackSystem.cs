@@ -8,6 +8,7 @@ public class TrackSystem : MonoBehaviour
     SongSystem SongSystem = SongSystem.Instance;
 
     public Track[] tracks;
+    public TrackStreamer streamer;
 
     public void SetupTrackSystem(Song song)
     {
@@ -19,7 +20,8 @@ public class TrackSystem : MonoBehaviour
             obj.transform.SetParent(transform);
             tracks[i] = new Track(song, i, obj.transform);
         }
+
+        // Create streamer:
+        streamer = gameObject.AddComponent<TrackStreamer>();
     }
-
-
 }

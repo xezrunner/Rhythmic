@@ -36,7 +36,7 @@ public enum Song_Instrument
     Freestyle = 7
 }
 
-public struct Song_Track
+public class Song_Track
 {
     public int id;
     public string name;
