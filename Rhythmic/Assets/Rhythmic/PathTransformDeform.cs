@@ -18,10 +18,8 @@ public partial class PathTransform
             Vector3 v = OG_vertices[i]; // Vertex
             Vector3 v_xy = new Vector2(v.x, v.y); // Vertex X and Y
 
-            // TODO: Figure out what's wrong here: 
-            float v_z = Mathf.LerpUnclamped(0, desired_size.z / 2, v.z / max_values.z);
-            if (push_origin_to_front) v_z += max_values.z;
-            float dist = (pos.z + v_z);
+            float dist = pos.z;
+
             // Move origin point:
             if (origin_mode == OriginMode.Front) v.z += max_values.z;
             else if (origin_mode == OriginMode.Custom) v.z += origin_custom;
@@ -30,6 +28,14 @@ public partial class PathTransform
                 v.z -= max_values.z;
                 dist += max_values_double.z;
             }
+
+            // TODO: The clamping of these could be done in UpdateClipValues().
+            float min_clip_clamped = Mathf.Clamp(min_clip_frac, 0f, max_clip_frac);
+            float max_clip_clamped = Mathf.Clamp(max_clip_frac, min_clip_clamped, 1f);
+            float z_frac = Mathf.Clamp(v.z / max_values_double.z, min_clip_clamped, max_clip_clamped);
+
+            float v_z = Mathf.Lerp(0, desired_size.z, z_frac);
+            dist += v_z;
 
             float x_rot = pos_xy.x + (v.x + max_values.x);
 

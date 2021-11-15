@@ -54,6 +54,11 @@ public partial class PathTransform : MonoBehaviour
     public OriginMode origin_mode = OriginMode.Default;
     public float origin_custom = 0f;
 
+    public float prev_min_clip_frac = 0f;
+    public float prev_max_clip_frac = 1f;
+    [Range(0f, 1f)] public float min_clip_frac = 0f;
+    [Range(0f, 1f)] public float max_clip_frac = 1f;
+
     void Awake()
     {
         //trans = transform;
@@ -124,6 +129,19 @@ public partial class PathTransform : MonoBehaviour
     }
     public void Restore_OG() => mesh.SetVertices(OG_vertices);
 
+    /// <summary>Specify -1 to not change a given clip value!</summary>
+    public void ChangeClipValues(float min, float max)
+    {
+        if (min < 0 && max < 0) return;
+
+        if (min >= 0) min_clip_frac = min;
+        if (max >= 0) max_clip_frac = max;
+
+        if (max < min || min > max) return;
+
+        Deform();
+    }
+
     void Update()
     {
         if (!AutoDeform) return;
@@ -131,6 +149,7 @@ public partial class PathTransform : MonoBehaviour
         // Check previous value and update deformation if any has changed.
         if (prev_pos == pos && prev_rot == euler_rot && prev_desired_size == desired_size 
             && prev_origin_mode == origin_mode 
+            && prev_min_clip_frac == min_clip_frac && prev_max_clip_frac == max_clip_frac
             ) return;
 
         prev_pos = pos;
@@ -138,6 +157,9 @@ public partial class PathTransform : MonoBehaviour
         prev_desired_size = desired_size;
 
         prev_origin_mode = origin_mode;
+        prev_min_clip_frac = min_clip_frac;
+        prev_max_clip_frac = max_clip_frac;
+
         Deform();
     }
 
