@@ -3,36 +3,37 @@ using System.Collections.Generic;
 using System.IO;
 using static Logger;
 
+public enum ConfigEntryType { Variable, List, Function, Command }
+
+public abstract class ConfigEntry
+{
+    public string name;
+    public ConfigEntryType type;
+    public object value_obj;
+    public Type value_type;
+}
+public class ConfigEntry<T> : ConfigEntry
+{
+    public ConfigEntry(ConfigEntryType type, string name, T value)
+    {
+        this.type = type;
+        this.name = name;
+        this.value = value;
+        value_obj = value;
+        value_type = typeof(T);
+    }
+    public T value;
+}
+
+public abstract class ConfigValue { public object value_obj; }
+public class ConfigValue<T> : ConfigValue
+{
+    public ConfigValue(T value) { this.value = value; value_obj = value; }
+    public T value;
+}
+
 public class ConfigurationFile
 {
-    public enum Entry_Type { Variable, List, Function, Command }
-    public abstract class Entry
-    {
-        public string name;
-        public Entry_Type type;
-        public object value_obj;
-        public Type value_type;
-    }
-    public class Entry<T> : Entry
-    {
-        public Entry(Entry_Type type, string name, T value)
-        {
-            this.type = type;
-            this.name = name;
-            this.value = value;
-            value_obj = value;
-            value_type = typeof(T);
-        }
-        public T value;
-    }
-
-    public abstract class Value { public object value_obj; }
-    public class Value<T> : Value
-    {
-        public Value(T value) { this.value = value; value_obj = value; }
-        public T value;
-    }
-
     public ConfigurationFile(string path)
     {
         this.path = path;
@@ -43,7 +44,7 @@ public class ConfigurationFile
     public string name;
     public string path;
 
-    public Dictionary<string, List<Entry>> directory;
+    public Dictionary<string, List<ConfigEntry>> directory;
 
     List<Token> tokens;
     int tokens_count;
@@ -84,10 +85,10 @@ public class ConfigurationFile
 
     void Interpret()
     {
-        directory = new Dictionary<string, List<Entry>>();
+        directory = new Dictionary<string, List<ConfigEntry>>();
 
         string sect_name = "none";
-        List<Entry> sect_list = new List<Entry>();
+        List<ConfigEntry> sect_list = new List<ConfigEntry>();
         directory.Add(sect_name, sect_list);
 
         for (int i = 0; i < tokens_count; i++)
@@ -99,7 +100,7 @@ public class ConfigurationFile
                 case Token_Type.Section:
                     {
                         sect_name = t.value;
-                        sect_list = new List<Entry>();
+                        sect_list = new List<ConfigEntry>();
                         directory.Add(sect_name, sect_list);
                         break;
                     }
@@ -108,7 +109,7 @@ public class ConfigurationFile
                         Token t_next = null;
                         if (i + 1 < tokens_count) t_next = tokens[i + 1];
 
-                        Entry entry = null;
+                        ConfigEntry entry = null;
 
                         switch (t_next.type)
                         {
@@ -116,13 +117,13 @@ public class ConfigurationFile
                                 LogW("Variable % requires a rhs assignment! Ignoring.", t.value); continue;
                             case Token_Type.Identifier:
                             case Token_Type.String:
-                                entry = new Entry<string>(Entry_Type.Variable, t.value, t_next.value); break;
+                                entry = new ConfigEntry<string>(ConfigEntryType.Variable, t.value, t_next.value); break;
                             case Token_Type.Number:
                                 {
                                     if (t_next.value.ContainsAny(',', '.'))
-                                        entry = new Entry<float>(Entry_Type.Variable, t.value, t_next.value.ParseFloat());
+                                        entry = new ConfigEntry<float>(ConfigEntryType.Variable, t.value, t_next.value.ParseFloat());
                                     else
-                                        entry = new Entry<int>(Entry_Type.Variable, t.value, t_next.value.ParseInt());
+                                        entry = new ConfigEntry<int>(ConfigEntryType.Variable, t.value, t_next.value.ParseInt());
                                     break;
                                 }
                             case Token_Type.OpenParen:
@@ -131,23 +132,23 @@ public class ConfigurationFile
                                     string name = t.value;
                                     t = tokens[i += 2];
 
-                                    List<Value> values = new List<Value>();
+                                    List<ConfigValue> values = new List<ConfigValue>();
 
                                     while (t.type != Token_Type.CloseParen && t.type != Token_Type.CloseBrace)
                                     {
-                                        Value value = null;
+                                        ConfigValue value = null;
 
                                         switch (t.type)
                                         {
                                             case Token_Type.Identifier:
                                             case Token_Type.String:
-                                                value = new Value<string>(t.value); break;
+                                                value = new ConfigValue<string>(t.value); break;
                                             case Token_Type.Number:
                                                 {
                                                     if (t.value.ContainsAny(',', '.'))
-                                                        value = new Value<float>(t.value.ParseFloat());
+                                                        value = new ConfigValue<float>(t.value.ParseFloat());
                                                     else
-                                                        value = new Value<int>(t.value.ParseInt());
+                                                        value = new ConfigValue<int>(t.value.ParseInt());
                                                     break;
                                                 }
                                         }
@@ -156,7 +157,7 @@ public class ConfigurationFile
                                         t = tokens[++i];
                                     }
 
-                                    entry = new Entry<List<Value>>(Entry_Type.List, name, values);
+                                    entry = new ConfigEntry<List<ConfigValue>>(ConfigEntryType.List, name, values);
                                     break;
                                 }
                         }
@@ -166,7 +167,7 @@ public class ConfigurationFile
                             sect_list.Add(entry);
 
                             // If we didn't just add a list, we can safely jump 2 tokens ahead (value + 1).
-                            if (entry.type != Entry_Type.List) // TODO: This is weird.
+                            if (entry.type != ConfigEntryType.List) // TODO: This is weird.
                                 i += 2;
                         }
 
@@ -268,10 +269,11 @@ public class ConfigurationFile
                     case '/': // Comments
                         {
                             string s = "";
-                            while (!c.IsNewline() && pos < length - 1)
+                            while (!c.IsNewline() && pos < length)
                             {
                                 s += c;
-                                c = text[++pos];
+                                ++pos;
+                                if (pos < length - 1) c = text[pos];
                             }
                             --pos;
 
@@ -284,10 +286,11 @@ public class ConfigurationFile
                             c = text[++pos]; // Advance from :
                             if (c == ' ') c = text[++pos]; // Advance from a space
                             string s = "";
-                            while (!c.IsNewline() && pos < length - 1)
+                            while (!c.IsNewline() && pos < length)
                             {
                                 s += c;
-                                c = text[++pos];
+                                ++pos;
+                                if (pos < length - 1) c = text[pos];
                             }
                             --pos;
 
@@ -304,10 +307,11 @@ public class ConfigurationFile
                         {
                             c = text[++pos]; // Advance from "
                             string s = "";
-                            while (c != '"' && pos < length - 1)
+                            while (c != '"' && pos < length)
                             {
                                 s += c;
-                                c = text[++pos];
+                                ++pos;
+                                if (pos < length - 1) c = text[pos];
                             }
                             --pos;
 
@@ -318,10 +322,11 @@ public class ConfigurationFile
                     case char x when char.IsNumber(x):
                         {
                             string s = "";
-                            while (!c.IsWhitespace() && c != ')' && c != '}' && pos < length - 1)
+                            while (!c.IsWhitespace() && c != ')' && c != '}' && pos < length)
                             {
                                 s += c;
-                                c = text[++pos];
+                                ++pos;
+                                if (pos < length - 1) c = text[pos];
                             }
                             --pos;
 
@@ -332,10 +337,11 @@ public class ConfigurationFile
                     default: // Identifier
                         {
                             string s = "";
-                            while (!c.IsWhitespace() && c != ')' && c != '}' && pos < length - 1)
+                            while (!c.IsWhitespace() && c != ')' && c != '}' && pos < length)
                             {
                                 s += c;
-                                c = text[++pos];
+                                ++pos;
+                                if (pos < length - 1) c = text[pos];
                             }
                             --pos;
 

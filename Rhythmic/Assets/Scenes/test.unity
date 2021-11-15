@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d3f7beda2fd1b64e832f599f2e24142, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  game_mode: 0
+  game_type: 0
   song_system: {fileID: 0}
 --- !u!4 &333404224
 Transform:
@@ -200,26 +200,26 @@ MonoBehaviour:
   editorData:
     _bezierPath:
       points:
-      - {x: 6.728359, y: -0.77255726, z: 29.12326}
-      - {x: -1.8413439, y: 4.5340304, z: 5.6420383}
-      - {x: -10.411047, y: 9.840618, z: -17.839184}
-      - {x: -28.190193, y: 14.5819435, z: -19.086788}
-      - {x: -52.87776, y: 21.1656, z: -20.819174}
-      - {x: -71.000496, y: 21.80337, z: 9.679378}
-      - {x: -89.12323, y: 22.44114, z: 40.17793}
+      - {x: 6.728359, y: 0, z: 29.12326}
+      - {x: 3.6309037, y: 0, z: 7.214404}
+      - {x: 0.5334482, y: 0, z: -14.694452}
+      - {x: -13.576564, y: 0, z: -24.565456}
+      - {x: -28.25106, y: 0, z: -34.83136}
+      - {x: -50.759995, y: 0, z: -30.046284}
+      - {x: -73.26893, y: 0, z: -25.261206}
       isClosed: 0
       space: 0
       controlMode: 3
       autoControlLength: 0.3
       boundsUpToDate: 0
       bounds:
-        m_Center: {x: 0, y: 0, z: 0}
-        m_Extent: {x: 0, y: 0, z: 0}
+        m_Center: {x: -41.197433, y: 10.834291, z: 10.510333}
+        m_Extent: {x: 47.925797, y: 11.606848, z: 29.667595}
       perAnchorNormalsAngle:
       - 0
       - 0
       - 0
-      globalNormalsAngle: 0
+      globalNormalsAngle: 90
       flipNormals: 0
       per_anchor_funky_angles:
       - 0
@@ -235,7 +235,7 @@ MonoBehaviour:
     showPerSegmentBounds: 0
     displayAnchorPoints: 1
     displayControlPoints: 1
-    bezierHandleScale: 5.99
+    bezierHandleScale: 17.13
     globalDisplaySettingsFoldout: 0
     keepConstantHandleSize: 0
     showNormalsInVertexMode: 0
@@ -244,7 +244,7 @@ MonoBehaviour:
     showPathOptions: 1
     showVertexPathDisplayOptions: 0
     showVertexPathOptions: 1
-    showNormals: 0
+    showNormals: 1
     showNormalsHelpInfo: 0
     tabIndex: 0
   initialized: 1
@@ -388,7 +388,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 7.03, z: -13.16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 852796000}
@@ -582,7 +582,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1582887610}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f6c9a71d47365e440bf5a3d498d1c73e, type: 3}
   m_Name: 

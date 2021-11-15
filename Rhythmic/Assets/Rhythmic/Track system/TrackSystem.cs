@@ -4,14 +4,17 @@ using UnityEngine;
 
 public class TrackSystem : MonoBehaviour
 {
-    GameState GameState = GameState.Instance;
+    Game Game = Game.Instance;
     SongSystem SongSystem = SongSystem.Instance;
 
+    Song song;
     public Track[] tracks;
     public TrackStreamer streamer;
 
     public void SetupTrackSystem(Song song)
     {
+        this.song = song;
+
         // Create tracks:
         tracks = new Track[song.track_count];
         for (int i = 0; i < song.track_count; ++i)

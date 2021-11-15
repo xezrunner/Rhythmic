@@ -11,7 +11,7 @@ public enum AudioSystemMode { Static = 0, Dynamic = 1, Mixed = 2, UNKNOWN = -1 }
 
 public class AudioSystem : MonoBehaviour
 {
-    GameState GameState = GameState.Instance;
+    Game Game = Game.Instance;
     SongSystem SongSystem = SongSystem.Instance;
     Clock Clock;
     public AudioSystemMode audio_system_mode;
@@ -24,7 +24,7 @@ public class AudioSystem : MonoBehaviour
     public void SetupAudioSystem(Song song)
     {
         // Set Audio system mode:
-        if (GameState.game_mode == GameMode.Amplitude2016)
+        if (Game.game_type == GameType.Amplitude2016)
             audio_system_mode = AudioSystemMode.Static; // AMP2016 only supports static songs!
         else { /* RHX ...*/ }
 

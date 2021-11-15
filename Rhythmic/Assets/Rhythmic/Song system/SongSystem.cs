@@ -4,7 +4,7 @@ using static Logger;
 public class SongSystem : MonoBehaviour
 {
     public static SongSystem Instance;
-    GameState GameState = GameState.Instance;
+    Game Game = Game.Instance;
 
     void Awake()
     {
@@ -22,11 +22,11 @@ public class SongSystem : MonoBehaviour
 
     public Song song;
 
-    public bool LoadSong(string song_name, GameMode game_mode)
+    public bool LoadSong(string song_name, GameType game_type)
     {
         Song song = null;
 
-        if (game_mode == GameMode.Amplitude2016)
+        if (game_type == GameType.Amplitude2016)
             song = AMP_SongLoader.LoadSong(song_name);
         else
         {
@@ -36,7 +36,7 @@ public class SongSystem : MonoBehaviour
         if (song == null) return false;
         this.song = song;
 
-        GameState.game_mode = game_mode;
+        Game.game_type = game_type;
 
         // Create Clock:
         clock = gameObject.AddComponent<Clock>();
