@@ -149,7 +149,7 @@ public partial class DebugConsole : DebugCom
         line.SetText(text);
         if (color.HasValue) line.color = color.Value;
 
-        if (UI_line_obj_count >= Max_Lines) UI_line_obj_count = -1;
+        if (UI_line_obj_count + 1 >= Max_Lines) UI_line_obj_count = -1;
         UI_line_objects[++UI_line_obj_count] = obj;
     }
     void UI_ClearLines()
