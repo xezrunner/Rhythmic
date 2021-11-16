@@ -117,7 +117,13 @@ public class ConfigurationFile
                                 LogW("Variable % requires a rhs assignment! Ignoring.", t.value); continue;
                             case Token_Type.Identifier:
                             case Token_Type.String:
-                                entry = new ConfigEntry<string>(ConfigEntryType.Variable, t.value, t_next.value); break;
+                                {
+                                    if (t_next.value.ContainsAny("true", "True", "false", "False", "yes", "Yes", "no", "No"))
+                                        entry = new ConfigEntry<bool>(ConfigEntryType.Variable, t.value, t_next.value.ParseBool());
+                                    else
+                                        entry = new ConfigEntry<string>(ConfigEntryType.Variable, t.value, t_next.value);
+                                    break;
+                                }
                             case Token_Type.Number:
                                 {
                                     if (t_next.value.ContainsAny(',', '.'))
