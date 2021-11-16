@@ -10,13 +10,14 @@ public partial class DebugConsole : DebugCom
     {
         base.Awake();
         Instance = this;
-        UI_Start();
         DebugSystem = DebugSystem.Instance;
+
+        COMMANDS_Start();
+        UI_Start();
     }
     public void Start()
     {
         INPUT_Start();
-        COMMANDS_Start();
     }
 
     public static bool ConsoleLog(string text, params object[] args)
