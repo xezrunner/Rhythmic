@@ -201,7 +201,6 @@ public class ConfigurationFile
                     t = tokens[++i];
                     List<string> args = new List<string>();
 
-
                     while (t.type != Token_Type.CloseParen)
                     {
                         args.Add(t.value);
@@ -217,8 +216,8 @@ public class ConfigurationFile
                         args_s = args_s.Substring(1, args_s.Length - 1);
                     }
 
-                    Log("%: Executing command '%' with args '%'.".TM(this),
-                            name.AddColor(Colors.Unimportant), cmd.AddColor(Colors.Application), args_s.AddColor(Colors.Unimportant));
+                    // Log("%: Executing command '%' with args '%'.".TM(this),
+                    //      name.AddColor(Colors.Unimportant), cmd.AddColor(Colors.Application), args_s.AddColor(Colors.Unimportant));
                     DebugConsole.ExecuteCommand(cmd, args.ToArray());
                     return; // EXIT!
                 }
@@ -273,7 +272,7 @@ public class ConfigurationFile
                             {
                                 s += c;
                                 ++pos;
-                                if (pos < length - 1) c = text[pos];
+                                if (pos < length) c = text[pos];
                             }
                             --pos;
 
@@ -290,7 +289,7 @@ public class ConfigurationFile
                             {
                                 s += c;
                                 ++pos;
-                                if (pos < length - 1) c = text[pos];
+                                if (pos < length) c = text[pos];
                             }
                             --pos;
 
@@ -311,7 +310,7 @@ public class ConfigurationFile
                             {
                                 s += c;
                                 ++pos;
-                                if (pos < length - 1) c = text[pos];
+                                if (pos < length) c = text[pos];
                             }
                             --pos;
 
@@ -326,7 +325,7 @@ public class ConfigurationFile
                             {
                                 s += c;
                                 ++pos;
-                                if (pos < length - 1) c = text[pos];
+                                if (pos < length) c = text[pos];
                             }
                             --pos;
 
@@ -341,7 +340,7 @@ public class ConfigurationFile
                             {
                                 s += c;
                                 ++pos;
-                                if (pos < length - 1) c = text[pos];
+                                if (pos < length) c = text[pos];
                             }
                             --pos;
 
