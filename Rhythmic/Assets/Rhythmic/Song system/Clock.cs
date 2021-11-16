@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class Clock : MonoBehaviour
 {
+    public int bar;
+
     public void SetupClock()
     {
 

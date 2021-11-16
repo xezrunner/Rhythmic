@@ -8,8 +8,9 @@ public class TrackSystem : MonoBehaviour
     SongSystem SongSystem = SongSystem.Instance;
 
     Song song;
-    public Track[] tracks;
     public TrackStreamer streamer;
+    public Track[] tracks;
+    public int track_count;
 
     public void SetupTrackSystem(Song song)
     {
@@ -17,6 +18,7 @@ public class TrackSystem : MonoBehaviour
 
         // Create tracks:
         tracks = new Track[song.track_count];
+        track_count = song.track_count;
         for (int i = 0; i < song.track_count; ++i)
         {
             GameObject obj = new GameObject(song.tracks[i].name);

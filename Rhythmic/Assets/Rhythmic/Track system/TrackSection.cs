@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using static Logger;
 
 public class TrackSection : MonoBehaviour
@@ -10,10 +11,34 @@ public class TrackSection : MonoBehaviour
         if (!path_transform && LogW("A TrackSection needs to have a PathTransform component to exist. Deleting.".T(this)))
             Destroy(gameObject);
     }
+    void Start()
+    {
+        if (track != null && id != -1)
+        {
+            // Log("Created TrackSection for track %  id: %", track.info.name, id);
+        }
+    }
+
+    public int id = -1;
+    public Track track;
+    public List<Song_Note> song_notes;
 
     public const string PREFAB_PATH = "Prefabs/Track/TrackSection";
-    public static TrackSection CreateTrackSection()
+    public static GameObject PREFAB_Instance = null;
+    public static TrackSection CreateTrackSection(Track track, int id)
     {
-        return null;
+        if (!PREFAB_Instance) PREFAB_Instance = (GameObject)Resources.Load(PREFAB_PATH);
+        if (!PREFAB_Instance && LogE("Failed to load prefab (path: '%')".TM(nameof(TrackSection), PREFAB_PATH))) return null;
+
+        GameObject obj = Instantiate(PREFAB_Instance, track.parent_transform);
+        obj.name = "%::%".Parse(track.info.name, id);
+
+        TrackSection ts = obj.GetComponent<TrackSection>(); // PERFORMANCE!!!
+        ts.track = track;
+        ts.id = id;
+        ts.path_transform.pos.z = id * ts.path_transform.desired_size.z;
+        ts.path_transform.pos.x = track.info.id * ts.path_transform.desired_size.x;
+
+        return ts;
     }
 }

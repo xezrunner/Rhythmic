@@ -6,12 +6,12 @@ public class Track
     {
         info = song.tracks[id];
         sections = new TrackSection[song.length_bars];
-        this.parent = parent;
+        this.parent_transform = parent;
     }
 
     public Song song;
     public Song_Track info;
-    public Transform parent;
+    public Transform parent_transform;
 
     public TrackSection[] sections;
 }
