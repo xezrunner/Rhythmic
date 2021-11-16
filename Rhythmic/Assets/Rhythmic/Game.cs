@@ -57,15 +57,19 @@ public class Game : MonoBehaviour
             Log("---------------");
         }
 
+        // Load Variables section entries using reflection:
         FieldInfo[] vars_fieldinfo = typeof(Variables).GetFields();
-        foreach (var section in file.directory)
+        var sect_vars = file.directory["Variables"];
+        if (sect_vars != null)
         {
-            foreach (ConfigEntry e in section.Value)
+            foreach (ConfigEntry e in sect_vars)
             {
+                bool found = false;
                 foreach (FieldInfo f in vars_fieldinfo)
                 {
                     if (e.name == f.Name)
                     {
+                        found = true;
                         if (e.value_type != f.FieldType)
                         {
                             LogE("Warning: variable '%' expects type '%' - given: '%'. Ignoring.".TM(this), e.name, f.FieldType, e.value_type);
@@ -73,8 +77,10 @@ public class Game : MonoBehaviour
                         }
                         f.SetValue(null, e.value_obj);
                         // Log("Applied: '%' -> value: '%'".TM(this), e.name, f.GetValue(null));
+                        break;
                     }
                 }
+                if (!found) LogW("Invalid variable '%' (type: % / %) (value: %)".TM(this), e.name, e.type, e.value_type, e.value_obj);
             }
         }
 
