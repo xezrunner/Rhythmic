@@ -167,8 +167,9 @@ public class ConfigurationFile
                             sect_list.Add(entry);
 
                             // If we didn't just add a list, we can safely jump 2 tokens ahead (value + 1).
+                            // TODO: This isn't true. We changed this to only add 1. Revise this!!!
                             if (entry.type != ConfigEntryType.List) // TODO: This is weird.
-                                i += 2;
+                                ++i;
                         }
 
                         break;
