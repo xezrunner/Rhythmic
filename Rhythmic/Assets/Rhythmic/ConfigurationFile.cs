@@ -319,7 +319,7 @@ public class ConfigurationFile
                             break;
                         }
 
-                    case char x when char.IsNumber(x):
+                    case char x when (x == '-' || char.IsNumber(x)):
                         {
                             string s = "";
                             while (!c.IsWhitespace() && c != ')' && c != '}' && pos < length)
