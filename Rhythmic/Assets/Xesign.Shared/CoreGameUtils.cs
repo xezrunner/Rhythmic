@@ -11,5 +11,11 @@ public static class CoreGameUtils
         Log("Framerate set: % FPS " + "(% Vsync passes)".AddColor(Colors.Unimportant), target, vsync_mode);
     }
 
+    public static void SetTimescale(float value = 1f)
+    {
+        Time.timeScale = value;
+        Log("Timescale set: %x", value);
+    }
+
 
 }

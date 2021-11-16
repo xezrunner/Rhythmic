@@ -148,7 +148,8 @@ public static class DebugConsoleDefaultCommands
     }
     public static void timescale(string[] args)
     {
-        if (args.Length == 0 && DebugConsole.ConsoleLog("timescale: argument required!")) return;
-        Time.timeScale = args[0].ParseFloat();
+        //if (args.Length == 0 && DebugConsole.ConsoleLog("timescale: argument required!")) return;
+        if (args == null || args.Length == 0) CoreGameUtils.SetTimescale();
+        else CoreGameUtils.SetTimescale(args[0].ParseFloat());
     }
 }
