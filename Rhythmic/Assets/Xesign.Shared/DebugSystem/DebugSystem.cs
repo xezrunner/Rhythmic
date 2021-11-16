@@ -24,6 +24,8 @@ public class DebugSystem : MonoBehaviour
     public TMP_Text QuickLine_Text;
     public TMP_Text DebugComponent_Text;
 
+    public static bool DEBUGSYSTEM_WarnOnEventSystemInexistence = true;
+
     public void Awake()
     {
         // Destroy if an instance already exists:
@@ -53,7 +55,8 @@ public class DebugSystem : MonoBehaviour
             obj.AddComponent<StandaloneInputModule>();
 #endif
 
-            LogW("There was no EventSystem / UI Input Manager, so we created them.".T(this));
+            if (DEBUGSYSTEM_WarnOnEventSystemInexistence)
+                LogW("There was no EventSystem / UI Input Manager, so we created them.".T(this));
         }
 
         // TEST:
@@ -74,7 +77,7 @@ public class DebugSystem : MonoBehaviour
 
         DebugComAttribute attr = (DebugComAttribute)Attribute.GetCustomAttribute(type, typeof(DebugComAttribute));
         if (attr == null) attr = new DebugComAttribute();
-        
+
         // If we have a prefab, redirect to prefab procedure:
         if (attr.is_prefab)
         {
