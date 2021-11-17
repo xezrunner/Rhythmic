@@ -18,6 +18,7 @@ public class TrackStreamer : MonoBehaviour
     {
         if (Instance && LogE("A track streamer already exists! This is bad!".TM(this))) return;
         Instance = this;
+        STREAMER_RegisterCommands();
 
         this.track_system = track_system;
         tracks = track_system.tracks;
@@ -25,11 +26,6 @@ public class TrackStreamer : MonoBehaviour
         clock = song_system.clock;
 
         STREAMER_Init();
-    }
-
-    void STREAMER_RegisterCommands()
-    {
-
     }
 
     public bool is_initialized = false;
@@ -84,41 +80,61 @@ public class TrackStreamer : MonoBehaviour
     }
 
     #region Console commands
-    public void cmd_stream(string[] args)
+    static bool commands_registered = false;
+    void STREAMER_RegisterCommands()
     {
-        if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure]")) return;
-        STREAMER_Stream(args[0].ParseInt(), args[1].ParseInt());
-    }
-    public void cmd_stream_range(string[] args)
-    {
-        if (args.Length < 2 && ConsoleLogE("You need at least 3 arguments: [track] [measure_from] [measure_to]")) return;
-        STREAMER_StreamRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
-    }
-    public void cmd_stream_horizon(string[] args)
-    {
-        if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure_from]")) return;
-        STREAMER_StreamRangeHorizon(args[0].ParseInt(), args[1].ParseInt());
+        if (commands_registered) return;
+
+        DebugConsole cmd = DebugConsole.Instance;
+        if (!cmd) LogW("No console!".TM(this));
+
+        cmd.RegisterCommand(cmd_stream);
+        cmd.RegisterCommand(cmd_stream_range);
+        cmd.RegisterCommand(cmd_stream_horizon);
+
+        cmd.RegisterCommand(cmd_unstream_recycle);
+        cmd.RegisterCommand(cmd_unstream_recycle_range);
+        cmd.RegisterCommand(cmd_unstream_destroy);
+        cmd.RegisterCommand(cmd_unstream_destroy_range);
+
+        commands_registered = true;
     }
 
-    public void cmd_unstream_recycle(string[] args)
+    public static void cmd_stream(string[] args)
     {
         if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure]")) return;
-        STREAMER_UnstreamRecycle(args[0].ParseInt(), args[1].ParseInt());
+        Instance?.STREAMER_Stream(args[0].ParseInt(), args[1].ParseInt());
     }
-    public void cmd_unstream_recycle_range(string[] args)
+    public static void cmd_stream_range(string[] args)
     {
         if (args.Length < 2 && ConsoleLogE("You need at least 3 arguments: [track] [measure_from] [measure_to]")) return;
-        STREAMER_UnstreamRecycleRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
+        Instance?.STREAMER_StreamRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
     }
-    public void cmd_unstream_destroy(string[] args)
+    public static void cmd_stream_horizon(string[] args)
+    {
+        if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure_from]")) return;
+        Instance?.STREAMER_StreamRangeHorizon(args[0].ParseInt(), args[1].ParseInt());
+    }
+
+    public static void cmd_unstream_recycle(string[] args)
     {
         if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure]")) return;
-        STREAMER_UnstreamDestroy(args[0].ParseInt(), args[1].ParseInt());
+        Instance?.STREAMER_UnstreamRecycle(args[0].ParseInt(), args[1].ParseInt());
     }
-    public void cmd_unstream_destroy_range(string[] args)
+    public static void cmd_unstream_recycle_range(string[] args)
     {
         if (args.Length < 2 && ConsoleLogE("You need at least 3 arguments: [track] [measure_from] [measure_to]")) return;
-        STREAMER_UnstreamDestroyRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
+        Instance?.STREAMER_UnstreamRecycleRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
+    }
+    public static void cmd_unstream_destroy(string[] args)
+    {
+        if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure]")) return;
+        Instance?.STREAMER_UnstreamDestroy(args[0].ParseInt(), args[1].ParseInt());
+    }
+    public static void cmd_unstream_destroy_range(string[] args)
+    {
+        if (args.Length < 2 && ConsoleLogE("You need at least 3 arguments: [track] [measure_from] [measure_to]")) return;
+        Instance?.STREAMER_UnstreamDestroyRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
     }
     #endregion
 }

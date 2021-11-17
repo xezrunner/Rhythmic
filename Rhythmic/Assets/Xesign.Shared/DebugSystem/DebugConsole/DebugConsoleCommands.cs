@@ -12,6 +12,8 @@ public partial class DebugConsole : DebugCom
 
     public bool RegisterCommand(string command, Action action, params string[] aliases) => cmdsystem.RegisterCommand(new ConsoleCommand(command, action, aliases));
     public bool RegisterCommand(string command, Action<string[]> action_with_args, params string[] aliases) => cmdsystem.RegisterCommand(new ConsoleCommand(command, action_with_args, aliases));
+    public bool RegisterCommand(Action action, params string[] aliases) => cmdsystem.RegisterCommand(new ConsoleCommand(action.Method.Name, action, aliases));
+    public bool RegisterCommand(Action<string[]> action, params string[] aliases) => cmdsystem.RegisterCommand(new ConsoleCommand(action.Method.Name, action, aliases));
     public bool RegisterCommand(ConsoleCommand command) => cmdsystem.RegisterCommand(command);
 }
 
