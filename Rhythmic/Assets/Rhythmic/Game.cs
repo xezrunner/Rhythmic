@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.IO;
 using UnityEngine;
 using static Logger;
 
@@ -25,18 +27,23 @@ public class Game : MonoBehaviour
 
     public GameType game_type;
 
-    public static bool INIT_DebugPrintVariables = false;
-    void INIT_Variables()
+    public static string VARIABLES_FilePath = @"H:\Repositories\Rhythmic-git\Rhythmic\Assets\Variables.conf";
+    public static bool VARIABLES_AllowHotReload = true;
+    public static bool VARIABLES_DebugPrintVars = false;
+
+    public DateTime VARIABLES_LastWriteTime;
+    ConfigurationFile VARIABLES_ConfigFile = new ConfigurationFile(VARIABLES_FilePath, false);
+    void INIT_Variables(bool hot_reload = false)
     {
-        // TODO
-        ConfigurationFile file = new ConfigurationFile(@"H:\Repositories\Rhythmic-git\Rhythmic\Assets\Variables.conf");
+        VARIABLES_LastWriteTime = File.GetLastWriteTime(VARIABLES_FilePath);
+        VARIABLES_ConfigFile.ReadFromPath();
 
         // Debug print:
-        if (INIT_DebugPrintVariables)
+        if (VARIABLES_DebugPrintVars)
         {
             Log("\n---------------");
-            Log("Configuration file dump:   name: %", file.name.AddColor(Colors.Application));
-            foreach (var b in file.directory)
+            Log("Configuration file dump:   name: %", VARIABLES_ConfigFile.name.AddColor(Colors.Application));
+            foreach (var b in VARIABLES_ConfigFile.directory)
             {
                 Log("  - [Section]: %", b.Key.AddColor(Colors.Application));
                 for (int i = 0; i < b.Value.Count; i++)
@@ -59,28 +66,49 @@ public class Game : MonoBehaviour
 
         // Load Variables section entries using reflection:
         FieldInfo[] vars_fieldinfo = typeof(Variables).GetFields();
-        var sect_vars = file.directory["Variables"];
-        if (sect_vars != null)
+
+        foreach (var sect in VARIABLES_ConfigFile.directory)
         {
-            foreach (ConfigEntry e in sect_vars)
+            // Only load startup entries if not hot reloading!
+            if (sect.Key == "Startup" && !hot_reload)
             {
-                bool found = false;
-                foreach (FieldInfo f in vars_fieldinfo)
+                foreach (ConfigEntry<string[]> e in sect.Value) // Can you do type args here?
                 {
-                    if (e.name == f.Name)
+                    if (e.type == ConfigEntryType.Command)
                     {
-                        found = true;
-                        if (e.value_type != f.FieldType)
-                        {
-                            LogE("Warning: variable '%' expects type '%' - given: '%'. Ignoring.".TM(this), e.name, f.FieldType, e.value_type);
-                            break;
-                        }
-                        f.SetValue(null, e.value_obj);
-                        // Log("Applied: '%' -> value: '%'".TM(this), e.name, f.GetValue(null));
-                        break;
+                        if (e.name == "debugsystem") DebugSystem.CreateDebugSystemObject();
+                        else DebugConsole.ExecuteCommand(e.name, e.value);
                     }
                 }
-                if (!found) LogW("Invalid variable '%' (type: % / %) (value: %)".TM(this), e.name, e.type, e.value_type, e.value_obj);
+            }
+            else if (sect.Key == "Variables")
+            {
+                foreach (ConfigEntry e in sect.Value)
+                {
+                    bool found = false;
+                    foreach (FieldInfo f in vars_fieldinfo)
+                    {
+                        if (e.name == f.Name)
+                        {
+                            found = true;
+
+                            // HACK: Cast our type if we have an int but var expects float or double:
+                            if (e.value_type == typeof(int) && (f.FieldType == typeof(float) || f.FieldType == typeof(double)))
+                                e.value_type = f.FieldType;
+                            else if (e.value_type == typeof(float) && (f.FieldType == typeof(int))) // TODO: Check!
+                                e.value_type = f.FieldType;
+                            else if (e.value_type != f.FieldType)
+                            {
+                                LogE("Warning: variable '%' expects type '%' - given: '%'. Ignoring.".TM(this), e.name, f.FieldType, e.value_type);
+                                break;
+                            }
+                            f.SetValue(null, e.value_obj);
+                            // Log("Applied: '%' -> value: '%'".TM(this), e.name, f.GetValue(null));
+                            break;
+                        }
+                    }
+                    if (!found) LogW("Invalid variable '%' (type: % / %) (value: %)".TM(this), e.name, e.type, e.value_type, e.value_obj);
+                }
             }
         }
 
@@ -95,4 +123,29 @@ public class Game : MonoBehaviour
 
         if (!success) LogE("Failed to load song % (game_type: %).", song_name, game_type);
     }
+
+    float variables_hotreload_check_elapsed_ms = 0;
+
+    void UPDATE_VariablesHotReload()
+    {
+        if (!VARIABLES_AllowHotReload) return;
+
+        if (variables_hotreload_check_elapsed_ms >= Variables.VARIABLES_HotReloadCheckMs)
+        {
+            if (File.GetLastWriteTime(VARIABLES_FilePath) <= VARIABLES_LastWriteTime) return;
+
+            Log("Hot-reloading Variables.conf... (%ms)".T(this), variables_hotreload_check_elapsed_ms);
+            variables_hotreload_check_elapsed_ms = 0;
+
+            INIT_Variables(hot_reload: true);
+        }
+
+        variables_hotreload_check_elapsed_ms += Time.deltaTime * 1000f;
+    }
+
+    void Update()
+    {
+        UPDATE_VariablesHotReload();
+    }
+
 }
