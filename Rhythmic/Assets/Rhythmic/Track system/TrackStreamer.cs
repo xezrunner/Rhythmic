@@ -2,18 +2,10 @@
 using UnityEngine;
 using static Logger;
 
-public enum StreamCmd
-{
-    INIT,                 // Stream all measures until horizon for song startup.
-    STREAM_TRACK_HORIZON, // Stream a specific track from current Clock bar until horizon.
-    STREAM_TRACK_RANGE,   // Stream a specific track from given bar until requested bar(s).
-    STREAM_TRACK_MEASURE, // Stream in a specific track's measure.
-    UNSTREAM_RECYCLE,     // Recycle a specific track's measure (preferred during streaming).
-    UNSTREAM_DESTROY      // Destroy a specific track's measure.
-}
-
 public class TrackStreamer : MonoBehaviour
 {
+    public static TrackStreamer Instance;
+
     Game Game = Game.Instance;
     SongSystem song_system = SongSystem.Instance;
     Song song;
@@ -24,121 +16,109 @@ public class TrackStreamer : MonoBehaviour
 
     public void SetupTrackStreamer(TrackSystem track_system)
     {
+        if (Instance && LogE("A track streamer already exists! This is bad!".TM(this))) return;
+        Instance = this;
+
         this.track_system = track_system;
         tracks = track_system.tracks;
         song = song_system.song;
         clock = song_system.clock;
 
-        STREAMER_Command(StreamCmd.INIT);
+        STREAMER_Init();
     }
 
-    /// <summary>
-    /// args format: [T], [from], [to...)<br/>
-    /// - [T]: specific id or -1 for all tracks<br/>
-    /// - [from]: what track to stream in from<br/>
-    /// - [to...): multiple targets allowed
-    /// </summary>
-    public void STREAMER_Command(StreamCmd cmd, params int[] args)
+    void STREAMER_RegisterCommands()
     {
-        switch (cmd)
-        {
-            case StreamCmd.INIT:
-                STREAMER_Init(args); break;
-            case StreamCmd.STREAM_TRACK_HORIZON:
-            case StreamCmd.STREAM_TRACK_RANGE:
-            case StreamCmd.STREAM_TRACK_MEASURE:
-                STREAMER_Stream(cmd, args); break;
-            case StreamCmd.UNSTREAM_RECYCLE:
-                STREAMER_Recycle(args); break;
-            case StreamCmd.UNSTREAM_DESTROY:
-                STREAMER_Destroy(args); break;
 
-            default:
-                LogW("Incorrect command! (%)".TM(this), cmd); break;
-        }
     }
 
     public bool is_initialized = false;
-    void STREAMER_Init(int[] args = null)
+    void STREAMER_Init()
     {
         // TODO: Sanity checks?
         if (is_initialized && LogW("Initialization had already occured. Ignoring.".TM(this))) return;
 
-        int start = 0;
-        int horizon = Variables.STREAM_HorizonMeasures;
-
-        if (args != null && args.Length != 0)
-        {
-            if (args.Length > 0) start = args[0];
-            if (args.Length > 1) horizon = args[1];
-        }
-
-        STREAMER_Command(StreamCmd.STREAM_TRACK_HORIZON, -1, start, horizon);
+        STREAMER_StreamRangeHorizon(-1, clock.bar);
 
         is_initialized = true;
     }
 
-    void STREAMER_Stream(StreamCmd cmd, params int[] args)
+    public void STREAMER_Stream(int track, int measure)
     {
-        if (args == null || args.Length == 0)
+        int t_from = (track == -1) ? 0 : track;
+        int t_to = (track == -1) ? track_system.track_count : t_from;
+        for (int t = t_from; t < t_to; ++t)
         {
-            LogW("No args were given. (format: [T], [from], [amount/to], [to...)".TM(this));
-            return;
-        }
-
-        int track = args[0];
-        int from = 0;
-        int to = -1;
-        if (args.Length > 1) from = args[1];
-        if (args.Length > 2) to = args[2];
-
-        switch (cmd)
-        {
-            case StreamCmd.STREAM_TRACK_HORIZON:
-                {
-                    if (args.Length > 1) from = args[1];
-                    else from = clock.bar;
-
-                    if (args.Length > 2) to = args[2];
-                    else to = Variables.STREAM_HorizonMeasures;
-
-                    goto case StreamCmd.STREAM_TRACK_RANGE;
-                }
-            case StreamCmd.STREAM_TRACK_RANGE:
-                {
-                    int t = (track == -1) ? 0 : track;
-                    for (; t < ((track == -1) ? track_system.track_count : track + 1); ++t)
-                    {
-                        for (int i = from; i < (to == -1 ? song.length_bars : to); ++i)
-                            STREAMER_Command(StreamCmd.STREAM_TRACK_MEASURE, t, i);
-                    }
-                    break;
-                }
-            case StreamCmd.STREAM_TRACK_MEASURE:
-                {
-                    int t = (track == -1) ? 0 : track;
-                    for (; t < ((track == -1) ? track_system.track_count : track + 1); ++t)
-                    {
-                        for (int i = 1; i < args.Length; ++i)
-                        {
-                            // TODO: Stream the measure! - handle recyclations!
-                            TrackSection.CreateTrackSection(tracks[t], args[i]);
-                        }
-                    }
-                        break;
-                }
-            default: LogW("Invalid command: %".TM(this), cmd); break;
+            // ...
+            TrackSection.CreateTrackSection(tracks[t], measure);
         }
     }
+    public void STREAMER_StreamRange(int track, int from, int to)
+    {
+        for (int i = from; i < to; ++i)
+            STREAMER_Stream(track, i);
+    }
+    public void STREAMER_StreamRangeHorizon(int track, int from)
+    {
+        int to = clock.bar + Variables.STREAM_HorizonMeasures;
+        for (int i = from; i < to; ++i)
+            STREAMER_StreamRange(track, from, to);
+    }
 
-    void STREAMER_Recycle(params int[] args)
+    public void STREAMER_UnstreamRecycle(int track, int measure)
+    {
+
+    }
+    public void STREAMER_UnstreamRecycleRange(int track, int from, int to)
+    {
+
+    }
+    
+    public void STREAMER_UnstreamDestroy(int track, int measure)
+    {
+
+    }
+    public void STREAMER_UnstreamDestroyRange(int track, int from, int to)
     {
 
     }
 
-    void STREAMER_Destroy(params int[] args)
+    #region Console commands
+    public void cmd_stream(string[] args)
     {
-
+        if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure]")) return;
+        STREAMER_Stream(args[0].ParseInt(), args[1].ParseInt());
+    }
+    public void cmd_stream_range(string[] args)
+    {
+        if (args.Length < 2 && ConsoleLogE("You need at least 3 arguments: [track] [measure_from] [measure_to]")) return;
+        STREAMER_StreamRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
+    }
+    public void cmd_stream_horizon(string[] args)
+    {
+        if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure_from]")) return;
+        STREAMER_StreamRangeHorizon(args[0].ParseInt(), args[1].ParseInt());
     }
 
+    public void cmd_unstream_recycle(string[] args)
+    {
+        if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure]")) return;
+        STREAMER_UnstreamRecycle(args[0].ParseInt(), args[1].ParseInt());
+    }
+    public void cmd_unstream_recycle_range(string[] args)
+    {
+        if (args.Length < 2 && ConsoleLogE("You need at least 3 arguments: [track] [measure_from] [measure_to]")) return;
+        STREAMER_UnstreamRecycleRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
+    }
+    public void cmd_unstream_destroy(string[] args)
+    {
+        if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure]")) return;
+        STREAMER_UnstreamDestroy(args[0].ParseInt(), args[1].ParseInt());
+    }
+    public void cmd_unstream_destroy_range(string[] args)
+    {
+        if (args.Length < 2 && ConsoleLogE("You need at least 3 arguments: [track] [measure_from] [measure_to]")) return;
+        STREAMER_UnstreamDestroyRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
+    }
+    #endregion
 }
