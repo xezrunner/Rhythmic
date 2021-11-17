@@ -134,7 +134,7 @@ public class Game : MonoBehaviour
         {
             if (File.GetLastWriteTime(VARIABLES_FilePath) <= VARIABLES_LastWriteTime) return;
 
-            Log("Hot-reloading Variables.conf... (%ms)".T(this), variables_hotreload_check_elapsed_ms);
+            Log("Hot-reloading Variables.conf... (check elapsed: %ms)".T(this), variables_hotreload_check_elapsed_ms);
             variables_hotreload_check_elapsed_ms = 0;
 
             INIT_Variables(hot_reload: true);
