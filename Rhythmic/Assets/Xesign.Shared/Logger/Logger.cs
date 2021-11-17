@@ -19,10 +19,14 @@ public static class Logger
     // Log Overloads:
     public static bool Log(object text, LogLevel level, params object[] args) => Log(text, LogTarget.All, level, args);
     public static bool Log(object text, params object[] args) => Log(text, LogTarget.All, LogLevel.None, args);
+    public static bool ConsoleLog(object text, params object[] args) => Log(text, LogTarget.DebugConsole, args);
 
     // Warning and Error overloads:
     public static bool LogWarning(object text, params object[] args) => Log(text, LogLevel.Warning, args);
     public static bool LogW(object text, params object[] args) => LogWarning(text, args);
+    public static bool ConsoleLogW(object text, params object[] args) => Log(text, LogTarget.DebugConsole, LogLevel.Warning, args);
+
     public static bool LogError(object text, params object[] args) => Log(text, LogLevel.Error, args);
     public static bool LogE(object text, params object[] args) => LogError(text, args);
+    public static bool ConsoleLogE(object text, params object[] args) => Log(text, LogTarget.DebugConsole, LogLevel.Error, args);
 }
