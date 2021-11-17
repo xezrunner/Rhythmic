@@ -34,11 +34,11 @@ public class ConfigValue<T> : ConfigValue
 
 public class ConfigurationFile
 {
-    public ConfigurationFile(string path)
+    public ConfigurationFile(string path, bool read = true)
     {
         this.path = path;
         name = Path.GetFileName(path).RemoveExt();
-        ReadFromPath(path);
+        if (read) ReadFromPath(path);
     }
 
     public string name;
@@ -51,6 +51,7 @@ public class ConfigurationFile
 
     public static bool CONFIGFILE_DebugPrintTokens = false;
 
+    public bool ReadFromPath() => ReadFromPath(path);
     public bool ReadFromPath(string path)
     {
         if (!File.Exists(path) && LogE("File does not exist: '%'".TM(this), path)) return false;
@@ -182,52 +183,40 @@ public class ConfigurationFile
                     }
                 case Token_Type.OpenParen: // Configuration-function
                     {
-                        InterpretFunction(tokens, ref i);
+                        t = tokens[++i];
+                        string cmd = t.value;
+
+                        t = tokens[++i];
+                        List<string> args_list = new List<string>();
+
+                        while (t.type != Token_Type.CloseParen)
+                        {
+                            args_list.Add(t.value);
+                            t = tokens[++i];
+                        }
+
+                        string[] args = args_list.ToArray();
+
+                        ConfigEntry entry = new ConfigEntry<string[]>(ConfigEntryType.Command, cmd, args);
+
+                        sect_list.Add(entry);
+
+                        /*
+                        string args_s = "";
+                        if (args.Count > 0)
+                        {
+                            foreach (string s in args) args_s += " " + s;
+                            args_s = args_s.Substring(1, args_s.Length - 1);
+                        }
+
+                         Log("%: Executing command '%' with args '%'.".TM(this),
+                              name.AddColor(Colors.Unimportant), cmd.AddColor(Colors.Application), args_s.AddColor(Colors.Unimportant));
+                        */
+
                         break;
                     }
+
             }
-        }
-    }
-
-    void InterpretFunction(List<Token> tokens, ref int i)
-    {
-        Token t = tokens[++i];
-        string cmd = t.value;
-
-        switch (cmd)
-        {
-            case "debugsystem":
-                {
-                    // TODO: Component arguments!
-                    DebugSystem.CreateDebugSystemObject();
-                    break;
-                }
-
-            default: // If this isn't a special function, call it as a console command.
-                {
-                    t = tokens[++i];
-                    List<string> args = new List<string>();
-
-                    while (t.type != Token_Type.CloseParen)
-                    {
-                        args.Add(t.value);
-                        t = tokens[++i];
-                    }
-
-                    //sect_list.Add(new Entry<bool>(Entry_Type.Function, t.value, true));
-
-                    string args_s = "";
-                    if (args.Count > 0)
-                    {
-                        foreach (string s in args) args_s += " " + s;
-                        args_s = args_s.Substring(1, args_s.Length - 1);
-                    }
-
-                    // Log("%: Executing command '%' with args '%'.".TM(this),
-                    //      name.AddColor(Colors.Unimportant), cmd.AddColor(Colors.Application), args_s.AddColor(Colors.Unimportant));
-                    DebugConsole.ExecuteCommand(cmd, args.ToArray());
-                    return; // EXIT!
-                }
         }
     }
 
