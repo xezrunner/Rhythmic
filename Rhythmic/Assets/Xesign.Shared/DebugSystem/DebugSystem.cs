@@ -37,7 +37,6 @@ public class DebugSystem : MonoBehaviour
         }
         Instance = this;
 
-
         if (!startup_manager && LogW("No startup components manager was assigned.".TM(this))) return;
         List<Type> startup_types = startup_manager.GetStartupComsTypeList();
         if (startup_types.Count == 0 && LogW("There are no coms to load!".T(this))) return;
@@ -62,6 +61,9 @@ public class DebugSystem : MonoBehaviour
 
         // TEST:
         SwitchToComponent(0);
+
+        // TEMP: Hide debug menu string for now:
+        DebugMenu_Text.gameObject.SetActive(false);
     }
 
     void LoadStartupComs(List<Type> types)
@@ -207,13 +209,53 @@ public class DebugSystem : MonoBehaviour
         }
     }
 
+    // --------------- //
+
+    public static int QUICKLINE_MaxLines = 5;
+    public static float QUICKLINE_TimeoutMs = 4800f;
+
+    public static void QuickLineLog(string text, params object[] args) => Instance?._QuickLineLog(text, args);
+
+    string quickline_text;
+    void _QuickLineLog(string text, params object[] args)
+    {
+        string s = text.Parse(args) + '\n';
+        quickline_text = (quickline_text + s).MaxLines(QUICKLINE_MaxLines);
+
+        QuickLine_Text.SetText(quickline_text);
+    }
+
+    float quickline_elapsed_ms;
+    void UPDATE_QuickLineTimeout()
+    {
+        if (quickline_text.Length == 0)
+            return;
+
+        // Keep track of elapsed ms for debug line
+        quickline_elapsed_ms += Time.unscaledDeltaTime * 1000;
+
+        if (quickline_elapsed_ms > QUICKLINE_TimeoutMs)
+        {
+            quickline_elapsed_ms = 0;
+
+            string[] lines = quickline_text.Split('\n');
+            string[] new_lines = new string[lines.Length - 1];
+            for (int i = 1; i < lines.Length; i++)
+                new_lines[i - 1] = lines[i];
+
+            quickline_text = string.Join("\n", new_lines);
+            QuickLine_Text.SetText(quickline_text);
+        }
+    }
+
+    // --------------- //
+
     public void Update()
     {
         UPDATE_HandleComponent();
         UPDATE_FramerateUI();
+        UPDATE_QuickLineTimeout();
     }
-
-    // --------------- //
 
     public static GameObject CreateDebugSystemObject()
     {

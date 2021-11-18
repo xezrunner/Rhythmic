@@ -1,6 +1,6 @@
 ﻿// These define which action calls you want to be able to execute. Undefined entries won't be called.
 #define UNITY
-#define DebugUI
+#define DebugQuickLine
 #define DebugConsole
 
 using System;
@@ -14,18 +14,17 @@ public static class LoggerActionCalls
         if (target.HasFlag(LogTarget.Unity)) UNITY_GetLogLevelAction(level).Invoke(text);
 #endif
 
-#if DebugUI
-        // tba...
+        if (level > LogLevel.None)
+            text = text.AddColor(GetLogLevelColor(level));
+
+#if DebugQuickLine
+        if (target.HasFlag(LogTarget.DebugQuickLine))
+            DebugSystem.QuickLineLog(text);
 #endif
 
 #if DebugConsole
         if (target.HasFlag(LogTarget.DebugConsole))
-        {
-            if (level > LogLevel.None)
-                DebugConsole.ConsoleLog(text.AddColor(GetLogLevelColor(level)));
-            else
-                DebugConsole.ConsoleLog(text);
-        }
+            DebugConsole.ConsoleLog(text);
 #endif
     }
 
