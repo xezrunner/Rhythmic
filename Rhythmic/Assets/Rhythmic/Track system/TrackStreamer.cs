@@ -44,10 +44,11 @@ public class TrackStreamer : MonoBehaviour
     public void STREAMER_Stream(int track, int measure)
     {
         int t_from = (track == -1) ? 0 : track;
-        int t_to = (track == -1) ? track_system.track_count : t_from;
+        int t_to = (track == -1) ? track_system.track_count : track + 1;
         for (int t = t_from; t < t_to; ++t)
         {
-            // ...
+            if (tracks[t].sections[measure] != null && LogW("%/%: measure already exists!".TM(this), tracks[t].info.name, measure)) return;
+
             TrackSection m;
             if (recycled.Count == 0)
                 m = TrackSection.CreateTrackSection(tracks[t], measure);
@@ -73,10 +74,12 @@ public class TrackStreamer : MonoBehaviour
     public void STREAMER_StreamRecycle(int track, int measure)
     {
         int t_from = (track == -1) ? 0 : track;
-        int t_to = (track == -1) ? track_system.track_count : t_from;
+        int t_to = (track == -1) ? track_system.track_count : track + 1;
         for (int t = t_from; t < t_to; ++t)
         {
             TrackSection it = tracks[t].sections[measure];
+            if (!it && LogW("%/%: measure does not exist!".TM(this), tracks[t].info.name, measure)) return;
+
             recycled.Push(it.Recycle());
             tracks[t].sections[measure] = null;
         }
@@ -90,7 +93,7 @@ public class TrackStreamer : MonoBehaviour
     public void STREAMER_StreamDestroy(int track, int measure)
     {
         int t_from = (track == -1) ? 0 : track;
-        int t_to = (track == -1) ? track_system.track_count : t_from;
+        int t_to = (track == -1) ? track_system.track_count : track + 1;
         for (int t = t_from; t < t_to; ++t)
             Destroy(tracks[t].sections[measure].gameObject);
     }
