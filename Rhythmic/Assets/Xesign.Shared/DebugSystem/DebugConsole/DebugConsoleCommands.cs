@@ -144,7 +144,7 @@ public static class DebugConsoleDefaultCommands
         else
         {
             int fps = args[0].ParseInt();
-            int vsync = args[1].ParseInt();
+            int vsync = (args.Length > 1) ? args[1].ParseInt() : 0;
             CoreGameUtils.SetFramerate(fps, vsync);
         }
     }
