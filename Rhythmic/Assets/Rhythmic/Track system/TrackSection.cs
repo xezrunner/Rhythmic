@@ -41,4 +41,30 @@ public class TrackSection : MonoBehaviour
 
         return ts;
     }
+
+    public TrackSection Recycle()
+    {
+        gameObject.SetActive(false);
+        Log("Recycling %... - state: %, %", gameObject.name, gameObject.activeSelf, gameObject.activeInHierarchy);
+        // ...
+
+        return this;
+    }
+
+    public TrackSection Unrecycle(Track new_track, int new_id /* ... */)
+    {
+        gameObject.SetActive(true);
+
+        id = new_id;
+        track = new_track;
+
+        path_transform.pos.x = track.info.id * path_transform.desired_size.x;
+        path_transform.pos.z = id * path_transform.desired_size.z;
+
+        // ...
+
+        path_transform.Deform();
+
+        return this;
+    }
 }

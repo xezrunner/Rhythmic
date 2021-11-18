@@ -39,6 +39,8 @@ public class TrackStreamer : MonoBehaviour
         is_initialized = true;
     }
 
+    Stack<TrackSection> recycled = new Stack<TrackSection>();
+
     public void STREAMER_Stream(int track, int measure)
     {
         int t_from = (track == -1) ? 0 : track;
@@ -46,7 +48,15 @@ public class TrackStreamer : MonoBehaviour
         for (int t = t_from; t < t_to; ++t)
         {
             // ...
-            TrackSection.CreateTrackSection(tracks[t], measure);
+            TrackSection m;
+            if (recycled.Count == 0)
+                m = TrackSection.CreateTrackSection(tracks[t], measure);
+            else
+                m = recycled.Pop().Unrecycle(tracks[t], measure);
+
+            if (!m) LogE("Did not get a track - WTF!".TM(this));
+
+            tracks[t].sections[measure] = m;
         }
     }
     public void STREAMER_StreamRange(int track, int from, int to)
@@ -57,34 +67,42 @@ public class TrackStreamer : MonoBehaviour
     public void STREAMER_StreamRangeHorizon(int track, int from)
     {
         int to = clock.bar + Variables.STREAM_HorizonMeasures;
+        STREAMER_StreamRange(track, from, to);
+    }
+
+    public void STREAMER_StreamRecycle(int track, int measure)
+    {
+        int t_from = (track == -1) ? 0 : track;
+        int t_to = (track == -1) ? track_system.track_count : t_from;
+        for (int t = t_from; t < t_to; ++t)
+        {
+            TrackSection it = tracks[t].sections[measure];
+            recycled.Push(it.Recycle());
+            tracks[t].sections[measure] = null;
+        }
+    }
+    public void STREAMER_StreamRecycleRange(int track, int from, int to)
+    {
         for (int i = from; i < to; ++i)
-            STREAMER_StreamRange(track, from, to);
+            STREAMER_StreamRecycle(track, i);
     }
 
-    public void STREAMER_UnstreamRecycle(int track, int measure)
+    public void STREAMER_StreamDestroy(int track, int measure)
     {
-
+        int t_from = (track == -1) ? 0 : track;
+        int t_to = (track == -1) ? track_system.track_count : t_from;
+        for (int t = t_from; t < t_to; ++t)
+            Destroy(tracks[t].sections[measure].gameObject);
     }
-    public void STREAMER_UnstreamRecycleRange(int track, int from, int to)
+    public void STREAMER_StreamDestroyRange(int track, int from, int to)
     {
-
-    }
-    
-    public void STREAMER_UnstreamDestroy(int track, int measure)
-    {
-
-    }
-    public void STREAMER_UnstreamDestroyRange(int track, int from, int to)
-    {
-
+        for (int i = from; i < to; ++i)
+            STREAMER_StreamDestroy(track, i);
     }
 
     #region Console commands
-    static bool commands_registered = false;
     void STREAMER_RegisterCommands()
     {
-        if (commands_registered) return;
-
         DebugConsole cmd = DebugConsole.Instance;
         if (!cmd) LogW("No console!".TM(this));
 
@@ -92,12 +110,10 @@ public class TrackStreamer : MonoBehaviour
         cmd.RegisterCommand(cmd_stream_range);
         cmd.RegisterCommand(cmd_stream_horizon);
 
-        cmd.RegisterCommand(cmd_unstream_recycle);
-        cmd.RegisterCommand(cmd_unstream_recycle_range);
-        cmd.RegisterCommand(cmd_unstream_destroy);
-        cmd.RegisterCommand(cmd_unstream_destroy_range);
-
-        commands_registered = true;
+        cmd.RegisterCommand(cmd_stream_recycle);
+        cmd.RegisterCommand(cmd_stream_recycle_range);
+        cmd.RegisterCommand(cmd_stream_destroy);
+        cmd.RegisterCommand(cmd_stream_destroy_range);
     }
 
     public static void cmd_stream(string[] args)
@@ -116,25 +132,25 @@ public class TrackStreamer : MonoBehaviour
         Instance?.STREAMER_StreamRangeHorizon(args[0].ParseInt(), args[1].ParseInt());
     }
 
-    public static void cmd_unstream_recycle(string[] args)
+    public static void cmd_stream_recycle(string[] args)
     {
         if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure]")) return;
-        Instance?.STREAMER_UnstreamRecycle(args[0].ParseInt(), args[1].ParseInt());
+        Instance?.STREAMER_StreamRecycle(args[0].ParseInt(), args[1].ParseInt());
     }
-    public static void cmd_unstream_recycle_range(string[] args)
+    public static void cmd_stream_recycle_range(string[] args)
     {
         if (args.Length < 2 && ConsoleLogE("You need at least 3 arguments: [track] [measure_from] [measure_to]")) return;
-        Instance?.STREAMER_UnstreamRecycleRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
+        Instance?.STREAMER_StreamRecycleRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
     }
-    public static void cmd_unstream_destroy(string[] args)
+    public static void cmd_stream_destroy(string[] args)
     {
         if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure]")) return;
-        Instance?.STREAMER_UnstreamDestroy(args[0].ParseInt(), args[1].ParseInt());
+        Instance?.STREAMER_StreamDestroy(args[0].ParseInt(), args[1].ParseInt());
     }
-    public static void cmd_unstream_destroy_range(string[] args)
+    public static void cmd_stream_destroy_range(string[] args)
     {
         if (args.Length < 2 && ConsoleLogE("You need at least 3 arguments: [track] [measure_from] [measure_to]")) return;
-        Instance?.STREAMER_UnstreamDestroyRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
+        Instance?.STREAMER_StreamDestroyRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
     }
     #endregion
 }
