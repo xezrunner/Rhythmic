@@ -3,6 +3,8 @@ using static Logger;
 
 public static class CoreGameUtils
 {
+    public static int FRAMERATE_LowestAcceptable = 60; // Lowest accepted framerate until it's marked red
+
     /// <param name="vsync_mode">0 = No VSync | >0 = passes of VSync between each frame</param>
     public static void SetFramerate(int target = 200, int vsync_mode = 0)
     {
@@ -16,6 +18,4 @@ public static class CoreGameUtils
         Time.timeScale = value;
         Log("Timescale set: %x", value);
     }
-
-
 }

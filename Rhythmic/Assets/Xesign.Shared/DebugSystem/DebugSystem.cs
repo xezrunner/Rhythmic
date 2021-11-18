@@ -20,6 +20,7 @@ public class DebugSystem : MonoBehaviour
 
     [Header("Content references")]
     public RectTransform UI_Canvas;
+    public TMP_Text Framerate_Text;
     public TMP_Text DebugMenu_Text;
     public TMP_Text QuickLine_Text;
     public TMP_Text DebugComponent_Text;
@@ -168,7 +169,7 @@ public class DebugSystem : MonoBehaviour
     }
 
     float elapsed_t;
-    public void UPDATE_HandleComponent(bool force = false)
+    void UPDATE_HandleComponent(bool force = false)
     {
         if (!CurrentComponent) return;
 
@@ -182,9 +183,34 @@ public class DebugSystem : MonoBehaviour
         elapsed_t += Time.unscaledDeltaTime;
     }
 
+    float framerate_delta;
+    void UPDATE_FramerateUI()
+    {
+        if (Time.timeScale == 0) return;
+
+        framerate_delta += (Time.unscaledDeltaTime - framerate_delta) * 0.1f;
+        int fps = Mathf.CeilToInt(1.0f / framerate_delta);
+        Framerate_Text?.SetText("Framerate: % FPS".Parse(fps).AddColor(GetFramerateColor(fps)));
+    }
+
+    Color GetFramerateColor(int fps)
+    {
+        switch (fps) // NOTE: order matters here!
+        {
+            default: return Colors.Unimportant;
+            case int _ when fps < CoreGameUtils.FRAMERATE_LowestAcceptable:
+                return Colors.Error;
+            case int _ when fps < (float)Screen.currentResolution.refreshRate:
+                return Colors.Warning;
+            case int _ when fps < Application.targetFrameRate - 1:
+                return Colors.Info;
+        }
+    }
+
     public void Update()
     {
         UPDATE_HandleComponent();
+        UPDATE_FramerateUI();
     }
 
     // --------------- //
