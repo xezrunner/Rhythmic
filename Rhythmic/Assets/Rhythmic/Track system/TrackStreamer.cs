@@ -34,7 +34,7 @@ public class TrackStreamer : MonoBehaviour
         // TODO: Sanity checks?
         if (is_initialized && LogW("Initialization had already occured. Ignoring.".TM(this))) return;
 
-        STREAMER_StreamRangeHorizon(-1, clock.bar);
+        STREAMER_StreamRangeHorizon(-1, (int)clock.bar);
 
         is_initialized = true;
     }
@@ -67,7 +67,7 @@ public class TrackStreamer : MonoBehaviour
     }
     public void STREAMER_StreamRangeHorizon(int track, int from)
     {
-        int to = clock.bar + Variables.STREAM_HorizonMeasures;
+        int to = (int)clock.bar + Variables.STREAM_HorizonMeasures;
         STREAMER_StreamRange(track, from, to);
     }
 
@@ -101,6 +101,11 @@ public class TrackStreamer : MonoBehaviour
     {
         for (int i = from; i < to; ++i)
             STREAMER_StreamDestroy(track, i);
+    }
+
+    void Update()
+    {
+
     }
 
     #region Console commands

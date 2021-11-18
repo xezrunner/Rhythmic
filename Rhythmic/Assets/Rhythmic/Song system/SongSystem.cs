@@ -38,15 +38,15 @@ public class SongSystem : MonoBehaviour
 
         Game.game_type = game_type;
 
-        // Create Clock:
-        clock = gameObject.AddComponent<Clock>();
-        clock.SetupClock();
-
         // Create AudioSystem:
         GameObject audiosystem_obj = new GameObject("AudioSystem");
         audiosystem_obj.transform.SetParent(transform);
         audio_system = audiosystem_obj.AddComponent<AudioSystem>();
         audio_system.SetupAudioSystem(song);
+
+        // Create Clock:
+        clock = gameObject.AddComponent<Clock>();
+        clock.SetupClock(this);
 
         // Create TrackSystem:
         GameObject tracksystem_obj = new GameObject("TrackSystem");

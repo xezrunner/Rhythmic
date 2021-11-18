@@ -81,6 +81,8 @@ public class AudioSystem : MonoBehaviour
 
     // Playback:
 
+    public bool is_playing;
+
     public float audio_progress;
     public float audio_deltatime;
     public float audio_timescale;

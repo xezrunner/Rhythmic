@@ -62,6 +62,7 @@ public static class AMP_SongLoader
 
             length_bars = moggsong.length,
             countin = moggsong.countin,
+            bpm = moggsong.bpm,
 
             tracks = tracks,
             track_count = tracks.Count,
@@ -73,6 +74,7 @@ public static class AMP_SongLoader
             section_bars = moggsong.section_start_bars,
             score_goals = moggsong.score_goal
         };
+        song.time_units = new Song_TimeUnits(song.bpm, song.tunnel_scale); // TODO: Cleanup - perhaps there should be a setup function for Song?
 
         return song;
     }
