@@ -34,12 +34,8 @@ public class Clock : MonoBehaviour
     public float testing_speed;
     void Update()
     {
-        if (!audio_system.is_playing || !is_testing) return;
-
-        if (is_testing)
-            seconds += Time.deltaTime * testing_speed;
-
-
+        if (!is_testing) return;
+        seconds += Time.deltaTime * testing_speed;
     }
 }
 

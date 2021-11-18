@@ -11,7 +11,7 @@ public class TrackStreamer : MonoBehaviour
     Song song;
     Clock clock;
 
-    public TrackSystem track_system;
+    TrackSystem track_system;
     Track[] tracks;
 
     public void SetupTrackStreamer(TrackSystem track_system)
@@ -34,78 +34,168 @@ public class TrackStreamer : MonoBehaviour
         // TODO: Sanity checks?
         if (is_initialized && LogW("Initialization had already occured. Ignoring.".TM(this))) return;
 
-        STREAMER_StreamRangeHorizon(-1, (int)clock.bar);
+        STREAMER_StreamRangeHorizon(-1, (int)clock.bar, false);
 
         is_initialized = true;
     }
 
+    // --- Queue system --- //
     Stack<TrackSection> recycled = new Stack<TrackSection>();
 
-    public void STREAMER_Stream(int track, int measure)
+    Queue<QueueEntry> stream_queue = new Queue<QueueEntry>();
+    Queue<QueueEntry> recycle_queue = new Queue<QueueEntry>();
+    Queue<QueueEntry> destroy_queue = new Queue<QueueEntry>();
+
+    class QueueEntry
     {
-        int t_from = (track == -1) ? 0 : track;
-        int t_to = (track == -1) ? track_system.track_count : track + 1;
-        for (int t = t_from; t < t_to; ++t)
+        public QueueEntry(int track, int measure) { this.track = track; this.measure = measure; }
+        public int track;
+        public int measure;
+    }
+    void UPDATE_HandleQueue()
+    {
+        if (!Variables.STREAMER_AllowQueueing) return;
+
+        if (stream_queue.Count + recycle_queue.Count + destroy_queue.Count == 0) return; // TODO: is this worth it?
+        if (queue_elapsed_ms > Variables.STREAMER_QueueDelay)
         {
-            if (tracks[t].sections[measure] != null && LogW("%/%: measure already exists!".TM(this), tracks[t].info.name, measure)) return;
+            queue_elapsed_ms = 0;
 
-            TrackSection m;
-            if (recycled.Count == 0)
-                m = TrackSection.CreateTrackSection(tracks[t], measure);
-            else
-                m = recycled.Pop().Unrecycle(tracks[t], measure);
+            QueueEntry stream_entry = (stream_queue.Count > 0) ? stream_queue.Dequeue() : null;
+            QueueEntry recycle_entry = (recycle_queue.Count > 0) ? recycle_queue.Dequeue() : null;
+            QueueEntry destroy_entry = (destroy_queue.Count > 0) ? destroy_queue.Dequeue() : null;
 
-            if (!m) LogE("Did not get a track - WTF!".TM(this));
-
-            tracks[t].sections[measure] = m;
+            if (stream_entry != null) STREAMER_Stream(stream_entry.track, stream_entry.measure, false);
+            if (recycle_entry != null) STREAMER_Stream(recycle_entry.track, recycle_entry.measure, false);
+            if (destroy_entry != null) STREAMER_Stream(destroy_entry.track, destroy_entry.measure, false);
         }
-    }
-    public void STREAMER_StreamRange(int track, int from, int to)
-    {
-        for (int i = from; i < to; ++i)
-            STREAMER_Stream(track, i);
-    }
-    public void STREAMER_StreamRangeHorizon(int track, int from)
-    {
-        int to = (int)clock.bar + Variables.STREAM_HorizonMeasures;
-        STREAMER_StreamRange(track, from, to);
-    }
 
-    public void STREAMER_StreamRecycle(int track, int measure)
+        queue_elapsed_ms += Time.deltaTime * 1000;
+    }
+    // --- Queue system --- //
+
+    public void STREAMER_Stream(int track, int measure, bool? queue = null)
     {
-        int t_from = (track == -1) ? 0 : track;
-        int t_to = (track == -1) ? track_system.track_count : track + 1;
-        for (int t = t_from; t < t_to; ++t)
+        if (track == -1)
         {
-            TrackSection it = tracks[t].sections[measure];
-            if (!it && LogW("%/%: measure does not exist!".TM(this), tracks[t].info.name, measure)) return;
-
-            recycled.Push(it.Recycle());
-            tracks[t].sections[measure] = null;
+            int t_from = (track == -1) ? 0 : track;
+            int t_to = (track == -1) ? track_system.track_count : track + 1;
+            for (int t = t_from; t < t_to; ++t)
+                STREAMER_Stream(t, measure, queue);
+            return;
         }
+
+        if (tracks[track].sections[measure] != null && LogW("%/%: measure already exists!".TM(this), tracks[track].info.name, measure)) return;
+
+        if (Variables.STREAMER_AllowQueueing)
+        {
+            // Enqueue if: 
+            // - 'queue' has a value and is true
+            // - 'queue' has no value, but queueing is preferred by policy
+            if ((queue.HasValue && queue.Value) || (!queue.HasValue && Variables.STREAMER_PreferQueueing))
+            {
+                stream_queue.Enqueue(new QueueEntry(track, measure));
+                return;
+            }
+        }
+
+        TrackSection m;
+        if (recycled.Count == 0)
+            m = TrackSection.CreateTrackSection(tracks[track], measure);
+        else
+            m = recycled.Pop().Unrecycle(tracks[track], measure);
+
+        if (!m) LogE("Did not get a track - WTF!".TM(this));
+
+        tracks[track].sections[measure] = m;
     }
-    public void STREAMER_StreamRecycleRange(int track, int from, int to)
+    public void STREAMER_StreamRange(int track, int from, int to, bool? queue = null)
     {
         for (int i = from; i < to; ++i)
-            STREAMER_StreamRecycle(track, i);
+            STREAMER_Stream(track, i, queue);
+    }
+    public void STREAMER_StreamRangeHorizon(int track, int from, bool? queue = null)
+    {
+        int to = (int)clock.bar + Variables.STREAMER_HorizonMeasures;
+        STREAMER_StreamRange(track, from, to, queue);
     }
 
-    public void STREAMER_StreamDestroy(int track, int measure)
+    public void STREAMER_Recycle(int track, int measure, bool? queue = null)
     {
-        int t_from = (track == -1) ? 0 : track;
-        int t_to = (track == -1) ? track_system.track_count : track + 1;
-        for (int t = t_from; t < t_to; ++t)
-            Destroy(tracks[t].sections[measure].gameObject);
+        if (track == -1)
+        {
+            int t_from = (track == -1) ? 0 : track;
+            int t_to = (track == -1) ? track_system.track_count : track + 1;
+            for (int t = t_from; t < t_to; ++t)
+                STREAMER_Recycle(t, measure, queue);
+            return;
+        }
+
+        TrackSection it = tracks[track].sections[measure];
+        if (!it && LogW("%/%: measure does not exist!".TM(this), tracks[track].info.name, measure)) return;
+
+        if (Variables.STREAMER_AllowQueueing)
+        {
+            // Enqueue if: 
+            // - 'queue' has a value and is true
+            // - 'queue' has no value, but queueing is preferred by policy
+            if ((queue.HasValue && queue.Value) || (!queue.HasValue && Variables.STREAMER_PreferQueueing))
+            {
+                recycle_queue.Enqueue(new QueueEntry(track, measure));
+                return;
+            }
+        }
+
+        recycled.Push(it.Recycle());
+        tracks[track].sections[measure] = null;
     }
-    public void STREAMER_StreamDestroyRange(int track, int from, int to)
+    public void STREAMER_RecycleRange(int track, int from, int to, bool? queue = null)
     {
         for (int i = from; i < to; ++i)
-            STREAMER_StreamDestroy(track, i);
+            STREAMER_Recycle(track, i, queue);
+    }
+
+    public void STREAMER_Destroy(int track, int measure, bool? queue = null)
+    {
+        if (track == -1)
+        {
+            int t_from = (track == -1) ? 0 : track;
+            int t_to = (track == -1) ? track_system.track_count : track + 1;
+            for (int t = t_from; t < t_to; ++t)
+                STREAMER_Destroy(t, measure, queue);
+            return;
+        }
+
+        if (Variables.STREAMER_AllowQueueing)
+        {
+            // Enqueue if: 
+            // - 'queue' has a value and is true
+            // - 'queue' has no value, but queueing is preferred by policy
+            if ((queue.HasValue && queue.Value) || (!queue.HasValue && Variables.STREAMER_PreferQueueing))
+            {
+                destroy_queue.Enqueue(new QueueEntry(track, measure));
+                return;
+            }
+        }
+        Destroy(tracks[track].sections[measure].gameObject);
+    }
+    public void STREAMER_DestroyRange(int track, int from, int to, bool? queue = null)
+    {
+        for (int i = from; i < to; ++i)
+            STREAMER_Destroy(track, i, queue);
+    }
+
+    float queue_elapsed_ms;
+
+    void UPDATE_Streaming()
+    {
+
     }
 
     void Update()
     {
-
+        UPDATE_HandleQueue();
+        UPDATE_Streaming();
     }
 
     #region Console commands
@@ -143,22 +233,22 @@ public class TrackStreamer : MonoBehaviour
     public static void cmd_stream_recycle(string[] args)
     {
         if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure]")) return;
-        Instance?.STREAMER_StreamRecycle(args[0].ParseInt(), args[1].ParseInt());
+        Instance?.STREAMER_Recycle(args[0].ParseInt(), args[1].ParseInt());
     }
     public static void cmd_stream_recycle_range(string[] args)
     {
         if (args.Length < 2 && ConsoleLogE("You need at least 3 arguments: [track] [measure_from] [measure_to]")) return;
-        Instance?.STREAMER_StreamRecycleRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
+        Instance?.STREAMER_RecycleRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
     }
     public static void cmd_stream_destroy(string[] args)
     {
         if (args.Length < 2 && ConsoleLogE("You need at least 2 arguments: [track] [measure]")) return;
-        Instance?.STREAMER_StreamDestroy(args[0].ParseInt(), args[1].ParseInt());
+        Instance?.STREAMER_Destroy(args[0].ParseInt(), args[1].ParseInt());
     }
     public static void cmd_stream_destroy_range(string[] args)
     {
         if (args.Length < 2 && ConsoleLogE("You need at least 3 arguments: [track] [measure_from] [measure_to]")) return;
-        Instance?.STREAMER_StreamDestroyRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
+        Instance?.STREAMER_DestroyRange(args[0].ParseInt(), args[1].ParseInt(), args[2].ParseInt());
     }
     #endregion
 }
