@@ -23,7 +23,7 @@ public class TrackSystem : MonoBehaviour
         {
             GameObject obj = new GameObject(song.tracks[i].name);
             obj.transform.SetParent(transform);
-            tracks[i] = new Track(song, i, obj.transform);
+            tracks[i] = new Track(this, song, i, obj.transform);
         }
 
         // Create streamer:

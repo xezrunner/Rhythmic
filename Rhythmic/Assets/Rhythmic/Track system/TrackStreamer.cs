@@ -8,6 +8,8 @@ public class TrackStreamer : MonoBehaviour
 
     Game Game = Game.Instance;
     SongSystem song_system = SongSystem.Instance;
+    AudioSystem audio_system;
+
     Song song;
     Clock clock;
 
@@ -21,6 +23,7 @@ public class TrackStreamer : MonoBehaviour
         STREAMER_RegisterCommands();
 
         this.track_system = track_system;
+        audio_system = song_system.audio_system;
         tracks = track_system.tracks;
         song = song_system.song;
         clock = song_system.clock;
@@ -52,26 +55,6 @@ public class TrackStreamer : MonoBehaviour
         public int track;
         public int measure;
     }
-    void UPDATE_HandleQueue()
-    {
-        if (!Variables.STREAMER_AllowQueueing) return;
-
-        if (stream_queue.Count + recycle_queue.Count + destroy_queue.Count == 0) return; // TODO: is this worth it?
-        if (queue_elapsed_ms > Variables.STREAMER_QueueDelay)
-        {
-            queue_elapsed_ms = 0;
-
-            QueueEntry stream_entry = (stream_queue.Count > 0) ? stream_queue.Dequeue() : null;
-            QueueEntry recycle_entry = (recycle_queue.Count > 0) ? recycle_queue.Dequeue() : null;
-            QueueEntry destroy_entry = (destroy_queue.Count > 0) ? destroy_queue.Dequeue() : null;
-
-            if (stream_entry != null) STREAMER_Stream(stream_entry.track, stream_entry.measure, false);
-            if (recycle_entry != null) STREAMER_Stream(recycle_entry.track, recycle_entry.measure, false);
-            if (destroy_entry != null) STREAMER_Stream(destroy_entry.track, destroy_entry.measure, false);
-        }
-
-        queue_elapsed_ms += Time.deltaTime * 1000;
-    }
     // --- Queue system --- //
 
     public void STREAMER_Stream(int track, int measure, bool? queue = null)
@@ -85,7 +68,7 @@ public class TrackStreamer : MonoBehaviour
             return;
         }
 
-        if (tracks[track].sections[measure] != null && LogW("%/%: measure already exists!".TM(this), tracks[track].info.name, measure)) return;
+        if (tracks[track].sections[measure] != null /*&& LogW("%/%: measure already exists!".TM(this), tracks[track].info.name, measure)*/) return;
 
         if (Variables.STREAMER_AllowQueueing)
         {
@@ -103,7 +86,7 @@ public class TrackStreamer : MonoBehaviour
         if (recycled.Count == 0)
             m = TrackSection.CreateTrackSection(tracks[track], measure);
         else
-            m = recycled.Pop().Unrecycle(tracks[track], measure);
+            m = recycled.Pop().Setup(tracks[track], measure);
 
         if (!m) LogE("Did not get a track - WTF!".TM(this));
 
@@ -132,7 +115,7 @@ public class TrackStreamer : MonoBehaviour
         }
 
         TrackSection it = tracks[track].sections[measure];
-        if (!it && LogW("%/%: measure does not exist!".TM(this), tracks[track].info.name, measure)) return;
+        if (!it /*&& LogW("%/%: measure does not exist!".TM(this), tracks[track].info.name, measure)*/) return;
 
         if (Variables.STREAMER_AllowQueueing)
         {
@@ -186,10 +169,47 @@ public class TrackStreamer : MonoBehaviour
     }
 
     float queue_elapsed_ms;
+    // Returns: total remainder of queue elements
+    int UPDATE_HandleQueue(bool force = false)
+    {
+        if (!Variables.STREAMER_AllowQueueing) return 0;
 
+        int total_count = (stream_queue.Count + recycle_queue.Count + destroy_queue.Count);
+        if (!force && total_count == 0) return total_count; // TODO: is this worth it?
+
+        if (!force && !audio_system.is_playing && !clock.is_testing) return total_count;
+
+        if (queue_elapsed_ms > Variables.STREAMER_QueueDelay || force)
+        {
+            queue_elapsed_ms = 0;
+
+            QueueEntry stream_entry = (stream_queue.Count > 0) ? stream_queue.Dequeue() : null;
+            QueueEntry recycle_entry = (recycle_queue.Count > 0) ? recycle_queue.Dequeue() : null;
+            QueueEntry destroy_entry = (destroy_queue.Count > 0) ? destroy_queue.Dequeue() : null;
+
+            if (stream_entry != null) STREAMER_Stream(stream_entry.track, stream_entry.measure, false);
+            if (recycle_entry != null) STREAMER_Recycle(recycle_entry.track, recycle_entry.measure, false);
+            if (destroy_entry != null) STREAMER_Destroy(destroy_entry.track, destroy_entry.measure, false);
+        }
+
+        queue_elapsed_ms += Time.deltaTime * 1000;
+
+        total_count = (stream_queue.Count + recycle_queue.Count + destroy_queue.Count);
+        return total_count;
+    }
+
+    int last_bar = 0;
     void UPDATE_Streaming()
     {
+        int bar = (int)clock.bar;
+        if (last_bar != bar)
+        {
+            STREAMER_StreamRangeHorizon(-1, bar);
+            if (last_bar != 0) STREAMER_RecycleRange(-1, 0, last_bar);
+            //Log("bar: % (last_bar: %)".TM(this), bar, last_bar);
 
+            last_bar = bar;
+        }
     }
 
     void Update()
@@ -204,15 +224,19 @@ public class TrackStreamer : MonoBehaviour
         DebugConsole cmd = DebugConsole.Instance;
         if (!cmd) LogW("No console!".TM(this));
 
+        cmd.RegisterCommand(cmd_stream_handlequeue, "stream_hq");
+
         cmd.RegisterCommand(cmd_stream);
         cmd.RegisterCommand(cmd_stream_range);
         cmd.RegisterCommand(cmd_stream_horizon);
 
-        cmd.RegisterCommand(cmd_stream_recycle);
+        cmd.RegisterCommand(cmd_stream_recycle, "stream_r");
         cmd.RegisterCommand(cmd_stream_recycle_range);
-        cmd.RegisterCommand(cmd_stream_destroy);
+        cmd.RegisterCommand(cmd_stream_destroy, "stream_d");
         cmd.RegisterCommand(cmd_stream_destroy_range);
     }
+
+    public static void cmd_stream_handlequeue() { while (Instance?.UPDATE_HandleQueue(true) != 0) ; }
 
     public static void cmd_stream(string[] args)
     {

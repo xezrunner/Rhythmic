@@ -34,10 +34,7 @@ public class TrackSection : MonoBehaviour
         obj.name = "%::%".Parse(track.info.name, id);
 
         TrackSection ts = obj.GetComponent<TrackSection>(); // PERFORMANCE!!!
-        ts.track = track;
-        ts.id = id;
-        ts.path_transform.pos.z = id * ts.path_transform.desired_size.z;
-        ts.path_transform.pos.x = track.info.id * ts.path_transform.desired_size.x;
+        ts.Setup(track, id);
 
         return ts;
     }
@@ -45,21 +42,20 @@ public class TrackSection : MonoBehaviour
     public TrackSection Recycle()
     {
         gameObject.SetActive(false);
-        Log("Recycling %... - state: %, %", gameObject.name, gameObject.activeSelf, gameObject.activeInHierarchy);
+        // Log("Recycling %... - state: %, %", gameObject.name, gameObject.activeSelf, gameObject.activeInHierarchy);
         // ...
 
         return this;
     }
 
-    public TrackSection Unrecycle(Track new_track, int new_id /* ... */)
+    public TrackSection Setup(Track track, int id /* ... */)
     {
         gameObject.SetActive(true);
 
-        id = new_id;
-        track = new_track;
-
-        path_transform.pos.x = track.info.id * path_transform.desired_size.x;
+        this.id = id;
+        this.track = track;
         path_transform.pos.z = id * path_transform.desired_size.z;
+        path_transform.pos.x = (-(track.track_system.track_count / 2f) + (track.info.id + 0.5f)) * path_transform.desired_size.x;
 
         // ...
 
