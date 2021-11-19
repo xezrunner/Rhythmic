@@ -185,6 +185,8 @@ public class DebugSystem : MonoBehaviour
         elapsed_t += Time.unscaledDeltaTime;
     }
 
+    List<int> average_samples = new List<int>();
+    int fps_avg = 0;
     float framerate_delta;
     void UPDATE_FramerateUI()
     {
@@ -192,7 +194,15 @@ public class DebugSystem : MonoBehaviour
 
         framerate_delta += (Time.unscaledDeltaTime - framerate_delta) * 0.1f;
         int fps = Mathf.CeilToInt(1.0f / framerate_delta);
-        Framerate_Text?.SetText("Framerate: % FPS".Parse(fps).AddColor(GetFramerateColor(fps)));
+        Framerate_Text?.SetText("Framerate: % FPS (% average)".Parse(fps, fps_avg).AddColor(GetFramerateColor(fps)));
+
+#if false
+        if (fps > 60)
+            average_samples.Add(fps);
+        int sum = 0;
+        foreach (int i in average_samples) sum += i;
+        if (average_samples.Count > 0) fps_avg = sum / average_samples.Count;
+#endif
     }
 
     Color GetFramerateColor(int fps)

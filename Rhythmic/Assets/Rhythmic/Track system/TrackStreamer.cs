@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Unity.Profiling;
 using UnityEngine;
 using static Logger;
 
@@ -6,7 +7,6 @@ public class TrackStreamer : MonoBehaviour
 {
     public static TrackStreamer Instance;
 
-    Game Game = Game.Instance;
     SongSystem song_system = SongSystem.Instance;
     AudioSystem audio_system;
 
@@ -38,6 +38,7 @@ public class TrackStreamer : MonoBehaviour
         if (is_initialized && LogW("Initialization had already occured. Ignoring.".TM(this))) return;
 
         STREAMER_StreamRangeHorizon(-1, (int)clock.bar, false);
+        UpdateHorizonClipForMeasures(0);
 
         is_initialized = true;
     }
@@ -206,16 +207,66 @@ public class TrackStreamer : MonoBehaviour
         {
             STREAMER_StreamRangeHorizon(-1, bar);
             if (last_bar != 0) STREAMER_RecycleRange(-1, 0, last_bar);
-            //Log("bar: % (last_bar: %)".TM(this), bar, last_bar);
+            // Log("bar: % (last_bar: %)".TM(this), bar, last_bar);
+
+            UpdateHorizonClipForMeasures(bar);
 
             last_bar = bar;
         }
+    }
+
+    void UpdateHorizonClipForMeasures(int bar)
+    {
+        int horizon_id = Variables.STREAMER_HorizonMeasures - 2;
+
+        for (int i = 0; i < track_system.track_count; ++i)
+        {
+            Track t = tracks[i];
+
+            for (int x = bar + horizon_id - 2; x >= 0; --x)
+            {
+                TrackSection m = t.sections[x];
+                if (m && m.mesh_renderer.material != t.material) m.ChangeMaterial(t.material);
+                else break;
+            }
+        }
+    }
+
+    void HandleClipping()
+    {
+        float horizon_bar = clock.bar + Variables.STREAMER_HorizonMeasures - 2;
+        float horizon_distance = song.time_units.pos_in_ms * (horizon_bar * song.time_units.ms_in_bar);
+
+        Vector3 horizon_point = PathTransform.pathcreator_global.path.XZ_GetPointAtDistance(horizon_distance);
+        Quaternion horizon_rot = PathTransform.pathcreator_global.path.XZ_GetRotationAtDistance(horizon_distance);
+        Vector3 horizon_normal = horizon_rot * Vector3.forward;
+
+        // Debug.DrawLine(horizon_point, horizon_point + (horizon_normal), Color.red, 1000);
+#if false
+        {
+            //GameObject obj_plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            //obj_plane.name = "plane";
+            //obj_plane.transform.position = horizon_point;
+            //Vector3 horizon_up = PathTransform.pathcreator_global.path.XZ_GetNormalAtDistance(horizon_distance);
+            //obj_plane.transform.rotation = Quaternion.LookRotation(horizon_normal, horizon_up) * Quaternion.Euler(-90, 0, 0);
+        }
+#endif
+
+        Vector4 result = horizon_normal.normalized;
+        result.w = -Vector3.Dot(horizon_normal, horizon_point);
+
+        // Shader.SetGlobalVector("_HorizonPoint", horizon_point);
+        Shader.SetGlobalVector("_Plane", result);
+
+        // Log("horizon_plane: %, w = %", result, result.w);
     }
 
     void Update()
     {
         UPDATE_HandleQueue();
         UPDATE_Streaming();
+
+        HandleClipping();
     }
 
     #region Console commands

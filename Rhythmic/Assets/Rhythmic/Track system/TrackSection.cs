@@ -23,7 +23,9 @@ public class TrackSection : MonoBehaviour
     public Track track;
     public List<Song_Note> song_notes;
 
-    public MeshRenderer mesh_renderer;    
+    public MeshRenderer mesh_renderer;
+
+    public void ChangeMaterial(Material mat) => mesh_renderer.material = mat;
 
     public TrackSection Setup(Track track, int id /* ... */)
     {
@@ -35,7 +37,7 @@ public class TrackSection : MonoBehaviour
         path_transform.pos.x = (-(track.track_system.track_count / 2f) + (track.info.id + 0.5f)) * path_transform.desired_size.x;
 
         // ...
-        mesh_renderer.material = track.material;
+        ChangeMaterial(track.material_horizon);
 
         path_transform.Deform();
 

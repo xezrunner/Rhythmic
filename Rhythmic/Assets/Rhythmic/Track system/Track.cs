@@ -12,8 +12,14 @@ public class Track
         parent_transform = parent;
 
         material = Object.Instantiate(material_resource);
+        material_horizon = Object.Instantiate(material_resource);
+
+        // TODO: Global shader var for glow (emission)!
+
         // material.SetColor("_Color", info.instrument.color);
         material.SetColor("_Emission", info.instrument.color * 5f);
+        material_horizon.SetColor("_Emission", info.instrument.color * 5f);
+        material_horizon.SetInt("_PlaneEnabled", 1);
     }
 
     public Song song;
@@ -24,4 +30,5 @@ public class Track
 
     public static Material material_resource = (Material)Resources.Load("Materials/Track/track_bottom");
     public Material material;
+    public Material material_horizon;
 }

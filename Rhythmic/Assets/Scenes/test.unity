@@ -209,13 +209,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 210867425}
-  m_LocalRotation: {x: 0.5088441, y: -0.005599839, z: 0.2504991, w: 0.82358766}
+  m_LocalRotation: {x: 0.59793514, y: 0.27324376, z: 0.3371837, w: 0.67388326}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 57.242, y: 27.006, z: 48.766}
+  m_LocalEulerAnglesHint: {x: 38.434, y: 80.03, z: 85.786}
 --- !u!1 &333404222
 GameObject:
   m_ObjectHideFlags: 0
@@ -294,12 +294,18 @@ MonoBehaviour:
     _bezierPath:
       points:
       - {x: 6.728359, y: 0, z: 29.12326}
-      - {x: 3.6309037, y: 0, z: 7.214404}
-      - {x: 0.5334482, y: 0, z: -14.694452}
-      - {x: -13.576564, y: 0, z: -24.565456}
-      - {x: -28.25106, y: 0, z: -34.83136}
-      - {x: -50.759995, y: 0, z: -30.046284}
-      - {x: -73.26893, y: 0, z: -25.261206}
+      - {x: 2.0238924, y: -0.6280749, z: 8.20265}
+      - {x: -2.6805744, y: -1.2561498, z: -12.717959}
+      - {x: -14.031429, y: 0.6088257, z: -26.211449}
+      - {x: -30.947884, y: 3.3882437, z: -46.32112}
+      - {x: -81.01558, y: 11.408151, z: -44.98625}
+      - {x: -88.923, y: 17.089691, z: -69.552155}
+      - {x: -98.47622, y: 23.953758, z: -99.23107}
+      - {x: -31.246223, y: 16.685425, z: -142.13875}
+      - {x: -46.341694, y: 31.593529, z: -165.99442}
+      - {x: -62.266983, y: 47.32115, z: -191.16145}
+      - {x: -106.048744, y: 60.72668, z: -173.9831}
+      - {x: -149.8305, y: 74.13221, z: -156.80475}
       isClosed: 0
       space: 0
       controlMode: 3
@@ -312,9 +318,13 @@ MonoBehaviour:
       - 0
       - 0
       - 0
+      - 0
+      - 0
       globalNormalsAngle: 90
       flipNormals: 0
       per_anchor_funky_angles:
+      - 0
+      - 0
       - 0
       - 0
       - 0
@@ -328,7 +338,7 @@ MonoBehaviour:
     showPerSegmentBounds: 0
     displayAnchorPoints: 1
     displayControlPoints: 1
-    bezierHandleScale: 17.13
+    bezierHandleScale: 39.17
     globalDisplaySettingsFoldout: 0
     keepConstantHandleSize: 0
     showNormalsInVertexMode: 0
@@ -564,7 +574,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1098744546
 Transform:
   m_ObjectHideFlags: 0
@@ -586,7 +596,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1098744545}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d52d028b78a94d345b229de8da99a7e2, type: 3}
   m_Name: 

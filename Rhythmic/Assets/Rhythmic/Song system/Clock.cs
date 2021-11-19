@@ -35,7 +35,7 @@ public class Clock : MonoBehaviour
 
     public float smooth_factor = 0.1f;
 
-    public bool is_testing = true; // TEMP
+    public bool is_testing = false; // TEMP
     public Transform cube;
     void Update()
     {

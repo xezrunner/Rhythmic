@@ -11,7 +11,7 @@
 		_Smoothness("Smoothness", Range(0, 1)) = 0
 		_Metallic("Metalness", Range(0, 1)) = 0
 
-		_Plane("Plane", Float) = (0, 0, 0, 0)
+		// _Plane("Plane", Float) = (0, 0, 0, 0)
 		_InversePlane("InversePlane", Float) = (0, 0, 0, 0)
 		_PlaneEnabled("PlaneEnabled", Int) = 0
 		_InversePlaneEnabled("InversePlaneEnabled", Int) = 0
@@ -53,7 +53,6 @@
 			#pragma target 3.0
 			#pragma surface surf Standard alpha
 
-
 			int _Enabled;
 			fixed4 _Color;
 			sampler2D _MainTex;
@@ -67,6 +66,8 @@
 			int _EmissionEnabled;
 			half3 _Emission;
 			sampler2D _EmissionMap;
+
+			float3 _HorizonPoint;
 
 			float4 _Plane;
 			float4 _InversePlane;
@@ -84,50 +85,38 @@
 			};
 
 			//the surface shader function which sets parameters the lighting function then uses
+			// step(x,y): returns whether x is bigger than y
 			void surf(Input i, inout SurfaceOutputStandard o)
 			{
-				if (_Enabled == 0)
-				{
-					discard; // TODO: revise! performance! (clip fully instead?)
-					return;
-				}
+				clip(-1 + _Enabled);
+				if (_Enabled == 0) return; // ???
 
-				if (_PlaneEnabled == 1 | _InversePlaneEnabled == 1)
+				// Clipping:
 				{
-					//calculate signed distance to plane
-					float distance = dot(i.worldPos, _Plane.xyz);
+					float distance = dot(i.worldPos, _Plane);
 					distance = distance + _Plane.w;
+					clip(_PlaneEnabled * -distance);
 
 					float inverse_distance = dot(i.worldPos, _InversePlane.xyz);
 					inverse_distance = inverse_distance + _InversePlane.w;
-
-					//discard surface above plane
-					if (_PlaneEnabled == 1)
-						clip(-distance);
-					if (_InversePlaneEnabled == 1)
-						clip(inverse_distance);
+					clip(_InversePlaneEnabled * inverse_distance); 
 				}
 
 				float facing = i.facing * 0.5 + 0.5;
-
-				//normal color stuff
 				fixed4 col = tex2D(_MainTex, i.uv_MainTex) * _Color;
 				o.Albedo = col.rgb * facing;
 
-				// Clip transparency
-				clip(col.a - _Cutoff);
-
 				// Emission
-				if (_EmissionEnabled)
-				{
-					//fixed4 emission = tex2D(_EmissionMap, i.uv_MainTex) * _Emission;
-					//o.Emission = lerp(_CutoffColor, emission, facing);
-					o.Emission = _Emission * tex2D(_EmissionMap, i.uv_MainTex).a;
-				}
+				//fixed4 emission = tex2D(_EmissionMap, i.uv_MainTex) * _Emission;
+				//o.Emission = lerp(_CutoffColor, emission, facing);
+				o.Emission = _EmissionEnabled * _Emission * tex2D(_EmissionMap, i.uv_MainTex).a;
 
 				fixed3 normal = UnpackNormal(tex2D(_BumpMap, i.uv_BumpMap));
 				o.Normal = UnpackScaleNormal(tex2D(_BumpMap, i.uv_BumpMap), _BumpStrength);
 				//o.Normal = lerp(float3(0.5, 0.5, 1), normal, _BumpStrength); // REMOVEME: This used to offset the normal map texture.
+
+				// Clip transparency
+				clip(col.a - _Cutoff);
 
 				o.Alpha = col.a;
 				o.Metallic = _Metallic * facing;
@@ -136,5 +125,5 @@
 			}
 			ENDCG
 		}
-			FallBack "Standard" //fallback adds a shadow pass so we get shadows on other objects
+		FallBack "Standard" //fallback adds a shadow pass so we get shadows on other objects
 }
