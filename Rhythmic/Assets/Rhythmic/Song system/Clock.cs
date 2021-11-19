@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using static Logger;
 
 public class Clock : MonoBehaviour
@@ -37,8 +38,12 @@ public class Clock : MonoBehaviour
 
     public bool is_testing = false; // TEMP
     public Transform cube;
+
     void Update()
     {
+        // TEMP:
+        if (Keyboard.current.enterKey.wasPressedThisFrame) is_testing = !is_testing;
+
         if (!is_testing) return;
         seconds += Time.deltaTime;
 

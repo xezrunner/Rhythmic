@@ -59,6 +59,22 @@ public partial class PathTransform : MonoBehaviour
     [Range(0f, 1f)] public float min_clip_frac = 0f;
     [Range(0f, 1f)] public float max_clip_frac = 1f;
 
+    public static PathCreator PATH_FindPathCreator()
+    {
+        PathCreator a = FindObjectOfType<PathCreator>();
+        if (!a) LogE("Could not find a PathCreator!".M());
+
+        return a;
+    }
+
+    public static VertexPath PATH_FindPath()
+    {
+        PathCreator creator = PATH_FindPathCreator();
+        if (creator) return creator.path;
+
+        return null;
+    }
+
     void Awake()
     {
         //trans = transform;
