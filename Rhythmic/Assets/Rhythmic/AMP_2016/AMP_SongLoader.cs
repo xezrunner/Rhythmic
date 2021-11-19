@@ -29,8 +29,8 @@ public static class AMP_SongLoader
                 LogW("The audio for song % doesn't exist at '%'.".TM(nameof(AMP_SongLoader)), song_name, audio_path);
 
             // TODO: refer to Song.cs/Song_Instrument!
-            Song_Instrument instrument = Song_Instrument.UNKNOWN;
-            instrument = (Song_Instrument)midi_track.instrument;
+            InstrumentType instrument = InstrumentType.UNKNOWN;
+            instrument = (InstrumentType)midi_track.instrument;
 
             List<Song_Note> notes = new List<Song_Note>();
             foreach (NoteOnEvent ev in midi_track.note_events)
@@ -47,7 +47,7 @@ public static class AMP_SongLoader
             {
                 id = midi_track.id,
                 name = midi_track.name,
-                instrument = instrument,
+                instrument = new Song_Instrument(instrument),
                 notes = notes,
                 audio_path = audio_path
             };

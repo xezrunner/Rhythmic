@@ -13,6 +13,12 @@ public class Colors : MonoBehaviour
     public CLogType LogType;
 
     // Functionality:
+
+    public static Color RGBToFloat(int r, int g, int b, int a = 255)
+    {
+        return new Color(r / 255f, g / 255f, b / 255f, a / 255f);
+    }
+
     public static Color ConvertToFloatColor(Color color)
     {
         // Convert color to 0-1 color, if required

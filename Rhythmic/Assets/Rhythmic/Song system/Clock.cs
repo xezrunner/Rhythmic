@@ -55,7 +55,7 @@ public class Clock : MonoBehaviour
         cube.position = PathTransform.pathcreator_global.path.XZ_GetPointAtDistance(pos);
         cube.rotation = PathTransform.pathcreator_global.path.XZ_GetRotationAtDistance(pos);
 
-        Camera.main.transform.position = (cube.position + (-cube.forward * 30f) + (cube.up * 10f));
+        Camera.main.transform.position = (cube.position + (-cube.forward * 15f) + (cube.up * 10f));
         Camera.main.transform.rotation = cube.rotation * Quaternion.Euler(13, 0, 0);
     }
 }

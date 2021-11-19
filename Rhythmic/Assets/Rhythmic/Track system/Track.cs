@@ -9,7 +9,11 @@ public class Track
         this.track_system = track_system;
         info = song.tracks[id];
         sections = new TrackSection[song.length_bars];
-        this.parent_transform = parent;
+        parent_transform = parent;
+
+        material = Object.Instantiate(material_resource);
+        // material.SetColor("_Color", info.instrument.color);
+        material.SetColor("_Emission", info.instrument.color * 5f);
     }
 
     public Song song;
@@ -17,4 +21,7 @@ public class Track
     public Transform parent_transform;
 
     public TrackSection[] sections;
+
+    public static Material material_resource = (Material)Resources.Load("Materials/Track/track_bottom");
+    public Material material;
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 using static Logger;
 
 public class Song
@@ -59,8 +60,8 @@ public class Song_TimeUnits
         pos_in_sec = (4f / sec_per_beat) + ((4f / sec_per_beat) * tunnel_scale); // ???
 
         // remainder:
-        ms_in_pos =   ((4f * ms_per_beat));
-        sec_in_pos  = ((4f * sec_per_beat));
+        ms_in_pos = ((4f * ms_per_beat));
+        sec_in_pos = ((4f * sec_per_beat));
         tick_in_pos = ((4f * Variables.beat_ticks));
 
         return;
@@ -95,10 +96,41 @@ public class Song_TimeUnits
     public float pos_in_bar;
 }
 
-// TODO TODO TODO:
-// Song_Instrument should be a class that has custom name,
-// color and other information!!!
-public enum Song_Instrument
+// TODO: Custom names for instruments
+public class Song_Instrument
+{
+    public Song_Instrument(InstrumentType instr, string custom_name = null, Color? color = null)
+    {
+        instrument = instr;
+        this.custom_name = (custom_name != null) ? custom_name : instr.ToString();
+        this.color = (color.HasValue) ? color.Value : GetColorForInstrument(instr);
+    }
+
+    public InstrumentType instrument = InstrumentType.UNKNOWN;
+    public string custom_name = null;
+    public Color color;
+
+    public static Color GetColorForInstrument(InstrumentType instr)
+    {
+        switch (instr)
+        {
+            case InstrumentType.Drums:
+                return Colors.RGBToFloat(255, 61, 246);
+            case InstrumentType.Bass:
+                return Colors.RGBToFloat(9, 79, 255);
+            case InstrumentType.Synth:
+            case InstrumentType.FX:
+                return Colors.RGBToFloat(218, 195, 43);
+            case InstrumentType.Guitar:
+                return Colors.RGBToFloat(213, 21, 11);
+            case InstrumentType.Vocals:
+                return Colors.RGBToFloat(32, 202, 45);
+            default: return Color.white;
+        }
+    }
+}
+
+public enum InstrumentType
 {
     UNKNOWN = -1,
     Drums = 0, D = 0,
