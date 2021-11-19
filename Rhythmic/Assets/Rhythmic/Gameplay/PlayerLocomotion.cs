@@ -2,7 +2,7 @@
 using UnityEngine;
 using static Logger;
 
-public class Player : MonoBehaviour
+public class PlayerLocomotion : MonoBehaviour
 {
     // TODO: We need to figure out how things get set up - accessing 'Instance's of each
     // class is a bit tedious...
@@ -43,8 +43,8 @@ public class Player : MonoBehaviour
         //main_camera.transform.localEulerAngles = camera_ori_offset;
     }
 
-    public Vector3 position = default;
-    public Vector3 orientation = default;
+    public Vector3 offset_pos = default;
+    public Vector3 offset_ori = default;
 
     void Update()
     {
@@ -55,8 +55,8 @@ public class Player : MonoBehaviour
         }
 
         float dist = clock.pos; // TODO: base this on audio_system? ...
-        Vector3 pos = path.XZ_GetPointAtDistance(dist, position, position.x); // TODO: Get the 'x' out of position automatically?
-        Quaternion rot = path.XZ_GetRotationAtDistance(dist, position.x) * Quaternion.Euler(orientation);
+        Vector3 pos = path.XZ_GetPointAtDistance(dist, offset_pos, offset_pos.x); // TODO: Get the 'x' out of position automatically?
+        Quaternion rot = path.XZ_GetRotationAtDistance(dist, offset_pos.x) * Quaternion.Euler(offset_ori);
 
         trans.position = pos;
         trans.rotation = rot;
