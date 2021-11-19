@@ -232,7 +232,7 @@ namespace PathCreation
         public Vector3 XZ_GetPointAtTime(float t, Vector3 pos_offset, float x_rot)
         {
             var data = CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
-            var rot = XZ_GetRotation(t, XZ_EnableRot ? x_rot : 0f);
+            var rot = XZ_GetRotation(t, XZ_EnableRot ? x_rot : 0f, data);
             Vector3 result = Vector3.Lerp(GetPoint(data.previousIndex), GetPoint(data.nextIndex), data.percentBetweenIndices) + (rot * pos_offset);
 
             // If we are before or beyond the path, 'extrapolate':
@@ -251,21 +251,21 @@ namespace PathCreation
             float t = dst / length;
             return XZ_GetRotation(t, x);
         }
-        public float XZ_GetMultForRotOffset(float t)
+        public float XZ_GetMultForRotOffset(float t, TimeOnPathData? p_data = null)
         {
             if (t < 0f) return (funky_angle_global + funky_angles[0]);
             else if (t > 1f) return (funky_angle_global + funky_angles[funky_angles.Length - 1]);
 
-            var data = CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
+            TimeOnPathData data = (p_data != null) ? p_data.Value : CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
             return funky_angle_global + Mathf.Lerp(funky_angles[data.previousIndex], funky_angles[data.nextIndex], data.percentBetweenIndices);
         }
-        public Quaternion XZ_GetRotation(float t, float x = 0f)
+        public Quaternion XZ_GetRotation(float t, float x = 0f, TimeOnPathData? p_data = null)
         {
             x += funky_angle_global_offset;
-            x *= XZ_GetMultForRotOffset(t);
+            x *= XZ_GetMultForRotOffset(t, p_data);
             x *= 0.01f;
 
-            var data = CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
+            TimeOnPathData data = (p_data != null) ? p_data.Value : CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
             Vector3 direction = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
             Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices) + new Vector3(0, 0, x);
 #if XZ_OPTIMIZE_TRANS
