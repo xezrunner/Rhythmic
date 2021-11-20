@@ -55,16 +55,18 @@ public class PlayerTrackSwitching : MonoBehaviour
         return SwitchToTrack(new_target, force);
     }
 
+    public float target_x;
     public bool SwitchToTrack(int id, bool force = false)
     {
         if (id < 0 || id > track_system.track_count - 1) return false;
 
         // TODO: Checks ...
 
+        smooth_time = ((track_system.track_count / 2f) + Mathf.Abs(current_track - id)) / smooth_time_factor;
         current_track = id;
 
         Track t = track_system.tracks[current_track];
-        locomotion.offset_pos.x = t.pos.x;
+        target_x = t.pos.x;
 
         return true;
     }
@@ -76,6 +78,10 @@ public class PlayerTrackSwitching : MonoBehaviour
         return SwitchToTrack(id, true);
     }
 
+    public float smooth_time_factor = 40f;
+    public float smooth_time;
+
+    float loco_x_offset_temp;
     void Update()
     {
         if (slam_count > 0)
@@ -88,5 +94,7 @@ public class PlayerTrackSwitching : MonoBehaviour
                 slam_count = 0;
             }
         }
+
+        locomotion.offset_pos.x = Mathf.SmoothDamp(locomotion.offset_pos.x, target_x, ref loco_x_offset_temp, smooth_time);
     }
 }

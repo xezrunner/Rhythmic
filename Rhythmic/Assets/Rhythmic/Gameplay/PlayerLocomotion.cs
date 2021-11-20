@@ -24,6 +24,9 @@ public class PlayerLocomotion : MonoBehaviour
     public bool is_following_path = true;
     public Transform lookat_target;
 
+    public Transform interp;
+    public Transform non_interp;
+
     void Start()
     {
         song_system = SongSystem.Instance;
@@ -46,6 +49,13 @@ public class PlayerLocomotion : MonoBehaviour
     public Vector3 offset_pos = default;
     public Vector3 offset_ori = default;
 
+    public float smooth_time = 0.2f; // TODO: Config!
+    public float interp_peekahead = 10f;
+
+    public Vector3 pos_interp;
+    public Quaternion rot_interp;
+    Vector3 pos_interp_temp;
+    Quaternion rot_interp_temp;
     void Update()
     {
         if (!is_following_path)
@@ -55,13 +65,19 @@ public class PlayerLocomotion : MonoBehaviour
         }
 
         float dist = clock.pos; // TODO: base this on audio_system? ...
-        Vector3 pos = path.XZ_GetPointAtDistance(dist, offset_pos, offset_pos.x); // TODO: Get the 'x' out of position automatically?
-        Quaternion rot = path.XZ_GetRotationAtDistance(dist, offset_pos.x) * Quaternion.Euler(offset_ori);
 
-        trans.position = pos;
-        trans.rotation = rot;
+        Vector3 pos_target = path.XZ_GetPointAtDistance(dist, offset_pos, offset_pos.x); // TODO: Get the 'x' out of position automatically?
+        pos_interp = Vector3.SmoothDamp(pos_interp, pos_target, ref pos_interp_temp, smooth_time);
 
-        main_camera_trans.LookAt(lookat_target, trans.up);
+        Quaternion rot_target = path.XZ_GetRotationAtDistance(dist, offset_pos.x) * Quaternion.Euler(offset_ori);
+        rot_interp = QuaternionUtil.SmoothDamp(rot_interp, rot_target, ref rot_interp_temp, smooth_time);
+
+        trans.position = pos_target;
+
+        interp.rotation = rot_interp;
+        non_interp.rotation = rot_target;
+
+        main_camera_trans.LookAt(lookat_target, interp.up);
         main_camera_trans.localEulerAngles += camera_ori_offset;
     }
 }
