@@ -422,31 +422,31 @@ MonoBehaviour:
     _bezierPath:
       points:
       - {x: 6.728359, y: 0, z: 29.12326}
-      - {x: 2.0238924, y: -0.6280749, z: 8.20265}
-      - {x: -2.6805744, y: -1.2561498, z: -12.717959}
-      - {x: -14.031429, y: 0.6088257, z: -26.211449}
-      - {x: -30.947884, y: 3.3882437, z: -46.32112}
-      - {x: -81.01558, y: 11.408151, z: -44.98625}
-      - {x: -88.923, y: 17.089691, z: -69.552155}
-      - {x: -98.47622, y: 23.953758, z: -99.23107}
-      - {x: -31.246223, y: 16.685425, z: -142.13875}
-      - {x: -46.341694, y: 31.593529, z: -165.99442}
-      - {x: -62.266983, y: 47.32115, z: -191.16145}
-      - {x: -106.048744, y: 60.72668, z: -173.9831}
-      - {x: -149.8305, y: 74.13221, z: -156.80475}
+      - {x: -0.58560133, y: 0, z: 13.753532}
+      - {x: -15.213522, y: 0, z: -16.985924}
+      - {x: -22.527483, y: 0, z: -32.35565}
+      - {x: -55.878647, y: 0, z: -102.44056}
+      - {x: -115.78875, y: 0, z: -80.00076}
+      - {x: -175.69885, y: 0, z: -57.560974}
+      - {x: -358.44785, y: 0, z: 10.889061}
+      - {x: -373.1149, y: 0, z: -187.15837}
+      - {x: -387.78195, y: 0, z: -385.2058}
+      - {x: -486.30472, y: 0, z: -1715.5468}
+      - {x: -1091.8044, y: 233.73352, z: -2352.9434}
+      - {x: -1673.6051, y: 233.73352, z: -2863.049}
       isClosed: 0
       space: 0
-      controlMode: 3
+      controlMode: 0
       autoControlLength: 0.3
       boundsUpToDate: 0
       bounds:
-        m_Center: {x: -41.197433, y: 10.834291, z: 10.510333}
-        m_Extent: {x: 47.925797, y: 11.606848, z: 29.667595}
+        m_Center: {x: -7.899562, y: 5.409355, z: -1.6161957}
+        m_Extent: {x: 14.627921, y: 5.409355, z: 30.739456}
       perAnchorNormalsAngle:
       - 0
       - 0
       - 0
-      - 0
+      - 26.49
       - 0
       globalNormalsAngle: 90
       flipNormals: 0
@@ -466,9 +466,9 @@ MonoBehaviour:
     showPerSegmentBounds: 0
     displayAnchorPoints: 1
     displayControlPoints: 1
-    bezierHandleScale: 39.17
+    bezierHandleScale: 1
     globalDisplaySettingsFoldout: 0
-    keepConstantHandleSize: 0
+    keepConstantHandleSize: 1
     showNormalsInVertexMode: 0
     showBezierPathInVertexMode: 0
     showDisplayOptions: 1
@@ -668,8 +668,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12719e0b1bcef9d4ea6a8991c6650673, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  track_switching: {fileID: 904254013}
   main_camera: {fileID: 963194227}
-  camera_pos_offset: {x: 0, y: 10, z: -16}
+  camera_pos_offset: {x: 0, y: 8, z: -10}
   camera_ori_offset: {x: -12, y: 0, z: 0}
   is_following_path: 1
   lookat_target: {fileID: 782123989}
@@ -677,7 +678,7 @@ MonoBehaviour:
   non_interp: {fileID: 1430545604}
   offset_pos: {x: 0, y: 0, z: 0}
   offset_ori: {x: 0, y: 0, z: 0}
-  smooth_time: 1
+  smooth_time: 0.4
   interp_peekahead: 10
   pos_interp: {x: 0, y: 0, z: 0}
   rot_interp: {x: 0, y: 0, z: 0, w: 0}
@@ -728,6 +729,7 @@ MonoBehaviour:
   target_x: 0
   smooth_time_factor: 40
   smooth_time: 0.1
+  is_freestyle: 0
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

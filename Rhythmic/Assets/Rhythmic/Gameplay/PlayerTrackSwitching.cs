@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
 public enum SwitchTrackDir { Left = -1, Right = 1 }
 
@@ -81,7 +82,10 @@ public class PlayerTrackSwitching : MonoBehaviour
     public float smooth_time_factor = 40f;
     public float smooth_time;
 
-    float loco_x_offset_temp;
+    public bool is_freestyle;
+
+    Vector3 loco_lookat_temp;
+    float loco_offset_x_temp;
     void Update()
     {
         if (slam_count > 0)
@@ -95,6 +99,9 @@ public class PlayerTrackSwitching : MonoBehaviour
             }
         }
 
-        locomotion.offset_pos.x = Mathf.SmoothDamp(locomotion.offset_pos.x, target_x, ref loco_x_offset_temp, smooth_time);
+        locomotion.lookat_target.localPosition = Vector3.SmoothDamp(locomotion.lookat_target.localPosition, !is_freestyle ? new Vector3(0, 0, 0) : new Vector3(0, 8, 0), ref loco_lookat_temp, smooth_time);
+        locomotion.offset_pos.x = Mathf.SmoothDamp(locomotion.offset_pos.x, !is_freestyle ? target_x : default, ref loco_offset_x_temp, smooth_time);
+
+        if (Keyboard.current.fKey.wasPressedThisFrame) is_freestyle = !is_freestyle;
     }
 }

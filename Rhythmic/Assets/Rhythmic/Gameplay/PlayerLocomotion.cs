@@ -1,5 +1,7 @@
 ﻿using PathCreation;
+using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using static Logger;
 
 public class PlayerLocomotion : MonoBehaviour
@@ -11,9 +13,11 @@ public class PlayerLocomotion : MonoBehaviour
     Clock clock;
     TrackSystem track_system;
 
+    public PlayerTrackSwitching track_switching;
+
     VertexPath path;
 
-    Transform trans;
+    [NonSerialized] public Transform trans;
 
     Vector3 orig_pos;
     public Camera main_camera;
@@ -79,5 +83,6 @@ public class PlayerLocomotion : MonoBehaviour
 
         main_camera_trans.LookAt(lookat_target, interp.up);
         main_camera_trans.localEulerAngles += camera_ori_offset;
+        main_camera_trans.localPosition = camera_pos_offset;
     }
 }
