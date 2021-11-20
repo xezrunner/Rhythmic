@@ -9,4 +9,12 @@
 
     public static int beat_ticks = 480;
     public static int bar_ticks = 1920;
+
+    public static float TRACK_Width = 3.7f;
+    public static float TRACK_Height = 0.1f;
+
+    public static bool TRACKSWITCH_SlamEnabled = true;
+    public static int TRACKSWITCH_SlamsTarget = 2;
+    public static float TRACKSWITCH_SlamTimeoutMs = 200f;
+
 }

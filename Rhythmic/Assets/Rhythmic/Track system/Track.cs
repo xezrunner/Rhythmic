@@ -11,6 +11,8 @@ public class Track
         sections = new TrackSection[song.length_bars];
         parent_transform = parent;
 
+        pos.x = (-(track_system.track_count / 2f) + (info.id + 0.5f)) * Variables.TRACK_Width;
+
         material = Object.Instantiate(material_resource);
         material_horizon = Object.Instantiate(material_resource);
 
@@ -27,6 +29,9 @@ public class Track
     public Transform parent_transform;
 
     public TrackSection[] sections;
+
+    public Vector3 pos;
+    public Vector3 ori;
 
     public static Material material_resource = (Material)Resources.Load("Materials/Track/track_bottom");
     public Material material;

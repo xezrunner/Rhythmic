@@ -137,13 +137,18 @@ public partial class PathTransform : MonoBehaviour
         mesh_filter.sharedMesh.GetVertices(OG_vertices);
 
         // Get max X/Y:
-        max_values = new Vector3(
-            Mathf.Abs(OG_vertices.Max(v => v.x)),
-            Mathf.Abs(OG_vertices.Max(v => v.y)),
-            Mathf.Abs(OG_vertices.Max(v => v.z)));
+        max_values = GetMaxValuesFromVertices(OG_vertices);
         max_values_double = (max_values * 2);
     }
     public void Restore_OG() => mesh.SetVertices(OG_vertices);
+
+    public static Vector3 GetMaxValuesFromVertices(List<Vector3> vertices)
+    {
+        return new Vector3(
+            Mathf.Abs(vertices.Max(v => v.x)),
+            Mathf.Abs(vertices.Max(v => v.y)),
+            Mathf.Abs(vertices.Max(v => v.z)));
+    }
 
     /// <summary>Specify -1 to not change a given clip value!</summary>
     public void ChangeClipValues(float min, float max)

@@ -1,0 +1,71 @@
+{
+    "name": "Gameplay",
+    "maps": [
+        {
+            "name": "Gameplay",
+            "id": "46ae3ecf-b8b5-4f1d-a877-324f64c16324",
+            "actions": [
+                {
+                    "name": "SwitchTrackLeft",
+                    "type": "Button",
+                    "id": "6394dd67-f675-4935-8656-75bc705f9731",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SwitchTrackRight",
+                    "type": "Button",
+                    "id": "e4e652fe-4241-4fc9-9060-b8ef043f254e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "de7dfc60-274b-497e-9460-ee4597c73285",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "General",
+                    "action": "SwitchTrackLeft",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8630f650-8d09-496c-bf43-3d0e51343522",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "General",
+                    "action": "SwitchTrackRight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": [
+        {
+            "name": "General",
+            "bindingGroup": "General",
+            "devices": [
+                {
+                    "devicePath": "<Keyboard>",
+                    "isOptional": false,
+                    "isOR": false
+                },
+                {
+                    "devicePath": "<Gamepad>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        }
+    ]
+}
