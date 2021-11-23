@@ -5,6 +5,9 @@ using static Logger;
 public class TrackSection : MonoBehaviour
 {
     public PathTransform path_transform;
+    public SongSystem song_system;
+    public Song song;
+    public Transform trans;
 
     void Awake()
     {
@@ -13,19 +16,8 @@ public class TrackSection : MonoBehaviour
     }
     void Start()
     {
-        if (track != null && id != -1)
-        {
-            // Log("Created TrackSection for track %  id: %", track.info.name, id);
-        }
+        if (track != null && id != -1) { /*Log("Created TrackSection for track %  id: %", track.info.name, id);}*/ }
     }
-
-    public int id = -1;
-    public Track track;
-    public List<Song_Note> song_notes;
-
-    public MeshRenderer mesh_renderer;
-
-    public void ChangeMaterial(Material mat) => mesh_renderer.material = mat;
 
     public TrackSection Setup(Track track, int id /* ... */)
     {
@@ -33,7 +25,19 @@ public class TrackSection : MonoBehaviour
 
         this.id = id;
         this.track = track;
-        path_transform.pos.z = id * path_transform.desired_size.z;
+        song_notes = track.info.notes[id];
+
+        song_system = SongSystem.Instance;
+        song = song_system.song;
+
+        trans.parent = track.parent_transform;
+        gameObject.name = "%::%".Parse(track.info.name, id);
+
+        mesh_renderer.enabled = song_notes != null;
+        notes = (song_notes != null) ? new Note[song_notes.Count] : null;
+
+        path_transform.desired_size.z = song.time_units.pos_in_tick * Variables.bar_ticks;
+        path_transform.pos.z = song.time_units.pos_in_tick * (id * Variables.bar_ticks);
         path_transform.pos.x = (-(track.track_system.track_count / 2f) + (track.info.id + 0.5f)) * path_transform.desired_size.x;
 
         // ...
@@ -41,9 +45,14 @@ public class TrackSection : MonoBehaviour
 
         path_transform.Deform();
 
+        GameObject a = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        a.transform.SetParent(trans);
+        a.transform.localScale = new Vector3(Variables.TRACK_Width, 0.1f, 0.1f);
+        a.transform.position = PathTransform.pathcreator_global.path.XZ_GetPointAtPosition(path_transform.pos + new Vector3(0, 0, path_transform.desired_size.z));
+        a.transform.rotation = PathTransform.pathcreator_global.path.XZ_GetRotationAtDistance(path_transform.pos.z + path_transform.desired_size.z, path_transform.pos.x);
+
         return this;
     }
-
     public TrackSection Recycle()
     {
         gameObject.SetActive(false);
@@ -53,17 +62,25 @@ public class TrackSection : MonoBehaviour
         return this;
     }
 
+    public int id = -1;
+    public Track track;
+    public Note[] notes;
+    public List<Song_Note> song_notes; // This is null if there are no notes in this measure.
+
+    public MeshRenderer mesh_renderer;
+
+    public void ChangeMaterial(Material mat) => mesh_renderer.material = mat;
+
     // ----- //
 
     public const string PREFAB_PATH = "Prefabs/Track/TrackSection";
-    public static GameObject PREFAB_Instance = null;
+    public static GameObject PREFAB_Cache = null;
     public static TrackSection CreateTrackSection(Track track, int id)
     {
-        if (!PREFAB_Instance) PREFAB_Instance = (GameObject)Resources.Load(PREFAB_PATH);
-        if (!PREFAB_Instance && LogE("Failed to load prefab (path: '%')".TM(nameof(TrackSection), PREFAB_PATH))) return null;
+        if (!PREFAB_Cache) PREFAB_Cache = (GameObject)Resources.Load(PREFAB_PATH);
+        if (!PREFAB_Cache && LogE("Failed to load prefab (path: '%')".TM(nameof(TrackSection), PREFAB_PATH))) return null;
 
-        GameObject obj = Instantiate(PREFAB_Instance, track.parent_transform);
-        obj.name = "%::%".Parse(track.info.name, id);
+        GameObject obj = Instantiate(PREFAB_Cache, track.parent_transform);
 
         TrackSection ts = obj.GetComponent<TrackSection>(); // PERFORMANCE!!!
         ts.Setup(track, id);

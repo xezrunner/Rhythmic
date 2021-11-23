@@ -339,11 +339,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 333404222}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d3f7beda2fd1b64e832f599f2e24142, type: 3}
+  m_Script: {fileID: 11500000, guid: 2562f37e9a86f3d45ac11753896735eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  game_type: 0
+  game_type: 1
   song_system: {fileID: 0}
+  game_difficulty: 3
 --- !u!4 &333404224
 Transform:
   m_ObjectHideFlags: 0
@@ -421,22 +422,22 @@ MonoBehaviour:
   editorData:
     _bezierPath:
       points:
-      - {x: 6.728359, y: 0, z: 29.12326}
-      - {x: -0.58560133, y: 0, z: 13.753532}
-      - {x: -15.213522, y: 0, z: -16.985924}
-      - {x: -22.527483, y: 0, z: -32.35565}
-      - {x: -55.878647, y: 0, z: -102.44056}
-      - {x: -115.78875, y: 0, z: -80.00076}
-      - {x: -175.69885, y: 0, z: -57.560974}
-      - {x: -358.44785, y: 0, z: 10.889061}
-      - {x: -373.1149, y: 0, z: -187.15837}
-      - {x: -387.78195, y: 0, z: -385.2058}
-      - {x: -486.30472, y: 0, z: -1715.5468}
-      - {x: -1091.8044, y: 233.73352, z: -2352.9434}
-      - {x: -1673.6051, y: 233.73352, z: -2863.049}
+      - {x: 0, y: 0, z: 0}
+      - {x: -4.064449, y: -1.8760791, z: 151.0039}
+      - {x: -8.128898, y: -3.7521582, z: 302.0078}
+      - {x: 0, y: 0, z: 430.99637}
+      - {x: 10.11943, y: 4.670953, z: 591.5705}
+      - {x: -28.991547, y: 5.447359, z: 835.9751}
+      - {x: 67.300934, y: 31.064941, z: 962.3862}
+      - {x: 175.90945, y: 59.959076, z: 1104.9656}
+      - {x: 504.16867, y: 129.0264, z: 1042.9895}
+      - {x: 615.58655, y: 162.08698, z: 1182.4622}
+      - {x: 695.1017, y: 185.68118, z: 1281.999}
+      - {x: 691.5759, y: 195.93538, z: 1443.9648}
+      - {x: 688.0501, y: 206.18958, z: 1605.9305}
       isClosed: 0
       space: 0
-      controlMode: 0
+      controlMode: 3
       autoControlLength: 0.3
       boundsUpToDate: 0
       bounds:
@@ -446,7 +447,7 @@ MonoBehaviour:
       - 0
       - 0
       - 0
-      - 26.49
+      - 0
       - 0
       globalNormalsAngle: 90
       flipNormals: 0
@@ -671,7 +672,7 @@ MonoBehaviour:
   track_switching: {fileID: 904254013}
   main_camera: {fileID: 963194227}
   camera_pos_offset: {x: 0, y: 8, z: -10}
-  camera_ori_offset: {x: -12, y: 0, z: 0}
+  camera_ori_offset: {x: -12.6, y: 0, z: 0}
   is_following_path: 1
   lookat_target: {fileID: 782123989}
   interp: {fileID: 404983621}
@@ -690,7 +691,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 904254009}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 4, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 124099485}
@@ -727,9 +728,9 @@ MonoBehaviour:
   locomotion: {fileID: 904254010}
   current_track: -1
   target_x: 0
+  is_freestyle: 0
   smooth_time_factor: 40
   smooth_time: 0.1
-  is_freestyle: 0
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

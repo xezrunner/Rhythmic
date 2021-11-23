@@ -396,7 +396,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 0
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 8, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -412,7 +412,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3539898941690352746}
   - component: {fileID: 3539898941690352747}
-  - component: {fileID: 1630804396261227398}
   m_Layer: 0
   m_Name: DebugSystem
   m_TagString: Untagged
@@ -447,25 +446,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c5cd55e6d1b34247a4c913fd1bdccc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startup_manager: {fileID: 1630804396261227398}
   components: []
   UI_Canvas: {fileID: 3539898943129461168}
   Framerate_Text: {fileID: 5250216794163844743}
   DebugMenu_Text: {fileID: 5079922551261014443}
   QuickLine_Text: {fileID: 3992068257007854915}
   DebugComponent_Text: {fileID: 1931637837459889470}
---- !u!114 &1630804396261227398
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3539898941690352749}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fdfb6d502206c448b387b464397b5c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &3539898943129461172
 GameObject:
   m_ObjectHideFlags: 0

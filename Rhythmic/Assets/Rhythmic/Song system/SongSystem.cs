@@ -4,7 +4,7 @@ using static Logger;
 public class SongSystem : MonoBehaviour
 {
     public static SongSystem Instance;
-    Game Game = Game.Instance;
+    RhythmicGame Game = RhythmicGame.Instance;
 
     void Awake()
     {

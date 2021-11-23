@@ -224,8 +224,10 @@ namespace PathCreation
 
         public static bool XZ_EnableRot = true;
 
-        public Vector3 XZ_GetPointAtDistance(float dst, Vector3 pos = default, float x_rot = 0f)
+        public Vector3 XZ_GetPointAtPosition(Vector3 pos, float? p_x_rot = null) => XZ_GetPointAtDistance(pos.z, (Vector2)pos, p_x_rot);
+        public Vector3 XZ_GetPointAtDistance(float dst, Vector3 pos = default, float? p_x_rot = null)
         {
+            float x_rot = (p_x_rot == null) ? pos.x : 0f;
             float t = dst / length;
             return XZ_GetPointAtTime(t, pos, x_rot);
         }

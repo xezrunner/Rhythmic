@@ -1,4 +1,6 @@
-﻿public enum AMP_Instrument
+﻿public enum AMP_Difficulty { Beginner = 0, Intermediate = 1, Advanced = 2, Expert = 3, Super = 4, UNKNOWN = -1 }
+
+public enum AMP_Instrument
 {
     UNKNOWN = -1,
     Drums = 0, D = 0,
@@ -45,5 +47,4 @@ public static class AMP_Constants
 
         return -1;
     }
-    
 }

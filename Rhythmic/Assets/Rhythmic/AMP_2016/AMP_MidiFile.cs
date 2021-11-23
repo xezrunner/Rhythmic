@@ -2,18 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using NAudio.Midi;
+using System.Linq;
 using static Logger;
-
-// Fields:
-
-public partial class AMP_MidiFile
-{
-    public int bpm;
-    public int midi_ticks;
-
-    public AMP_MidiTrack[] tracks;
-    public int track_count;
-}
 
 public class AMP_MidiTrack
 {
@@ -31,7 +21,17 @@ public class AMP_MidiTrack
 
 public partial class AMP_MidiFile
 {
+    public int bpm;
+    public int midi_ticks;
+
+    public AMP_MidiTrack[] tracks;
+    public int track_count;
+
     public AMP_MidiFile(string path) { ReadMIDIFromPath(path); }
+
+    // --------------- //
+
+    RhythmicGame Game = RhythmicGame.Instance;
 
     public void ReadMIDIFromPath(string path)
     {
@@ -86,6 +86,7 @@ public partial class AMP_MidiFile
                 if (ev.CommandCode != MidiCommandCode.NoteOn) continue;
 
                 NoteOnEvent note = (NoteOnEvent)ev;
+                if (!AMP_Constants.DIFFICULTY_NOTE_LANES[Game.game_difficulty].Contains(note.NoteNumber)) continue;
 
                 // TODO: BUGFIX: Some AMP MIDIs don't have the correct tick information.
                 if (midi_ticks != ticks_target)
@@ -125,7 +126,7 @@ public partial class AMP_MidiFile
 
             AMP_MidiTrack t = new AMP_MidiTrack()
             {
-                _text = "T% %".Parse(i, code),
+                _text = "T% %".Parse(i, code).Trim(),
                 _midi_track_id = i,
                 id = count,
                 name = split[2]

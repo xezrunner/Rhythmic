@@ -35,39 +35,40 @@ public class Song_TimeUnits
         /// TODO: Tunnel scale!!!
 
         beat_per_ms = (bpm / 60000f);
+        beat_per_sec = (bpm / 60f);
         ms_per_beat = (60000f / bpm);
         sec_per_beat = (60f / bpm);
 
         // ticks:
-        tick_in_ms = (bpm * Variables.beat_ticks) / 60000f;
-        tick_in_sec = (bpm * Variables.beat_ticks) / 60f;
+        tick_in_ms = beat_per_ms * Variables.beat_ticks;
+        tick_in_sec = beat_per_sec * Variables.beat_ticks;
 
         // ms:
-        ms_in_tick = 60000f / (bpm * Variables.beat_ticks);
+        ms_in_tick = ms_per_beat / Variables.beat_ticks;
         ms_in_beat = ms_in_tick * Variables.beat_ticks;
         ms_in_bar = ms_in_tick * Variables.bar_ticks;
 
         // sec:
-        sec_in_tick = 60f / (bpm * Variables.beat_ticks);
+        sec_in_tick = sec_per_beat / Variables.beat_ticks;
         sec_in_beat = sec_in_tick * Variables.beat_ticks;
         sec_in_bar = sec_in_tick * Variables.bar_ticks;
 
         // pos:
-        pos_in_tick = (4f / 480f) + ((4f / 480f) * tunnel_scale); // ???
+        pos_in_sec = Variables.UNITS_MetersPerSecond * (1f + tunnel_scale);
+        pos_in_tick = pos_in_sec * sec_in_tick;
+
         pos_in_beat = pos_in_tick * Variables.beat_ticks;
         pos_in_bar = pos_in_tick * Variables.bar_ticks;
-        pos_in_ms = (4f / ms_per_beat) + ((4f / ms_per_beat) * tunnel_scale);    // ???
-        pos_in_sec = (4f / sec_per_beat) + ((4f / sec_per_beat) * tunnel_scale); // ???
+        pos_in_ms = 4 * ms_per_beat; //(4f / ms_per_beat)   + ((4f / ms_per_beat) ) ;  //* tunnel_scale);    // ???
 
         // remainder:
-        ms_in_pos = ((4f * ms_per_beat));
-        sec_in_pos = ((4f * sec_per_beat));
-        tick_in_pos = ((4f * Variables.beat_ticks));
-
-        return;
+        ms_in_pos = (4f * ms_per_beat);
+        sec_in_pos = (4f * sec_per_beat);
+        tick_in_pos = (4f * Variables.beat_ticks);
     }
 
     public float beat_per_ms;
+    public float beat_per_sec;
     public float ms_per_beat;
     public float sec_per_beat;
 
@@ -147,7 +148,7 @@ public class Song_Track
     public int id;
     public string name;
     public Song_Instrument instrument;
-    public List<Song_Note> notes;
+    public List<Song_Note>[] notes; // Array of (list of notes) by measures
 
     public string audio_path;
     public int[] stereo_mix; // AMP-only?
@@ -157,6 +158,22 @@ public class Song_Track
 
 public struct Song_Note
 {
-    public long pos_ticks;
+    public Song_Note(int code, int lane, long ticks, Song_TimeUnits time_units)
+    {
+        this.lane = lane;
+        this.code = code;
+
+        this.ticks = ticks;
+        bar = (int)(ticks / Variables.bar_ticks);
+
+        long ticks_after_bar = ticks - (bar * Variables.bar_ticks);
+        pos = time_units.pos_in_tick * ticks_after_bar;
+    }
+
     public int lane;
+    public int code;
+
+    public long ticks;
+    public int bar;
+    public float pos;
 }

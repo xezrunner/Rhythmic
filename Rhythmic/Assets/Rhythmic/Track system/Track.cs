@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using static Logger;
 
 public class Track
 {
@@ -22,6 +23,19 @@ public class Track
         material.SetColor("_Emission", info.instrument.color * 5f);
         material_horizon.SetColor("_Emission", info.instrument.color * 5f);
         material_horizon.SetInt("_PlaneEnabled", 1);
+
+        /*
+        Log("Printing notes for track %: ", info.name);
+        for (int m = 0; m < 50; ++m)
+        {
+            if (info.notes[m] == null) continue;
+            for (int i = 0; i < info.notes[m].Count; ++i)
+            {
+                Log("    - [measure % / %]: lane id: % code: %", m, i, info.notes[m][i].lane, (AMP_NoteLane)info.notes[m][i].code);
+            }
+
+        }
+        */
     }
 
     public Song song;

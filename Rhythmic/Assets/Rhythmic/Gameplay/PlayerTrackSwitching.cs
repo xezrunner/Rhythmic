@@ -10,16 +10,10 @@ public class PlayerTrackSwitching : MonoBehaviour
 
     public PlayerLocomotion locomotion;
 
-    float track_width;
-
     void Start()
     {
         song_system = SongSystem.Instance;
         track_system = song_system.track_system;
-
-        if (Variables.TRACK_Width == -1)  // HACK! Provide a better way to do this, or provide value in Variables!
-            track_width = track_system.tracks[0].sections[0].path_transform.desired_size.x;
-        else track_width = Variables.TRACK_Width;
     }
 
     public int current_track = -1;
@@ -79,12 +73,11 @@ public class PlayerTrackSwitching : MonoBehaviour
         return SwitchToTrack(id, true);
     }
 
+    public bool is_freestyle;
     public float smooth_time_factor = 40f;
     public float smooth_time;
-
-    public bool is_freestyle;
-
     Vector3 loco_lookat_temp;
+    Vector3 freestyle_ori_offset_temp;
     float loco_offset_x_temp;
     void Update()
     {
@@ -101,7 +94,8 @@ public class PlayerTrackSwitching : MonoBehaviour
 
         locomotion.lookat_target.localPosition = Vector3.SmoothDamp(locomotion.lookat_target.localPosition, !is_freestyle ? new Vector3(0, 0, 0) : new Vector3(0, 8, 0), ref loco_lookat_temp, smooth_time);
         locomotion.offset_pos.x = Mathf.SmoothDamp(locomotion.offset_pos.x, !is_freestyle ? target_x : default, ref loco_offset_x_temp, smooth_time);
+        locomotion._camera_ori_offset = Vector3.SmoothDamp(locomotion._camera_ori_offset, (is_freestyle ? default : locomotion.camera_ori_offset), ref freestyle_ori_offset_temp, smooth_time);
 
-        if (Keyboard.current.fKey.wasPressedThisFrame) is_freestyle = !is_freestyle;
+        if (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame) is_freestyle = !is_freestyle;
     }
 }

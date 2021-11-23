@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3296417761277774882
+--- !u!1 &4803184483304306110
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,25 +8,24 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3296417761277774885}
-  - component: {fileID: 3296417761277774887}
-  - component: {fileID: 3296417761277774880}
-  - component: {fileID: 3296417761277774886}
-  - component: {fileID: 3296417761277774881}
+  - component: {fileID: 4803184483304306082}
+  - component: {fileID: 4803184483304306109}
+  - component: {fileID: 4803184483304306108}
+  - component: {fileID: 4803184483304306111}
   m_Layer: 0
-  m_Name: TrackSection
+  m_Name: Note
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3296417761277774885
+--- !u!4 &4803184483304306082
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3296417761277774882}
+  m_GameObject: {fileID: 4803184483304306110}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -34,24 +33,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &3296417761277774887
+--- !u!33 &4803184483304306109
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3296417761277774882}
-  m_Mesh: {fileID: 4517272219057500441, guid: 52b9a681b9111884c97a5ed99498346e, type: 3}
---- !u!23 &3296417761277774880
+  m_GameObject: {fileID: 4803184483304306110}
+  m_Mesh: {fileID: 4711208715938537054, guid: d4fc4aca6049c9e478dffb8e2a1f0eb6, type: 3}
+--- !u!23 &4803184483304306108
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3296417761277774882}
+  m_GameObject: {fileID: 4803184483304306110}
   m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
   m_MotionVectors: 1
@@ -62,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 396d3256a4e6d3e4ea2f79ff65856f04, type: 2}
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -84,45 +83,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &3296417761277774886
+--- !u!114 &4803184483304306111
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3296417761277774882}
+  m_GameObject: {fileID: 4803184483304306110}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7de7ddca87049bf40862cf8c1dd35e8c, type: 3}
+  m_Script: {fileID: 11500000, guid: f7b7a115f2bca3d4f90aaaefe8efa037, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  path_transform: {fileID: 3296417761277774881}
-  trans: {fileID: 3296417761277774885}
-  id: -1
-  notes: []
-  mesh_renderer: {fileID: 3296417761277774880}
---- !u!114 &3296417761277774881
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3296417761277774882}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dde912b73e9275343a57d924ff31f0d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pathcreator: {fileID: 0}
-  mesh_filter: {fileID: 0}
-  vertex_count: 0
-  AutoDeform: 1
-  pos: {x: 0, y: 0, z: 0}
-  euler_rot: {x: 0, y: 0, z: 0}
-  desired_size: {x: -1, y: -1, z: -1}
-  origin_mode: 1
-  origin_custom: 0
-  prev_min_clip_frac: 0
-  prev_max_clip_frac: 1
-  min_clip_frac: 0
-  max_clip_frac: 1
+  trans: {fileID: 4803184483304306082}
+  section: {fileID: 0}
+  mesh_renderer: {fileID: 4803184483304306108}
+  mesh_filter: {fileID: 4803184483304306109}

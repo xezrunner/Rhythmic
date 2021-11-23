@@ -57,7 +57,18 @@ public class ConfigurationFile
         if (!File.Exists(path) && LogE("File does not exist: '%'".TM(this), path)) return false;
 
         // 1. Read in the file as a text file:
-        string text = File.ReadAllText(path);
+        string text = null;
+        int file_read_attempts = 0;
+        try
+        {
+            text = File.ReadAllText(path);
+        }
+        catch (Exception ex)
+        {
+            Log("Failed to read the file: %", ex.Message);
+            while (file_read_attempts++ < 10)
+                text = File.ReadAllText(path);
+        }
         if (text.Length <= 0 && LogE("File is empty: '%'".TM(this), path)) return false;
 
         // 2. Parse!

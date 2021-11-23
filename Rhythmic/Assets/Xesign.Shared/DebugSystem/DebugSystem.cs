@@ -1,4 +1,5 @@
 #define DEBUGSYS_USE_INPUT_SYSTEM
+#undef FPS_AVG_SAMPLING
 
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ public class DebugSystem : MonoBehaviour
 
     public static bool DEBUGSYSTEM_WarnOnEventSystemInexistence = true;
 
-    public void Awake()
+    public void Start()
     {
         // Destroy if an instance already exists:
         if (Instance)
@@ -37,7 +38,8 @@ public class DebugSystem : MonoBehaviour
         }
         Instance = this;
 
-        if (!startup_manager && LogW("No startup components manager was assigned.".TM(this))) return;
+        if (startup_manager == null) startup_manager = new DebugSystemStartupManager();
+        if (startup_manager == null && LogW("No startup components manager was assigned.".TM(this))) return;
         List<Type> startup_types = startup_manager.GetStartupComsTypeList();
         if (startup_types.Count == 0 && LogW("There are no coms to load!".T(this))) return;
 
@@ -60,7 +62,7 @@ public class DebugSystem : MonoBehaviour
         }
 
         // TEST:
-        SwitchToComponent(0);
+        // SwitchToComponent(0);
 
         // TEMP: Hide debug menu string for now:
         DebugMenu_Text.gameObject.SetActive(false);
@@ -90,6 +92,7 @@ public class DebugSystem : MonoBehaviour
 
         DebugCom com = (DebugCom)gameObject.AddComponent(type);
         if (!com) return;
+        components.Add(com);
 
         if (id != "") com.com_id = id; // Assign ID in case we want a component to be unique
     }
@@ -182,7 +185,7 @@ public class DebugSystem : MonoBehaviour
             HandleCurrentComponent();
         }
 
-        elapsed_t += Time.unscaledDeltaTime;
+        elapsed_t += Time.unscaledDeltaTime * 1000f;
     }
 
     List<int> average_samples = new List<int>();
@@ -196,7 +199,7 @@ public class DebugSystem : MonoBehaviour
         int fps = Mathf.CeilToInt(1.0f / framerate_delta);
         Framerate_Text?.SetText("Framerate: % FPS (% average)".Parse(fps, fps_avg).AddColor(GetFramerateColor(fps)));
 
-#if false
+#if FPS_AVG_SAMPLING
         if (fps > 60)
             average_samples.Add(fps);
         int sum = 0;
@@ -267,10 +270,14 @@ public class DebugSystem : MonoBehaviour
         UPDATE_QuickLineTimeout();
     }
 
-    public static GameObject CreateDebugSystemObject()
+    public static DebugSystem CreateDebugSystemObject(DebugSystemStartupManager startup_manager = null)
     {
         GameObject prefab = (GameObject)Resources.Load(PREFAB_PATH);
-        return Instantiate(prefab);
+        GameObject obj = Instantiate(prefab);
+        DebugSystem com = obj.GetComponent<DebugSystem>();
+        if (startup_manager != null) com.startup_manager = startup_manager;
+
+        return com;
     }
 
 #if UNITY_EDITOR

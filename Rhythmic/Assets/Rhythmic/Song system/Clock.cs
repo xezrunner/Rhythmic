@@ -8,8 +8,9 @@ public class Clock : MonoBehaviour
     public static Clock Instance;
 
     SongSystem song_system;
-    Song_TimeUnits time_units;
     AudioSystem audio_system;
+
+    public Song_TimeUnits time_units;
 
     public void SetupClock(SongSystem song_system)
     {
@@ -39,13 +40,32 @@ public class Clock : MonoBehaviour
     public bool is_testing = false; // TEMP
     public Transform cube;
 
+    float seconds_ref;
     void Update()
     {
         // TEMP:
-        if (Keyboard.current.enterKey.wasPressedThisFrame) is_testing = !is_testing;
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.jKey.wasPressedThisFrame)
+            {
+                is_testing = !is_testing;
 
-        if (!is_testing) return;
-        seconds += Time.deltaTime;
+                if (is_testing) audio_system.AUDIO_Play();
+                else audio_system.AUDIO_Pause();
+                audio_system.is_playing = is_testing;
+            }
+            if (Keyboard.current.altKey.isPressed && Keyboard.current.numpad9Key.isPressed)
+                seconds += 6 * Time.deltaTime;
+            if (Keyboard.current.altKey.isPressed && Keyboard.current.numpad3Key.isPressed)
+                seconds -= 3 * Time.deltaTime;
+        }
+
+        if (is_testing)
+            seconds = Mathf.SmoothDamp(seconds, audio_system.audio_progress, ref seconds_ref, 0.1f);
+        //seconds = audio_system.audio_progress;
+        //seconds += audio_system.audio_deltatime;
+        //seconds += Time.deltaTime;
+
 
         // ...
 
@@ -54,14 +74,6 @@ public class Clock : MonoBehaviour
         beat = time_units.beat_per_ms * ms; // tick / Variables.beat_ticks;
         bar = tick / Variables.bar_ticks;
         pos = time_units.pos_in_sec * seconds;
-
-        // if (!cube) cube = GameObject.CreatePrimitive(PrimitiveType.Cube).transform;
-        // 
-        // cube.position = PathTransform.pathcreator_global.path.XZ_GetPointAtDistance(pos);
-        // cube.rotation = PathTransform.pathcreator_global.path.XZ_GetRotationAtDistance(pos);
-        // 
-        // Camera.main.transform.position = (cube.position + (-cube.forward * 15f) + (cube.up * 10f));
-        // Camera.main.transform.rotation = cube.rotation * Quaternion.Euler(13, 0, 0);
     }
 }
 

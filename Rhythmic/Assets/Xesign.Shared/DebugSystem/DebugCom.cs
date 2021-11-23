@@ -36,8 +36,8 @@ public class DebugCom : MonoBehaviour
     [HideInInspector] public string com_text;
 
     public void Com_Clear() => com_text = "";
-    public void Com_Write(string t, params object[] args) => com_text += t.Parse(args); // TODO: Performance?
-    // public void WriteLn(string t) => Text += t + "\n";
+    public void Com_Write(object t, params object[] args) => com_text += t.ToString().Parse(args); // TODO: Performance?
+    public void Com_WriteLine(object t, params object[] args) => Com_Write(t.ToString() + '\n', args);
 
     /// This function is called when the component is active and requested.
     /// It is also called on every update frequency tick.

@@ -24,6 +24,7 @@ public class PlayerLocomotion : MonoBehaviour
     Transform main_camera_trans;
     public Vector3 camera_pos_offset;
     public Vector3 camera_ori_offset;
+    [NonSerialized] public Vector3 _camera_ori_offset;
 
     public bool is_following_path = true;
     public Transform lookat_target;
@@ -82,7 +83,7 @@ public class PlayerLocomotion : MonoBehaviour
         non_interp.rotation = rot_target;
 
         main_camera_trans.LookAt(lookat_target, interp.up);
-        main_camera_trans.localEulerAngles += camera_ori_offset;
+        main_camera_trans.localEulerAngles += _camera_ori_offset;
         main_camera_trans.localPosition = camera_pos_offset;
     }
 }

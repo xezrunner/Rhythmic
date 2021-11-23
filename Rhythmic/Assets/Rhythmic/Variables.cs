@@ -9,6 +9,7 @@
 
     public static int beat_ticks = 480;
     public static int bar_ticks = 1920;
+    public static float UNITS_MetersPerSecond = 16f;
 
     public static float TRACK_Width = 3.7f;
     public static float TRACK_Height = 0.1f;
@@ -17,4 +18,6 @@
     public static int TRACKSWITCH_SlamsTarget = 2;
     public static float TRACKSWITCH_SlamTimeoutMs = 200f;
 
+    public static float NOTE_TrackPadding = 0.65f;
+    public static float NOTE_Size = 1f;
 }

@@ -5,35 +5,30 @@ using System.IO;
 using UnityEngine;
 using static Logger;
 
-public enum GameType { Rhythmic = 0, Amplitude2016 = 1 }
-public enum GameState { Startup = 0, Ingame = 1, Editor = 2, UNKNOWN = -1 }
-
 public class Game : MonoBehaviour
 {
     public static Game Instance;
 
-    void Awake() { Instance = this; }
-    void Start()
+    public virtual void Awake() => Instance = this;
+    public virtual void Start()
     {
         // Initialize Variables:
         INIT_Variables();
-
-        // -----
-        // Testing:
-
-        // Initialize SongSystem:
-        INIT_SongSystem("allthetime");
     }
 
-    public GameType game_type;
+    public DebugSystemStartupManager debugsystem_startupmanager = new Rhythmic_DebugSystemStartupManager();
 
+    // NOTE: Variable reading, hotreloading etc.. (probably this entire Game class)
+    // should move to XesignShared, as it is a core engine thing. We'll let it be
+    // overrideable so that we can load our custom variables as needed.
+    #region Variables
     public static string VARIABLES_FilePath = @"H:\Repositories\Rhythmic-git\Rhythmic\Assets\Variables.conf";
     public static bool VARIABLES_AllowHotReload = true;
     public static bool VARIABLES_DebugPrintVars = false;
 
     public DateTime VARIABLES_LastWriteTime;
     ConfigurationFile VARIABLES_ConfigFile = new ConfigurationFile(VARIABLES_FilePath, false);
-    void INIT_Variables(bool hot_reload = false)
+    public virtual void INIT_Variables(bool hot_reload = false)
     {
         VARIABLES_LastWriteTime = File.GetLastWriteTime(VARIABLES_FilePath);
         VARIABLES_ConfigFile.ReadFromPath();
@@ -76,7 +71,7 @@ public class Game : MonoBehaviour
                 {
                     if (e.type == ConfigEntryType.Command)
                     {
-                        if (e.name == "debugsystem") DebugSystem.CreateDebugSystemObject();
+                        if (e.name == "debugsystem") DebugSystem.CreateDebugSystemObject(debugsystem_startupmanager);
                         else DebugConsole.ExecuteCommand(e.name, e.value);
                     }
                 }
@@ -115,15 +110,6 @@ public class Game : MonoBehaviour
         // Handle special stuff here...
     }
 
-    public SongSystem song_system;
-    void INIT_SongSystem(string song_name, GameType game_type = GameType.Amplitude2016)
-    {
-        song_system = SongSystem.CreateSongSystem();
-        bool success = song_system.LoadSong(song_name, game_type);
-
-        if (!success) LogE("Failed to load song % (game_type: %).", song_name, game_type);
-    }
-
     float variables_hotreload_check_elapsed_ms = 0;
 
     void UPDATE_VariablesHotReload()
@@ -142,10 +128,10 @@ public class Game : MonoBehaviour
 
         variables_hotreload_check_elapsed_ms += Time.deltaTime * 1000f;
     }
+    #endregion
 
-    void Update()
+    public virtual void Update()
     {
         UPDATE_VariablesHotReload();
     }
-
 }

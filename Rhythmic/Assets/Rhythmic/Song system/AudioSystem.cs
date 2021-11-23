@@ -11,7 +11,7 @@ public enum AudioSystemMode { Static = 0, Dynamic = 1, Mixed = 2, UNKNOWN = -1 }
 
 public class AudioSystem : MonoBehaviour
 {
-    Game Game = Game.Instance;
+    RhythmicGame Game = RhythmicGame.Instance;
     SongSystem SongSystem = SongSystem.Instance;
     Clock Clock;
     public AudioSystemMode audio_system_mode;
@@ -83,13 +83,58 @@ public class AudioSystem : MonoBehaviour
 
     public bool is_playing;
 
+    float prev_audio_progress;
     public float audio_progress;
+
+    public int pcm_progress;
+    public int prev_pcm_progress;
+
+    public float prev_audio_deltatime;
     public float audio_deltatime;
+    public float _audio_deltatime_smooth;
+
     public float audio_timescale;
 
-    public void AUDIO_Play() { }
-    public void AUDIO_Pause() { }
+    public void AUDIO_Play()
+    {
+        double dsp_time = AudioSettings.dspTime;
+
+        foreach (AudioSource src in static_sources)
+            src.PlayScheduled(dsp_time);
+    }
+    public void AUDIO_Pause()
+    {
+        foreach (AudioSource src in static_sources)
+            src.Pause();
+    }
     public void AUDIO_Resume() { }
     public void AUDIO_TogglePause() { }
     public void AUDIO_Restart() { }
+
+    float prev_timescale;
+    void Update()
+    {
+        if (!is_playing) return;
+
+        if (Time.timeScale != prev_timescale)
+        {
+            foreach (AudioSource src in static_sources)
+                src.pitch = Time.timeScale;
+        }
+        prev_timescale = Time.timeScale;
+
+        float pcm_progress_avg = 0;
+        foreach(AudioSource src in static_sources)
+            pcm_progress_avg += src.timeSamples;
+        pcm_progress_avg /= static_sources.Length;
+
+        audio_progress = pcm_progress_avg / static_clips[0].frequency;
+
+        audio_deltatime = audio_progress - prev_audio_progress;
+        audio_deltatime = (audio_deltatime + prev_audio_deltatime) * 0.5f;
+
+        prev_pcm_progress = pcm_progress;
+        prev_audio_progress = audio_progress;
+        prev_audio_deltatime = audio_deltatime;
+    }
 }
