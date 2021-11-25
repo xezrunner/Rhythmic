@@ -12,8 +12,7 @@ using UnityEngine;
 using static Logger;
 
 
-public static class StringExtensions
-{
+public static class StringExtensions {
     #region Parsing
     public const char PARSE_PLACEHOLDER_CHAR = '%';
     public const bool PARSE_CHECK_PLACEHOLDER_COUNT = true;
@@ -22,11 +21,9 @@ public static class StringExtensions
     // Parse:
     /// <summary>Parses a string, replacing GLOBAL_ </summary>
     public static string Parse(this string text, params object[] args) => Parse(text, PARSE_PLACEHOLDER_CHAR, args);
-    public static string Parse(this string text, char placeholder_char, params object[] args)
-    {
+    public static string Parse(this string text, char placeholder_char, params object[] args) {
         // Count the amount of placeholders:
-        if (PARSE_CHECK_PLACEHOLDER_COUNT)
-        {
+        if (PARSE_CHECK_PLACEHOLDER_COUNT) {
             int placeholder_count = text.Count(c => c == placeholder_char);
             // TODO: We changed this so that you can supplement more arguments, but not less.
             // If you have more arguments, we just ignore the rest.
@@ -37,8 +34,7 @@ public static class StringExtensions
 #if PARSE_USE_STRINGBUILDER
         StringBuilder builder = new StringBuilder(text.Length + PARSE_PARAMS_BUFFER); // TODO: revise!
         int arg_i = -1;
-        for (int i = 0; i < text.Length; ++i)
-        {
+        for (int i = 0; i < text.Length; ++i) {
             char c = text[i];
 
             if (c == placeholder_char)
@@ -71,8 +67,7 @@ public static class StringExtensions
     // Colors:
     /// Credit: https://forum.unity.com/threads/change-color-of-a-single-word.538706/#post-6819410
     public static string ColorHexFromUnityColor(this Color unityColor) => $"#{ColorUtility.ToHtmlStringRGBA(unityColor)}";
-    public static string AddColor(this string text, Color color, float? alpha = null)
-    {
+    public static string AddColor(this string text, Color color, float? alpha = null) {
         if (alpha.HasValue) color.a = alpha.Value; // Set alpha if required
 
         string hex = ColorHexFromUnityColor(color); // Get color in hexadecimal format
@@ -80,17 +75,14 @@ public static class StringExtensions
     }
     public static string AddColor(this string text, float alpha) => AddColor(text, new Color(1, 1, 1), alpha);
     public static string AddColor(this string text, float r, float g, float b, float? alpha = null) => AddColor(text, new Color(r, g, b), alpha);
-    public static string ClearColors(this string text)
-    {
+    public static string ClearColors(this string text) {
         //<color=#03A9F4FF> && </color>
-        while (text.Contains("<color=#"))
-        {
+        while (text.Contains("<color=#")) {
             int code_start_index = text.IndexOf("<color=#");
             text = text.Remove(code_start_index, "<color=#000000FF>".Length);
         }
 
-        while (text.Contains("</color>"))
-        {
+        while (text.Contains("</color>")) {
             int code_start_index = text.IndexOf("</color>");
             text = text.Remove(code_start_index, "</color>".Length);
         }
@@ -105,12 +97,10 @@ public static class StringExtensions
     // TODO: Clear___() functions for these too?
 
     // Max lines:
-    public static string MaxLines(this string text, int maxLines)
-    {
+    public static string MaxLines(this string text, int maxLines) {
         string[] lines = text.Split('\n');
         int lineCount = lines.Length - 1;
-        if (lineCount > maxLines)
-        {
+        if (lineCount > maxLines) {
             int lineDiff = Mathf.Abs(maxLines - lineCount);
             string[] newLines = new string[maxLines + 1]; // newline at end!
             for (int i = lineDiff; i < lineCount; i++) // Remove lines from start to keep max line count
@@ -128,8 +118,7 @@ public static class StringExtensions
 
     // Align a text by number of spaces.
     // Note! For best results, text should be monospace!
-    public static string AlignSpaces(this string text, int total_text_length, int max)
-    {
+    public static string AlignSpaces(this string text, int total_text_length, int max) {
         int space_count = max - total_text_length;
         string s = "";
         for (int i = 0; i < space_count; i++)
@@ -139,8 +128,7 @@ public static class StringExtensions
 
     }
 
-    public static string AlignSpaces_New(this string text, int left_length, int right_target, bool after = false)
-    {
+    public static string AlignSpaces_New(this string text, int left_length, int right_target, bool after = false) {
         int space_count = right_target - text.Length;
         string s = "";
         for (; space_count > 0; --space_count) s += ' ';
@@ -153,8 +141,7 @@ public static class StringExtensions
     #endregion
 
     #region Datatype-parsing
-    public static bool ParseBool(this string text)
-    {
+    public static bool ParseBool(this string text) {
         // Try parsing as boolean:
         bool bool_result = false;
         if (bool.TryParse(text, out bool_result)) return bool_result;
@@ -176,18 +163,15 @@ public static class StringExtensions
     public static int ParseInt(this string text) => int.Parse(text);
     public static float ParseFloat(this string text) => float.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
 
-    public static int[] ParseIntArray(this string text)
-    {
+    public static int[] ParseIntArray(this string text) {
         int cursor = 0;
         List<int> list = new List<int>();
         string temp_buffer = "";
-        while (cursor < text.Length)
-        {
+        while (cursor < text.Length) {
             char c = text[cursor];
             if (char.IsDigit(c)) temp_buffer += c;
 
-            if (c == ',' || c == ')' && temp_buffer != "")
-            {
+            if (c == ',' || c == ')' && temp_buffer != "") {
                 list.Add(temp_buffer.ParseInt());
                 temp_buffer = "";
             }
@@ -197,18 +181,15 @@ public static class StringExtensions
         return list.ToArray();
     }
 
-    public static float[] ParseFloatArray(this string text)
-    {
+    public static float[] ParseFloatArray(this string text) {
         int cursor = 0;
         List<float> list = new List<float>();
         string temp_buffer = "";
-        while (cursor < text.Length)
-        {
+        while (cursor < text.Length) {
             char c = text[cursor];
             if (char.IsDigit(c) || c == '.') temp_buffer += c;
 
-            if (c == ',' || c == ')' && temp_buffer != "")
-            {
+            if (c == ',' || c == ')' && temp_buffer != "") {
                 list.Add(temp_buffer.ParseFloat());
                 temp_buffer = "";
             }
@@ -220,24 +201,21 @@ public static class StringExtensions
     #endregion
 
     // Type-method:
-    public static string M(this string text, [CallerMemberName] string method_name = null)
-    {
+    public static string M(this string text, [CallerMemberName] string method_name = null) {
 #if UNITY_ENGINE
         return (method_name + (!method_name.IsEmpty() ? "(): " : "")).AddColor(Colors.Unimportant) + text;
 #else
         return method_name + (!method_name.IsEmpty() ? "(): " : "") + text;
 #endif
     }
-    public static string T(this string text, object type = null)
-    {
+    public static string T(this string text, object type = null) {
 #if UNITY_ENGINE
         return (type is null ? "" : ((type is string) ? type.ToString() : type.GetType().Name) + ": ").AddColor(Colors.Unimportant) + text;
 #else
         return type is null ? "" : ((type is string) ? type.ToString() : type.GetType().Name) + ": " + text;
 #endif
     }
-    public static string TM(this string text, object type = null, [CallerMemberName] string method_name = null)
-    {
+    public static string TM(this string text, object type = null, [CallerMemberName] string method_name = null) {
         string s_type = type is null ? "" : ((type is string) ? type.ToString() : type.GetType().Name);
         string s_method = method_name.IsEmpty() ? ": " : ("/" + method_name + "(): ");
 #if UNITY_ENGINE
@@ -248,8 +226,7 @@ public static class StringExtensions
 
     }
 
-    public static string Reverse(this string text)
-    {
+    public static string Reverse(this string text) {
         StringBuilder s = new StringBuilder(text); // TODO: probably shouldn't copy the text here.
         for (int i = 0, x = text.Length - 1; i < text.Length; ++i, --x)
             s[i] = text[x];
@@ -257,14 +234,11 @@ public static class StringExtensions
         return s.ToString();
     }
 
-    public static string GetExt(this string text, bool include_dot = true)
-    {
+    public static string GetExt(this string text, bool include_dot = true) {
         bool success = false;
         string ext = "";
-        for (int i = text.Length - 1; i > 0; --i)
-        {
-            if (text[i] == '.')
-            {
+        for (int i = text.Length - 1; i > 0; --i) {
+            if (text[i] == '.') {
                 if (include_dot) ext += text[i];
                 success = true;
                 break;
@@ -277,13 +251,10 @@ public static class StringExtensions
         LogE("Couldn't find extension from string '%'!", text);
         return "";
     }
-    public static string RemoveExt(this string text, string ext = null)
-    {
+    public static string RemoveExt(this string text, string ext = null) {
         if (ext != null && ext != "") return text.Replace(ext, "");
-        else if (text.Contains("."))
-        {
-            for (int i = text.Length - 1; i > 0; --i)
-            {
+        else if (text.Contains(".")) {
+            for (int i = text.Length - 1; i > 0; --i) {
                 if (text[i] == '.')
                     return text.Substring(0, i);
             }
@@ -292,10 +263,8 @@ public static class StringExtensions
     }
 
     public static bool BeginsWith(this string text, string test, bool ignore_case = true) => text.StartsWith(test, ignore_case, CultureInfo.CurrentCulture);
-    public static bool BeginsWith(this string test, bool ignore_case, bool opmode_all = false, params string[] text)
-    {
-        foreach (string t in text)
-        {
+    public static bool BeginsWith(this string test, bool ignore_case, bool opmode_all = false, params string[] text) {
+        foreach (string t in text) {
             bool value = t.BeginsWith(test, ignore_case);
             if (opmode_all && !value) return false;
             else if (!opmode_all && value) return true;
@@ -305,15 +274,13 @@ public static class StringExtensions
 
     public static bool ContainsAny(this string text, params string[] tests) => ContainsAny(text, false, tests);
     public static bool ContainsAny(this string text, params char[] tests) => ContainsAny(text, false, tests);
-    public static bool ContainsAny(this string text, bool ignore_case = false, params string[] tests)
-    {
+    public static bool ContainsAny(this string text, bool ignore_case = false, params string[] tests) {
         foreach (string s in tests)
             if (text.Contains(s)) return true;
 
         return false;
     }
-    public static bool ContainsAny(this string text, bool ignore_case = false, params char[] tests)
-    {
+    public static bool ContainsAny(this string text, bool ignore_case = false, params char[] tests) {
         foreach (char c in tests)
             if (text.Contains(c)) return true;
 
@@ -323,8 +290,7 @@ public static class StringExtensions
     public static bool IsEmpty(this string text) => (text == null || text == "");
 }
 
-public static class CharExtensions
-{
+public static class CharExtensions {
     public static bool IsWhitespace(this char c) => (c == ' ' || c == '\r' || c == '\n' || c == '\t');
     public static bool IsNewline(this char c) => (c == '\r' || c == '\n');
 }

@@ -1,12 +1,10 @@
 using System;
 using UnityEngine;
 
-public class DebugComAttribute : Attribute
-{
+public class DebugComAttribute : Attribute {
     public DebugComAttribute() { }
     public DebugComAttribute(float update_freq) { this.update_freq = update_freq; }
-    public DebugComAttribute(string prefab_path, float update_freq = -1)
-    {
+    public DebugComAttribute(string prefab_path, float update_freq = -1) {
         this.prefab_path = prefab_path;
         this.update_freq = update_freq;
     }
@@ -16,18 +14,15 @@ public class DebugComAttribute : Attribute
     public float update_freq = -1;
 }
 
-public class DebugCom : MonoBehaviour
-{
+public class DebugCom : MonoBehaviour {
     public DebugComAttribute Attribute;
     [HideInInspector] public Transform Prefab_Parent;
 
-    public virtual void Awake()
-    {
+    public virtual void Awake() {
         Attribute = (DebugComAttribute)System.Attribute.GetCustomAttribute(GetType(), typeof(DebugComAttribute));
         if (Attribute == null) Attribute = new DebugComAttribute();
     }
-    public void Com_Destroy()
-    {
+    public void Com_Destroy() {
         if (Attribute.is_prefab) Destroy(Prefab_Parent);
         else Destroy(this);
     }

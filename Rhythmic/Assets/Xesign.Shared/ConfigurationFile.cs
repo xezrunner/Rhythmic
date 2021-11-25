@@ -5,17 +5,14 @@ using static Logger;
 
 public enum ConfigEntryType { Variable, List, Function, Command }
 
-public abstract class ConfigEntry
-{
+public abstract class ConfigEntry {
     public string name;
     public ConfigEntryType type;
     public object value_obj;
     public Type value_type;
 }
-public class ConfigEntry<T> : ConfigEntry
-{
-    public ConfigEntry(ConfigEntryType type, string name, T value)
-    {
+public class ConfigEntry<T> : ConfigEntry {
+    public ConfigEntry(ConfigEntryType type, string name, T value) {
         this.type = type;
         this.name = name;
         this.value = value;
@@ -26,16 +23,13 @@ public class ConfigEntry<T> : ConfigEntry
 }
 
 public abstract class ConfigValue { public object value_obj; }
-public class ConfigValue<T> : ConfigValue
-{
+public class ConfigValue<T> : ConfigValue {
     public ConfigValue(T value) { this.value = value; value_obj = value; }
     public T value;
 }
 
-public class ConfigurationFile
-{
-    public ConfigurationFile(string path, bool read = true)
-    {
+public class ConfigurationFile {
+    public ConfigurationFile(string path, bool read = true) {
         this.path = path;
         name = Path.GetFileName(path).RemoveExt();
         if (read) ReadFromPath(path);
@@ -52,19 +46,15 @@ public class ConfigurationFile
     public static bool CONFIGFILE_DebugPrintTokens = false;
 
     public bool ReadFromPath() => ReadFromPath(path);
-    public bool ReadFromPath(string path)
-    {
+    public bool ReadFromPath(string path) {
         if (!File.Exists(path) && LogE("File does not exist: '%'".TM(this), path)) return false;
 
         // 1. Read in the file as a text file:
         string text = null;
         int file_read_attempts = 0;
-        try
-        {
+        try {
             text = File.ReadAllText(path);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             Log("Failed to read the file: %", ex.Message);
             while (file_read_attempts++ < 10)
                 text = File.ReadAllText(path);
@@ -76,12 +66,10 @@ public class ConfigurationFile
         tokens_count = tokens.Count;
 
         // [DEBUG] print!
-        if (CONFIGFILE_DebugPrintTokens)
-        {
+        if (CONFIGFILE_DebugPrintTokens) {
             int i = -1;
             Log("BEGIN TOKEN PRINT!  Length: %", tokens.Count);
-            foreach (Token t in tokens)
-            {
+            foreach (Token t in tokens) {
                 string s = "[%]: Type: %".Parse(++i, t.type);
                 if (t.type == Token_Type.Section || t.type == Token_Type.Identifier || t.type == Token_Type.Number || t.type == Token_Type.String || t.type == Token_Type.Comment)
                     s += "  Value: %".Parse(t.value);
@@ -95,49 +83,41 @@ public class ConfigurationFile
         return true;
     }
 
-    void Interpret()
-    {
+    void Interpret() {
         directory = new Dictionary<string, List<ConfigEntry>>();
 
         string sect_name = "none";
         List<ConfigEntry> sect_list = new List<ConfigEntry>();
         directory.Add(sect_name, sect_list);
 
-        for (int i = 0; i < tokens_count; i++)
-        {
+        for (int i = 0; i < tokens_count; i++) {
             Token t = tokens[i];
 
-            switch (t.type)
-            {
-                case Token_Type.Section:
-                    {
+            switch (t.type) {
+                case Token_Type.Section: {
                         sect_name = t.value;
                         sect_list = new List<ConfigEntry>();
                         directory.Add(sect_name, sect_list);
                         break;
                     }
-                case Token_Type.Identifier:
-                    {
+                case Token_Type.Identifier: {
                         Token t_next = null;
                         if (i + 1 < tokens_count) t_next = tokens[i + 1];
 
                         ConfigEntry entry = null;
 
-                        switch (t_next.type)
-                        {
+                        switch (t_next.type) {
                             case Token_Type.Newline:
                                 LogW("Variable % requires a rhs assignment! Ignoring.", t.value); continue;
                             case Token_Type.Identifier:
-                            case Token_Type.String:
-                                {
+                            case Token_Type.String: {
                                     if (t_next.value.ContainsAny("true", "True", "false", "False", "yes", "Yes", "no", "No"))
                                         entry = new ConfigEntry<bool>(ConfigEntryType.Variable, t.value, t_next.value.ParseBool());
                                     else
                                         entry = new ConfigEntry<string>(ConfigEntryType.Variable, t.value, t_next.value);
                                     break;
                                 }
-                            case Token_Type.Number:
-                                {
+                            case Token_Type.Number: {
                                     if (t_next.value.ContainsAny(',', '.'))
                                         entry = new ConfigEntry<float>(ConfigEntryType.Variable, t.value, t_next.value.ParseFloat());
                                     else
@@ -152,17 +132,14 @@ public class ConfigurationFile
 
                                     List<ConfigValue> values = new List<ConfigValue>();
 
-                                    while (t.type != Token_Type.CloseParen && t.type != Token_Type.CloseBrace)
-                                    {
+                                    while (t.type != Token_Type.CloseParen && t.type != Token_Type.CloseBrace) {
                                         ConfigValue value = null;
 
-                                        switch (t.type)
-                                        {
+                                        switch (t.type) {
                                             case Token_Type.Identifier:
                                             case Token_Type.String:
                                                 value = new ConfigValue<string>(t.value); break;
-                                            case Token_Type.Number:
-                                                {
+                                            case Token_Type.Number: {
                                                     if (t.value.ContainsAny(',', '.'))
                                                         value = new ConfigValue<float>(t.value.ParseFloat());
                                                     else
@@ -180,8 +157,7 @@ public class ConfigurationFile
                                 }
                         }
 
-                        if (entry != null)
-                        {
+                        if (entry != null) {
                             sect_list.Add(entry);
 
                             // If we didn't just add a list, we can safely jump 2 tokens ahead (value + 1).
@@ -200,8 +176,7 @@ public class ConfigurationFile
                         t = tokens[++i];
                         List<string> args_list = new List<string>();
 
-                        while (t.type != Token_Type.CloseParen)
-                        {
+                        while (t.type != Token_Type.CloseParen) {
                             args_list.Add(t.value);
                             t = tokens[++i];
                         }
@@ -232,20 +207,16 @@ public class ConfigurationFile
     }
 
     public enum Token_Type { Comment, Section, Identifier, Number, String, OpenParen, CloseParen, OpenBrace, CloseBrace, Newline }
-    public class Token
-    {
-        public Token(Token_Type type, string value = "")
-        {
+    public class Token {
+        public Token(Token_Type type, string value = "") {
             this.type = type;
             this.value = value;
         }
         public Token_Type type;
         public string value;
     }
-    public class Parser
-    {
-        public Parser(string text)
-        {
+    public class Parser {
+        public Parser(string text) {
             this.text = text;
             length = text.Length;
         }
@@ -256,17 +227,14 @@ public class ConfigurationFile
         char c;
         int pos = -1;
 
-        public List<Token> Parse()
-        {
+        public List<Token> Parse() {
             List<Token> list = new List<Token>();
 
-            while (pos < length - 1)
-            {
+            while (pos < length - 1) {
                 Token t = null;
                 c = text[++pos];
 
-                switch (c)
-                {
+                switch (c) {
                     case ' ': continue;
                     case '\r':
                     case '\t':
@@ -275,8 +243,7 @@ public class ConfigurationFile
                     case '/': // Comments
                         {
                             string s = "";
-                            while (!c.IsNewline() && pos < length)
-                            {
+                            while (!c.IsNewline() && pos < length) {
                                 s += c;
                                 ++pos;
                                 if (pos < length) c = text[pos];
@@ -287,13 +254,11 @@ public class ConfigurationFile
                             break;
                         }
 
-                    case ':':
-                        {
+                    case ':': {
                             c = text[++pos]; // Advance from :
                             if (c == ' ') c = text[++pos]; // Advance from a space
                             string s = "";
-                            while (!c.IsNewline() && pos < length)
-                            {
+                            while (!c.IsNewline() && pos < length) {
                                 s += c;
                                 ++pos;
                                 if (pos < length) c = text[pos];
@@ -309,12 +274,10 @@ public class ConfigurationFile
                     case '{': t = new Token(Token_Type.OpenBrace); break;
                     case '}': t = new Token(Token_Type.CloseBrace); break;
 
-                    case '"':
-                        {
+                    case '"': {
                             c = text[++pos]; // Advance from "
                             string s = "";
-                            while (c != '"' && pos < length)
-                            {
+                            while (c != '"' && pos < length) {
                                 s += c;
                                 ++pos;
                                 if (pos < length) c = text[pos];
@@ -325,11 +288,9 @@ public class ConfigurationFile
                             break;
                         }
 
-                    case char x when (x == '-' || char.IsNumber(x)):
-                        {
+                    case char x when (x == '-' || char.IsNumber(x)): {
                             string s = "";
-                            while (!c.IsWhitespace() && c != ')' && c != '}' && pos < length)
-                            {
+                            while (!c.IsWhitespace() && c != ')' && c != '}' && pos < length) {
                                 s += c;
                                 ++pos;
                                 if (pos < length) c = text[pos];
@@ -343,8 +304,7 @@ public class ConfigurationFile
                     default: // Identifier
                         {
                             string s = "";
-                            while (!c.IsWhitespace() && c != ')' && c != '}' && pos < length)
-                            {
+                            while (!c.IsWhitespace() && c != ')' && c != '}' && pos < length) {
                                 s += c;
                                 ++pos;
                                 if (pos < length) c = text[pos];

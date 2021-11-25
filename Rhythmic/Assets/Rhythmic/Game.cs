@@ -1,17 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.IO;
+using System.Reflection;
 using UnityEngine;
 using static Logger;
 
-public class Game : MonoBehaviour
-{
+public class Game : MonoBehaviour {
     public static Game Instance;
 
     public virtual void Awake() => Instance = this;
-    public virtual void Start()
-    {
+    public virtual void Start() {
         // Initialize Variables:
         INIT_Variables();
     }
@@ -28,25 +26,20 @@ public class Game : MonoBehaviour
 
     public DateTime VARIABLES_LastWriteTime;
     ConfigurationFile VARIABLES_ConfigFile = new ConfigurationFile(VARIABLES_FilePath, false);
-    public virtual void INIT_Variables(bool hot_reload = false)
-    {
+    public virtual void INIT_Variables(bool hot_reload = false) {
         VARIABLES_LastWriteTime = File.GetLastWriteTime(VARIABLES_FilePath);
         VARIABLES_ConfigFile.ReadFromPath();
 
         // Debug print:
-        if (VARIABLES_DebugPrintVars)
-        {
+        if (VARIABLES_DebugPrintVars) {
             Log("\n---------------");
             Log("Configuration file dump:   name: %", VARIABLES_ConfigFile.name.AddColor(Colors.Application));
-            foreach (var b in VARIABLES_ConfigFile.directory)
-            {
+            foreach (var b in VARIABLES_ConfigFile.directory) {
                 Log("  - [Section]: %", b.Key.AddColor(Colors.Application));
-                for (int i = 0; i < b.Value.Count; i++)
-                {
+                for (int i = 0; i < b.Value.Count; i++) {
                     var c = b.Value[i];
                     string value = c.value_obj.ToString();
-                    if (c.type == ConfigEntryType.List)
-                    {
+                    if (c.type == ConfigEntryType.List) {
                         value = "";
                         ConfigEntry<List<ConfigValue>> e = (ConfigEntry<List<ConfigValue>>)c;
                         foreach (ConfigValue v in e.value)
@@ -62,29 +55,21 @@ public class Game : MonoBehaviour
         // Load Variables section entries using reflection:
         FieldInfo[] vars_fieldinfo = typeof(Variables).GetFields();
 
-        foreach (var sect in VARIABLES_ConfigFile.directory)
-        {
+        foreach (var sect in VARIABLES_ConfigFile.directory) {
             // Only load startup entries if not hot reloading!
-            if (sect.Key == "Startup" && !hot_reload)
-            {
+            if (sect.Key == "Startup" && !hot_reload) {
                 foreach (ConfigEntry<string[]> e in sect.Value) // Can you do type args here?
                 {
-                    if (e.type == ConfigEntryType.Command)
-                    {
+                    if (e.type == ConfigEntryType.Command) {
                         if (e.name == "debugsystem") DebugSystem.CreateDebugSystemObject(debugsystem_startupmanager);
                         else DebugConsole.ExecuteCommand(e.name, e.value);
                     }
                 }
-            }
-            else if (sect.Key == "Variables")
-            {
-                foreach (ConfigEntry e in sect.Value)
-                {
+            } else if (sect.Key == "Variables") {
+                foreach (ConfigEntry e in sect.Value) {
                     bool found = false;
-                    foreach (FieldInfo f in vars_fieldinfo)
-                    {
-                        if (e.name == f.Name)
-                        {
+                    foreach (FieldInfo f in vars_fieldinfo) {
+                        if (e.name == f.Name) {
                             found = true;
 
                             // HACK: Cast our type if we have an int but var expects float or double:
@@ -92,8 +77,7 @@ public class Game : MonoBehaviour
                                 e.value_type = f.FieldType;
                             else if (e.value_type == typeof(float) && (f.FieldType == typeof(int))) // TODO: Check!
                                 e.value_type = f.FieldType;
-                            else if (e.value_type != f.FieldType)
-                            {
+                            else if (e.value_type != f.FieldType) {
                                 LogE("Warning: variable '%' expects type '%' - given: '%'. Ignoring.".TM(this), e.name, f.FieldType, e.value_type);
                                 break;
                             }
@@ -112,12 +96,10 @@ public class Game : MonoBehaviour
 
     float variables_hotreload_check_elapsed_ms = 0;
 
-    void UPDATE_VariablesHotReload()
-    {
+    void UPDATE_VariablesHotReload() {
         if (!VARIABLES_AllowHotReload) return;
 
-        if (variables_hotreload_check_elapsed_ms >= Variables.VARIABLES_HotReloadCheckMs)
-        {
+        if (variables_hotreload_check_elapsed_ms >= Variables.VARIABLES_HotReloadCheckMs) {
             if (File.GetLastWriteTime(VARIABLES_FilePath) <= VARIABLES_LastWriteTime) return;
 
             Log("Hot-reloading Variables.conf... (check elapsed: %ms)".T(this), variables_hotreload_check_elapsed_ms);
@@ -130,8 +112,7 @@ public class Game : MonoBehaviour
     }
     #endregion
 
-    public virtual void Update()
-    {
+    public virtual void Update() {
         UPDATE_VariablesHotReload();
     }
 }

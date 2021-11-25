@@ -1,12 +1,10 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using static DebugConsoleDefaultCommands;
 using static Logger;
-using UnityEngine;
 
-public partial class DebugConsole : DebugCom
-{
+public partial class DebugConsole : DebugCom {
     public void COMMANDS_Start() => cmdsystem = new DebugConsoleCommands();
     public DebugConsoleCommands cmdsystem;
 
@@ -17,19 +15,16 @@ public partial class DebugConsole : DebugCom
     public bool RegisterCommand(ConsoleCommand command) => cmdsystem.RegisterCommand(command);
 }
 
-public struct ConsoleCommand
-{
+public struct ConsoleCommand {
     #region Ctors
-    public ConsoleCommand(string command, Action action_empty, params string[] aliases)
-    {
+    public ConsoleCommand(string command, Action action_empty, params string[] aliases) {
         this.command = command;
         this.action_empty = action_empty;
         this.action_args = null;
         this.aliases = aliases.ToList();
         this.help_text = "";
     }
-    public ConsoleCommand(string command, Action<string[]> action_args, params string[] aliases)
-    {
+    public ConsoleCommand(string command, Action<string[]> action_args, params string[] aliases) {
         this.command = command;
         this.action_empty = null;
         this.action_args = action_args;
@@ -46,8 +41,7 @@ public struct ConsoleCommand
     public Action action_empty;
     public Action<string[]> action_args;
 
-    public void Invoke(string[] args = null)
-    {
+    public void Invoke(string[] args = null) {
         if (is_action_empty) Invoke_Empty();
         else Invoke_Args(args);
     }
@@ -55,10 +49,8 @@ public struct ConsoleCommand
     public void Invoke_Args(string[] args) => action_args(args);
 }
 
-public class DebugConsoleCommands
-{
-    public DebugConsoleCommands()
-    {
+public class DebugConsoleCommands {
+    public DebugConsoleCommands() {
         if (COMMANDS_RegisterDefaultCommands)
             RegisterDefaultCommands();
     }
@@ -75,17 +67,14 @@ public class DebugConsoleCommands
     public bool RegisterCommand(string command, Action<string[]> action, params string[] aliases) => RegisterCommand(new ConsoleCommand(command, action, aliases));
     public bool RegisterCommand(Action action, params string[] aliases) => RegisterCommand(new ConsoleCommand(action.Method.Name, action, aliases));
     public bool RegisterCommand(Action<string[]> action, params string[] aliases) => RegisterCommand(new ConsoleCommand(action.Method.Name, action, aliases));
-    public bool RegisterCommand(ConsoleCommand cmd)
-    {
-        foreach (ConsoleCommand c in registered_commands)
-        {
+    public bool RegisterCommand(ConsoleCommand cmd) {
+        foreach (ConsoleCommand c in registered_commands) {
             if (!COMMANDS_PreventDuplication) break;
             if (c.command == cmd.command && LogE("This command already exists: '%'", c.command)) return false;
 
             if (!COMMANDS_PreventAliasDuplication) break;
             foreach (string alias in c.aliases)
-                if (cmd.aliases.Contains(alias))
-                {
+                if (cmd.aliases.Contains(alias)) {
                     LogW("Warning: command '%' contains duplicate alias '%' from another command '%'. Rejecting.", cmd.command, alias, c.command);
                     cmd.aliases.Remove(alias);
                 }
@@ -100,10 +89,8 @@ public class DebugConsoleCommands
         return true;
     }
 
-    public void DumpRegisteredCommands()
-    {
-        for (int i = 0; i < registered_commands.Count; ++i)
-        {
+    public void DumpRegisteredCommands() {
+        for (int i = 0; i < registered_commands.Count; ++i) {
             ConsoleCommand c = registered_commands[i];
             Log("[%] %", i, c.command);
         }
@@ -111,8 +98,7 @@ public class DebugConsoleCommands
 
     // ---------- //
 
-    public void RegisterDefaultCommands()
-    {
+    public void RegisterDefaultCommands() {
         RegisterCommand(test);
         RegisterCommand(help);
         RegisterCommand(fps);
@@ -120,15 +106,12 @@ public class DebugConsoleCommands
     }
 }
 
-public static class DebugConsoleDefaultCommands
-{
+public static class DebugConsoleDefaultCommands {
     static DebugConsoleCommands cmdsystem = DebugConsole.Instance.cmdsystem;
 
     public static void test() => Log("Test command");
-    public static void help(string[] args)
-    {
-        if (args != null && args.Length > 0)
-        {
+    public static void help(string[] args) {
+        if (args != null && args.Length > 0) {
             // Command-specific help goes here...
             LogW("TODO: Command-specific help!");
             return;
@@ -138,18 +121,15 @@ public static class DebugConsoleDefaultCommands
         foreach (ConsoleCommand c in cmdsystem.registered_commands)
             DebugConsole.ConsoleLog(c.command.AddColor(Colors.Warning) + (!c.help_text.IsEmpty() ? " - " + c.help_text.AddColor(Colors.Unimportant) : null));
     }
-    public static void fps(string[] args)
-    {
+    public static void fps(string[] args) {
         if (args == null || args.Length == 0) CoreGameUtils.SetFramerate();
-        else
-        {
+        else {
             int fps = args[0].ParseInt();
             int vsync = (args.Length > 1) ? args[1].ParseInt() : 0;
             CoreGameUtils.SetFramerate(fps, vsync);
         }
     }
-    public static void timescale(string[] args)
-    {
+    public static void timescale(string[] args) {
         //if (args.Length == 0 && DebugConsole.ConsoleLog("timescale: argument required!")) return;
         if (args == null || args.Length == 0) CoreGameUtils.SetTimescale();
         else CoreGameUtils.SetTimescale(args[0].ParseFloat());

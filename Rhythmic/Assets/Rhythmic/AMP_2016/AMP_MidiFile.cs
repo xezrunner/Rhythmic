@@ -1,12 +1,11 @@
-﻿using System;
+﻿using NAudio.Midi;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using NAudio.Midi;
 using System.Linq;
 using static Logger;
 
-public class AMP_MidiTrack
-{
+public class AMP_MidiTrack {
     public string _text;
     public int _midi_track_id;
     public int id;
@@ -19,8 +18,7 @@ public class AMP_MidiTrack
 
 // Functionality:
 
-public partial class AMP_MidiFile
-{
+public partial class AMP_MidiFile {
     public int bpm;
     public int midi_ticks;
 
@@ -33,9 +31,8 @@ public partial class AMP_MidiFile
 
     RhythmicGame Game = RhythmicGame.Instance;
 
-    public void ReadMIDIFromPath(string path)
-    {
-        if (!File.Exists(path) && LogE("File does not exist: '%'".TM(this), path)) 
+    public void ReadMIDIFromPath(string path) {
+        if (!File.Exists(path) && LogE("File does not exist: '%'".TM(this), path))
             return;
 
         byte[] bytes = File.ReadAllBytes(path);
@@ -56,11 +53,9 @@ public partial class AMP_MidiFile
 
     // TODO: these functions could be static?
 
-    int find_bpm_from_midi(MidiFile midi)
-    {
+    int find_bpm_from_midi(MidiFile midi) {
         int event_count = midi.Events[0].Count;
-        for (int i = 0; i < event_count; ++i)
-        {
+        for (int i = 0; i < event_count; ++i) {
             MidiEvent ev = midi.Events[0][i];
             if (ev.GetType() != typeof(TempoEvent)) continue;
 
@@ -74,23 +69,19 @@ public partial class AMP_MidiFile
     }
 
     public static int ticks_target = 480;
-    void find_note_events(MidiFile midi, AMP_MidiTrack[] tracks)
-    {
-        for (int i = 0; i < track_count; ++i)
-        {
+    void find_note_events(MidiFile midi, AMP_MidiTrack[] tracks) {
+        for (int i = 0; i < track_count; ++i) {
             AMP_MidiTrack track = tracks[i];
 
             List<NoteOnEvent> notes = new List<NoteOnEvent>();
-            foreach (MidiEvent ev in midi.Events[track._midi_track_id])
-            {
+            foreach (MidiEvent ev in midi.Events[track._midi_track_id]) {
                 if (ev.CommandCode != MidiCommandCode.NoteOn) continue;
 
                 NoteOnEvent note = (NoteOnEvent)ev;
                 if (!AMP_Constants.DIFFICULTY_NOTE_LANES[Game.game_difficulty].Contains(note.NoteNumber)) continue;
 
                 // TODO: BUGFIX: Some AMP MIDIs don't have the correct tick information.
-                if (midi_ticks != ticks_target)
-                {
+                if (midi_ticks != ticks_target) {
                     double unitless = note.AbsoluteTime / midi_ticks;
                     double corrected = unitless * ticks_target;
                     note.AbsoluteTime = (long)corrected;
@@ -105,12 +96,10 @@ public partial class AMP_MidiFile
 
     const string MIDI_TRACKNAME_START = "0 SequenceTrackName T";
     const string MIDI_TRACKNAME_START_CUT = "0 SequenceTrackName TX ";
-    AMP_MidiTrack[] find_catch_tracks(MidiFile midi)
-    {
+    AMP_MidiTrack[] find_catch_tracks(MidiFile midi) {
         List<AMP_MidiTrack> list = new List<AMP_MidiTrack>();
         int count = 0;
-        for (int i = 0; i < midi.Tracks; ++i)
-        {
+        for (int i = 0; i < midi.Tracks; ++i) {
             string code = midi.Events[i][0].ToString();
             if (!code.BeginsWith(MIDI_TRACKNAME_START)) continue;
 
@@ -124,8 +113,7 @@ public partial class AMP_MidiFile
             // Currently, I'm handling them through the moggsong, but AMP2016 handles them through the MIDI...
             if (split[0] == "FREESTYLE") continue;
 
-            AMP_MidiTrack t = new AMP_MidiTrack()
-            {
+            AMP_MidiTrack t = new AMP_MidiTrack() {
                 _text = "T% %".Parse(i, code).Trim(),
                 _midi_track_id = i,
                 id = count,

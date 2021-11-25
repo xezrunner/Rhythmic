@@ -6,10 +6,8 @@
 using System;
 using UnityEngine;
 
-public static class LoggerActionCalls
-{
-    public static void ExecuteLogActions(LogTarget target, LogLevel level, string text)
-    {
+public static class LoggerActionCalls {
+    public static void ExecuteLogActions(LogTarget target, LogLevel level, string text) {
 #if UNITY
         if (target.HasFlag(LogTarget.Unity)) UNITY_GetLogLevelAction(level).Invoke(text);
 #endif
@@ -31,10 +29,8 @@ public static class LoggerActionCalls
     // Action call gathering:
 
 #if UNITY
-    static Action<object> UNITY_GetLogLevelAction(LogLevel level)
-    {
-        switch (level)
-        {
+    static Action<object> UNITY_GetLogLevelAction(LogLevel level) {
+        switch (level) {
             case LogLevel.None: return Debug.Log;
             case LogLevel.Warning: return Debug.LogWarning;
             case LogLevel.Error: return Debug.LogError;
@@ -44,10 +40,8 @@ public static class LoggerActionCalls
 #endif
 
     // Colors for DebugConsole:
-    static Color GetLogLevelColor(LogLevel level)
-    {
-        switch (level)
-        {
+    static Color GetLogLevelColor(LogLevel level) {
+        switch (level) {
             default: return Colors.Info;
             case LogLevel.Warning: return Colors.Warning;
             case LogLevel.Error: return Colors.Error;

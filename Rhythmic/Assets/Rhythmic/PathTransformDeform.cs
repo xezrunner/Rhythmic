@@ -1,18 +1,14 @@
 ﻿using UnityEngine;
-using static Logger;
 
-public partial class PathTransform
-{
+public partial class PathTransform {
     // int deform_counter = -1;
-    public void Deform()
-    {
+    public void Deform() {
         if (Application.isEditor && !Application.isPlaying) return;
         if (vertex_count < 1) return;
 
         // Log("Deform called by % - %", gameObject.name, ++deform_counter);
 
-        for (int i = 0; i < vertex_count; ++i)
-        {
+        for (int i = 0; i < vertex_count; ++i) {
             Vector3 pos_xy = new Vector2(pos.x, pos.y); // Position X and Y
 
             Vector3 v = OG_vertices[i]; // Vertex
@@ -22,12 +18,10 @@ public partial class PathTransform
 
             // Move origin point:
             if (origin_mode == OriginMode.Front) v.z += max_values.z;
-            else if (origin_mode == OriginMode.Custom) v.z += origin_custom;
-            else if (origin_mode == OriginMode.Back)
-            {
+            else if (origin_mode == OriginMode.Back) {
                 v.z -= max_values.z;
                 dist += max_values_double.z;
-            }
+            } else if (origin_mode == OriginMode.Custom) v.z += origin_custom;
 
             // TODO: The clamping of these could be done in UpdateClipValues().
             float min_clip_clamped = Mathf.Clamp(min_clip_frac, 0f, max_clip_frac);

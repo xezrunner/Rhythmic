@@ -1,18 +1,15 @@
 ﻿using UnityEngine;
 using static Logger;
 
-public class SongSystem : MonoBehaviour
-{
+public class SongSystem : MonoBehaviour {
     public static SongSystem Instance;
     RhythmicGame Game = RhythmicGame.Instance;
 
-    void Awake()
-    {
+    void Awake() {
         Instance = this;
     }
 
-    void Start()
-    {
+    void Start() {
         if (song == null && LogW("No song!".T(this))) return;
     }
 
@@ -22,14 +19,12 @@ public class SongSystem : MonoBehaviour
 
     public Song song;
 
-    public bool LoadSong(string song_name, GameType game_type)
-    {
+    public bool LoadSong(string song_name, GameType game_type) {
         Song song = null;
 
         if (game_type == GameType.Amplitude2016)
             song = AMP_SongLoader.LoadSong(song_name);
-        else
-        {
+        else {
             // song = RHX_SongLoader.LoadSong(...
         }
 
@@ -56,8 +51,7 @@ public class SongSystem : MonoBehaviour
         return true;
     }
 
-    public static SongSystem CreateSongSystem()
-    {
+    public static SongSystem CreateSongSystem() {
         if (Instance && LogE("There already exists an instance of a SongSystem. Ignoring.")) return null;
 
         GameObject obj = new GameObject("SongSystem");

@@ -1,11 +1,9 @@
 ﻿using PathCreation;
 using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using static Logger;
 
-public class PlayerLocomotion : MonoBehaviour
-{
+public class PlayerLocomotion : MonoBehaviour {
     // TODO: We need to figure out how things get set up - accessing 'Instance's of each
     // class is a bit tedious...
     SongSystem song_system;
@@ -24,16 +22,17 @@ public class PlayerLocomotion : MonoBehaviour
     Transform main_camera_trans;
     public Vector3 camera_pos_offset;
     public Vector3 camera_ori_offset;
+    [NonSerialized] public Vector3 _camera_pos_offset;
     [NonSerialized] public Vector3 _camera_ori_offset;
 
     public bool is_following_path = true;
     public Transform lookat_target;
+    public Vector3 lookat_pos_offset;
 
     public Transform interp;
     public Transform non_interp;
 
-    void Start()
-    {
+    void Start() {
         song_system = SongSystem.Instance;
         audio_system = song_system.audio_system;
         clock = song_system.clock;
@@ -49,6 +48,7 @@ public class PlayerLocomotion : MonoBehaviour
         main_camera_trans = main_camera.transform;
         main_camera.transform.localPosition = camera_pos_offset;
         //main_camera.transform.localEulerAngles = camera_ori_offset;
+        _camera_pos_offset = camera_pos_offset;
     }
 
     public Vector3 offset_pos = default;
@@ -61,10 +61,8 @@ public class PlayerLocomotion : MonoBehaviour
     public Quaternion rot_interp;
     Vector3 pos_interp_temp;
     Quaternion rot_interp_temp;
-    void Update()
-    {
-        if (!is_following_path)
-        {
+    void Update() {
+        if (!is_following_path) {
             if (trans.position != orig_pos) trans.position = orig_pos;
             return;
         }
@@ -84,6 +82,6 @@ public class PlayerLocomotion : MonoBehaviour
 
         main_camera_trans.LookAt(lookat_target, interp.up);
         main_camera_trans.localEulerAngles += _camera_ori_offset;
-        main_camera_trans.localPosition = camera_pos_offset;
+        main_camera_trans.localPosition = _camera_pos_offset;
     }
 }

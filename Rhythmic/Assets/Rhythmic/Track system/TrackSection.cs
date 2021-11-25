@@ -2,25 +2,22 @@
 using UnityEngine;
 using static Logger;
 
-public class TrackSection : MonoBehaviour
-{
+public class TrackSection : MonoBehaviour {
     public PathTransform path_transform;
     public SongSystem song_system;
     public Song song;
     public Transform trans;
 
-    void Awake()
-    {
+    void Awake() {
         if (!path_transform && LogW("A TrackSection needs to have a PathTransform component to exist. Deleting.".T(this)))
             Destroy(gameObject);
     }
-    void Start()
-    {
+    void Start() {
         if (track != null && id != -1) { /*Log("Created TrackSection for track %  id: %", track.info.name, id);}*/ }
     }
 
-    public TrackSection Setup(Track track, int id /* ... */)
-    {
+    GameObject a;
+    public TrackSection Setup(Track track, int id /* ... */) {
         gameObject.SetActive(true);
 
         this.id = id;
@@ -45,7 +42,7 @@ public class TrackSection : MonoBehaviour
 
         path_transform.Deform();
 
-        GameObject a = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        if (!a) a = GameObject.CreatePrimitive(PrimitiveType.Cube);
         a.transform.SetParent(trans);
         a.transform.localScale = new Vector3(Variables.TRACK_Width, 0.1f, 0.1f);
         a.transform.position = PathTransform.pathcreator_global.path.XZ_GetPointAtPosition(path_transform.pos + new Vector3(0, 0, path_transform.desired_size.z));
@@ -53,8 +50,7 @@ public class TrackSection : MonoBehaviour
 
         return this;
     }
-    public TrackSection Recycle()
-    {
+    public TrackSection Recycle() {
         gameObject.SetActive(false);
         // Log("Recycling %... - state: %, %", gameObject.name, gameObject.activeSelf, gameObject.activeInHierarchy);
         // ...
@@ -75,8 +71,7 @@ public class TrackSection : MonoBehaviour
 
     public const string PREFAB_PATH = "Prefabs/Track/TrackSection";
     public static GameObject PREFAB_Cache = null;
-    public static TrackSection CreateTrackSection(Track track, int id)
-    {
+    public static TrackSection CreateTrackSection(Track track, int id) {
         if (!PREFAB_Cache) PREFAB_Cache = (GameObject)Resources.Load(PREFAB_PATH);
         if (!PREFAB_Cache && LogE("Failed to load prefab (path: '%')".TM(nameof(TrackSection), PREFAB_PATH))) return null;
 

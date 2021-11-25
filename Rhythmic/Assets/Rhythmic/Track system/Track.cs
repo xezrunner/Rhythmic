@@ -1,12 +1,9 @@
 ﻿using UnityEngine;
-using static Logger;
 
-public class Track
-{
+public class Track {
     public TrackSystem track_system;
 
-    public Track(TrackSystem track_system, Song song, int id, Transform parent)
-    {
+    public Track(TrackSystem track_system, Song song, int id, Transform parent) {
         this.track_system = track_system;
         info = song.tracks[id];
         sections = new TrackSection[song.length_bars];

@@ -4,15 +4,13 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public partial class DebugConsole : DebugCom
-{
+public partial class DebugConsole : DebugCom {
     public RectTransform UI_Panel_Trans;
 
     public ScrollRect UI_TextScrollRect;
     public RectTransform UI_TextContainer;
 
-    void UI_Start()
-    {
+    void UI_Start() {
         _Close(false);
         UI_line_objects = new GameObject[Max_Lines];
     }
@@ -24,8 +22,7 @@ public partial class DebugConsole : DebugCom
 
     float UI_Canvas_Height { get { return DebugSystem.UI_Canvas.rect.height; } } // TODO: Performance!
     public float Compact_Height = 290f;
-    public float GetTargetHeight(bool compact_target)
-    {
+    public float GetTargetHeight(bool compact_target) {
         if (compact_target) return Compact_Height;
         else return UI_Canvas_Height;
     }
@@ -33,8 +30,7 @@ public partial class DebugConsole : DebugCom
     public void Open(bool compact, bool anim = true) => Instance?._Open(compact, anim);
     public void Close(bool anim = true) => Instance?._Close(anim);
 
-    public void _Open(bool? compact = null, bool anim = true)
-    {
+    public void _Open(bool? compact = null, bool anim = true) {
         if (compact.HasValue) is_compact = compact.Value;
         is_open = true;
         InputField_Focus();
@@ -42,8 +38,7 @@ public partial class DebugConsole : DebugCom
         UI_ScrollConsole(false);
         Animate_Openness(is_open, anim);
     }
-    public void _Close(bool anim = true)
-    {
+    public void _Close(bool anim = true) {
         is_open = false;
         InputField_Unfocus();
 
@@ -59,8 +54,7 @@ public partial class DebugConsole : DebugCom
     float openness_start_height;
     float openness_target_height;
 
-    public void Animate_Openness(bool to_open, bool anim = true)
-    {
+    public void Animate_Openness(bool to_open, bool anim = true) {
         openness_t = (anim) ? 0f : 1f;
 
         openness_start_y = UI_Panel_Trans.anchoredPosition.y;
@@ -72,8 +66,7 @@ public partial class DebugConsole : DebugCom
         //UI_ScrollConsole(false);
         openness_animating = true;
     }
-    void UPDATE_Openness()
-    {
+    void UPDATE_Openness() {
         if (!openness_animating) return;
 
         float y = Mathf.SmoothStep(openness_start_y, openness_target_y, openness_t);
@@ -86,8 +79,7 @@ public partial class DebugConsole : DebugCom
         else openness_animating = false;
     }
 
-    public void ChangeSize(bool compact, float? compact_height = null)
-    {
+    public void ChangeSize(bool compact, float? compact_height = null) {
         is_compact = compact;
         if (compact_height.HasValue) Compact_Height = compact_height.Value;
         Animate_Openness(is_open);
@@ -105,8 +97,7 @@ public partial class DebugConsole : DebugCom
     float scroll_start;
     public void UI_ScrollConsole(bool anim = true) => UI_ScrollConsole(SCROLL_BOTTOM, anim);
     public void UI_ScrollConsole(float target, bool anim = true) => StartCoroutine(_ScrollConsole(target, anim));
-    IEnumerator _ScrollConsole(float target, bool anim)
-    {
+    IEnumerator _ScrollConsole(float target, bool anim) {
         yield return new WaitForEndOfFrame();
 
         scroll_t = (anim) ? 0f : 1f;
@@ -117,8 +108,7 @@ public partial class DebugConsole : DebugCom
         Scroll_Speed = (1f + UI_TextScrollRect.verticalNormalizedPosition);
         is_scrolling = true;
     }
-    void UPDATE_Scroll()
-    {
+    void UPDATE_Scroll() {
         if (!is_scrolling) return;
 
         float scroll = EaseOutC(scroll_start, scroll_target, scroll_t);
@@ -127,8 +117,7 @@ public partial class DebugConsole : DebugCom
         if (scroll_t <= 1.0f) scroll_t += Scroll_Speed * Time.unscaledDeltaTime;
         else is_scrolling = false;
     }
-    public static float EaseOutC(float start, float end, float value)
-    {
+    public static float EaseOutC(float start, float end, float value) {
         --value;
         end -= start;
         float result = end * (value * value * value + 1) + start;
@@ -141,8 +130,7 @@ public partial class DebugConsole : DebugCom
     public int Max_Lines = 1000;
     int UI_line_obj_count = -1;
     GameObject[] UI_line_objects;
-    void UI_AddLine(string text, Color? color = null)
-    {
+    void UI_AddLine(string text, Color? color = null) {
         GameObject obj = Instantiate(UI_Line_Prefab, UI_TextContainer);
         TMP_Text line = obj.GetComponent<TMP_Text>();
 
@@ -152,8 +140,7 @@ public partial class DebugConsole : DebugCom
         if (UI_line_obj_count + 1 >= Max_Lines) UI_line_obj_count = -1;
         UI_line_objects[++UI_line_obj_count] = obj;
     }
-    void UI_ClearLines()
-    {
+    void UI_ClearLines() {
         foreach (GameObject obj in UI_line_objects)
             Destroy(obj.gameObject);
     }

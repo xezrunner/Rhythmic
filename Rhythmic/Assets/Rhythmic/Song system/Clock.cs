@@ -1,10 +1,8 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static Logger;
 
-public class Clock : MonoBehaviour
-{
+public class Clock : MonoBehaviour {
     public static Clock Instance;
 
     SongSystem song_system;
@@ -12,10 +10,8 @@ public class Clock : MonoBehaviour
 
     public Song_TimeUnits time_units;
 
-    public void SetupClock(SongSystem song_system)
-    {
-        if (Instance && LogE("An instance of Clock already exists!"))
-        {
+    public void SetupClock(SongSystem song_system) {
+        if (Instance && LogE("An instance of Clock already exists!")) {
             Destroy(gameObject);
             return;
         }
@@ -41,13 +37,10 @@ public class Clock : MonoBehaviour
     public Transform cube;
 
     float seconds_ref;
-    void Update()
-    {
+    void Update() {
         // TEMP:
-        if (Keyboard.current != null)
-        {
-            if (Keyboard.current.jKey.wasPressedThisFrame)
-            {
+        if (Keyboard.current != null) {
+            if (Keyboard.current.jKey.wasPressedThisFrame) {
                 is_testing = !is_testing;
 
                 if (is_testing) audio_system.AUDIO_Play();
@@ -55,9 +48,11 @@ public class Clock : MonoBehaviour
                 audio_system.is_playing = is_testing;
             }
             if (Keyboard.current.altKey.isPressed && Keyboard.current.numpad9Key.isPressed)
-                seconds += 6 * Time.deltaTime;
+                seconds += (Keyboard.current.ctrlKey.isPressed ? 0.1f : 6f) * Time.deltaTime;
             if (Keyboard.current.altKey.isPressed && Keyboard.current.numpad3Key.isPressed)
-                seconds -= 3 * Time.deltaTime;
+                seconds -= (Keyboard.current.ctrlKey.isPressed ? 0.1f : 3f) * Time.deltaTime;
+            if (Keyboard.current.numpad8Key.wasPressedThisFrame)
+                seconds += (time_units.sec_in_bar * 4);
         }
 
         if (is_testing)
@@ -77,8 +72,7 @@ public class Clock : MonoBehaviour
     }
 }
 
-public enum TimeUnit
-{
+public enum TimeUnit {
     AbsoluteTicks = 0, absolute = 0, ticks = 0,
     Hours = 1, h = 1,
     Minutes = 2, m = 2,

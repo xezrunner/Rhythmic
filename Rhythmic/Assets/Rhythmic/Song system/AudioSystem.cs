@@ -9,8 +9,7 @@ using static Logger;
 
 public enum AudioSystemMode { Static = 0, Dynamic = 1, Mixed = 2, UNKNOWN = -1 }
 
-public class AudioSystem : MonoBehaviour
-{
+public class AudioSystem : MonoBehaviour {
     RhythmicGame Game = RhythmicGame.Instance;
     SongSystem SongSystem = SongSystem.Instance;
     Clock Clock;
@@ -21,8 +20,7 @@ public class AudioSystem : MonoBehaviour
     public AudioClip[] static_clips;
     public AudioSource[] static_sources;
 
-    public void SetupAudioSystem(Song song)
-    {
+    public void SetupAudioSystem(Song song) {
         // Set Audio system mode:
         if (Game.game_type == GameType.Amplitude2016)
             audio_system_mode = AudioSystemMode.Static; // AMP2016 only supports static songs!
@@ -33,8 +31,7 @@ public class AudioSystem : MonoBehaviour
         static_clips = new AudioClip[song.track_count];
         static_sources = new AudioSource[song.track_count];
 
-        foreach (Song_Track t in song.tracks)
-        {
+        foreach (Song_Track t in song.tracks) {
             if (!File.Exists(t.audio_path)) continue;
             StartCoroutine(COROUTINE_LoadAudioForTrack(t));
         }
@@ -44,23 +41,19 @@ public class AudioSystem : MonoBehaviour
     public static bool AUDIO_AllowStreaming = true;
 
     // Using a coroutine to load / stream songs in the background.
-    public IEnumerator COROUTINE_LoadAudioForTrack(Song_Track track)
-    {
+    public IEnumerator COROUTINE_LoadAudioForTrack(Song_Track track) {
         AudioClip clip = null;
-        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(track.audio_path, AudioType.OGGVORBIS))
-        {
+        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(track.audio_path, AudioType.OGGVORBIS)) {
             DownloadHandlerAudioClip download_handler = (DownloadHandlerAudioClip)www.downloadHandler;
             download_handler.streamAudio = AUDIO_AllowStreaming;
 
             www.SendWebRequest();
             while (!www.isDone) yield return null;
 
-            if (www.result == UnityWebRequest.Result.ConnectionError)
-            {
+            if (www.result == UnityWebRequest.Result.ConnectionError) {
                 LogE("Failed to load audioclip: %", track.audio_path);
                 yield break;
-            }
-            else
+            } else
                 clip = DownloadHandlerAudioClip.GetContent(www);
         }
 
@@ -95,15 +88,13 @@ public class AudioSystem : MonoBehaviour
 
     public float audio_timescale;
 
-    public void AUDIO_Play()
-    {
+    public void AUDIO_Play() {
         double dsp_time = AudioSettings.dspTime;
 
         foreach (AudioSource src in static_sources)
             src.PlayScheduled(dsp_time);
     }
-    public void AUDIO_Pause()
-    {
+    public void AUDIO_Pause() {
         foreach (AudioSource src in static_sources)
             src.Pause();
     }
@@ -112,19 +103,17 @@ public class AudioSystem : MonoBehaviour
     public void AUDIO_Restart() { }
 
     float prev_timescale;
-    void Update()
-    {
+    void Update() {
         if (!is_playing) return;
 
-        if (Time.timeScale != prev_timescale)
-        {
+        if (Time.timeScale != prev_timescale) {
             foreach (AudioSource src in static_sources)
                 src.pitch = Time.timeScale;
         }
         prev_timescale = Time.timeScale;
 
         float pcm_progress_avg = 0;
-        foreach(AudioSource src in static_sources)
+        foreach (AudioSource src in static_sources)
             pcm_progress_avg += src.timeSamples;
         pcm_progress_avg /= static_sources.Length;
 

@@ -3,8 +3,7 @@ using UnityEngine;
 
 [CustomEditor(typeof(PathTransform))]
 [CanEditMultipleObjects]
-public class PathTransformEditor : Editor
-{
+public class PathTransformEditor : Editor {
     PathTransform main;
     void Awake() => main = (PathTransform)target;
 
@@ -12,15 +11,13 @@ public class PathTransformEditor : Editor
     SerializedProperty rot;
     SerializedProperty desired_size;
 
-    void OnEnable()
-    {
+    void OnEnable() {
         pos = serializedObject.FindProperty("pos");
         rot = serializedObject.FindProperty("euler_rot");
         desired_size = serializedObject.FindProperty("desired_size");
     }
 
-    public override void OnInspectorGUI()
-    {
+    public override void OnInspectorGUI() {
         serializedObject.Update();
 
         EditorGUILayout.PropertyField(pos);
@@ -37,8 +34,7 @@ public class PathTransformEditor : Editor
 
     // Unity Menu item for creating a new PathTransform object
     [MenuItem("GameObject/Create PathTransform object", priority = 0)]
-    public static void Create()
-    {
+    public static void Create() {
         GameObject obj = new GameObject() { name = "PathTransform object" };
         obj.AddComponent<PathTransform>();
     }

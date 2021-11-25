@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Test2 : MonoBehaviour
-{
+public class Test2 : MonoBehaviour {
     TrackSystem track_system;
 
     public Material material;
@@ -17,15 +11,13 @@ public class Test2 : MonoBehaviour
     public GameObject inv_plane;
     public MeshFilter inv_plane_meshfilter;
 
-    void Start()
-    {
+    void Start() {
         track_system = SongSystem.Instance.track_system;
         material = track_system.tracks[0].material;
     }
 
     bool set_to_enabled = false;
-    void Update()
-    {
+    void Update() {
         if (!material || !plane || !plane_meshfilter || !inv_plane || !inv_plane_meshfilter) return;
         if (!plane_meshfilter) plane_meshfilter = plane.GetComponent<MeshFilter>();
 
@@ -43,8 +35,7 @@ public class Test2 : MonoBehaviour
             material.SetVector("_InversePlane", result);
         }
 
-        if (!set_to_enabled)
-        {
+        if (!set_to_enabled) {
             material.SetInt("_PlaneEnabled", 1);
             material.SetInt("_InversePlaneEnabled", 1);
             set_to_enabled = true;

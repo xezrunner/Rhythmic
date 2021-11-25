@@ -1,5 +1,4 @@
-﻿public static class Variables
-{
+﻿public static class Variables {
     public static float VARIABLES_HotReloadCheckMs = 1000;
 
     public static int STREAMER_HorizonMeasures = 6;
@@ -13,6 +12,7 @@
 
     public static float TRACK_Width = 3.7f;
     public static float TRACK_Height = 0.1f;
+    public static int TRACK_LaneCount = 4;
 
     public static bool TRACKSWITCH_SlamEnabled = true;
     public static int TRACKSWITCH_SlamsTarget = 2;

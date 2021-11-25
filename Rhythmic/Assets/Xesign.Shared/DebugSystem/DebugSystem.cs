@@ -3,15 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using TMPro;
-using static Logger;
 using UnityEngine.InputSystem.UI;
+using static Logger;
 
-public class DebugSystem : MonoBehaviour
-{
+public class DebugSystem : MonoBehaviour {
     public const string PREFAB_PATH = "Prefabs/DebugSystem";
 
     public static DebugSystem Instance;
@@ -26,13 +25,11 @@ public class DebugSystem : MonoBehaviour
     public TMP_Text QuickLine_Text;
     public TMP_Text DebugComponent_Text;
 
-    public static bool DEBUGSYSTEM_WarnOnEventSystemInexistence = true;
+    public static bool DEBUGSYSTEM_WarnOnEventSystemInexistence = false;
 
-    public void Start()
-    {
+    public void Start() {
         // Destroy if an instance already exists:
-        if (Instance)
-        {
+        if (Instance) {
             Destroy(gameObject);
             LogE("An instance already exists!".T(this));
         }
@@ -46,8 +43,7 @@ public class DebugSystem : MonoBehaviour
         LoadStartupComs(startup_types);
 
         // Create an EventSystem for the UI canvas if one doesn't already exist:
-        if (!FindObjectOfType<EventSystem>())
-        {
+        if (!FindObjectOfType<EventSystem>()) {
             GameObject obj = new GameObject("EventSystem");
             obj.AddComponent<EventSystem>();
 
@@ -68,14 +64,12 @@ public class DebugSystem : MonoBehaviour
         DebugMenu_Text.gameObject.SetActive(false);
     }
 
-    void LoadStartupComs(List<Type> types)
-    {
+    void LoadStartupComs(List<Type> types) {
         foreach (Type t in types)
             AddComponent(t);
     }
 
-    public void AddComponent(Type type, string id = "")
-    {
+    public void AddComponent(Type type, string id = "") {
         if (type == null && LogE("Type was null!".TM(this))) return;
         if (type.BaseType != typeof(DebugCom) && LogE("Invalid type passed: %".TM(this), type.Name))
             return;
@@ -84,8 +78,7 @@ public class DebugSystem : MonoBehaviour
         if (attr == null) attr = new DebugComAttribute();
 
         // If we have a prefab, redirect to prefab procedure:
-        if (attr.is_prefab)
-        {
+        if (attr.is_prefab) {
             AddUIDebugPrefab(attr.prefab_path);
             return;
         }
@@ -96,8 +89,7 @@ public class DebugSystem : MonoBehaviour
 
         if (id != "") com.com_id = id; // Assign ID in case we want a component to be unique
     }
-    public void AddUIDebugPrefab(string prefab_path, string id = "")
-    {
+    public void AddUIDebugPrefab(string prefab_path, string id = "") {
         GameObject prefab = (GameObject)Resources.Load(prefab_path);
         if (!prefab && LogE("Prefab was null! - '%'".TM(this), prefab_path)) return;
 
@@ -107,8 +99,7 @@ public class DebugSystem : MonoBehaviour
         DebugCom com = obj.GetComponent<DebugCom>();
         com.Prefab_Parent = obj.transform;
 
-        if (!com)
-        {
+        if (!com) {
             LogE("Could not find a DebugCom in prefab '%'.".TM(this), prefab_path);
             Destroy(obj);
             return;
@@ -118,8 +109,7 @@ public class DebugSystem : MonoBehaviour
         components.Add(com);
     }
 
-    public void RemoveComponent(Type type)
-    {
+    public void RemoveComponent(Type type) {
         if (type.BaseType != typeof(DebugCom) && LogE("Invalid type passed: %".T(this), type.Name))
             return;
 
@@ -130,8 +120,7 @@ public class DebugSystem : MonoBehaviour
 
         if (found == 0) LogW("There was no component of type '%'.".T(this), type.Name);
     }
-    public void RemoveComponent(string id)
-    {
+    public void RemoveComponent(string id) {
         // Remove unique item.
         foreach (DebugCom com in components)
             if (com.com_id == id) { com.Com_Destroy(); return; }
@@ -143,17 +132,14 @@ public class DebugSystem : MonoBehaviour
 
     DebugCom CurrentComponent;
 
-    public void SwitchToComponent(int index)
-    {
+    public void SwitchToComponent(int index) {
         if (components == null || components.Count == 0) return;
         CurrentComponent = components[0];
         // Log("Switched to '%'.".T(this), CurrentComponent.GetType().Name);
         HandleCurrentComponent();
     }
-    public void SwitchToComponent(Type type)
-    {
-        foreach (DebugCom com in components)
-        {
+    public void SwitchToComponent(Type type) {
+        foreach (DebugCom com in components) {
             Type t = com.GetType();
             if (t != type) continue;
 
@@ -167,20 +153,17 @@ public class DebugSystem : MonoBehaviour
         LogE("Could not find component '%'.".TM(this), type.Name);
     }
 
-    public void HandleCurrentComponent()
-    {
+    public void HandleCurrentComponent() {
         if (!CurrentComponent) return;
         DebugComponent_Text.SetText(CurrentComponent.Com_Main());
     }
 
     float elapsed_t;
-    void UPDATE_HandleComponent(bool force = false)
-    {
+    void UPDATE_HandleComponent(bool force = false) {
         if (!CurrentComponent) return;
 
         if (CurrentComponent.Attribute.update_freq < 0) return;
-        if (elapsed_t > CurrentComponent.Attribute.update_freq)
-        {
+        if (elapsed_t > CurrentComponent.Attribute.update_freq) {
             elapsed_t = 0;
             HandleCurrentComponent();
         }
@@ -191,8 +174,7 @@ public class DebugSystem : MonoBehaviour
     List<int> average_samples = new List<int>();
     int fps_avg = 0;
     float framerate_delta;
-    void UPDATE_FramerateUI()
-    {
+    void UPDATE_FramerateUI() {
         if (Time.timeScale == 0) return;
 
         framerate_delta += (Time.unscaledDeltaTime - framerate_delta) * 0.1f;
@@ -208,8 +190,7 @@ public class DebugSystem : MonoBehaviour
 #endif
     }
 
-    Color GetFramerateColor(int fps)
-    {
+    Color GetFramerateColor(int fps) {
         switch (fps) // NOTE: order matters here!
         {
             default: return Colors.Unimportant;
@@ -230,8 +211,7 @@ public class DebugSystem : MonoBehaviour
     public static void QuickLineLog(string text, params object[] args) => Instance?._QuickLineLog(text, args);
 
     string quickline_text;
-    void _QuickLineLog(string text, params object[] args)
-    {
+    void _QuickLineLog(string text, params object[] args) {
         string s = text.Parse(args) + '\n';
         quickline_text = (quickline_text + s).MaxLines(QUICKLINE_MaxLines);
 
@@ -239,16 +219,14 @@ public class DebugSystem : MonoBehaviour
     }
 
     float quickline_elapsed_ms;
-    void UPDATE_QuickLineTimeout()
-    {
+    void UPDATE_QuickLineTimeout() {
         if (quickline_text.Length == 0)
             return;
 
         // Keep track of elapsed ms for debug line
         quickline_elapsed_ms += Time.unscaledDeltaTime * 1000;
 
-        if (quickline_elapsed_ms > QUICKLINE_TimeoutMs)
-        {
+        if (quickline_elapsed_ms > QUICKLINE_TimeoutMs) {
             quickline_elapsed_ms = 0;
 
             string[] lines = quickline_text.Split('\n');
@@ -263,15 +241,13 @@ public class DebugSystem : MonoBehaviour
 
     // --------------- //
 
-    public void Update()
-    {
+    public void Update() {
         UPDATE_HandleComponent();
         UPDATE_FramerateUI();
         UPDATE_QuickLineTimeout();
     }
 
-    public static DebugSystem CreateDebugSystemObject(DebugSystemStartupManager startup_manager = null)
-    {
+    public static DebugSystem CreateDebugSystemObject(DebugSystemStartupManager startup_manager = null) {
         GameObject prefab = (GameObject)Resources.Load(PREFAB_PATH);
         GameObject obj = Instantiate(prefab);
         DebugSystem com = obj.GetComponent<DebugSystem>();
@@ -282,8 +258,7 @@ public class DebugSystem : MonoBehaviour
 
 #if UNITY_EDITOR
     [MenuItem("GameObject/Create DebugSystem", priority = 0)]
-    public static void EDITOR_CreateDebugSystemPrefab()
-    {
+    public static void EDITOR_CreateDebugSystemPrefab() {
         UnityEngine.Object prefab = Resources.Load(PREFAB_PATH);
         PrefabUtility.InstantiatePrefab(prefab);
     }

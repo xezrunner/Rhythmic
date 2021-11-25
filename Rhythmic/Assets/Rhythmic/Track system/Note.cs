@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using static Logger;
 
-public class Note : MonoBehaviour
-{
+public class Note : MonoBehaviour {
     // TODO: I'm having second thoughts about just throwing in the info structs like this.
     // We might transform this so that the components actually include the information.
 
@@ -16,8 +15,7 @@ public class Note : MonoBehaviour
     public MeshRenderer mesh_renderer;
     public MeshFilter mesh_filter;
 
-    public Note Setup(int note_id, TrackSection section)
-    {
+    public Note Setup(int note_id, TrackSection section) {
         gameObject.SetActive(true);
 
         this.section = section;
@@ -40,8 +38,7 @@ public class Note : MonoBehaviour
 
         return this;
     }
-    public Note Recycle()
-    {
+    public Note Recycle() {
         gameObject.SetActive(false);
         trans.SetParent(section.track.parent_transform);
 
@@ -52,27 +49,33 @@ public class Note : MonoBehaviour
 
     // --------------- //
 
-    public static float GetPosOffsetForLane(int lane)
-    {
+    public static float GetPosOffsetForLane(int lane) {
         // TODO: Multiple lanes (?)
         // Hardcoding this to work with 3 lanes for now:
         float track_width_div = Variables.TRACK_Width / 2;
+        int lane_count_div = Variables.TRACK_LaneCount / 2;
+
+        if (lane < 0) return (lane) * -(track_width_div * Variables.NOTE_TrackPadding);
+        else if (lane > 0) return lane * (track_width_div * Variables.NOTE_TrackPadding);
+        else if (lane == 0) return 0;
+
+        /*
         if (lane == 0) return -track_width_div + Variables.NOTE_TrackPadding;
         else if (lane == 1) return 0;
         else if (lane == 2) return track_width_div - Variables.NOTE_TrackPadding;
+        */
 
         return -1;
     }
 
     public const string PREFAB_PATH = "Prefabs/Note";
     public static GameObject PREFAB_Cache = null;
-    public static Note CreateNote(int note_id, TrackSection section)
-    {
+    public static Note CreateNote(int note_id, TrackSection section) {
         if (!PREFAB_Cache) PREFAB_Cache = (GameObject)Resources.Load(PREFAB_PATH);
         if (!PREFAB_Cache && LogE("PREFAB_Cache is null!".TM(nameof(Note)))) return null;
 
         GameObject obj = Instantiate(PREFAB_Cache);
-        
+
         return obj.GetComponent<Note>().Setup(note_id, section);
     }
 }

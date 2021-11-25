@@ -8,10 +8,8 @@ using UnityEngine;
 using static Logger;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-public partial class PathTransform : MonoBehaviour
-{
-    public enum OriginMode
-    {
+public partial class PathTransform : MonoBehaviour {
+    public enum OriginMode {
         Default = 0, Center = 0, // The origin point of the model is not altered.
         Front = 1, // The origin point moves to the front of the model - changing size Z alters length.
         Back = 2, // The origin point moves to the back of the model - changin size Z alters inverse length (!).
@@ -59,30 +57,26 @@ public partial class PathTransform : MonoBehaviour
     [Range(0f, 1f)] public float min_clip_frac = 0f;
     [Range(0f, 1f)] public float max_clip_frac = 1f;
 
-    public static PathCreator PATH_FindPathCreator()
-    {
+    public static PathCreator PATH_FindPathCreator() {
         PathCreator a = FindObjectOfType<PathCreator>();
         if (!a) LogE("Could not find a PathCreator!".M());
 
         return a;
     }
 
-    public static VertexPath PATH_FindPath()
-    {
+    public static VertexPath PATH_FindPath() {
         PathCreator creator = PATH_FindPathCreator();
         if (creator) return creator.path;
 
         return null;
     }
 
-    void Awake()
-    {
+    void Awake() {
         //trans = transform;
         desired_size = new Vector3(-1, -1, -1);
 
         // PathCreator and path: | TODO: Improve this!
-        if (!pathcreator)
-        {
+        if (!pathcreator) {
             if (!pathcreator_global) pathcreator_global = FindObjectOfType<PathCreator>();
             if (!pathcreator_global && LogE("% - Could not find a global PathCreator candidate!".T(this), gameObject.name.AddColor(Colors.Unimportant))) return;
 
@@ -117,10 +111,8 @@ public partial class PathTransform : MonoBehaviour
         Deform();
     }
 
-    void InitMesh()
-    {
-        if (mesh_filter.sharedMesh == null)
-        {
+    void InitMesh() {
+        if (mesh_filter.sharedMesh == null) {
             LogW("There is no mesh for the PathTransform object %.", gameObject.name);
             return;
         }
@@ -142,8 +134,7 @@ public partial class PathTransform : MonoBehaviour
     }
     public void Restore_OG() => mesh.SetVertices(OG_vertices);
 
-    public static Vector3 GetMaxValuesFromVertices(List<Vector3> vertices)
-    {
+    public static Vector3 GetMaxValuesFromVertices(List<Vector3> vertices) {
         return new Vector3(
             Mathf.Abs(vertices.Max(v => v.x)),
             Mathf.Abs(vertices.Max(v => v.y)),
@@ -151,8 +142,7 @@ public partial class PathTransform : MonoBehaviour
     }
 
     /// <summary>Specify -1 to not change a given clip value!</summary>
-    public void ChangeClipValues(float min, float max)
-    {
+    public void ChangeClipValues(float min, float max) {
         if (min < 0 && max < 0) return;
 
         if (min >= 0) min_clip_frac = min;
@@ -163,13 +153,12 @@ public partial class PathTransform : MonoBehaviour
         Deform();
     }
 
-    void Update()
-    {
+    void Update() {
         if (!AutoDeform) return;
 
         // Check previous value and update deformation if any has changed.
-        if (prev_pos == pos && prev_rot == euler_rot && prev_desired_size == desired_size 
-            && prev_origin_mode == origin_mode 
+        if (prev_pos == pos && prev_rot == euler_rot && prev_desired_size == desired_size
+            && prev_origin_mode == origin_mode
             && prev_min_clip_frac == min_clip_frac && prev_max_clip_frac == max_clip_frac
             ) return;
 
@@ -187,8 +176,7 @@ public partial class PathTransform : MonoBehaviour
     private void Pathcreator_pathUpdated() => Deform();
 
 #if UNITY_EDITOR && DYNAMIC
-    void OnDestroy()
-    {
+    void OnDestroy() {
         if (pathcreator)
             pathcreator.pathUpdated -= Pathcreator_pathUpdated;
     }

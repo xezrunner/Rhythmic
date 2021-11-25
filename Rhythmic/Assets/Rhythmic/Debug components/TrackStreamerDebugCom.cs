@@ -1,14 +1,10 @@
-﻿using System.Linq;
-
-[DebugCom(/*350f*/ 60f)]
-public class TrackStreamerDebugCom : DebugCom
-{
+﻿[DebugCom(/*350f*/ 60f)]
+public class TrackStreamerDebugCom : DebugCom {
     AudioSystem audio_system = SongSystem.Instance.audio_system;
     TrackStreamer streamer = TrackStreamer.Instance;
     Clock clock = Clock.Instance;
 
-    public override string Com_Main()
-    {
+    public override string Com_Main() {
         Com_Clear();
 
         Com_WriteLine("Clock seconds: %", clock.seconds);

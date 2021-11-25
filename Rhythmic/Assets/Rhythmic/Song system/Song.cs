@@ -2,8 +2,7 @@
 using UnityEngine;
 using static Logger;
 
-public class Song
-{
+public class Song {
     public string name;
     public string path;
 
@@ -26,8 +25,7 @@ public class Song
     // TODO: Metadata...
 }
 
-public class Song_TimeUnits
-{
+public class Song_TimeUnits {
     public Song_TimeUnits(float bpm, float tunnel_scale = 1.0f) // tunnel_scale is TEMP!!
     {
         if (bpm <= 0 && LogE("Invalid BPM!".TM(this))) return;
@@ -98,10 +96,8 @@ public class Song_TimeUnits
 }
 
 // TODO: Custom names for instruments
-public class Song_Instrument
-{
-    public Song_Instrument(InstrumentType instr, string custom_name = null, Color? color = null)
-    {
+public class Song_Instrument {
+    public Song_Instrument(InstrumentType instr, string custom_name = null, Color? color = null) {
         instrument = instr;
         this.custom_name = (custom_name != null) ? custom_name : instr.ToString();
         this.color = (color.HasValue) ? color.Value : GetColorForInstrument(instr);
@@ -111,10 +107,8 @@ public class Song_Instrument
     public string custom_name = null;
     public Color color;
 
-    public static Color GetColorForInstrument(InstrumentType instr)
-    {
-        switch (instr)
-        {
+    public static Color GetColorForInstrument(InstrumentType instr) {
+        switch (instr) {
             case InstrumentType.Drums:
                 return Colors.RGBToFloat(255, 61, 246);
             case InstrumentType.Bass:
@@ -131,8 +125,7 @@ public class Song_Instrument
     }
 }
 
-public enum InstrumentType
-{
+public enum InstrumentType {
     UNKNOWN = -1,
     Drums = 0, D = 0,
     Bass = 1, B = 1,
@@ -143,8 +136,7 @@ public enum InstrumentType
     Freestyle = 7
 }
 
-public class Song_Track
-{
+public class Song_Track {
     public int id;
     public string name;
     public Song_Instrument instrument;
@@ -156,10 +148,8 @@ public class Song_Track
     // TODO: instrument seq data!
 }
 
-public struct Song_Note
-{
-    public Song_Note(int code, int lane, long ticks, Song_TimeUnits time_units)
-    {
+public struct Song_Note {
+    public Song_Note(int code, int lane, long ticks, Song_TimeUnits time_units) {
         this.lane = lane;
         this.code = code;
 

@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using NAudio.Midi;
+using System.Collections.Generic;
 using System.IO;
-using NAudio.Midi;
 using static Logger;
 
-public static class AMP_SongLoader
-{
-    public static Song LoadSong(string song_name)
-    {
+public static class AMP_SongLoader {
+    public static Song LoadSong(string song_name) {
         // TODO: Revise and error checking!!!
         string moggsong_path = Path.Combine(AMP_Constants.MOGGSONG_PATH, song_name, song_name + ".moggsong");
         if (!File.Exists(moggsong_path) && LogE("The .moggsong for song % doesn't exist at '%'.".TM(nameof(AMP_SongLoader)),
@@ -19,8 +17,7 @@ public static class AMP_SongLoader
         AMP_MidiFile midifile = new AMP_MidiFile(midi_path);
 
         // Create Song:
-        Song song = new Song()
-        {
+        Song song = new Song() {
             name = song_name,
             path = Path.Combine(AMP_Constants.MOGGSONG_PATH, song_name),
 
@@ -39,8 +36,7 @@ public static class AMP_SongLoader
 
         // Build tracks:
         List<Song_Track> tracks = new List<Song_Track>();
-        foreach (AMP_MidiTrack midi_track in midifile.tracks)
-        {
+        foreach (AMP_MidiTrack midi_track in midifile.tracks) {
             string track_name_for_audio = midi_track._text.Replace(':', '_');
             string audio_path = Path.Combine(AMP_Constants.AUDIO_PATH, song_name, "audio", track_name_for_audio + ".ogg");
 
@@ -52,8 +48,7 @@ public static class AMP_SongLoader
             instrument = (InstrumentType)midi_track.instrument;
 
             List<Song_Note>[] notes = new List<Song_Note>[moggsong.length + moggsong.countin];
-            foreach (NoteOnEvent ev in midi_track.note_events)
-            {
+            foreach (NoteOnEvent ev in midi_track.note_events) {
                 Song_Note note = new Song_Note(ev.NoteNumber,
                                                AMP_Constants.GetNoteLaneIndexFromCode(ev.NoteNumber),
                                                ev.AbsoluteTime,
@@ -65,8 +60,7 @@ public static class AMP_SongLoader
                 notes[note.bar].Add(note);
             }
 
-            Song_Track track = new Song_Track()
-            {
+            Song_Track track = new Song_Track() {
                 id = midi_track.id,
                 name = midi_track.name,
                 instrument = new Song_Instrument(instrument),

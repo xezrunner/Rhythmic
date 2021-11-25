@@ -5,13 +5,11 @@ public enum LogLevel { None, Warning, Error }
 [Flags]
 public enum LogTarget { Unity = 1 << 0, DebugQuickLine = 1 << 1, DebugConsole = 1 << 2, All = (Unity | DebugQuickLine | DebugConsole) }
 
-public static class Logger
-{
+public static class Logger {
     // TODO: Re-add DebugUI compatibility!
 
     // Main log:
-    public static bool Log(object text, LogTarget target, LogLevel level, params object[] args)
-    {
+    public static bool Log(object text, LogTarget target, LogLevel level, params object[] args) {
         LoggerActionCalls.ExecuteLogActions(target, level, text.ToString().Parse(args));
         return true; // TODO: Perhaps this should report whether an error occured in one of the log actions?
     }

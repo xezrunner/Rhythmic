@@ -7,11 +7,9 @@ using static Logger;
 
 public enum WordDeleteDir { Left = 0, Right = 1 }
 
-public partial class DebugConsole : DebugCom
-{
+public partial class DebugConsole : DebugCom {
     Keyboard Keyboard = Keyboard.current;
-    void INPUT_Start()
-    {
+    void INPUT_Start() {
         if (Keyboard == null)
             LogW("No keyboard was found.".T(this));
     }
@@ -20,11 +18,9 @@ public partial class DebugConsole : DebugCom
     public TMP_InputField Input_Field;
     [NonSerialized] public string Input_Text = "";
 
-    public void OnInputChanged()
-    {
+    public void OnInputChanged() {
         // If we aren't open, do not accept new input, as Unity sometimes doesn't properly unfocus elements:
-        if (!is_open)
-        {
+        if (!is_open) {
             Input_Field.SetTextWithoutNotify(Input_Text);
             return;
         }
@@ -35,8 +31,7 @@ public partial class DebugConsole : DebugCom
     }
 
     public void InputField_ChangeText(string text, int new_caret = -1) => InputField_ChangeText(text, true, new_caret);
-    public void InputField_ChangeText(string text, bool change_caret, int new_caret = -1)
-    {
+    public void InputField_ChangeText(string text, bool change_caret, int new_caret = -1) {
         Input_Field.text = text;
         if (change_caret)
             Input_Field.caretPosition = (new_caret == -1 ? text.Length : new_caret);
@@ -46,8 +41,7 @@ public partial class DebugConsole : DebugCom
     void InputField_Unfocus() => Input_Field.DeactivateInputField();
     void InputField_Clear() => InputField_ChangeText("");
 
-    void HandleWordDelete(WordDeleteDir dir)
-    {
+    void HandleWordDelete(WordDeleteDir dir) {
         if (Input_Text.IsEmpty()) return;
 
         int caret_pos = Input_Field.caretPosition;
@@ -63,8 +57,7 @@ public partial class DebugConsole : DebugCom
             split[0].RemoveAt(split[0].Count - 1);
         else if (split[1].Count > 0)
             split[1].RemoveAt(0);
-        else
-        {
+        else {
             LogW("There weren't enough words in split array!".TM(this));
             return;
         }
@@ -78,8 +71,7 @@ public partial class DebugConsole : DebugCom
     List<string> History = new List<string>();
     [NonSerialized] public int History_Max = 50;
 
-    public void History_Add(string s)
-    {
+    public void History_Add(string s) {
         if (History == null) return;
         if (History.Count > 0 && History[0] == s) return;
 
@@ -88,8 +80,7 @@ public partial class DebugConsole : DebugCom
     }
 
     int history_index = -1;
-    public void History_Walk(int dir)
-    {
+    public void History_Walk(int dir) {
         if (History == null || History.Count == 0) return;
         history_index += dir;
 
@@ -103,8 +94,7 @@ public partial class DebugConsole : DebugCom
     // ----- //
 
     // Input (keys):
-    void UPDATE_Input()
-    {
+    void UPDATE_Input() {
         if (Keyboard == null) return;
 
         // Open, close, size:
@@ -124,15 +114,13 @@ public partial class DebugConsole : DebugCom
 
         // History navigation:
         if (Keyboard.upArrowKey.wasPressedThisFrame) History_Walk(1);
-        else if (Keyboard.downArrowKey.wasPressedThisFrame)
-        {
+        else if (Keyboard.downArrowKey.wasPressedThisFrame) {
             if (history_index == 0) InputField_ChangeText("");
             else History_Walk(-1);
         }
 
         // Input field extras:
-        if (Keyboard.ctrlKey.isPressed)
-        {
+        if (Keyboard.ctrlKey.isPressed) {
             // Word delete:
             if (Keyboard.backspaceKey.wasPressedThisFrame) HandleWordDelete(WordDeleteDir.Left);
             else if (Keyboard.deleteKey.wasPressedThisFrame) HandleWordDelete(WordDeleteDir.Right);

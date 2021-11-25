@@ -2,8 +2,7 @@
 using System.Reflection;
 using UnityEngine;
 
-public class Colors : MonoBehaviour
-{
+public class Colors : MonoBehaviour {
     // Editor:
     [Header("For: ConvertToFloatColor()")]
     public Vector4 Color = new Vector4(0, 0, 0, 255);
@@ -14,13 +13,11 @@ public class Colors : MonoBehaviour
 
     // Functionality:
 
-    public static Color RGBToFloat(int r, int g, int b, int a = 255)
-    {
+    public static Color RGBToFloat(int r, int g, int b, int a = 255) {
         return new Color(r / 255f, g / 255f, b / 255f, a / 255f);
     }
 
-    public static Color ConvertToFloatColor(Color color)
-    {
+    public static Color ConvertToFloatColor(Color color) {
         // Convert color to 0-1 color, if required
         // TODO: hacky!
         bool requiresConversion = color.r > 1 || color.g > 1 || color.b > 1;
@@ -28,8 +25,7 @@ public class Colors : MonoBehaviour
 
         return new Color(color.r / 255, color.g / 255, color.b / 255, color.a / 255);
     }
-    public static Color ConvertHexToColor(string hex, bool convertToFloat = true)
-    {
+    public static Color ConvertHexToColor(string hex, bool convertToFloat = true) {
         // Remove # from start, if exists
         if (hex[0] == '#') hex = hex.Substring(1);
 
@@ -51,8 +47,7 @@ public class Colors : MonoBehaviour
     // Global colors:
 
     // ----- Logger & Console -----
-    public static Color GetColorForCLogType(CLogType logType)
-    {
+    public static Color GetColorForCLogType(CLogType logType) {
         FieldInfo field = typeof(Colors).GetField(logType.ToString(), BindingFlags.Public | BindingFlags.Static);
         Color color = (Color)field.GetValue(null);
 

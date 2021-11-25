@@ -4,8 +4,7 @@ using static Logger;
 
 // Fields:
 
-public partial class AMP_MoggSong
-{
+public partial class AMP_MoggSong {
     public string mogg_path;
     public string midi_path;
 
@@ -29,8 +28,7 @@ public partial class AMP_MoggSong
     public List<int> section_start_bars;
 
     // Metadata:
-    public struct sect_song_metadata
-    {
+    public struct sect_song_metadata {
         public string title;
         public string artist;
         public string artist_short;
@@ -42,8 +40,7 @@ public partial class AMP_MoggSong
     public int preview_start_ms;
     public int preview_length_ms;
 }
-public struct MoggSong_TrackDef
-{
+public struct MoggSong_TrackDef {
     public string name;
     public int[] audio_ids;
     public string _bus; // not needed!
@@ -51,8 +48,7 @@ public struct MoggSong_TrackDef
 
 // Functionality (parsing):
 
-public partial class AMP_MoggSong
-{
+public partial class AMP_MoggSong {
     public AMP_MoggSong(string path) { ReadFromPath(path); }
 
     List<Token> tokens;
@@ -60,8 +56,7 @@ public partial class AMP_MoggSong
 
     public static bool MOGGSONG_DebugPrintTokens = false;
 
-    public bool ReadFromPath(string path)
-    {
+    public bool ReadFromPath(string path) {
         if (!File.Exists(path) && LogE("File does not exist: '%'".TM(this), path)) return false;
 
         // 1. Read in the moggsong as a text file:
@@ -73,12 +68,10 @@ public partial class AMP_MoggSong
         tokens_count = tokens.Count;
 
         // [DEBUG] print!
-        if (MOGGSONG_DebugPrintTokens)
-        {
+        if (MOGGSONG_DebugPrintTokens) {
             int i = -1;
             Log("BEGIN TOKEN PRINT!  Length: %", tokens.Count);
-            foreach (Token t in tokens)
-            {
+            foreach (Token t in tokens) {
                 string s = "[%]: Type: %".Parse(++i, t.type);
                 if (t.type == Token_Type.Identifier || t.type == Token_Type.Number || t.type == Token_Type.String || t.type == Token_Type.Comment)
                     s += "  Value: %".Parse(t.value);
@@ -94,22 +87,17 @@ public partial class AMP_MoggSong
 
     // TODO: This probably isn't the best way to do things:
 
-    void Interpret()
-    {
-        if (tokens == null || tokens.Count <= 0)
-        {
+    void Interpret() {
+        if (tokens == null || tokens.Count <= 0) {
             LogE("No tokens!".TM(this));
             return;
         }
 
-        for (int i = 0; i < tokens_count; i++)
-        {
+        for (int i = 0; i < tokens_count; i++) {
             Token t = tokens[i];
 
-            switch (t.type)
-            {
-                case Token_Type.OpenParen:
-                    {
+            switch (t.type) {
+                case Token_Type.OpenParen: {
                         t = tokens[++i];
                         Token t_next = null;
                         if (i + 1 < tokens_count) t_next = tokens[i + 1];
@@ -120,19 +108,15 @@ public partial class AMP_MoggSong
             }
         }
     }
-    void InterpretVariable(List<Token> tokens, Token t, Token t_next, ref int i)
-    {
+    void InterpretVariable(List<Token> tokens, Token t, Token t_next, ref int i) {
         int consecutive_closeparen = 0;
 
-        switch (t.value)
-        {
+        switch (t.value) {
             case "mogg_path": mogg_path = t_next.value; break;
             case "midi_path": midi_path = t_next.value; break;
-            case "song_info":
-                {
+            case "song_info": {
                     t = tokens[++i];
-                    while (consecutive_closeparen < 2)
-                    {
+                    while (consecutive_closeparen < 2) {
                         t = tokens[++i];
                         t_next = tokens[i + 1];
 
@@ -140,8 +124,7 @@ public partial class AMP_MoggSong
                         if (t.type != Token_Type.Identifier) continue;
                         consecutive_closeparen = 0;
 
-                        switch (t.value)
-                        {
+                        switch (t.value) {
                             case "length": length = t_next.value.Split(':')[0].ParseInt(); break;
                             case "countin": countin = t_next.value.ParseInt(); break;
                         }
@@ -150,12 +133,10 @@ public partial class AMP_MoggSong
                 }
             case "tunnel_scale": tunnel_scale = t_next.value.ParseFloat(); break;
             case "bpm": bpm = t_next.value.ParseFloat(); break;
-            case "section_start_bars":
-                {
+            case "section_start_bars": {
                     t = tokens[++i];
                     List<int> list = new List<int>();
-                    while (t.type != Token_Type.CloseParen)
-                    {
+                    while (t.type != Token_Type.CloseParen) {
                         if (t.type == Token_Type.Number) list.Add(t.value.ParseInt());
                         t = tokens[++i];
                     }
@@ -169,20 +150,16 @@ public partial class AMP_MoggSong
 
     /// - Consider both ':' and ';' as comments!
     enum Token_Type { Comment, Identifier, String, Number, OpenParen, CloseParen, OpenBrace, CloseBrace }
-    class Token
-    {
-        public Token(Token_Type type, string value = null)
-        {
+    class Token {
+        public Token(Token_Type type, string value = null) {
             this.type = type;
             this.value = value;
         }
         public Token_Type type;
         public string value = null;
     }
-    class Parser
-    {
-        public Parser(string text)
-        {
+    class Parser {
+        public Parser(string text) {
             this.text = text;
             length = text.Length;
         }
@@ -193,28 +170,23 @@ public partial class AMP_MoggSong
         char c;
         int pos = -1;
 
-        public List<Token> Parse()
-        {
+        public List<Token> Parse() {
             List<Token> list = new List<Token>();
 
-            while (pos < length - 1)
-            {
+            while (pos < length - 1) {
                 Token t = null;
                 c = text[++pos];
 
-                switch (c)
-                {
+                switch (c) {
                     case ' ':
                     case '\t':
                     case '\r':
                     case '\n': continue;
 
                     case ':':
-                    case ';':
-                        {
+                    case ';': {
                             string s = "";
-                            while (!c.IsNewline() && pos < length - 1)
-                            {
+                            while (!c.IsNewline() && pos < length - 1) {
                                 s += c; // Include comment char as well.
                                 c = text[++pos];
                             }
@@ -229,12 +201,10 @@ public partial class AMP_MoggSong
                     case '{': t = new Token(Token_Type.OpenBrace); break;
                     case '}': t = new Token(Token_Type.CloseBrace); break;
 
-                    case '"':
-                        {
+                    case '"': {
                             c = text[++pos]; // Advance from "
                             string s = "";
-                            while (c != '"' && pos < length - 1)
-                            {
+                            while (c != '"' && pos < length - 1) {
                                 s += c;
                                 c = text[++pos];
                             }
@@ -244,11 +214,9 @@ public partial class AMP_MoggSong
                             break;
                         }
 
-                    case char x when char.IsNumber(x):
-                        {
+                    case char x when char.IsNumber(x): {
                             string s = "";
-                            while (!c.IsWhitespace() && c != ')' && pos < length - 1)
-                            {
+                            while (!c.IsWhitespace() && c != ')' && pos < length - 1) {
                                 s += c;
                                 c = text[++pos];
                             }
@@ -261,8 +229,7 @@ public partial class AMP_MoggSong
                     default: // Identifier
                         {
                             string s = "";
-                            while (!c.IsWhitespace() && c != ')' && pos < length - 1)
-                            {
+                            while (!c.IsWhitespace() && c != ')' && pos < length - 1) {
                                 s += c;
                                 c = text[++pos];
                             }
