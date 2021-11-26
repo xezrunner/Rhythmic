@@ -55,7 +55,7 @@ public class PlayerLocomotion : MonoBehaviour {
     public Vector3 offset_ori = default;
 
     public float smooth_time = 0.2f; // TODO: Config!
-    public float interp_peekahead = 10f;
+    public float interp_peekahead = 20f;
 
     public Vector3 pos_interp;
     public Quaternion rot_interp;
@@ -73,7 +73,8 @@ public class PlayerLocomotion : MonoBehaviour {
         pos_interp = Vector3.SmoothDamp(pos_interp, pos_target, ref pos_interp_temp, smooth_time);
 
         Quaternion rot_target = path.XZ_GetRotationAtDistance(dist, offset_pos.x) * Quaternion.Euler(offset_ori);
-        rot_interp = QuaternionUtil.SmoothDamp(rot_interp, rot_target, ref rot_interp_temp, smooth_time);
+        Quaternion rot_target_interp = path.XZ_GetRotationAtDistance(dist+ interp_peekahead, offset_pos.x) * Quaternion.Euler(offset_ori);
+        rot_interp = QuaternionUtil.SmoothDamp(rot_interp, rot_target_interp, ref rot_interp_temp, smooth_time);
 
         trans.position = pos_target;
 

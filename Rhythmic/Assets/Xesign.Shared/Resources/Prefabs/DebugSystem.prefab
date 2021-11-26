@@ -335,8 +335,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: debugcomponent
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 447a91ce23f46b248b7fc67f6f2ff140, type: 2}
-  m_sharedMaterial: {fileID: -2392505953536363100, guid: 447a91ce23f46b248b7fc67f6f2ff140, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6d55352a16750a14db19020ffeae2f1d, type: 2}
+  m_sharedMaterial: {fileID: 1733889590243891828, guid: 6d55352a16750a14db19020ffeae2f1d, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

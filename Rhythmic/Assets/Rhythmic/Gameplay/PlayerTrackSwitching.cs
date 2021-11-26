@@ -87,6 +87,8 @@ public class PlayerTrackSwitching : MonoBehaviour {
             }
         }
 
+        if (is_freestyle) smooth_time = 3 / smooth_time_factor;
+
         locomotion.lookat_target.localPosition = Vector3.SmoothDamp(locomotion.lookat_target.localPosition, (!is_freestyle ? new Vector3(0, 0, 0) : new Vector3(0, 7, 0)) + locomotion.lookat_pos_offset, ref loco_lookat_temp, smooth_time * 4f);
 
         locomotion.offset_pos.x = Mathf.SmoothDamp(locomotion.offset_pos.x, !is_freestyle ? target_x : default, ref loco_offset_x_temp, smooth_time * (is_freestyle ? 4f : 1f));

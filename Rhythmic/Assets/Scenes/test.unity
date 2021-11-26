@@ -651,7 +651,7 @@ GameObject:
   - component: {fileID: 904254010}
   - component: {fileID: 904254013}
   m_Layer: 0
-  m_Name: SingleplayerPlayer
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -681,7 +681,7 @@ MonoBehaviour:
   offset_pos: {x: 0, y: 0, z: 0}
   offset_ori: {x: 0, y: 0, z: 0}
   smooth_time: 0.4
-  interp_peekahead: 10
+  interp_peekahead: 20
   pos_interp: {x: 0, y: 0, z: 0}
   rot_interp: {x: 0, y: 0, z: 0, w: 0}
 --- !u!4 &904254011
