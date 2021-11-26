@@ -651,7 +651,7 @@ GameObject:
   - component: {fileID: 904254010}
   - component: {fileID: 904254013}
   m_Layer: 0
-  m_Name: Player
+  m_Name: SingleplayerPlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -714,6 +714,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   locomotion: {fileID: 0}
+  name: 
 --- !u!114 &904254013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -784,7 +785,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 65
+  field of view: 60
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -931,7 +932,7 @@ GameObject:
   - component: {fileID: 1133621960}
   - component: {fileID: 1133621961}
   m_Layer: 0
-  m_Name: Catcher
+  m_Name: Catcher manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -963,6 +964,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0c768832f7a0b946aa1a12b3310c458, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 0}
   catchers: []
 --- !u!1 &1430545603
 GameObject:

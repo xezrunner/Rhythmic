@@ -12,12 +12,15 @@
 
     public static float TRACK_Width = 3.7f;
     public static float TRACK_Height = 0.1f;
-    public static int TRACK_LaneCount = 4;
+    public static int TRACK_Lanes = 3;
 
     public static bool TRACKSWITCH_SlamEnabled = true;
     public static int TRACKSWITCH_SlamsTarget = 2;
     public static float TRACKSWITCH_SlamTimeoutMs = 200f;
 
-    public static float NOTE_TrackPadding = 0.65f;
+    public static float NOTE_PaddingFrac = 1f;
     public static float NOTE_Size = 1f;
+
+    public static float CATCHER_CatchAnimMs = 80f;
+    public static float CATCHER_CatchAnimTarget = 0.42f;
 }

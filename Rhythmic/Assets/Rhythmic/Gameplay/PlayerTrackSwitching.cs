@@ -73,6 +73,11 @@ public class PlayerTrackSwitching : MonoBehaviour {
     float loco_offset_x_temp;
     float loco_offset_z_temp;
     void Update() {
+        if (Keyboard.current != null) {
+            if (Keyboard.current.qKey.wasPressedThisFrame) SwitchToTrack(0, true);
+            if (Keyboard.current.pKey.wasPressedThisFrame) SwitchToTrack(track_system.track_count - 1, true);
+        }
+
         if (slam_count > 0) {
             slam_elapsed_ms += Time.deltaTime * 1000f;
 

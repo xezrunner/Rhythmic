@@ -301,9 +301,6 @@ public class TrackStreamer : MonoBehaviour {
 
     int last_bar = 0;
     void UPDATE_Streaming() {
-        // BUG:
-        // For some reason, we are slipping away with time...
-
         int bar = (int)clock.bar;
         if (last_bar != bar) {
             STREAMER_StreamRangeHorizon(-1, bar);

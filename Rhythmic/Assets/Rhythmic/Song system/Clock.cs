@@ -51,8 +51,10 @@ public class Clock : MonoBehaviour {
                 seconds += (Keyboard.current.ctrlKey.isPressed ? 0.1f : 6f) * Time.deltaTime;
             if (Keyboard.current.altKey.isPressed && Keyboard.current.numpad3Key.isPressed)
                 seconds -= (Keyboard.current.ctrlKey.isPressed ? 0.1f : 3f) * Time.deltaTime;
-            if (Keyboard.current.numpad8Key.wasPressedThisFrame)
-                seconds += (time_units.sec_in_bar * 4);
+            if (Keyboard.current.numpad8Key.wasPressedThisFrame) {
+                if (!is_testing) seconds += (time_units.sec_in_bar * 4);
+                else audio_system.audio_progress += (time_units.sec_in_bar * 4);
+            }
         }
 
         if (is_testing)
