@@ -7,22 +7,29 @@ public class Note : MonoBehaviour {
 
     public Transform trans;
 
-    public Song_Note info;
     public SongSystem song_system;
     public Song song;
+
+    public Song_Note info;
+    public int id;
     public TrackSection section;
 
     public MeshRenderer mesh_renderer;
     public MeshFilter mesh_filter;
 
-    public Note Setup(int note_id, TrackSection section) {
-        gameObject.SetActive(true);
+    public bool is_last_note;
 
-        this.section = section;
-        info = section.song_notes[note_id];
-
+    void Awake() {
         song_system = SongSystem.Instance;
         song = song_system.song;
+    }
+
+    public Note Setup(int note_id, TrackSection section) {
+        gameObject.SetActive(true);
+        this.section = section;
+        id = note_id;
+
+        info = section.song_notes[note_id];
 
         gameObject.name = "%::%_NOTE-%".Parse(section.track.info.name, info.bar, info.code);
         trans.SetParent(section.trans);
@@ -35,6 +42,8 @@ public class Note : MonoBehaviour {
         trans.localScale = new Vector3(Variables.NOTE_Size, Variables.NOTE_Size, Variables.NOTE_Size);
 
         // ..
+        is_last_note = (note_id == section.notes.Length - 1);
+        mesh_renderer.material = (is_last_note) ? MAT_green : MAT_regular;
 
         return this;
     }
@@ -47,12 +56,19 @@ public class Note : MonoBehaviour {
         return this;
     }
 
+    public void Capture() {
+        gameObject.SetActive(false);
+
+        if (is_last_note) section.next_note_index = -1;
+        else ++section.next_note_index;
+    }
+
     // --------------- //
 
     public static float GetPosOffsetForLane(int lane) {
         float lane_piece = (Variables.TRACK_Width / Variables.TRACK_Lanes) * Variables.NOTE_PaddingFrac;
         float offset = -(lane_piece * (Variables.TRACK_Lanes - 1f)) / 2f;
-        
+
         float result = offset + (lane * lane_piece);
         return result;
     }
@@ -62,9 +78,18 @@ public class Note : MonoBehaviour {
     public const string PREFAB_PATH = "Prefabs/Note";
     public static GameObject PREFAB_Cache = null;
 
+    public static Material MAT_regular;
+    public static Material MAT_green;
+
     public static Note CreateNote(int note_id, TrackSection section) {
-        if (!PREFAB_Cache) PREFAB_Cache = (GameObject)Resources.Load(PREFAB_PATH);
+        if (!PREFAB_Cache)
+            PREFAB_Cache = (GameObject)Resources.Load(PREFAB_PATH);
         if (!PREFAB_Cache && LogE("PREFAB_Cache is null!".TM(nameof(Note)))) return null;
+
+        // TEMP:
+        MAT_regular = Instantiate((Material)Resources.Load("Materials/note"));
+        MAT_green = Instantiate((Material)Resources.Load("Materials/note"));
+        MAT_green.color = Color.green;
 
         GameObject obj = Instantiate(PREFAB_Cache);
 

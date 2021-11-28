@@ -20,11 +20,17 @@ public class PlayerCatcherManager : MonoBehaviour {
 
     public List<PlayerCatcher> catchers = new List<PlayerCatcher>();
 
+    public void Catch(int catcher_id) {
+        // ..
+
+        catchers[catcher_id]?.Catch();
+    }
+
     void Update() {
         if (Keyboard.current != null) {
-            if (Keyboard.current.leftArrowKey.wasPressedThisFrame) catchers[0].Catch();
-            if (Keyboard.current.upArrowKey.wasPressedThisFrame) catchers[1].Catch();
-            if (Keyboard.current.rightArrowKey.wasPressedThisFrame) catchers[2].Catch();
+            if (Keyboard.current.leftArrowKey.wasPressedThisFrame) Catch(0);
+            if (Keyboard.current.upArrowKey.wasPressedThisFrame) Catch(1);
+            if (Keyboard.current.rightArrowKey.wasPressedThisFrame) Catch(2);
         }
     }
 }

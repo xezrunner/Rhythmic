@@ -166,4 +166,5 @@ public struct Song_Note {
     public long ticks;
     public int bar;
     public float pos;
+
 }

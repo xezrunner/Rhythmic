@@ -3,20 +3,36 @@ using UnityEngine;
 using static Logger;
 
 public class TrackSection : MonoBehaviour {
+    SongSystem song_system;
+    Song song;
+    TrackSystem track_system;
+
     public PathTransform path_transform;
-    public SongSystem song_system;
-    public Song song;
     public Transform trans;
 
     void Awake() {
         if (!path_transform && LogW("A TrackSection needs to have a PathTransform component to exist. Deleting.".T(this)))
             Destroy(gameObject);
-    }
-    void Start() {
-        if (track != null && id != -1) { /*Log("Created TrackSection for track %  id: %", track.info.name, id);}*/ }
+
+        song_system = SongSystem.Instance;
+        song = song_system.song;
+        track_system = TrackSystem.Instance;
     }
 
-    GameObject a;
+    public int id = -1;
+    public Track track;
+    public Note[] notes;
+    public List<Song_Note> song_notes; // This is null if there are no notes in this measure.
+
+    public MeshRenderer mesh_renderer;
+
+    public bool is_enabled; // NOTE: Not the same as the component/object being active!
+    public bool is_empty;
+    public bool is_captured;
+
+    public int next_note_index = 0;
+
+    GameObject measure_separator; // temp!
     public TrackSection Setup(Track track, int id /* ... */) {
         gameObject.SetActive(true);
 
@@ -24,30 +40,34 @@ public class TrackSection : MonoBehaviour {
         this.track = track;
         song_notes = track.info.notes[id];
 
-        song_system = SongSystem.Instance;
-        song = song_system.song;
-
         trans.parent = track.parent_transform;
         gameObject.name = "%::%".Parse(track.info.name, id);
 
-        mesh_renderer.enabled = song_notes != null;
-        notes = (song_notes != null) ? new Note[song_notes.Count] : null;
+        is_enabled = true;
+        is_captured = false;
+        is_empty = (song_notes == null);
+
+        notes = (!is_empty) ? new Note[song_notes.Count] : null;
+        mesh_renderer.enabled = !is_empty;
 
         path_transform.desired_size = new Vector2(Variables.TRACK_Width, Variables.TRACK_Height);
         path_transform.desired_size.z = song.time_units.pos_in_tick * Variables.bar_ticks;
         path_transform.pos.z = song.time_units.pos_in_tick * (id * Variables.bar_ticks);
-        path_transform.pos.x = (-(track.track_system.track_count / 2f) + (track.info.id + 0.5f)) * path_transform.desired_size.x;
+        path_transform.pos.x = (-(track_system.track_count / 2f) + (track.info.id + 0.5f)) * path_transform.desired_size.x;
 
         // ...
         ChangeMaterial(track.material_horizon);
 
         path_transform.Deform();
 
-        if (!a) a = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        a.transform.SetParent(trans);
-        a.transform.localScale = new Vector3(Variables.TRACK_Width, 0.1f, 0.1f);
-        a.transform.position = PathTransform.pathcreator_global.path.XZ_GetPointAtPosition(path_transform.pos + new Vector3(0, 0, path_transform.desired_size.z));
-        a.transform.rotation = PathTransform.pathcreator_global.path.XZ_GetRotationAtDistance(path_transform.pos.z + path_transform.desired_size.z, path_transform.pos.x);
+        // Measure separators (temp!):
+        {
+            if (!measure_separator) measure_separator = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            measure_separator.transform.SetParent(trans);
+            measure_separator.transform.localScale = new Vector3(Variables.TRACK_Width, 0.1f, 0.1f);
+            measure_separator.transform.position = PathTransform.pathcreator_global.path.XZ_GetPointAtPosition(path_transform.pos + new Vector3(0, 0, path_transform.desired_size.z));
+            measure_separator.transform.rotation = PathTransform.pathcreator_global.path.XZ_GetRotationAtDistance(path_transform.pos.z + path_transform.desired_size.z, path_transform.pos.x);
+        }
 
         return this;
     }
@@ -58,13 +78,6 @@ public class TrackSection : MonoBehaviour {
 
         return this;
     }
-
-    public int id = -1;
-    public Track track;
-    public Note[] notes;
-    public List<Song_Note> song_notes; // This is null if there are no notes in this measure.
-
-    public MeshRenderer mesh_renderer;
 
     public void ChangeMaterial(Material mat) => mesh_renderer.material = mat;
 

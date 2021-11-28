@@ -1,10 +1,15 @@
 ﻿using UnityEngine;
 
 public class Track {
-    public TrackSystem track_system;
+    Clock clock;
+    Song song;
+    TrackSystem track_system;
 
     public Track(TrackSystem track_system, Song song, int id, Transform parent) {
+        clock = Clock.Instance;
         this.track_system = track_system;
+        this.song = song;
+
         info = song.tracks[id];
         sections = new TrackSection[song.length_bars];
         parent_transform = parent;
@@ -35,7 +40,6 @@ public class Track {
         */
     }
 
-    public Song song;
     public Song_Track info;
     public Transform parent_transform;
 
@@ -47,4 +51,5 @@ public class Track {
     public static Material material_resource = (Material)Resources.Load("Materials/Track/track_bottom");
     public Material material;
     public Material material_horizon;
+
 }

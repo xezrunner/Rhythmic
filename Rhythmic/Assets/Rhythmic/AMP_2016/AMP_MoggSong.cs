@@ -80,14 +80,14 @@ public partial class AMP_MoggSong {
         }
 
         // 3. Interpret:
-        Interpret();
+        interpret();
 
         return true;
     }
 
     // TODO: This probably isn't the best way to do things:
 
-    void Interpret() {
+    void interpret() {
         if (tokens == null || tokens.Count <= 0) {
             LogE("No tokens!".TM(this));
             return;
@@ -102,13 +102,13 @@ public partial class AMP_MoggSong {
                         Token t_next = null;
                         if (i + 1 < tokens_count) t_next = tokens[i + 1];
 
-                        InterpretVariable(tokens, t, t_next, ref i);
+                        interpret_variable(tokens, t, t_next, ref i);
                         break;
                     }
             }
         }
     }
-    void InterpretVariable(List<Token> tokens, Token t, Token t_next, ref int i) {
+    void interpret_variable(List<Token> tokens, Token t, Token t_next, ref int i) {
         int consecutive_closeparen = 0;
 
         switch (t.value) {

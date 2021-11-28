@@ -4,25 +4,29 @@ using UnityEngine.InputSystem;
 public enum SwitchTrackDir { Left = -1, Right = 1 }
 
 public class PlayerTrackSwitching : MonoBehaviour {
+    public static PlayerTrackSwitching Instance;
+
     SongSystem song_system;
     TrackSystem track_system;
 
     public PlayerLocomotion locomotion;
+
+    void Awake() => Instance = this;
 
     void Start() {
         song_system = SongSystem.Instance;
         track_system = song_system.track_system;
     }
 
-    public int current_track = -1;
+    public int current_track_id = -1;
 
     int slam_count = 0;
     float slam_elapsed_ms = 0;
     SwitchTrackDir slam_last_dir;
     public bool SwitchTrack(SwitchTrackDir dir, bool force = false) {
-        if (current_track == -1) current_track = track_system.track_count / 2;
+        if (current_track_id == -1) current_track_id = track_system.track_count / 2;
 
-        int new_target = current_track + (int)dir;
+        int new_target = current_track_id + (int)dir;
         if (new_target < 0 || new_target > track_system.track_count - 1) {
             if (!Variables.TRACKSWITCH_SlamEnabled) return false;
 
@@ -50,10 +54,10 @@ public class PlayerTrackSwitching : MonoBehaviour {
 
         // TODO: Checks ...
 
-        smooth_time = ((track_system.track_count / 2f) + Mathf.Abs(current_track - id)) / smooth_time_factor;
-        current_track = id;
+        smooth_time = ((track_system.track_count / 2f) + Mathf.Abs(current_track_id - id)) / smooth_time_factor;
+        current_track_id = id;
 
-        Track t = track_system.tracks[current_track];
+        Track t = track_system.tracks[current_track_id];
         target_x = t.pos.x;
 
         return true;

@@ -54,6 +54,8 @@ public class TrackStreamer : MonoBehaviour {
         STREAMER_StreamRangeHorizon(-1, (int)clock.bar, false, false);
         UpdateHorizonClipForMeasures(0);
 
+        track_system.FindNextSections();
+
         is_initialized = true;
     }
 

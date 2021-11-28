@@ -4,11 +4,21 @@ using static Logger;
 public class PlayerCatcher : MonoBehaviour {
     public Transform trans;
 
+    PlayerTrackSwitching player_trackswitch;
+    TrackSystem track_system;
+    Clock clock;
+
     public int id;
 
     Vector3 catch_anim_idle;
     Vector3 catch_anim_start;
     Vector3 catch_anim_target;
+
+    void Awake() {
+        track_system = TrackSystem.Instance;
+        clock = Clock.Instance;
+        player_trackswitch = PlayerTrackSwitching.Instance;
+    }
 
     public PlayerCatcher Setup(int id, Transform parent) {
         this.id = id;
@@ -18,6 +28,21 @@ public class PlayerCatcher : MonoBehaviour {
         return this;
     }
 
+    public void Catch() {
+        catch_anim_start = trans.localScale;
+        catch_anim_elapsed_ms = 0f;
+        is_catching = true;
+
+        // ..
+        int track_id = player_trackswitch.current_track_id;
+
+        Note n = track_system.next_notes[track_id];
+
+        n.Capture();
+        track_system.FindNextNote(track_id);
+    }
+
+    // Transform and animation:
     void INIT_SetPositionAndScale() {
         if (is_catching) return;
 
@@ -29,18 +54,6 @@ public class PlayerCatcher : MonoBehaviour {
     }
 
     bool is_catching;
-    public void Catch() {
-        catch_anim_start = trans.localScale;
-        catch_anim_elapsed_ms = 0f;
-        is_catching = true;
-        // ..
-    }
-
-    void Update() {
-        INIT_SetPositionAndScale(); // TODO: Remove this or make it controllable - used for hotreload during design phase!
-        UPDATE_CatchAnimation();
-    }
-
     float catch_anim_elapsed_ms = 0;
     void UPDATE_CatchAnimation() {
         if (!is_catching) return;
@@ -56,6 +69,11 @@ public class PlayerCatcher : MonoBehaviour {
             is_catching = false;
 
         catch_anim_elapsed_ms += Time.deltaTime * 1000f; // Audio deltatime! (with testing)
+    }
+
+    void Update() {
+        INIT_SetPositionAndScale(); // TODO: Remove this or make it controllable - used for hotreload during design phase!
+        UPDATE_CatchAnimation();
     }
 
     // ----- //
