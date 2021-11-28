@@ -65,6 +65,7 @@ public class Song_TimeUnits {
         tick_in_pos = (4f * Variables.beat_ticks);
     }
 
+    #region Fields
     public float beat_per_ms;
     public float beat_per_sec;
     public float ms_per_beat;
@@ -93,6 +94,7 @@ public class Song_TimeUnits {
     public float pos_in_ms;
     public float pos_in_beat;
     public float pos_in_bar;
+    #endregion
 }
 
 // TODO: Custom names for instruments
