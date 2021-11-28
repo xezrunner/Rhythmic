@@ -91,7 +91,7 @@ public class PlayerCatcher : MonoBehaviour {
 
                 track_system.next_sections[track_id][next_sect_id] = -1;
 
-                if (track_system.GetNextSection(track_id) == null) {
+                if (track_system.GetNextSectionID(track_id) == -1) {
                     // ..
                     Log("SUCCESS! Capture track! (for now, you should be able to continue catching)");
                     track_system.track_being_played = -1;
