@@ -96,15 +96,15 @@ public class Song_TimeUnits {
 }
 
 // TODO: Custom names for instruments
-public class Song_Instrument {
+public struct Song_Instrument {
     public Song_Instrument(InstrumentType instr, string custom_name = null, Color? color = null) {
         instrument = instr;
         this.custom_name = (custom_name != null) ? custom_name : instr.ToString();
         this.color = (color.HasValue) ? color.Value : GetColorForInstrument(instr);
     }
 
-    public InstrumentType instrument = InstrumentType.UNKNOWN;
-    public string custom_name = null;
+    public InstrumentType instrument;
+    public string custom_name;
     public Color color;
 
     public static Color GetColorForInstrument(InstrumentType instr) {
@@ -126,21 +126,22 @@ public class Song_Instrument {
 }
 
 public enum InstrumentType {
-    UNKNOWN = -1,
-    Drums = 0, D = 0,
-    Bass = 1, B = 1,
-    Synth = 2, S = 2,
-    Guitar = 3, G = 3,
-    FX = 4,
-    Vocals = 5, V = 5,
+    UNKNOWN = 0,
+    Drums = 1, D = 1,
+    Bass = 2, B = 2,
+    Synth = 3, S = 3,
+    Guitar = 4, G = 4,
+    FX = 5,
+    Vocals = 6, V = 6,
     Freestyle = 7
 }
 
-public class Song_Track {
+public struct Song_Track {
     public int id;
     public string name;
     public Song_Instrument instrument;
     public List<Song_Note>[] notes; // Array of (list of notes) by measures
+    public Song_Section[] sections;
 
     public string audio_path;
     public int[] stereo_mix; // AMP-only?
@@ -148,13 +149,21 @@ public class Song_Track {
     // TODO: instrument seq data!
 }
 
-public struct Song_Note {
-    public Song_Note(int code, int lane, long ticks, Song_TimeUnits time_units) {
-        this.lane = lane;
-        this.code = code;
+public struct Song_Section {
+    public Song_Track track_info;
+    public int id;
 
-        this.ticks = ticks;
-        bar = (int)(ticks / Variables.bar_ticks);
+    public bool is_enabled;
+    public bool is_captured;
+    public bool is_empty;
+
+    public int next_note_index;
+    public int note_count;
+}
+
+public struct Song_Note {
+    public void SetupTimeUnits(Song_TimeUnits time_units) {
+        ms = (time_units.ms_in_tick * ticks);
 
         long ticks_after_bar = ticks - (bar * Variables.bar_ticks);
         pos = time_units.pos_in_tick * ticks_after_bar;
@@ -162,9 +171,14 @@ public struct Song_Note {
 
     public int lane;
     public int code;
+    public int track_id;
+
+    public bool is_captured;
+    public bool is_last_note;
 
     public long ticks;
+    public float ms;
     public int bar;
+    public int bar_id;
     public float pos;
-
 }

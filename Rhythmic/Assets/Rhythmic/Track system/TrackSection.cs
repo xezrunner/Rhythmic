@@ -30,7 +30,12 @@ public class TrackSection : MonoBehaviour {
     public bool is_empty;
     public bool is_captured;
 
-    public int next_note_index = 0;
+    public void SetEnabled(bool enabled) {
+        is_enabled = enabled;
+        if (notes == null) return;
+        foreach (Note n in notes)
+            n?.ChangeMaterial(enabled ? Note.MAT_regular : Note.MAT_disabled);
+    }
 
     GameObject measure_separator; // temp!
     public TrackSection Setup(Track track, int id /* ... */) {
@@ -43,8 +48,10 @@ public class TrackSection : MonoBehaviour {
         trans.parent = track.parent_transform;
         gameObject.name = "%::%".Parse(track.info.name, id);
 
-        is_enabled = true;
-        is_captured = false;
+        Song_Section info = track.info.sections[id];
+
+        is_enabled = info.is_enabled;
+        is_captured = info.is_captured;
         is_empty = (song_notes == null);
 
         notes = (!is_empty) ? new Note[song_notes.Count] : null;

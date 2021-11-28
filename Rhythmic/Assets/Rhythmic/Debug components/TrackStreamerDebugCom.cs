@@ -1,4 +1,6 @@
-﻿[DebugCom(/*350f*/ 60f)]
+﻿using UnityEngine;
+
+[DebugCom(/*350f*/ 60f)]
 public class TrackStreamerDebugCom : DebugCom {
     AudioSystem   audio_system;
     TrackSystem   track_system ;
@@ -32,9 +34,13 @@ public class TrackStreamerDebugCom : DebugCom {
             Com_WriteLine("Next section IDs: %", track_system.DEBUG_NextSectionIDsToString());
         if (track_system.next_notes != null) {
             string s = null;
-            foreach (Note it in track_system.next_notes)
-                s += '(' + it.section.id.ToString().AddColor(it.section.track.info.instrument.color) + '/' +
-                    it.id.ToString() + ") ";
+
+            for (int i = 0; i < track_system.track_count; ++i) {
+                Song_Note n = track_system.next_notes[i];
+                Color c = track_system.tracks[i].info.instrument.color;
+                s += '(' + n.bar.ToString().AddColor(c) + '/' +
+                    n.bar_id.ToString() + ") ";
+            }
             Com_WriteLine("Next notes:       %", s);
         }
         Com_WriteLine("");

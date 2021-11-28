@@ -7,8 +7,9 @@ public class Note : MonoBehaviour {
 
     public Transform trans;
 
-    public SongSystem song_system;
-    public Song song;
+    SongSystem song_system;
+    Song song;
+    TrackSystem track_system;
 
     public Song_Note info;
     public int id;
@@ -22,6 +23,7 @@ public class Note : MonoBehaviour {
     void Awake() {
         song_system = SongSystem.Instance;
         song = song_system.song;
+        track_system = TrackSystem.Instance;
     }
 
     public Note Setup(int note_id, TrackSection section) {
@@ -43,7 +45,7 @@ public class Note : MonoBehaviour {
 
         // ..
         is_last_note = (note_id == section.notes.Length - 1);
-        mesh_renderer.material = (is_last_note) ? MAT_green : MAT_regular;
+        ChangeMaterial((is_last_note) ? MAT_green : MAT_regular);
 
         return this;
     }
@@ -56,11 +58,18 @@ public class Note : MonoBehaviour {
         return this;
     }
 
-    public void Capture() {
-        gameObject.SetActive(false);
+    public void ChangeMaterial(Material mat) {
+        mesh_renderer.material = mat;
+    }
 
-        if (is_last_note) section.next_note_index = -1;
-        else ++section.next_note_index;
+    public void Capture(bool success = true) {
+        if (success) {
+            gameObject.SetActive(false);
+            // ++section.next_note_index;
+            track_system.tracks[info.track_id].info.sections[info.bar].next_note_index += 1;
+        } else {
+            ChangeMaterial(MAT_red);
+        }
     }
 
     // --------------- //
@@ -79,7 +88,9 @@ public class Note : MonoBehaviour {
     public static GameObject PREFAB_Cache = null;
 
     public static Material MAT_regular;
+    public static Material MAT_disabled;
     public static Material MAT_green;
+    public static Material MAT_red;
 
     public static Note CreateNote(int note_id, TrackSection section) {
         if (!PREFAB_Cache)
@@ -88,8 +99,12 @@ public class Note : MonoBehaviour {
 
         // TEMP:
         MAT_regular = Instantiate((Material)Resources.Load("Materials/note"));
+        MAT_disabled = Instantiate((Material)Resources.Load("Materials/note"));
+        MAT_disabled.color = Color.gray;
         MAT_green = Instantiate((Material)Resources.Load("Materials/note"));
         MAT_green.color = Color.green;
+        MAT_red = Instantiate((Material)Resources.Load("Materials/note"));
+        MAT_red.color = Color.red;
 
         GameObject obj = Instantiate(PREFAB_Cache);
 

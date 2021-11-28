@@ -24,4 +24,7 @@
     public static float CATCHER_CatchAnimMs = 80f;
     public static float CATCHER_CatchAnimTarget = 0.42f;
     public static int CATCHER_MaxSectionsToCapture = 2;
+    public static float CATCHER_SlopMs = 100f;
+    public static float CATCHER_DebounceMs = 85f;
+    public static bool CATCHER_UseTicksForSlop = true;
 }

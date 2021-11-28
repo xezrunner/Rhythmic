@@ -20,22 +20,40 @@ public class TrackSystem : MonoBehaviour {
     public Track[] tracks;
     public int track_count;
 
-    public int track_being_played = -1;
+    // -2: never played a track yet, -1: failed a catch
+    public int track_being_played = -2;
 
-    public TrackSection[][] next_sections;
-    public Note[] next_notes;
+    public int[][] next_sections;
+    public Song_Note[] next_notes;
+
+    public TrackSection GetNextSection(int track_id) {
+        foreach (int s in next_sections[track_id])
+            if (s != -1) return tracks[track_id].sections[s];
+        return null;
+    }
+    public int GetNextSectionID(int track_id) {
+        int i = -1;
+        foreach (int s in next_sections[track_id]) {
+            ++i;
+            if (s != -1) break;
+        }
+        return i;
+    }
 
     public string DEBUG_NextSectionIDsToString() {
         string s_next_sect_ids = null;
         for (int i = 0; i < track_count; ++i) {
-            TrackSection[] sect_array = next_sections[i];
+            int[] next_array = next_sections[i];
             s_next_sect_ids += '(';
-            for (int x = 0; x < sect_array.Length; ++x) {
-                TrackSection sect = sect_array[x];
-                if (!sect) continue;
+            for (int x = 0; x < next_array.Length; ++x) {
+                int sect_id = next_array[x];
+                TrackSection sect = tracks[i].sections[x];
 
-                s_next_sect_ids += sect.id.ToString().AddColor(sect.track.info.instrument.color);
-                if (x < sect_array.Length - 1) s_next_sect_ids += ' ';
+                string s = sect_id.ToString();
+                if (sect) s = s.AddColor(sect.track.info.instrument.color);
+                s_next_sect_ids += s;
+
+                if (x < next_array.Length - 1) s_next_sect_ids += ' ';
             }
             s_next_sect_ids += ") ";
         }
@@ -48,28 +66,33 @@ public class TrackSystem : MonoBehaviour {
         Log(DEBUG_NextSectionIDsToString());
     }
     public void FindNextSections() {
-        for (int i = 0; i < track_count; ++i)
-            FindNextSection(i);
+        for (int i = 0; i < track_count; ++i) {
+            if (i != track_being_played)
+                FindNextSection(i);
+        }
     }
     public void FindNextSection(int id, bool find_next_note = true) {
-        if (id == track_being_played) return;
-
         Track t = tracks[id];
         int res_index = 0, loop_target = song.length_bars;
         for (int i = (int)clock.bar; i < loop_target; ++i) {
-            TrackSection s = t.sections[i];
+            TrackSection sect = t.sections[i];
+            Song_Section s = t.info.sections[i];
 
-            if (s) {
+            if (sect) {
+                if (sect.is_empty) continue;
+                if (sect.is_captured) continue;
+                if (!sect.is_enabled) continue;
+            } else {
                 if (s.is_empty) continue;
                 if (s.is_captured) continue;
-                if (!s.is_enabled) continue;
+                if (s.is_enabled) continue;
             }
 
             if (res_index == 0) {
-                next_sections[id] = new TrackSection[Variables.CATCHER_MaxSectionsToCapture];
+                next_sections[id] = new int[Variables.CATCHER_MaxSectionsToCapture];
                 loop_target = i + Variables.CATCHER_MaxSectionsToCapture; // Check if next sections can be captured on subsequent iterations.
             }
-            next_sections[id][res_index++] = s;
+            next_sections[id][res_index++] = i;
         }
 
         if (find_next_note) FindNextNote(id);
@@ -80,30 +103,40 @@ public class TrackSystem : MonoBehaviour {
             FindNextNote(i);
     }
     public void FindNextNote(int id) {
-        TrackSection sect = null;
-        int sect_next_id = 0; // for removal on last note
+        int s_id = -1;
 
-        foreach (TrackSection it in next_sections[id])
-            if (it) { sect = it; break; } else ++sect_next_id;
+        for (int i = 0; i < Variables.CATCHER_MaxSectionsToCapture; ++i) {
+            s_id = next_sections[id][i];
+            if (s_id == -1) continue;
+            else break;
 
-        if (!sect) {
-            LogE("Next section is missing for track %!".TM(this), id);
+            //if (s_id == -1 && i == Variables.CATCHER_MaxSectionsToCapture - 1)
+            //    FindNextSections();
+        }
+
+        if (s_id == -1) {
+            LogE("Next section missing for track %!".TM(this), id);
             return;
         }
 
-        if (sect.next_note_index >= sect.notes.Length) {
-            LogE("Next note index for track % has exceeded note count! (% out of %)".TM(this), id, sect.next_note_index, sect.notes.Length);
-            return;
-        }
-        if (sect.next_note_index == -1) {
-            // 1. Remove the last section from next sections:
-            next_sections[id][sect_next_id] = null;
-            // 2. Rerun this procedure.
-            FindNextNote(id);
+        Song_Section sect = tracks[id].info.sections[s_id];
+
+        if (sect.next_note_index >= sect.note_count) {
+            LogE("Next note index for track % has exceeded note count! (% out of %)".TM(this), id, sect.next_note_index, sect.note_count);
             return;
         }
 
-        next_notes[id] = sect.notes[sect.next_note_index];
+        next_notes[id] = tracks[id].info.notes[s_id][sect.next_note_index];
+    }
+
+    public void SetSectionsEnabled(int bar_id, int track_exclude, bool value) {
+        foreach (Track t in tracks) {
+            if (t.info.id == track_exclude) continue;
+
+            t.sections[bar_id]?.SetEnabled(value);
+            t.info.sections[bar_id].is_enabled = value;
+        }
+        FindNextSections();
     }
 
     public void SetupTrackSystem(Song song) {
@@ -119,8 +152,8 @@ public class TrackSystem : MonoBehaviour {
             tracks[i] = new Track(this, song, i, obj.transform);
         }
 
-        next_sections = new TrackSection[track_count][];
-        next_notes = new Note[track_count];
+        next_sections = new int[track_count][];
+        next_notes = new Song_Note[track_count];
 
         // Create streamer:
         streamer = gameObject.AddComponent<TrackStreamer>();

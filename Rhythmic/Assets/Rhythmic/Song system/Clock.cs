@@ -7,8 +7,15 @@ public class Clock : MonoBehaviour {
 
     SongSystem  song_system;
     AudioSystem audio_system;
+    TrackSystem track_system;
+    PlayerTrackSwitching player_trackswitch;
 
     public Song_TimeUnits time_units;
+
+    void Start() {
+        track_system = TrackSystem.Instance;
+        player_trackswitch = PlayerTrackSwitching.Instance;
+    }
 
     public void SetupClock(SongSystem song_system) {
         if (Instance && LogE("An instance of Clock already exists!")) {
@@ -22,7 +29,7 @@ public class Clock : MonoBehaviour {
         audio_system = song_system.audio_system;
     }
 
-    public float tick;
+    public long ticks;
     public float seconds;
     public float seconds_smooth;
     public float ms;
@@ -48,12 +55,15 @@ public class Clock : MonoBehaviour {
                 audio_system.is_playing = is_testing;
             }
             if (Keyboard.current.altKey.isPressed && Keyboard.current.numpad9Key.isPressed)
-                seconds += (Keyboard.current.ctrlKey.isPressed ? 0.1f : 6f) * Time.deltaTime;
+                seconds += (Keyboard.current.ctrlKey.isPressed ? 0.8f : 6f) * Time.deltaTime;
             if (Keyboard.current.altKey.isPressed && Keyboard.current.numpad3Key.isPressed)
-                seconds -= (Keyboard.current.ctrlKey.isPressed ? 0.1f : 3f) * Time.deltaTime;
+                seconds -= (Keyboard.current.ctrlKey.isPressed ? 0.8f : 3f) * Time.deltaTime;
             if (Keyboard.current.numpad8Key.wasPressedThisFrame) {
                 if (!is_testing) seconds += (time_units.sec_in_bar * 4);
                 else audio_system.audio_progress += (time_units.sec_in_bar * 4);
+            }
+            if (Keyboard.current.numpad7Key.wasPressedThisFrame) {
+                seconds = (track_system.next_notes[player_trackswitch.current_track_id].ms / 1000f);
             }
         }
 
@@ -66,10 +76,10 @@ public class Clock : MonoBehaviour {
 
         // ...
 
-        tick = time_units.tick_in_sec * seconds;
+        ticks = (long)(time_units.tick_in_sec * seconds);
         ms = seconds * 1000f;
         beat = time_units.beat_per_ms * ms; // tick / Variables.beat_ticks;
-        bar = tick / Variables.bar_ticks;
+        bar = ticks / Variables.bar_ticks;
         pos = time_units.pos_in_sec * seconds;
     }
 }
