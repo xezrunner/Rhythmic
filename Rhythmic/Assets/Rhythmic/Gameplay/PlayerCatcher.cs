@@ -35,8 +35,9 @@ public class PlayerCatcher : MonoBehaviour {
 
         // ..
         int track_id = player_trackswitch.current_track_id;
+        if (track_id == -1 && LogW("Invalid track! %".TM(this), track_id)) return;
 
-        Note n = track_system.next_notes[track_id];
+            Note n = track_system.next_notes[track_id];
 
         n.Capture();
         track_system.FindNextNote(track_id);
