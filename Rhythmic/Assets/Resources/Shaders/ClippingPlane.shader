@@ -89,7 +89,7 @@
 			void surf(Input i, inout SurfaceOutputStandard o)
 			{
 				clip(-1 + _Enabled);
-				if (_Enabled == 0) return; // ???
+				//if (_Enabled == 0) return; // ???
 
 				// Clipping:
 				{

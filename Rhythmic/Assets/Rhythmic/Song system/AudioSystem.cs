@@ -67,6 +67,7 @@ public class AudioSystem : MonoBehaviour {
 
             AudioSource src = obj.AddComponent<AudioSource>();
             src.clip = clip;
+            if (track.id != 0) src.volume = 0;
 
             static_sources[track.id] = src;
         }

@@ -21,6 +21,7 @@ namespace PathCreation
         public readonly float[] funky_angles;
         public float funky_angle_global;
         public float funky_angle_global_offset;
+        public float funky_angle_global_mult;
 
 
         public readonly float[] times; /// Percentage along the path at each vertex (0 being start of path, and 1 being the end)
@@ -77,6 +78,7 @@ namespace PathCreation
             funky_angles = new float[numVerts];
             funky_angle_global = bezierPath.funky_angle_global;
             funky_angle_global_offset = bezierPath.funky_angle_global_offset;
+            funky_angle_global_mult = bezierPath.funky_angle_global_mult;
 
             cumulativeLengthAtEachVertex = new float[numVerts];
             times = new float[numVerts];
@@ -227,7 +229,7 @@ namespace PathCreation
         public Vector3 XZ_GetPointAtPosition(Vector3 pos, float? p_x_rot = null) => XZ_GetPointAtDistance(pos.z, (Vector2)pos, p_x_rot);
         public Vector3 XZ_GetPointAtDistance(float dst, Vector3 pos = default, float? p_x_rot = null)
         {
-            float x_rot = (p_x_rot == null) ? pos.x : 0f;
+            float x_rot = (p_x_rot == null) ? pos.x : p_x_rot.Value;
             float t = dst / length;
             return XZ_GetPointAtTime(t, pos, x_rot);
         }
@@ -255,11 +257,11 @@ namespace PathCreation
         }
         public float XZ_GetMultForRotOffset(float t, TimeOnPathData? p_data = null)
         {
-            if (t < 0f) return (funky_angle_global + funky_angles[0]);
-            else if (t > 1f) return (funky_angle_global + funky_angles[funky_angles.Length - 1]);
+            if (t < 0f) return ((funky_angle_global * funky_angle_global_mult) + funky_angles[0]);
+            else if (t > 1f) return ((funky_angle_global * funky_angle_global_mult) + funky_angles[funky_angles.Length - 1]);
 
             TimeOnPathData data = (p_data != null) ? p_data.Value : CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
-            return funky_angle_global + Mathf.Lerp(funky_angles[data.previousIndex], funky_angles[data.nextIndex], data.percentBetweenIndices);
+            return (funky_angle_global * funky_angle_global_mult) + Mathf.Lerp(funky_angles[data.previousIndex], funky_angles[data.nextIndex], data.percentBetweenIndices);
         }
         public Quaternion XZ_GetRotation(float t, float x = 0f, TimeOnPathData? p_data = null)
         {

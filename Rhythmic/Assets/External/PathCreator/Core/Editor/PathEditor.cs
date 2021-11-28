@@ -149,6 +149,13 @@ namespace PathCreationEditor
                         creator.bezierPath.SetGlobalFunkyAngleOffset(xz_g_funkyangle_offset);
                     }
 
+                    var xz_g_currentfunky_mult = creator.bezierPath.funky_angle_global_mult;
+                    var xz_g_funkyangle_mult = EditorGUILayout.FloatField("Global funky angle mult", xz_g_currentfunky_mult);
+                    if (xz_g_funkyangle_mult != xz_g_currentfunky_mult) {
+                        Undo.RecordObject(creator, "Set Global funky angle multiplier");
+                        creator.bezierPath.SetGlobalFunkyAngleMult(xz_g_funkyangle_mult);
+                    }
+
                     // If a point has been selected
                     if (handleIndexToDisplayAsTransform != -1)
                     {

@@ -110,7 +110,7 @@ public class PlayerCatcher : MonoBehaviour {
             if (track_system.track_being_played != -1)
                 if (note) note.Capture(success);
 
-            track_system.SetSectionsEnabled(n.bar, -1, false);
+            track_system.SetSectionsEnabled((int)clock.bar, -1, false);
 
             track_system.track_being_played = -1;
             track_system.FindNextSections();

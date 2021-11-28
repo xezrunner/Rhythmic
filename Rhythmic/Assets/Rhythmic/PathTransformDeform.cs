@@ -33,7 +33,7 @@ public partial class PathTransform {
 
             float x_rot = pos_xy.x + (v.x + max_values.x);
 
-            vertices[i] = path.XZ_GetPointAtDistance(dst: dist, pos: pos_xy + v_xy, p_x_rot: x_rot);
+            vertices[i] = path.XZ_GetPointAtDistance(dst: dist, pos: pos_xy + v_xy);
         }
 
         mesh.SetVertices(vertices);

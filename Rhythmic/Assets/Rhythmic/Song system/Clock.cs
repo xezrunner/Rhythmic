@@ -79,7 +79,7 @@ public class Clock : MonoBehaviour {
         ticks = (long)(time_units.tick_in_sec * seconds);
         ms = seconds * 1000f;
         beat = time_units.beat_per_ms * ms; // tick / Variables.beat_ticks;
-        bar = ticks / Variables.bar_ticks;
+        bar = ((float)ticks / Variables.bar_ticks);
         pos = time_units.pos_in_sec * seconds;
     }
 }

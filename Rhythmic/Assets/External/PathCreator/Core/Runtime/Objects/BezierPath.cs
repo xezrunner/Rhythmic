@@ -52,6 +52,8 @@ namespace PathCreation
         public float funky_angle_global;
         [SerializeField, HideInInspector]
         public float funky_angle_global_offset;
+        [SerializeField, HideInInspector]
+        public float funky_angle_global_mult;
 
         #endregion
 
@@ -595,6 +597,11 @@ namespace PathCreation
         public void SetGlobalFunkyAngleOffset(float offset)
         {
             funky_angle_global_offset = offset;
+            NotifyPathModified();
+        }
+
+        public void SetGlobalFunkyAngleMult(float mult) {
+            funky_angle_global_mult = mult;
             NotifyPathModified();
         }
 

@@ -47,6 +47,8 @@ public class TrackStreamerDebugCom : DebugCom {
 
         // ----- //
 
+        if (!Variables.STREAMER_AllowQueueing) return base.Com_Main();
+
         Com_WriteLine("Recycled sections: %", streamer.recycled_sections.Count);
         Com_WriteLine("Recycled notes: %", streamer.recycled_notes.Count);
 

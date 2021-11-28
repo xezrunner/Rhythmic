@@ -81,8 +81,8 @@ public class PlayerLocomotion : MonoBehaviour {
         interp.rotation = rot_interp;
         non_interp.rotation = rot_target;
 
-        main_camera_trans.LookAt(lookat_target, interp.up);
-        main_camera_trans.localEulerAngles += _camera_ori_offset;
+        //main_camera_trans.LookAt(lookat_target, interp.up);
+        main_camera_trans.localEulerAngles = _camera_ori_offset;
         main_camera_trans.localPosition = _camera_pos_offset;
     }
 }

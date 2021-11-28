@@ -332,20 +332,21 @@ public class TrackStreamer : MonoBehaviour {
     }
     void HandleClipping() {
         float horizon_bar = clock.bar + Variables.STREAMER_HorizonMeasures - 2;
-        float horizon_distance = song.time_units.pos_in_ms * (horizon_bar * song.time_units.ms_in_bar);
+        float horizon_distance = song.time_units.pos_in_bar * horizon_bar;
+        //Log(horizon_distance);
 
         Vector3 horizon_point = PathTransform.pathcreator_global.path.XZ_GetPointAtDistance(horizon_distance);
         Quaternion horizon_rot = PathTransform.pathcreator_global.path.XZ_GetRotationAtDistance(horizon_distance);
         Vector3 horizon_normal = horizon_rot * Vector3.forward;
 
-        // Debug.DrawLine(horizon_point, horizon_point + (horizon_normal), Color.red, 1000);
+        Debug.DrawLine(horizon_point, horizon_point + (horizon_normal), Color.red, 1000);
 #if false
         {
-            //GameObject obj_plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            //obj_plane.name = "plane";
-            //obj_plane.transform.position = horizon_point;
-            //Vector3 horizon_up = PathTransform.pathcreator_global.path.XZ_GetNormalAtDistance(horizon_distance);
-            //obj_plane.transform.rotation = Quaternion.LookRotation(horizon_normal, horizon_up) * Quaternion.Euler(-90, 0, 0);
+            GameObject obj_plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            obj_plane.name = "plane";
+            obj_plane.transform.position = horizon_point;
+            Vector3 horizon_up = PathTransform.pathcreator_global.path.XZ_GetNormalAtDistance(horizon_distance);
+            obj_plane.transform.rotation = Quaternion.LookRotation(horizon_normal, horizon_up) * Quaternion.Euler(-90, 0, 0);
         }
 #endif
 

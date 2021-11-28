@@ -1,44 +1,55 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+
 
 public class Test2 : MonoBehaviour {
-    TrackSystem track_system;
+    public GradientColorKey[] colorKey;
+    public GradientAlphaKey[] alphaKey;
 
-    public Material material;
+    public Material mat;
 
-    public GameObject plane;
-    public MeshFilter plane_meshfilter;
+    public Gradient gradient = new Gradient();
 
-    public GameObject inv_plane;
-    public MeshFilter inv_plane_meshfilter;
+    public int angle = 0;
 
     void Start() {
-        track_system = SongSystem.Instance.track_system;
-        material = track_system.tracks[0].material;
+        colorKey = new GradientColorKey[2];
+        colorKey[0].color = Color.red;
+        colorKey[0].time = 0f;
+        colorKey[1].color = Color.blue;
+        colorKey[1].time = 1f;
+
+        alphaKey = new GradientAlphaKey[2];
+        alphaKey[0].alpha = 0.5f;
+        alphaKey[0].time = 0.0f;
+        alphaKey[1].alpha = 0.1f;
+        alphaKey[1].time = 1.0f;
+
+        Material mat_res = (Material)Resources.Load("Materials/test");
+        mat = Instantiate(mat_res);
+
+        gradient.SetKeys(colorKey, alphaKey);
     }
 
-    bool set_to_enabled = false;
     void Update() {
-        if (!material || !plane || !plane_meshfilter || !inv_plane || !inv_plane_meshfilter) return;
-        if (!plane_meshfilter) plane_meshfilter = plane.GetComponent<MeshFilter>();
+        //gradient.SetKeys(colorKey, alphaKey);
 
-        {
-            Vector3 normal = plane_meshfilter.transform.TransformDirection(plane_meshfilter.mesh.normals[0]);
-            Plane _plane = new Plane(normal, plane.transform.position);
-            Vector4 result = new Vector4(_plane.normal.x, _plane.normal.y, _plane.normal.z, _plane.distance);
-            material.SetVector("_Plane", result);
+        Texture2D texture = new Texture2D(1, 128);
+        Color[] pixels = new Color[128];
+        for (int i = 0; i < 128; i++) {
+            pixels[i] = gradient.Evaluate(i / 127f);
         }
 
-        {
-            Vector3 normal = inv_plane_meshfilter.transform.TransformDirection(inv_plane_meshfilter.mesh.normals[0]);
-            Plane _plane = new Plane(normal, inv_plane.transform.position);
-            Vector4 result = new Vector4(_plane.normal.x, _plane.normal.y, _plane.normal.z, _plane.distance);
-            material.SetVector("_InversePlane", result);
-        }
 
-        if (!set_to_enabled) {
-            material.SetInt("_PlaneEnabled", 1);
-            material.SetInt("_InversePlaneEnabled", 1);
-            set_to_enabled = true;
-        }
+
+        texture.SetPixels(pixels);
+        texture.Apply();
+
+        mat.SetTexture("_EmissionMap", texture);
+        mat.SetTexture("_MainTex", texture);
+
+        RenderSettings.skybox = mat;
     }
+
+
 }
