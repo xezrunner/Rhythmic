@@ -69,12 +69,11 @@ public class TrackSystem : MonoBehaviour {
     }
 
     public int GetNextSectionID(int track_id) {
-        int i = -1;
-        foreach (int s in next_sections[track_id]) {
-            ++i;
-            if (s != -1) break;
+        for (int i = 0; i < next_sections[track_id].Length; ++i) {
+            int id = next_sections[track_id][i];
+            if (id != -1) return i;
         }
-        return i;
+        return -1;
     }
 
     public void SetSectionsEnabled(int bar_id, int track_exclude, bool value) {
@@ -121,7 +120,7 @@ public class TrackSystem : MonoBehaviour {
                 next_sections[id] = new int[Variables.CATCHER_MaxSectionsToCapture];
 
                 // Check if next sections can be captured on subsequent iterations: 
-                loop_target = i + Variables.CATCHER_MaxSectionsToCapture; 
+                loop_target = i + Variables.CATCHER_MaxSectionsToCapture;
             }
 
             // Assign to next_sections: 
@@ -155,6 +154,7 @@ public class TrackSystem : MonoBehaviour {
             LogE("Next note index for track % has exceeded note count! (% out of %)".TM(this), id, sect.next_note_index, sect.note_count);
             return;
         }
+        if (sect.next_note_index == -1) return;
 
         next_notes[id] = tracks[id].info.notes[section_id][sect.next_note_index];
     }

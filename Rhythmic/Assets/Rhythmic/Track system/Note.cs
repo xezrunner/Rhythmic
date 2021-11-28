@@ -65,8 +65,11 @@ public class Note : MonoBehaviour {
     public void Capture(bool success = true) {
         if (success) {
             gameObject.SetActive(false);
-            // ++section.next_note_index;
-            track_system.tracks[info.track_id].info.sections[info.bar].next_note_index += 1;
+
+            if (!is_last_note)
+                ++track_system.tracks[info.track_id].info.sections[info.bar].next_note_index;
+            else 
+                track_system.tracks[info.track_id].info.sections[info.bar].next_note_index = -1;
         } else {
             ChangeMaterial(MAT_red);
         }

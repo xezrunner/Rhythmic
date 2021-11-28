@@ -39,14 +39,15 @@ public class PlayerCatcher : MonoBehaviour {
 
         int track_id = player_trackswitch.current_track_id;
         if (track_id == -1 && LogW("Invalid track! %".TM(this), track_id)) return;
+
         Track t = track_system.tracks[track_id];
 
-        //Song_Note n = t.info.notes[track_id][track_system.next_notes[track_id]];
         Song_Note n = track_system.next_notes[track_id];
         Song_Section s = t.info.sections[n.bar];
 
         // TODO: Perhaps we might want to check ticks instead, for accuracy?
         bool success;
+        // TODO: Slop to take into account the tunnel scale (?)
         if (!Variables.CATCHER_UseTicksForSlop) {
 
             float current_ms = clock.ms;
@@ -81,18 +82,22 @@ public class PlayerCatcher : MonoBehaviour {
             if (note) note.Capture(success);
             else n.is_captured = success;
 
+            track_system.track_being_played = track_id;
+
             track_system.SetSectionsEnabled(n.bar, track_id, false);
 
             if (n.is_last_note) {
                 int next_sect_id = track_system.GetNextSectionID(track_id);
-                int s_id = track_system.next_sections[track_id][next_sect_id];
-                t.info.sections[s_id].is_enabled = false;
-                if (t.sections[s_id]) t.sections[s_id].is_enabled = false;
+                int sect_id = track_system.next_sections[track_id][next_sect_id];
 
-                track_system.next_sections[track_id][next_sect_id] = -1;
+                // Disable current (note) section: 
+                t.info.sections[sect_id].is_enabled = false;
+                if (t.sections[sect_id]) t.sections[sect_id].is_enabled = false;
+                // Remove next section assignment: 
+                track_system.next_sections[track_id][next_sect_id] = -1; 
 
+                // If we don't have any remaining next sections, we've captured all sections: 
                 if (track_system.GetNextSectionID(track_id) == -1) {
-                    // ..
                     Log("SUCCESS! Capture track! (for now, you should be able to continue catching)");
                     track_system.track_being_played = -1;
                     track_system.FindNextSections();
@@ -101,14 +106,14 @@ public class PlayerCatcher : MonoBehaviour {
             }
 
             track_system.FindNextNote(track_id);
-            track_system.track_being_played = track_id;
         } else {
-            track_system.FindNextSections();
-
-            if (track_system.track_being_played != -1) {
+            if (track_system.track_being_played != -1)
                 if (note) note.Capture(success);
-            }
+
+            track_system.SetSectionsEnabled(n.bar, -1, false);
+
             track_system.track_being_played = -1;
+            track_system.FindNextSections();
         }
     }
 
