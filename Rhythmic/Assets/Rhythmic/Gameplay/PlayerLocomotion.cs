@@ -66,20 +66,29 @@ public class PlayerLocomotion : MonoBehaviour {
             if (trans.position != orig_pos) trans.position = orig_pos;
             return;
         }
+        if (!clock) return;
 
         float dist = clock.pos; // TODO: base this on audio_system? ...
 
-        Vector3 pos_target = path.XZ_GetPointAtDistance(dist, offset_pos, offset_pos.x); // TODO: Get the 'x' out of position automatically?
+        Vector3 pos_target = path.XZ_GetPointAtDistance(dist, offset_pos); // TODO: Get the 'x' out of position automatically?
         pos_interp = Vector3.SmoothDamp(pos_interp, pos_target, ref pos_interp_temp, smooth_time);
 
         Quaternion rot_target = path.XZ_GetRotationAtDistance(dist, offset_pos.x) * Quaternion.Euler(offset_ori);
-        Quaternion rot_target_interp = path.XZ_GetRotationAtDistance(dist+ interp_peekahead, offset_pos.x) * Quaternion.Euler(offset_ori);
+        Quaternion rot_target_interp = path.XZ_GetRotationAtDistance(dist + interp_peekahead, offset_pos.x) * Quaternion.Euler(offset_ori);
         rot_interp = QuaternionUtil.SmoothDamp(rot_interp, rot_target_interp, ref rot_interp_temp, smooth_time);
 
         trans.position = pos_target;
 
         interp.rotation = rot_interp;
         non_interp.rotation = rot_target;
+
+        Vector3 normal = non_interp.up;
+        Vector3 normal2 = path.XZ_NormTest(dist, offset_pos.x);
+
+        //Log("normal: %  normal2: %", normal, normal2);
+
+        Debug.DrawLine(pos_target, pos_target + (normal * 1f), Color.red);
+        Debug.DrawLine(pos_target, pos_target + (normal2 * 1f), Color.green);
 
         //main_camera_trans.LookAt(lookat_target, interp.up);
         main_camera_trans.localEulerAngles = _camera_ori_offset;

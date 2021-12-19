@@ -55,7 +55,7 @@ public class TrackSection : MonoBehaviour {
         is_empty = (song_notes == null);
 
         notes = (!is_empty) ? new Note[song_notes.Count] : null;
-        mesh_renderer.enabled = !is_empty;
+        //mesh_renderer.enabled = !is_empty;
 
         path_transform.desired_size = new Vector2(Variables.TRACK_Width, Variables.TRACK_Height);
         path_transform.desired_size.z = song.time_units.pos_in_tick * Variables.bar_ticks;

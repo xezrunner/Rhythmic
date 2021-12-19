@@ -23,7 +23,6 @@ namespace PathCreation
         public float funky_angle_global_offset;
         public float funky_angle_global_mult;
 
-
         public readonly float[] times; /// Percentage along the path at each vertex (0 being start of path, and 1 being the end)
         public readonly float length; /// Total distance between the vertices of the polyline
         public readonly float[] cumulativeLengthAtEachVertex; /// Total distance from the first vertex up to each vertex in the polyline
@@ -265,18 +264,35 @@ namespace PathCreation
         }
         public Quaternion XZ_GetRotation(float t, float x = 0f, TimeOnPathData? p_data = null)
         {
+            //x *= XZ_GetMultForRotOffset(t, p_data);
+            //x *= 0.01f;
             x += funky_angle_global_offset;
-            x *= XZ_GetMultForRotOffset(t, p_data);
-            x *= 0.01f;
+            x *= funky_angle_global_mult;
 
             TimeOnPathData data = (p_data != null) ? p_data.Value : CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
             Vector3 direction = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
-            Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices) + new Vector3(0, 0, x);
+            Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices);
+
+            Vector3 right = Vector3.Cross(direction, normal);
+            normal += (right * x);
+            normal = normal.normalized;
+
 #if XZ_OPTIMIZE_TRANS
             return Quaternion.LookRotation(direction, normal);
 #else
             return Quaternion.LookRotation(MathUtility.TransformDirection(direction, transform, space), MathUtility.TransformDirection(normal, transform, space));
 #endif
+        }
+
+        public Vector3 XZ_NormTest(float t, float x) {
+            TimeOnPathData data = CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
+            Vector3 direction = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
+            Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices);
+
+            Vector3 right = Vector3.Cross(direction, normal);
+            normal += (right * x);
+
+            return normal.normalized;
         }
 
         public Vector3 XZ_GetNormalAtDistance(float dst, float x = 0f)
@@ -287,7 +303,8 @@ namespace PathCreation
         public Vector3 XZ_GetNormal(float t, float x = 0f)
         {
             var data = CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
-            Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices) + new Vector3(0, 0, x);
+            Vector3 direction = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
+            Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices);
 #if XZ_OPTIMIZE_TRANS
             return normal;
 #else

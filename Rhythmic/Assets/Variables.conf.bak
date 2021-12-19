@@ -3,7 +3,7 @@
 (fps 120 2)
 
 : Variables
-UNITS_MetersPerSecond 8
+UNITS_MetersPerSecond 16
 STREAMER_AllowQueueing false
 STREAMER_HorizonMeasures 7
 STREAMER_QueueDelay 35

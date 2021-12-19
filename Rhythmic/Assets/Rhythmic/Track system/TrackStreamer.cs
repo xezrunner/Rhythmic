@@ -212,13 +212,14 @@ public class TrackStreamer : MonoBehaviour {
         if (track == -1) {
             int t_from = (track == -1) ? 0 : track;
             int t_to = (track == -1) ? track_system.track_count : track + 1;
-            for (int t = t_from; t < t_to; ++t)
-                STREAMER_Recycle(t, measure, queue);
+            for (int i = t_from; i < t_to; ++i)
+                STREAMER_Recycle(i, measure, queue);
             return;
         }
 
-        TrackSection it = tracks[track].sections[measure];
-        if (!it /*&& LogW("%/%: measure does not exist!".TM(this), tracks[track].info.name, measure)*/) return;
+        Track t = tracks[track];
+        TrackSection it = measure < t.sections.Length ? t.sections[measure] : null;
+        if (!it /*&& LogW("%/%: measure does not exist!".TM(this), t.info.name, measure)*/) return;
 
         if (Variables.STREAMER_AllowQueueing) {
             // Enqueue if: 
@@ -324,7 +325,7 @@ public class TrackStreamer : MonoBehaviour {
             Track t = tracks[i];
 
             for (int x = bar + horizon_id - 2; x >= 0; --x) {
-                TrackSection m = t.sections[x];
+                TrackSection m = x < t.sections.Length ? t.sections[x] : null;
                 if (m && m.mesh_renderer.material != t.material) m.ChangeMaterial(t.material);
                 else break;
             }
@@ -337,9 +338,9 @@ public class TrackStreamer : MonoBehaviour {
 
         Vector3 horizon_point = PathTransform.pathcreator_global.path.XZ_GetPointAtDistance(horizon_distance);
         Quaternion horizon_rot = PathTransform.pathcreator_global.path.XZ_GetRotationAtDistance(horizon_distance);
-        Vector3 horizon_normal = horizon_rot * Vector3.forward;
+        Vector3 horizon_forward = horizon_rot * Vector3.forward;
 
-        Debug.DrawLine(horizon_point, horizon_point + (horizon_normal), Color.red, 1000);
+        Debug.DrawLine(horizon_point, horizon_point + (horizon_forward), Color.red, 1000);
 #if false
         {
             GameObject obj_plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
@@ -350,8 +351,8 @@ public class TrackStreamer : MonoBehaviour {
         }
 #endif
 
-        Vector4 result = horizon_normal.normalized;
-        result.w = -Vector3.Dot(horizon_normal, horizon_point);
+        Vector4 result = horizon_forward.normalized;
+        result.w = -Vector3.Dot(horizon_forward, horizon_point);
 
         // Shader.SetGlobalVector("_HorizonPoint", horizon_point);
         Shader.SetGlobalVector("_Plane", result);
