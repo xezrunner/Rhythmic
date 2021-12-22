@@ -10,6 +10,10 @@
     public static int bar_ticks = 1920;
     public static float UNITS_MetersPerSecond = 16f;
 
+    public static string INIT_SongName = "allthetime";
+
+    public static float CAMERA_SmoothTime = 0.2f;
+
     public static float TRACK_Width = 3.7f;
     public static float TRACK_Height = 0.1f;
     public static int TRACK_Lanes = 3;

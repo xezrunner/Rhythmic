@@ -40,7 +40,7 @@ public class Clock : MonoBehaviour {
 
     public float smooth_factor = 0.1f;
 
-    public bool is_testing = false; // TEMP
+    public bool is_scrubbing = false; // TEMP
     public Transform cube;
 
     float seconds_ref;
@@ -48,26 +48,30 @@ public class Clock : MonoBehaviour {
         // TEMP:
         if (Keyboard.current != null) {
             if (Keyboard.current.jKey.wasPressedThisFrame) {
-                is_testing = !is_testing;
+                audio_system.is_playing = !audio_system.is_playing;
 
-                if (is_testing) audio_system.AUDIO_Play();
+                if (audio_system.is_playing) audio_system.AUDIO_Play();
                 else audio_system.AUDIO_Pause();
-                audio_system.is_playing = is_testing;
             }
+
+            is_scrubbing = Keyboard.current.altKey.isPressed;
+
             if (Keyboard.current.altKey.isPressed && Keyboard.current.numpad9Key.isPressed)
                 seconds += (Keyboard.current.ctrlKey.isPressed ? 0.8f : 6f) * Time.deltaTime;
             if (Keyboard.current.altKey.isPressed && Keyboard.current.numpad3Key.isPressed)
                 seconds -= (Keyboard.current.ctrlKey.isPressed ? 0.8f : 3f) * Time.deltaTime;
+
             if (Keyboard.current.numpad8Key.wasPressedThisFrame) {
-                if (!is_testing) seconds += (time_units.sec_in_bar * 4);
+                if (!audio_system.is_playing) seconds += (time_units.sec_in_bar * 4);
                 else audio_system.audio_progress += (time_units.sec_in_bar * 4);
             }
             if (Keyboard.current.numpad7Key.wasPressedThisFrame) {
                 seconds = (track_system.next_notes[player_trackswitch.current_track_id].ms / 1000f);
             }
+
         }
 
-        if (is_testing)
+        if (audio_system.is_playing)
             seconds = Mathf.SmoothDamp(seconds, audio_system.audio_progress, ref seconds_ref, 0.1f);
         //seconds = audio_system.audio_progress;
         //seconds += audio_system.audio_deltatime;

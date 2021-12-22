@@ -11,7 +11,7 @@ public class RhythmicGame : Game {
     public override void Awake() { base.Awake(); Instance = this; }
     public override void Start() {
         base.Start();
-        INIT_SongSystem("perfectbrain");
+        INIT_SongSystem(Variables.INIT_SongName);
 
         Screen.SetResolution(1920, 1080, FullScreenMode.FullScreenWindow);
     }

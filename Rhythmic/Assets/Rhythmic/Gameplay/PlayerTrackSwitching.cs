@@ -16,6 +16,8 @@ public class PlayerTrackSwitching : MonoBehaviour {
     void Start() {
         song_system = SongSystem.Instance;
         track_system = song_system.track_system;
+
+        smooth_time = 3 / smooth_time_factor;
     }
 
     public int current_track_id = -1;
@@ -70,6 +72,11 @@ public class PlayerTrackSwitching : MonoBehaviour {
     }
 
     public bool is_freestyle;
+    public float freestyle_trans_duration_s = 0.8f;
+    float freestyle_trans_elapsed;
+    float freestyle_trans_frac; // 0-1
+
+
     public float smooth_time_factor = 40f;
     public float smooth_time;
     Vector3 loco_lookat_temp;
@@ -80,18 +87,40 @@ public class PlayerTrackSwitching : MonoBehaviour {
         if (Keyboard.current != null) {
             if (Keyboard.current.qKey.wasPressedThisFrame) SwitchToTrack(0, true);
             if (Keyboard.current.pKey.wasPressedThisFrame) SwitchToTrack(track_system.track_count - 1, true);
+            if (Keyboard.current.fKey.wasPressedThisFrame) is_freestyle = !is_freestyle;
         }
 
-        if (slam_count > 0) {
-            slam_elapsed_ms += Time.deltaTime * 1000f;
+        float calculated_smooth_time;
+        float pos_offset_x;
 
-            if (slam_elapsed_ms > Variables.TRACKSWITCH_SlamTimeoutMs) {
-                slam_elapsed_ms = 0;
-                slam_count = 0;
+        if (is_freestyle) {
+            float freestyle_smooth_time = (3 / smooth_time_factor) * 4f;
+            calculated_smooth_time = Mathf.Lerp(smooth_time, freestyle_smooth_time, freestyle_trans_frac);
+            pos_offset_x = 0;
+
+            freestyle_trans_frac = freestyle_trans_elapsed / freestyle_trans_duration_s;
+        } else {
+            if (freestyle_trans_frac > 0) {
+
             }
+
+            calculated_smooth_time = (3 / smooth_time_factor);
+
+            if (slam_count > 0) {
+                slam_elapsed_ms += Time.deltaTime * 1000f;
+
+                if (slam_elapsed_ms > Variables.TRACKSWITCH_SlamTimeoutMs) {
+                    slam_elapsed_ms = 0;
+                    slam_count = 0;
+                }
+            }
+
+            pos_offset_x = target_x;
         }
 
-        if (is_freestyle) smooth_time = 3 / smooth_time_factor;
+        locomotion.offset_pos.x = Mathf.SmoothDamp(locomotion.offset_pos.x, pos_offset_x, ref loco_offset_x_temp, calculated_smooth_time);
+
+        /*
 
         locomotion.lookat_target.localPosition = Vector3.SmoothDamp(locomotion.lookat_target.localPosition, (!is_freestyle ? new Vector3(0, 0, 0) : new Vector3(0, 7, 0)) + locomotion.lookat_pos_offset, ref loco_lookat_temp, smooth_time * 4f);
 
@@ -99,7 +128,6 @@ public class PlayerTrackSwitching : MonoBehaviour {
 
         locomotion._camera_pos_offset.z = Mathf.SmoothDamp(locomotion._camera_pos_offset.z, !is_freestyle ? locomotion.camera_pos_offset.z : locomotion.camera_pos_offset.z - 10f, ref loco_offset_z_temp, smooth_time * 4f);
         locomotion._camera_ori_offset = Vector3.SmoothDamp(locomotion._camera_ori_offset, (is_freestyle ? default : locomotion.camera_ori_offset), ref freestyle_ori_offset_temp, smooth_time * 4f);
-
-        if (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame) is_freestyle = !is_freestyle;
+        */
     }
 }
