@@ -229,14 +229,15 @@ namespace PathCreation
         public Vector3 XZ_GetPointAtDistance(float dst, Vector3 pos = default, float? p_x_rot = null)
         {
             float x_rot = (p_x_rot == null) ? pos.x : p_x_rot.Value;
-            float t = dst / length;
-            return XZ_GetPointAtTime(t, pos, x_rot);
+            return XZ_GetPointAtTime(dst / length, pos, x_rot);
         }
         public Vector3 XZ_GetPointAtTime(float t, Vector3 pos_offset, float x_rot)
         {
-            var data = CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
-            var rot = XZ_GetRotation(t, XZ_EnableRot ? x_rot : 0f, data);
-            Vector3 result = Vector3.Lerp(GetPoint(data.previousIndex), GetPoint(data.nextIndex), data.percentBetweenIndices) + (rot * pos_offset);
+            TimeOnPathData data = CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
+            Quaternion rot = XZ_GetRotation(t, XZ_EnableRot ? x_rot : 0f, data);
+
+            Vector3 result = Vector3.Lerp(GetPoint(data.previousIndex), GetPoint(data.nextIndex), data.percentBetweenIndices) +
+                rot * new Vector3(pos_offset.x, 0,0);
 
             // If we are before or beyond the path, 'extrapolate':
             if (t < 0 || t > 1)

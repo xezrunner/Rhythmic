@@ -43,35 +43,35 @@ namespace PathCreation {
         public bool showNormalsHelpInfo;
         public int tabIndex;
 
-        public void Initialize (bool defaultIs2D) {
+        public void Initialize(bool defaultIs2D) {
             if (_bezierPath == null) {
-                CreateBezier (Vector3.zero, defaultIs2D);
+                CreateBezier(Vector3.zero, defaultIs2D);
             }
             vertexPathUpToDate = false;
             _bezierPath.OnModified -= BezierPathEdited;
             _bezierPath.OnModified += BezierPathEdited;
         }
 
-        public void ResetBezierPath (Vector3 centre, bool defaultIs2D = false) {
-            CreateBezier (centre, defaultIs2D);
+        public void ResetBezierPath(Vector3 centre, bool defaultIs2D = false) {
+            CreateBezier(centre, defaultIs2D);
         }
 
-        void CreateBezier (Vector3 centre, bool defaultIs2D = false) {
+        void CreateBezier(Vector3 centre, bool defaultIs2D = false) {
             if (_bezierPath != null) {
                 _bezierPath.OnModified -= BezierPathEdited;
             }
 
             var space = (defaultIs2D) ? PathSpace.xy : PathSpace.xyz;
-            _bezierPath = new BezierPath (centre, false, space);
+            _bezierPath = new BezierPath(centre, false, space);
 
             _bezierPath.OnModified += BezierPathEdited;
             vertexPathUpToDate = false;
 
             if (bezierOrVertexPathModified != null) {
-                bezierOrVertexPathModified ();
+                bezierOrVertexPathModified();
             }
             if (bezierCreated != null) {
-                bezierCreated ();
+                bezierCreated();
             }
         }
 
@@ -86,49 +86,55 @@ namespace PathCreation {
                 _bezierPath.OnModified += BezierPathEdited;
 
                 if (bezierOrVertexPathModified != null) {
-                    bezierOrVertexPathModified ();
+                    bezierOrVertexPathModified();
                 }
                 if (bezierCreated != null) {
-                    bezierCreated ();
+                    bezierCreated();
                 }
 
             }
         }
 
         // Get the current vertex path
-        public VertexPath GetVertexPath (Transform transform) {
+        public VertexPath GetVertexPath(Transform transform) {
             // create new vertex path if path was modified since this vertex path was created
             if (!vertexPathUpToDate || _vertexPath == null) {
                 vertexPathUpToDate = true;
-                _vertexPath = new VertexPath (bezierPath, transform, vertexPathMaxAngleError, vertexPathMinVertexSpacing);
+                // _vertexPath = new VertexPath (bezierPath, transform, vertexPathMaxAngleError, vertexPathMinVertexSpacing);
+                //
+                // XZ bugfix:
+                // The editor's normal debug view chops up the path evenly by a desired spacing instead of
+                // a combination of angle error and min vertex spacing.
+                // The even distribution is more desirable, as it works better with non-zero angles.
+                _vertexPath = new VertexPath(bezierPath, transform, vertexPathMinVertexSpacing);
             }
             return _vertexPath;
         }
 
-        public void PathTransformed () {
+        public void PathTransformed() {
             if (bezierOrVertexPathModified != null) {
-                bezierOrVertexPathModified ();
+                bezierOrVertexPathModified();
             }
         }
 
-        public void VertexPathSettingsChanged () {
+        public void VertexPathSettingsChanged() {
             vertexPathUpToDate = false;
             if (bezierOrVertexPathModified != null) {
-                bezierOrVertexPathModified ();
+                bezierOrVertexPathModified();
             }
         }
 
-        public void PathModifiedByUndo () {
+        public void PathModifiedByUndo() {
             vertexPathUpToDate = false;
             if (bezierOrVertexPathModified != null) {
-                bezierOrVertexPathModified ();
+                bezierOrVertexPathModified();
             }
         }
 
-        void BezierPathEdited () {
+        void BezierPathEdited() {
             vertexPathUpToDate = false;
             if (bezierOrVertexPathModified != null) {
-                bezierOrVertexPathModified ();
+                bezierOrVertexPathModified();
             }
         }
 

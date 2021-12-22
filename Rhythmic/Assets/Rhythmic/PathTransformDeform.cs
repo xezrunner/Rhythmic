@@ -31,8 +31,6 @@ public partial class PathTransform {
             float v_z = Mathf.Lerp(0, desired_size.z, z_frac);
             dist += v_z;
 
-            float x_rot = pos_xy.x + (v.x + max_values.x);
-
             vertices[i] = path.XZ_GetPointAtDistance(dst: dist, pos: pos_xy + v_xy);
         }
 
