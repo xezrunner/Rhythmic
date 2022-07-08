@@ -27,7 +27,7 @@ public class DebugConsole : MonoBehaviour {
         if (!ui_canvas) log_error("no ui_canvas!");
 
         // Disable Unity's SRP Debug canvas:
-        UnityEngine.Rendering.DebugManager.instance.enableRuntimeUI = false; // @SRPDebugCanvas WordDeleteClash
+        UnityEngine.Rendering.DebugManager.instance.enableRuntimeUI = false; // @SRPDebugCanvas @WordDeleteClash
     }
     void Start() {
         // Start closed:
@@ -59,16 +59,27 @@ public class DebugConsole : MonoBehaviour {
     [Header("Prefabs")]
     [SerializeField] TMP_Text prefab_ui_line;
 
+    
     [Header("Options")]
-    public static float CONSOLE_DefaultHeight    = 270f;
+    [Tooltip("The default height of the console. [Do not change dynamically!]")]
+    public float   CONSOLE_DefaultHeight         = 270f;
+    [Tooltip("The current height of the console. Used in openness and sizing.")]
     public float   CONSOLE_Height                = 270f;
+    [Tooltip("The threshold for amount of lines in the console where if exceeded, oldest entries will start being removed.\n" +
+             "Use -1 or below to allow infinite entries.")]
     public int     CONSOLE_MaxLines              = 300;
 
+    [Tooltip("Controls whether the console should write the input into itself upon submission.")]
+    public bool    CONSOLE_EchoBack              = true;
+
+    [Tooltip("Controls whether the submit keys can be held down to repeatedly submit input to the console.")]
     public bool    CONSOLE_AllowSubmitRepetition = false;
     public float   CONSOLE_RepeatHoldTime        = 380f;
     public float   CONSOLE_RepeatHoldDelay       = 10f;
 
+    [Tooltip("Controls the animation speed for openness and sizing.")]
     public float   CONSOLE_AnimSpeed       = 3f;
+    [Tooltip("Controls the animation speed for scrolling (when the scroll animation is requested).")]
     public float   CONSOLE_ScrollAnimSpeed = 3f;
     
     List<TMP_Text> ui_lines                = new();
@@ -99,12 +110,12 @@ public class DebugConsole : MonoBehaviour {
 
     public bool toggle() {
         if (!is_open) open();
-        else close();
+        else          close();
         return is_open;
     }
 
     void set_openness_anim((float, float) y_pos, float t = 0) {
-        openness_y_pos    = y_pos;
+        openness_y_pos = y_pos;
         openness_t = t;
     }
 
@@ -121,11 +132,8 @@ public class DebugConsole : MonoBehaviour {
 
     // Sizing:
     public void change_size(bool expanded, float height = -1f) {
-        if (!expanded) {
-            if (height > 30f) CONSOLE_Height = height;
-            sizing_y = (ui_panel.sizeDelta.y, CONSOLE_Height);
-        } else 
-            sizing_y = (ui_panel.sizeDelta.y, ui_canvas.rect.height);
+        if (!expanded && height > 30f) CONSOLE_Height = height;
+        sizing_y = (ui_panel.sizeDelta.y, !expanded ? CONSOLE_Height : ui_canvas.rect.height);
 
         is_expanded = expanded;
         sizing_t = 0;
@@ -140,11 +148,12 @@ public class DebugConsole : MonoBehaviour {
 
         float y_pos = ease_out_quadratic(sizing_y.from, sizing_y.to, sizing_t);
         ui_panel.sizeDelta = new(ui_panel.sizeDelta.x, y_pos);
+        // TODO: animate W!
         // float w_pos = ease_out_quadratic(sizing_w.from, sizing_w.to, sizing_t);
         // ui_panel.sizeDelta = new(w_pos, ui_panel.sizeDelta.y);
 
         sizing_t += CONSOLE_AnimSpeed * Time.unscaledDeltaTime;
-
+        // Keep scrolling to the bottom throughout the size change, without animating the scroll.
         scroll_to_bottom(false);
     }
 
@@ -152,12 +161,14 @@ public class DebugConsole : MonoBehaviour {
     public const float SCROLL_TOP = 1f;
     public const float SCROLL_BOTTOM = 0f;
 
-    bool is_scrolling = false;
+    bool  is_scrolling = false;
     float scroll_target;
     float scroll_t = 1f;
     void UPDATE_ScrollRequest() {
         if (!is_scrolling) return;
-        // Cancel scrolling animations when scrolling with mouse wheel:
+        // Cancel automated scrolling when scrolling with mouse wheel:
+        // TODO: could have a delay here, so that we don't interfere with the user for
+        // at least 1s or something.
         if (Mouse.current != null && Mouse.current.scroll.y.ReadValue() != 0) return;
 
         ui_scroll_rect.verticalNormalizedPosition = 
@@ -198,7 +209,8 @@ public class DebugConsole : MonoBehaviour {
         ui_input_field.DeactivateInputField();
     }
     void clear_input_field() {
-        ui_input_field.SetTextWithoutNotify(null);
+        // TODO: Is this correct / any faster?
+        ui_input_field.SetTextWithoutNotify(null); // @Optimization
     }
 
     void write_line_internal(string message, LogLevel level) {
@@ -214,10 +226,12 @@ public class DebugConsole : MonoBehaviour {
         // Assume we want to submit the input field text when not given a parameter:
         if (input == null) {
             input = ui_input_field.text;
+            // Re-focus the input field upon submit:
             focus_input_field();
+            // If submit repetition is not allowed, clear the input field upon submit:
             if (!CONSOLE_AllowSubmitRepetition) clear_input_field();
         }
-        log("input: '%'".interp(input));
+        if (CONSOLE_EchoBack) write_line("> %".interp(input));
         scroll_to_bottom();
     }
 
@@ -234,7 +248,6 @@ public class DebugConsole : MonoBehaviour {
                 submit_hold_timer_ms = CONSOLE_RepeatHoldTime - CONSOLE_RepeatHoldDelay;
             }
         }
-
         if (was_released(keyboard?.enterKey, keyboard?.numpadEnterKey)) {
             if (repeated_submits_count > 0)
                 log("repeatedly submitted % times.".interp(repeated_submits_count));

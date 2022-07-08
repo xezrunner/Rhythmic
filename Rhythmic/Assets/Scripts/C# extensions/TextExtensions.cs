@@ -25,7 +25,6 @@ public static class TextExtensions {
                                                 
         string s = null;
         if (flags.HasFlag(CallerDebugInfoFlags.FileName)) {
-            // TODO: We might not want the file extension here? Option?
             string file_name = Path.GetFileName(caller_file_path);
             if (CALLER_RemoveExtFromFilenames) file_name = file_name.remove_file_ext();
             s += file_name;
