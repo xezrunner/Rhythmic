@@ -1,9 +1,13 @@
 using TMPro;
 using UnityEngine;
-
+using UnityEngine.InputSystem;
 using static Logging;
+
 public class Test : MonoBehaviour {
     void Start() {
-        log("This is a % testing whether % is working.".interp("test", "string interpolation"));
+        
+    }
+    void Update() {
+        
     }
 }
