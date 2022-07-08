@@ -79,7 +79,7 @@ public class DebugConsole : MonoBehaviour {
             return;
         }
 
-        set_openness_anim((ui_panel.localPosition.y, 0), t: anim ? 0 : 1);
+        set_openness_anim((ui_panel.anchoredPosition.y, 0), t: anim ? 0 : 1);
         is_open = true;
 
         ui_input_field.interactable = true;
@@ -90,7 +90,7 @@ public class DebugConsole : MonoBehaviour {
     public void close(bool anim = true) {
         if (!is_open) return;
 
-        set_openness_anim((ui_panel.localPosition.y, !is_expanded ? CONSOLE_Height : ui_canvas.rect.height), t: anim ? 0 : 1);
+        set_openness_anim((ui_panel.anchoredPosition.y, !is_expanded ? CONSOLE_Height : ui_canvas.rect.height), t: anim ? 0 : 1);
         is_open = false;
         
         ui_input_field.interactable = false;
@@ -108,13 +108,13 @@ public class DebugConsole : MonoBehaviour {
         openness_t = t;
     }
 
-    float openness_t;
+    float openness_t = 1f;
     (float from, float to) openness_y_pos;
     public void UPDATE_Openness() {
         if (openness_t > 1f) return;
 
         float y_pos = ease_out_quadratic(openness_y_pos.from, openness_y_pos.to, openness_t);
-        ui_panel.localPosition = new(ui_panel.localPosition.x, y_pos);
+        ui_panel.anchoredPosition = new(ui_panel.anchoredPosition.x, y_pos);
 
         openness_t += CONSOLE_AnimSpeed * Time.unscaledDeltaTime;
     }
@@ -132,7 +132,7 @@ public class DebugConsole : MonoBehaviour {
     }
     public void toggle_expanded() => change_size(!is_expanded);
 
-    float sizing_t;
+    float sizing_t = 1f;
     (float from, float to) sizing_y;
     (float from, float to) sizing_w;
     public void UPDATE_Sizing() {
@@ -154,7 +154,7 @@ public class DebugConsole : MonoBehaviour {
 
     bool is_scrolling = false;
     float scroll_target;
-    float scroll_t;
+    float scroll_t = 1f;
     void UPDATE_ScrollRequest() {
         if (!is_scrolling) return;
         // Cancel scrolling animations when scrolling with mouse wheel:
