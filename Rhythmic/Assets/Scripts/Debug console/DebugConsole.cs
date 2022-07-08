@@ -22,6 +22,12 @@ public class DebugConsole : MonoBehaviour {
 
         keyboard = Keyboard.current;
         if (keyboard == null) log_warn("no keyboard!");
+
+        ui_canvas = FindObjectOfType<Canvas>()?.GetComponent<RectTransform>();
+        if (!ui_canvas) log_error("no ui_canvas!");
+
+        // Disable Unity's SRP Debug canvas:
+        UnityEngine.Rendering.DebugManager.instance.enableRuntimeUI = false; // @SRPDebugCanvas WordDeleteClash
     }
     void Start() {
         // Start closed:
@@ -30,9 +36,13 @@ public class DebugConsole : MonoBehaviour {
             close(false);
         }
         
+        sizing_y = (CONSOLE_Height, CONSOLE_Height);
         ui_lines = new(capacity: CONSOLE_MaxLines);
+
+        write_line("[console] initialized");
     }
 
+    RectTransform ui_canvas;
     GameObject self;
     Keyboard keyboard;
 
@@ -41,7 +51,7 @@ public class DebugConsole : MonoBehaviour {
     public bool is_expanded = false;
 
     [Header("UI objects")]
-    [SerializeField] RectTransform  ui_self;
+    [SerializeField] RectTransform  ui_panel;
     [SerializeField] Transform      ui_text_container;
     [SerializeField] ScrollRect     ui_scroll_rect;
     [SerializeField] TMP_InputField ui_input_field;
@@ -50,6 +60,7 @@ public class DebugConsole : MonoBehaviour {
     [SerializeField] TMP_Text prefab_ui_line;
 
     [Header("Options")]
+    public static float CONSOLE_DefaultHeight    = 270f;
     public float   CONSOLE_Height                = 270f;
     public int     CONSOLE_MaxLines              = 300;
 
@@ -67,8 +78,10 @@ public class DebugConsole : MonoBehaviour {
             focus_input_field();
             return;
         }
-        set_openness_anim((ui_self.localPosition.y, 0), default, anim ? 0 : 1);
+
+        set_openness_anim((ui_panel.localPosition.y, 0), t: anim ? 0 : 1);
         is_open = true;
+
         ui_input_field.interactable = true;
         focus_input_field();
         // ...
@@ -76,8 +89,10 @@ public class DebugConsole : MonoBehaviour {
 
     public void close(bool anim = true) {
         if (!is_open) return;
-        set_openness_anim((ui_self.localPosition.y, CONSOLE_Height), default, anim ? 0 : 1);
+
+        set_openness_anim((ui_panel.localPosition.y, !is_expanded ? CONSOLE_Height : ui_canvas.rect.height), t: anim ? 0 : 1);
         is_open = false;
+        
         ui_input_field.interactable = false;
         // ...
     }
@@ -88,24 +103,49 @@ public class DebugConsole : MonoBehaviour {
         return is_open;
     }
 
-    void set_openness_anim((float, float) y, (float, float) w = default, float t = 0) {
-        openness_y = y;
-        openness_w = w;
+    void set_openness_anim((float, float) y_pos, float t = 0) {
+        openness_y_pos    = y_pos;
         openness_t = t;
     }
 
     float openness_t;
-    (float from, float to) openness_y;
-    (float from, float to) openness_w;
-    public void UPDATE_Animation() {
+    (float from, float to) openness_y_pos;
+    public void UPDATE_Openness() {
         if (openness_t > 1f) return;
 
-        float y = ease_out_quadratic(openness_y.from, openness_y.to, openness_t);
-        ui_self.localPosition = new(ui_self.localPosition.x, y);
-        // TODO: Width animation!
-        //float w = Mathf.Lerp(anim_w.from, anim_w.to, anim_t);
-        //ui_self.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, w);
+        float y_pos = ease_out_quadratic(openness_y_pos.from, openness_y_pos.to, openness_t);
+        ui_panel.localPosition = new(ui_panel.localPosition.x, y_pos);
+
         openness_t += CONSOLE_AnimSpeed * Time.unscaledDeltaTime;
+    }
+
+    // Sizing:
+    public void change_size(bool expanded, float height = -1f) {
+        if (!expanded) {
+            if (height > 30f) CONSOLE_Height = height;
+            sizing_y = (ui_panel.sizeDelta.y, CONSOLE_Height);
+        } else 
+            sizing_y = (ui_panel.sizeDelta.y, ui_canvas.rect.height);
+
+        is_expanded = expanded;
+        sizing_t = 0;
+    }
+    public void toggle_expanded() => change_size(!is_expanded);
+
+    float sizing_t;
+    (float from, float to) sizing_y;
+    (float from, float to) sizing_w;
+    public void UPDATE_Sizing() {
+        if (sizing_t > 1f) return;
+
+        float y_pos = ease_out_quadratic(sizing_y.from, sizing_y.to, sizing_t);
+        ui_panel.sizeDelta = new(ui_panel.sizeDelta.x, y_pos);
+        // float w_pos = ease_out_quadratic(sizing_w.from, sizing_w.to, sizing_t);
+        // ui_panel.sizeDelta = new(w_pos, ui_panel.sizeDelta.y);
+
+        sizing_t += CONSOLE_AnimSpeed * Time.unscaledDeltaTime;
+
+        scroll_to_bottom(false);
     }
 
     // Scrolling:
@@ -117,6 +157,8 @@ public class DebugConsole : MonoBehaviour {
     float scroll_t;
     void UPDATE_ScrollRequest() {
         if (!is_scrolling) return;
+        // Cancel scrolling animations when scrolling with mouse wheel:
+        if (Mouse.current != null && Mouse.current.scroll.y.ReadValue() != 0) return;
 
         ui_scroll_rect.verticalNormalizedPosition = 
             ease_out_quadratic(ui_scroll_rect.verticalNormalizedPosition, scroll_target, scroll_t);
@@ -124,13 +166,13 @@ public class DebugConsole : MonoBehaviour {
 
         if (scroll_t > 1f) is_scrolling = false;
     }
-    public void scroll_console(float value) {
-        scroll_t = 0;
+    public void scroll_console(float value, bool anim = true) {
+        scroll_t = anim ? 0 : 1;
         scroll_target = value;
         is_scrolling = true;
     }
-    public void scroll_to_top()    => scroll_console(SCROLL_TOP);
-    public void scroll_to_bottom() => scroll_console(SCROLL_BOTTOM);
+    public void scroll_to_top(bool anim = true)    => scroll_console(SCROLL_TOP, anim);
+    public void scroll_to_bottom(bool anim = true) => scroll_console(SCROLL_BOTTOM, anim);
 
     // Lines:
     TMP_Text add_new_line(string text) {
@@ -203,7 +245,7 @@ public class DebugConsole : MonoBehaviour {
 
     
     void Update() {
-        UPDATE_Animation();
+        UPDATE_Openness();
 
         // Do not allow toggling with the [0 / backtick] key - it would clash with wanting to input '0':
         if      (!is_open && was_pressed(keyboard?.digit0Key, keyboard?.backquoteKey)) open();
@@ -216,11 +258,10 @@ public class DebugConsole : MonoBehaviour {
             clear_input_field();
 
         UPDATE_HandleSubmitRepetition();
-        // Cancel scrolling animations when scrolling with mouse wheel
-        if (Mouse.current != null && Mouse.current.scroll.y.ReadValue() != 0) {
-            // TODO: We probably don't actually want to cancel the previous scroll request.
-            // is_scrolling = false;
-        }
-        else UPDATE_ScrollRequest();
+        UPDATE_ScrollRequest();
+
+        // TODO: Clash with autocomplete!
+        if (was_pressed(keyboard?.tabKey)) toggle_expanded();
+        UPDATE_Sizing();
     }
 }
