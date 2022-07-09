@@ -8,7 +8,7 @@ using static Logging;
 using static QuickInput;
 using static AnimEasing;
 
-public class DebugConsole : MonoBehaviour {
+public partial class DebugConsole : MonoBehaviour {
     static DebugConsole instance;
     public static DebugConsole get_instance() {
         if (instance) return instance;
@@ -233,6 +233,19 @@ public class DebugConsole : MonoBehaviour {
         }
         if (CONSOLE_EchoBack) write_line("> %".interp(input));
         scroll_to_bottom();
+
+        if (input == "dump_keys") {
+            write_line("Dumping registered command keys:");
+            foreach (string key in registered_commands.Keys)
+                write_line("  - %".interp(key));
+            return;
+        }
+
+        ConsoleCommand cmd = registered_commands[input];
+        if (cmd.command_type == ConsoleCommandType.Function) {
+            ConsoleCommand_Func cmd_func = (ConsoleCommand_Func)cmd;
+            cmd_func.invoke();
+        }
     }
 
     int repeated_submits_count = 0;

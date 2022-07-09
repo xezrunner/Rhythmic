@@ -68,4 +68,8 @@ public static class TextExtensions {
 
         return builder.ToString();
     }
+
+    public static bool is_empty(this string text) {
+        return text == null || text == "";
+    }
 }
