@@ -9,7 +9,7 @@ public static class QuickInput
             if (key.wasPressedThisFrame) return true;
         return false;
     }
-    public static bool is_pressed(params ButtonControl[] keys) {
+    public static bool is_held(params ButtonControl[] keys) {
         foreach(var key in keys)
             if (key.isPressed) return true;
         return false;

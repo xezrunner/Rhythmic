@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using static Logging;
 using static QuickInput;
 using static AnimEasing;
+using System.Linq;
 
 public partial class DebugConsole : MonoBehaviour {
     static DebugConsole instance;
@@ -71,12 +72,15 @@ public partial class DebugConsole : MonoBehaviour {
     [Tooltip("The threshold for amount of lines in the console where if exceeded, oldest entries will start being removed.\n" +
              "Use -1 or below to allow infinite entries.")]
     public int     CONSOLE_MaxLines              = 300;
+
+    [Tooltip("Controls whether the console should write the input into itself upon submission.")]
+    public bool    CONSOLE_EchoBack              = true;
     [Tooltip("Controls how many input submissions we want to store in the history buffer." + 
              "Oldest entries will start being removed once exceeded.")]
     public int     CONSOLE_MaxHistoryEntries     = 100;
 
-    [Tooltip("Controls whether the console should write the input into itself upon submission.")]
-    public bool    CONSOLE_EchoBack              = true;
+    [Tooltip("Controls whether you can autocomplete commands in the console using [(Shift +)Tab].")]
+    public bool    CONSOLE_EnableAutocomplete    = true;
 
     [Tooltip("Controls whether the submit keys can be held down to repeatedly submit input to the console.")]
     public bool    CONSOLE_AllowSubmitRepetition = false;
@@ -255,8 +259,9 @@ public partial class DebugConsole : MonoBehaviour {
         //InputField_ChangeText(s, caret_position);
     }
 
-    void set_input_field_text(string text, int caret_pos = -1) {
-        ui_input_field.SetTextWithoutNotify(text);
+    void set_input_field_text(string text, bool notify = true, int caret_pos = -1) {
+        if (notify) ui_input_field.text = text;
+        else        ui_input_field.SetTextWithoutNotify(text);
         ui_input_field.caretPosition = (caret_pos == -1) ? ui_input_field.text.Length : caret_pos;
     }
 
@@ -272,20 +277,59 @@ public partial class DebugConsole : MonoBehaviour {
     }
 
     int history_index = -1;
-    // dir: -1 or 1
     void history_next(int dir) {
         if (history == null && log_error("input_history is null!")) return;
         if (history.Count == 0) return;
         if (CONSOLE_MaxHistoryEntries == 0) return;
         
         history_index += dir;
-        if (history_index >= history.Count) history_index = 0;
-        else if (history_index < 0)         history_index = history.Count - 1;
+        if      (history_index >= history.Count) history_index = 0;
+        else if (history_index < 0)              history_index = history.Count - 1;
         
         set_input_field_text(history[history_index]);
     }
 
     // Autocomplete:
+    int autocomplete_index = -1;
+    List<string> autocomplete_list = new();
+    void autocomplete_next(int dir) {
+        if (!CONSOLE_EnableAutocomplete)  return;
+        if (autocomplete_list == null && log_error("autocomplete_list is null!")) return;
+        if (autocomplete_list.Count == 0) return;
+
+        autocomplete_index += dir;
+        if      (autocomplete_index >= autocomplete_list.Count) autocomplete_index = 0;
+        else if (autocomplete_index < 0) autocomplete_index = autocomplete_list.Count - 1;
+
+        set_input_field_text(autocomplete_list[autocomplete_index], notify: false);
+    }
+
+    bool autocomplete_list_debug = true;
+    void build_autocomplete_list(string input = null) {
+        if (!CONSOLE_EnableAutocomplete) return;
+
+        if (input == null) input = ui_input_field.text;
+        if (input.is_empty()) return;
+
+        autocomplete_list.Clear();
+        
+        // Check whether the whole input itself is contained in the registered commands list:
+        if (registered_commands.Keys.Contains(input)) autocomplete_list.Add(input);
+        // Find all other entries:
+        foreach (string key in registered_commands.Keys) {
+            if (key == input) continue;
+            if (key.StartsWith(input)) autocomplete_list.Add(key);
+        }
+
+        if (autocomplete_list_debug) write_line("Autocomplete: [%]".interp(string.Join("; ", autocomplete_list)));
+    }
+    void build_autocomplete_ui() {
+        if (!CONSOLE_EnableAutocomplete) return;
+    }
+    public void input_field_value_changed() {
+        build_autocomplete_list();
+        build_autocomplete_ui();
+    }
 
     // Processing & commands:
     void write_line_internal(string message, LogLevel level) {
@@ -326,7 +370,7 @@ public partial class DebugConsole : MonoBehaviour {
     void UPDATE_HandleSubmitRepetition() {
         if (!CONSOLE_AllowSubmitRepetition) return;
         // If we keep holding a submit key, repeatedly submit after a delay:
-        if (is_pressed(keyboard?.enterKey, keyboard?.numpadEnterKey)) {
+        if (is_held(keyboard?.enterKey, keyboard?.numpadEnterKey)) {
             if (submit_hold_timer_ms < CONSOLE_RepeatHoldTime) submit_hold_timer_ms += Time.unscaledDeltaTime * 1000f;
             else {
                 submit();
@@ -364,12 +408,19 @@ public partial class DebugConsole : MonoBehaviour {
         
         UPDATE_ScrollRequest();
 
+        // Autocomplete:
+        int autocomplete_dir = is_held(keyboard?.shiftKey) ? -1 : 1;
+        if (ui_input_field.text.Length > 0 && was_pressed(keyboard?.tabKey)) autocomplete_next(autocomplete_dir);
+
         // Sizing:
-        if (was_pressed(keyboard?.tabKey)) toggle_expanded(); // TODO: Clash with autocomplete!
+        if (ui_input_field.text.Length == 0 && was_pressed(keyboard?.tabKey)) toggle_expanded();
         UPDATE_Sizing();
 
         // Word deletion:
-        if (is_pressed(keyboard?.ctrlKey) && was_pressed(keyboard?.backspaceKey)) input_delete_word(-1);
-        if (is_pressed(keyboard?.ctrlKey) && was_pressed(keyboard?.deleteKey))    input_delete_word(1);
+        if (is_held(keyboard?.ctrlKey) && was_pressed(keyboard?.backspaceKey)) input_delete_word(-1);
+        if (is_held(keyboard?.ctrlKey) && was_pressed(keyboard?.deleteKey))    input_delete_word(1);
+
+        // Delete on [Ctrl+C]:
+        if (is_held(keyboard?.ctrlKey) && was_pressed(keyboard?.cKey)) set_input_field_text(null);
     }
 }
