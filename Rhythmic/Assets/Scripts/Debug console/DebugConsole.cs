@@ -58,7 +58,11 @@ public partial class DebugConsole : MonoBehaviour {
     [SerializeField] RectTransform  ui_panel;
     [SerializeField] Transform      ui_text_container;
     [SerializeField] ScrollRect     ui_scroll_rect;
+
     [SerializeField] TMP_InputField ui_input_field;
+    [SerializeField] TMP_Text       ui_input_field_text;
+    [SerializeField] TMP_Text       ui_autocomplete_text;
+    [SerializeField] RectTransform  ui_autocomplete_text_rect;
 
     [Header("Prefabs")]
     [SerializeField] TMP_Text prefab_ui_line;
@@ -81,6 +85,8 @@ public partial class DebugConsole : MonoBehaviour {
 
     [Tooltip("Controls whether you can autocomplete commands in the console using [(Shift +)Tab].")]
     public bool    CONSOLE_EnableAutocomplete    = true;
+    [Tooltip("The padding between the input field text and the autocomplete text.")]
+    public float   CONSOLE_AutocompletePaddingX  = 18f;
 
     [Tooltip("Controls whether the submit keys can be held down to repeatedly submit input to the console.")]
     public bool    CONSOLE_AllowSubmitRepetition = false;
@@ -290,6 +296,7 @@ public partial class DebugConsole : MonoBehaviour {
     }
 
     // Autocomplete:
+    bool is_autocompleting = false;
     int autocomplete_index = -1;
     List<string> autocomplete_list = new();
     void autocomplete_next(int dir) {
@@ -301,7 +308,9 @@ public partial class DebugConsole : MonoBehaviour {
         if      (autocomplete_index >= autocomplete_list.Count) autocomplete_index = 0;
         else if (autocomplete_index < 0) autocomplete_index = autocomplete_list.Count - 1;
 
-        set_input_field_text(autocomplete_list[autocomplete_index], notify: false);
+        is_autocompleting = true;
+
+        set_input_field_text(autocomplete_list[autocomplete_index]);
     }
 
     bool autocomplete_list_debug = true;
@@ -324,11 +333,24 @@ public partial class DebugConsole : MonoBehaviour {
         if (autocomplete_list_debug) write_line("Autocomplete: [%]".interp(string.Join("; ", autocomplete_list)));
     }
     void build_autocomplete_ui() {
-        if (!CONSOLE_EnableAutocomplete) return;
+        ui_autocomplete_text.SetText("");
+        
+        if (!CONSOLE_EnableAutocomplete)    return;
+        if (ui_input_field.text.is_empty()) return;
+        if (autocomplete_list.Count == 0)   return;
+
+        int     last_c_index = ui_input_field_text.textInfo.lineInfo[0].lastVisibleCharacterIndex;
+        var     last_c_info  = ui_input_field_text.textInfo.characterInfo[last_c_index];
+        Vector2 last_c_pos   = ui_input_field_text.rectTransform.TransformPoint(last_c_info.bottomRight);
+        ui_autocomplete_text_rect.position = new Vector2(last_c_pos.x + CONSOLE_AutocompletePaddingX, ui_autocomplete_text_rect.position.y);
+
+        ui_autocomplete_text.SetText($":: {string.Join("; ", autocomplete_list)}");
     }
     public void input_field_value_changed() {
-        build_autocomplete_list();
+        if (!is_autocompleting) build_autocomplete_list();
         build_autocomplete_ui();
+
+        is_autocompleting = false;
     }
 
     // Processing & commands:
