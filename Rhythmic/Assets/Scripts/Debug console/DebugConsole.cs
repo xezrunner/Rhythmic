@@ -215,11 +215,12 @@ public partial class DebugConsole : MonoBehaviour {
         ui_input_field.SetTextWithoutNotify(null); // @Optimization
     }
 
-    void InputField_WordDelete(int dir) // -1: left | 1: right
+    void input_delete_word(int dir) // -1: left | 1: right
         {
         if (ui_input_field.text == "") return;
         if (ui_input_field.text.Length == 1) return;
 
+        // TODO: Do we still need to fiddle with the caret?
         int caret_position = ui_input_field.caretPosition;
 
         string s0 = ui_input_field.text[.. caret_position]; // 0 -> *| ...
@@ -230,10 +231,10 @@ public partial class DebugConsole : MonoBehaviour {
             if (caret_position == 0) return;
 
             string[] tokens = s0.Split(' ');
-            if (tokens.Length > 0) tokens[tokens.Length - 1] = "";
+            if (tokens.Length > 0) tokens[^1] = "";
 
             s0 = string.Join(" ", tokens);
-            if (!s0.is_empty() && s0[^1] == ' ') s0 = s0.Substring(0, s0.Length - 1);
+            if (!s0.is_empty() && s0[^1] == ' ') s0 = s0[..^1];
             caret_position = s0.Length;
         } else if (dir == 1) {
             if (caret_position == ui_input_field.text.Length - 1) return;
@@ -249,6 +250,8 @@ public partial class DebugConsole : MonoBehaviour {
         ui_input_field.SetTextWithoutNotify(s);
         //InputField_ChangeText(s, caret_position);
     }
+
+    // Autocomplete:
 
     // Write line:
     void write_line_internal(string message, LogLevel level) {
@@ -304,8 +307,6 @@ public partial class DebugConsole : MonoBehaviour {
             submit_hold_timer_ms = 0f;
         }
     }
-
-    // Autocomplete:
     
     void Update() {
         UPDATE_Openness();
@@ -327,8 +328,8 @@ public partial class DebugConsole : MonoBehaviour {
         if (was_pressed(keyboard?.tabKey)) toggle_expanded();
         UPDATE_Sizing();
 
-        if (is_pressed(keyboard?.ctrlKey) && was_pressed(keyboard?.backspaceKey)) InputField_WordDelete(-1);
-        if (is_pressed(keyboard?.ctrlKey) && was_pressed(keyboard?.deleteKey))    InputField_WordDelete(1);
+        if (is_pressed(keyboard?.ctrlKey) && was_pressed(keyboard?.backspaceKey)) input_delete_word(-1);
+        if (is_pressed(keyboard?.ctrlKey) && was_pressed(keyboard?.deleteKey))    input_delete_word(1);
  
     }
 }
