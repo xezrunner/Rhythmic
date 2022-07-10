@@ -215,6 +215,42 @@ public partial class DebugConsole : MonoBehaviour {
         ui_input_field.SetTextWithoutNotify(null); // @Optimization
     }
 
+    void InputField_WordDelete(int dir) // -1: left | 1: right
+        {
+        if (ui_input_field.text == "") return;
+        if (ui_input_field.text.Length == 1) return;
+
+        int caret_position = ui_input_field.caretPosition;
+
+        string s0 = ui_input_field.text[.. caret_position]; // 0 -> *| ...
+        string s1 = ui_input_field.text[caret_position ..];
+
+        if (dir == -1) // Delete from caret to the left (one word)
+        {
+            if (caret_position == 0) return;
+
+            string[] tokens = s0.Split(' ');
+            if (tokens.Length > 0) tokens[tokens.Length - 1] = "";
+
+            s0 = string.Join(" ", tokens);
+            if (!s0.is_empty() && s0[^1] == ' ') s0 = s0.Substring(0, s0.Length - 1);
+            caret_position = s0.Length;
+        } else if (dir == 1) {
+            if (caret_position == ui_input_field.text.Length - 1) return;
+
+            string[] tokens = s1.Split(' ');
+            if (tokens.Length > 0) tokens[0] = "";
+
+            s1 = string.Join(" ", tokens);
+            if (s1.Length > 1) s1 = s1[1 ..]; // Eat first space
+        }
+
+        string s = s0 + s1;
+        ui_input_field.SetTextWithoutNotify(s);
+        //InputField_ChangeText(s, caret_position);
+    }
+
+    // Write line:
     void write_line_internal(string message, LogLevel level) {
         add_new_line(message);
     }
@@ -290,5 +326,9 @@ public partial class DebugConsole : MonoBehaviour {
         // TODO: Clash with autocomplete!
         if (was_pressed(keyboard?.tabKey)) toggle_expanded();
         UPDATE_Sizing();
+
+        if (is_pressed(keyboard?.ctrlKey) && was_pressed(keyboard?.backspaceKey)) InputField_WordDelete(-1);
+        if (is_pressed(keyboard?.ctrlKey) && was_pressed(keyboard?.deleteKey))    InputField_WordDelete(1);
+ 
     }
 }
