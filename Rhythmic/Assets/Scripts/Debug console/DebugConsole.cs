@@ -209,12 +209,15 @@ public partial class DebugConsole : MonoBehaviour {
         com.SetText(text);
         ui_lines.Add(com);
 
-        if (ui_lines.Count > CONSOLE_MaxLines) {
-            Destroy(ui_lines[0].gameObject);
-            ui_lines.RemoveAt(0);
-        }
+        if (ui_lines.Count > CONSOLE_MaxLines) destroy_line(0);
 
         return com;
+    }
+
+    void destroy_line(int index) {
+        if ((index < 0 || index >= ui_lines.Count) && log_error("invalid index!")) return;
+        Destroy(ui_lines[0].gameObject);
+        ui_lines.RemoveAt(0);
     }
 
     // Input field:
@@ -271,6 +274,16 @@ public partial class DebugConsole : MonoBehaviour {
         ui_input_field.caretPosition = (caret_pos == -1) ? ui_input_field.text.Length : caret_pos;
     }
 
+    public void input_field_value_changed() {
+        if (!is_autocompleting) {
+            build_autocomplete_list();
+            autocomplete_index = -1;
+        }
+        build_autocomplete_ui();
+
+        is_autocompleting = false;
+    }
+
     // History:
     List<string> history;
 
@@ -313,7 +326,7 @@ public partial class DebugConsole : MonoBehaviour {
         set_input_field_text(autocomplete_list[autocomplete_index]);
     }
 
-    bool autocomplete_list_debug = true;
+    bool autocomplete_list_debug = false;
     void build_autocomplete_list(string input = null) {
         if (!CONSOLE_EnableAutocomplete) return;
 
@@ -346,22 +359,29 @@ public partial class DebugConsole : MonoBehaviour {
 
         ui_autocomplete_text.SetText($":: {string.Join("; ", autocomplete_list)}");
     }
-    public void input_field_value_changed() {
-        if (!is_autocompleting) build_autocomplete_list();
-        build_autocomplete_ui();
-
-        is_autocompleting = false;
-    }
 
     // Processing & commands:
     void write_line_internal(string message, LogLevel level) {
         add_new_line(message);
     }
 
+    // TODO: TODO: TODO:
+    // We're going to want to make a param here that will let us tag certain lines as different "categories".
+    // Let's say we want to print some console-internal debug information to the console.
+    // The line would be displayed as follows:
+    // [M] [submit] s_cmd: test :: s_args: [none]
+    //  ^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // cat.         [     text     ]
+    // The "cat." tag could have icons or labels (ex. [M] for 'meta', not the company), on which we could click
+    // and (temp-)filter the console for just those categories.
+    // We could also have an interface to the right of the input field to completely (non-temp) filter the lines
+    // for given categories.
+    // Console commands would be nice as well (ex. [filter meta] to filter by meta category)
     public static void write_line(string message, LogLevel level = LogLevel.Info) {
         get_instance()?.write_line_internal(message, level);
     }
     
+    static bool submit_debug = true;
     void submit(string input = null) {
         // Assume we want to submit the input field text when not given a parameter:
         if (input == null) {
@@ -375,15 +395,23 @@ public partial class DebugConsole : MonoBehaviour {
         history_add(input);
         scroll_to_bottom();
 
-        if (!registered_commands.ContainsKey(input)) {
+        string[] split  = input.Split(' ');
+        string   s_cmd  = split[0];
+        string[] s_args = split[1 ..];
+
+        if (submit_debug) {
+            write_line("[submit] s_cmd: % :: s_args: [%]".interp(s_cmd, s_args.Length == 0 ? "none" : string.Join("; ", s_args)));
+        }
+        
+        if (!registered_commands.ContainsKey(s_cmd)) {
             write_line("Could not find command: %".interp(input));
             return;
         }
 
-        ConsoleCommand cmd = registered_commands[input];
+        ConsoleCommand cmd = registered_commands[s_cmd];
         if (cmd.command_type == ConsoleCommandType.Function) {
             ConsoleCommand_Func cmd_func = (ConsoleCommand_Func)cmd;
-            cmd_func.invoke();
+            cmd_func.invoke(s_args);
         }
     }
 

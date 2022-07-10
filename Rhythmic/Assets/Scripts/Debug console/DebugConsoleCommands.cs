@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using static Logging;
 
 public enum ConsoleCommandType { Function, Variable }
@@ -10,24 +10,22 @@ public abstract class ConsoleCommand {
     public string   help_text;
     public bool     is_cheat_command = false;
 }
+
+// <!> CLEANUP REQUIRED:
 public class ConsoleCommand_Func : ConsoleCommand {
     public ConsoleCommand_Func(Action action, string help_text = null, string[] aliases = null) {
         command_type = ConsoleCommandType.Function;
         is_params = false;
         action_empty = action;
         this.help_text = help_text;
-        if (aliases == null || aliases.Length == 0)
-            this.aliases = new string[1] { action.Method.Name };
-        else this.aliases = aliases;
+        this.aliases = aliases;
     }
     public ConsoleCommand_Func(Action<string[]> action, string help_text = null, string[] aliases = null) {
         command_type = ConsoleCommandType.Function;
         is_params = true;
         action_params = action;
         this.help_text = help_text;
-        if (aliases == null || aliases.Length == 0)
-            this.aliases = new string[1] { action.Method.Name };
-        else this.aliases = aliases;
+        this.aliases = aliases;
     }
 
     public bool is_params = false; // @Hack  This controls whether the function accepts parameters.
@@ -53,28 +51,45 @@ public class ConsoleCommand_Value<T> : ConsoleCommand {
 public partial class DebugConsole {
     public Dictionary<string, ConsoleCommand> registered_commands = new();
 
+    int registered_command_count = 0;
     public bool register_command_internal(ConsoleCommand command, string help_text, string[] aliases) {
         if (command == null && log_warn("attempting to register null command!")) return false;
         if ((aliases == null || aliases.Length == 0) && log_warn("no aliases!")) return false;
         command.help_text = help_text;
         foreach (string alias in aliases) {
+            if (alias.is_empty()) continue;
+            
             if (registered_commands.ContainsKey(alias)) {
                 log_warn("The alias '%' is already registered. Ignoring!".interp(alias));
                 continue;
             }
             registered_commands.Add(alias, command);
         }
+        ++registered_command_count;
         return true;
     }
 
     public static bool register_command(ConsoleCommand command, string help_text = null, params string[] aliases) {
         return get_instance().register_command_internal(command, help_text, aliases);
     }
+    public static bool COMMANDS_AlwaysAddFuncNames = true;
     public static bool register_command(Action action, string help_text = null, params string[] aliases) {
+        if (COMMANDS_AlwaysAddFuncNames || aliases.Length == 0) {
+            string[] new_aliases = new string[aliases.Length + 1];
+            new_aliases[^1] = action.Method.Name;
+            aliases.CopyTo(new_aliases, 0);
+            aliases = new_aliases;
+        }
         ConsoleCommand_Func command = new(action, help_text, aliases);
         return get_instance().register_command_internal(command, help_text, command.aliases);
     }
     public static bool register_command(Action<string[]> action, string help_text = null, params string[] aliases) {
+        if (COMMANDS_AlwaysAddFuncNames || aliases.Length == 0) {
+            string[] new_aliases = new string[aliases.Length + 1];
+            new_aliases[^1] = action.Method.Name;
+            aliases.CopyTo(new_aliases, 0);
+            aliases = new_aliases;
+        }
         ConsoleCommand_Func command = new(action, help_text, aliases);
         return get_instance().register_command_internal(command, help_text, command.aliases);
     }
@@ -83,11 +98,61 @@ public partial class DebugConsole {
 
     void register_builtin_commands() {
         register_command(cmd_help, "Lists all commands.", "help");
+        register_command(cmd_clear, "Deletes all of the text from the console.", "clear");
     }
 
-    void cmd_help() {
-        write_line("Listing all commands:");
-        foreach (string key in registered_commands.Keys)
-            write_line("  - %".interp(key));
+    void cmd_clear() {
+        for (int i = ui_lines.Count - 1; i >= 0; --i) destroy_line(i);
+    }
+    void cmd_help(string[] args) {
+        bool is_help      = false;
+        bool show_hashes  = false;
+        bool show_aliases = false;
+        if (args != null) {
+            foreach (string s in args) {
+                if      (s.Contains("?") || s.Contains("help")) is_help = true;
+                else if (s.Contains("hash"))  show_hashes = true;
+                else if (s.Contains("alias")) show_aliases = true;
+                else     write_line("invalid option: %".interp(s));
+            }
+        }
+
+        if (is_help) {
+            write_line("-------------------------------------------------------------------");
+            write_line("[help ?]             :: print help for the help command");
+            write_line("[help command]       :: print the help text for a specific command");
+            write_line("[help]               :: lists out all of the registered commands");
+            write_line("[help opt1 opt2 ...] :: same as above, but prints additional details");
+            write_line("options: ");
+            write_line("  - alias: prints out possible aliases for commands (limited to 3)");
+            write_line("  - hash:  prints out the hash for each registered command entry");
+            return;
+        }
+        
+        write_line("Listing all commands: (%)".interp(registered_command_count));
+        int prev_hash = -1;
+        foreach (var kv in registered_commands) {
+            ConsoleCommand cmd = kv.Value;
+            int cmd_hash = cmd.GetHashCode();
+
+            // We already print each alias ourselves. Ignore "duplicates":
+            if (cmd_hash == prev_hash) continue;
+
+            string s_help_text = null;
+            if (!cmd.help_text.is_empty()) s_help_text = $" :: {cmd.help_text}";
+
+            int longest_key_length = registered_commands.Keys.Max(k => k.Length);
+            string s_alias   = cmd.aliases[0].PadRight(longest_key_length);
+            string s_aliases = null;
+            if (show_aliases && cmd.aliases.Length > 1) {
+                s_aliases = $" :: aliases: [{string.Join("; ", cmd.aliases, 1, cmd.aliases.Length - 1)}]";
+            }
+
+            string s_hash = show_hashes ? $" [{cmd_hash:X8}]" : null;
+
+            write_line("  - %%%".interp(s_alias, s_hash, !show_aliases ? s_help_text : null, s_aliases));
+
+            prev_hash = cmd_hash;
+        }
     }
 }

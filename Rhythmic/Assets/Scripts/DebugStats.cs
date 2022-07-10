@@ -12,8 +12,9 @@ public class DebugStats : MonoBehaviour
     void UPDATE_Text() {
         builder.Append($"Framerate: {Mathf.CeilToInt(framerate)} {(!Application.isEditor && QualitySettings.vSyncCount > 0 ? "(VSYNC)" : null)}");
 #if UNITY_EDITOR
-        builder.Append($"| EDITOR");
+        builder.Append(" | EDITOR");
 #endif
+        if (Core.IS_INTERNAL) builder.Append(" | INTERNAL");
         builder.Append("\n\n");
 
         var active_scene = SceneManager.GetActiveScene();

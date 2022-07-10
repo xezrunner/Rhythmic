@@ -48,7 +48,7 @@ public static class TextExtensions {
 
     public static string interp(this string text, params object[] args) {
         string[] args_as_strings = new string[args.Length];
-        for (int i = 0; i < args.Length; ++i) args_as_strings[i] = args[i].ToString();
+        for (int i = 0; i < args.Length; ++i) args_as_strings[i] = args[i]?.ToString();
         return interp(text, args_as_strings);
     }
     public static string interp(this string text, params string[] args) {

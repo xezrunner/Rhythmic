@@ -12,7 +12,9 @@ public class Core : MonoBehaviour
         log_error(s);
         throw new(s);
     }
-    
+
+    public static bool IS_INTERNAL = true;
+
     [Header("Assignables")]
     [SerializeField] Canvas ui_debug_canvas;
     [SerializeField] EventSystem event_system;
