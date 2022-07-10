@@ -139,8 +139,10 @@ MonoBehaviour:
   ui_input_field: {fileID: 7254454680987136502}
   prefab_ui_line: {fileID: 3082736618949708052, guid: 703634d703788274d9ec82910285e3d5,
     type: 3}
+  CONSOLE_DefaultHeight: 270
   CONSOLE_Height: 270
   CONSOLE_MaxLines: 300
+  CONSOLE_EchoBack: 1
   CONSOLE_AllowSubmitRepetition: 1
   CONSOLE_RepeatHoldTime: 380
   CONSOLE_RepeatHoldDelay: 10
@@ -646,10 +648,10 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0.09433961, g: 0.09433961, b: 0.09433961, a: 1}
+    m_NormalColor: {r: 0.09803922, g: 0.09803922, b: 0.09803922, a: 1}
     m_HighlightedColor: {r: 0.1254902, g: 0.1254902, b: 0.1254902, a: 1}
     m_PressedColor: {r: 0.16470589, g: 0.16470589, b: 0.16470589, a: 1}
-    m_SelectedColor: {r: 0.09411765, g: 0.09411765, b: 0.09411765, a: 1}
+    m_SelectedColor: {r: 0.09803922, g: 0.09803922, b: 0.09803922, a: 1}
     m_DisabledColor: {r: 0, g: 0, b: 0, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1

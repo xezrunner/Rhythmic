@@ -39,6 +39,8 @@ public partial class DebugConsole : MonoBehaviour {
         sizing_y = (CONSOLE_Height, CONSOLE_Height);
         ui_lines = new(capacity: CONSOLE_MaxLines);
 
+        register_builtin_commands();
+
         write_line("[console] initialized");
     }
 
@@ -234,10 +236,8 @@ public partial class DebugConsole : MonoBehaviour {
         if (CONSOLE_EchoBack) write_line("> %".interp(input));
         scroll_to_bottom();
 
-        if (input == "dump_keys") {
-            write_line("Dumping registered command keys:");
-            foreach (string key in registered_commands.Keys)
-                write_line("  - %".interp(key));
+        if (!registered_commands.ContainsKey(input)) {
+            write_line("Could not find command: %".interp(input));
             return;
         }
 
@@ -269,6 +269,7 @@ public partial class DebugConsole : MonoBehaviour {
         }
     }
 
+    // Autocomplete:
     
     void Update() {
         UPDATE_Openness();

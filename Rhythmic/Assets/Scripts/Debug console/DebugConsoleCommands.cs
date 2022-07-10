@@ -58,6 +58,10 @@ public partial class DebugConsole {
         if ((aliases == null || aliases.Length == 0) && log_warn("no aliases!")) return false;
         command.help_text = help_text;
         foreach (string alias in aliases) {
+            if (registered_commands.ContainsKey(alias)) {
+                log_warn("The alias '%' is already registered. Ignoring!".interp(alias));
+                continue;
+            }
             registered_commands.Add(alias, command);
         }
         return true;
@@ -73,5 +77,17 @@ public partial class DebugConsole {
     public static bool register_command(Action<string[]> action, string help_text = null, params string[] aliases) {
         ConsoleCommand_Func command = new(action, help_text, aliases);
         return get_instance().register_command_internal(command, help_text, command.aliases);
+    }
+
+    // ----- //
+
+    void register_builtin_commands() {
+        register_command(cmd_help, "Lists all commands.", "help");
+    }
+
+    void cmd_help() {
+        write_line("Listing all commands:");
+        foreach (string key in registered_commands.Keys)
+            write_line("  - %".interp(key));
     }
 }
