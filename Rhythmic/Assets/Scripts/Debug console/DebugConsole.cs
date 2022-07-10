@@ -38,6 +38,7 @@ public partial class DebugConsole : MonoBehaviour {
         
         sizing_y = (CONSOLE_Height, CONSOLE_Height);
         ui_lines = new(capacity: CONSOLE_MaxLines);
+        history = new(CONSOLE_MaxHistoryEntries);
 
         register_builtin_commands();
 
@@ -70,6 +71,9 @@ public partial class DebugConsole : MonoBehaviour {
     [Tooltip("The threshold for amount of lines in the console where if exceeded, oldest entries will start being removed.\n" +
              "Use -1 or below to allow infinite entries.")]
     public int     CONSOLE_MaxLines              = 300;
+    [Tooltip("Controls how many input submissions we want to store in the history buffer." + 
+             "Oldest entries will start being removed once exceeded.")]
+    public int     CONSOLE_MaxHistoryEntries     = 100;
 
     [Tooltip("Controls whether the console should write the input into itself upon submission.")]
     public bool    CONSOLE_EchoBack              = true;
@@ -212,7 +216,7 @@ public partial class DebugConsole : MonoBehaviour {
     }
     void clear_input_field() {
         // TODO: Is this correct / any faster?
-        ui_input_field.SetTextWithoutNotify(null); // @Optimization
+        set_input_field_text(null); // @Optimization
     }
 
     void input_delete_word(int dir) // -1: left | 1: right
@@ -247,13 +251,43 @@ public partial class DebugConsole : MonoBehaviour {
         }
 
         string s = s0 + s1;
-        ui_input_field.SetTextWithoutNotify(s);
+        set_input_field_text(s);
         //InputField_ChangeText(s, caret_position);
+    }
+
+    void set_input_field_text(string text, int caret_pos = -1) {
+        ui_input_field.SetTextWithoutNotify(text);
+        ui_input_field.caretPosition = (caret_pos == -1) ? ui_input_field.text.Length : caret_pos;
+    }
+
+    // History:
+    List<string> history;
+
+    void history_add(string input) {
+        if (input.is_empty()) return;
+        if (CONSOLE_MaxHistoryEntries == 0) return;
+
+        history.Add(input);
+        if (history.Count > CONSOLE_MaxHistoryEntries) history.RemoveAt(0);
+    }
+
+    int history_index = -1;
+    // dir: -1 or 1
+    void history_next(int dir) {
+        if (history == null && log_error("input_history is null!")) return;
+        if (history.Count == 0) return;
+        if (CONSOLE_MaxHistoryEntries == 0) return;
+        
+        history_index += dir;
+        if (history_index >= history.Count) history_index = 0;
+        else if (history_index < 0)         history_index = history.Count - 1;
+        
+        set_input_field_text(history[history_index]);
     }
 
     // Autocomplete:
 
-    // Write line:
+    // Processing & commands:
     void write_line_internal(string message, LogLevel level) {
         add_new_line(message);
     }
@@ -261,8 +295,7 @@ public partial class DebugConsole : MonoBehaviour {
     public static void write_line(string message, LogLevel level = LogLevel.Info) {
         get_instance()?.write_line_internal(message, level);
     }
-
-    // Processing & commands:
+    
     void submit(string input = null) {
         // Assume we want to submit the input field text when not given a parameter:
         if (input == null) {
@@ -273,6 +306,7 @@ public partial class DebugConsole : MonoBehaviour {
             if (!CONSOLE_AllowSubmitRepetition) clear_input_field();
         }
         if (CONSOLE_EchoBack) write_line("> %".interp(input));
+        history_add(input);
         scroll_to_bottom();
 
         if (!registered_commands.ContainsKey(input)) {
@@ -317,19 +351,25 @@ public partial class DebugConsole : MonoBehaviour {
 
         if (!is_open) return;
         
+        // Input submission:
         if (was_pressed (keyboard?.enterKey, keyboard?.numpadEnterKey)) submit();
         if (CONSOLE_AllowSubmitRepetition && was_released(keyboard?.enterKey, keyboard?.numpadEnterKey))
             clear_input_field();
 
         UPDATE_HandleSubmitRepetition();
+
+        // History navigation:
+        if (was_pressed(keyboard?.upArrowKey))   history_next(-1);
+        if (was_pressed(keyboard?.downArrowKey)) history_next(1);
+        
         UPDATE_ScrollRequest();
 
-        // TODO: Clash with autocomplete!
-        if (was_pressed(keyboard?.tabKey)) toggle_expanded();
+        // Sizing:
+        if (was_pressed(keyboard?.tabKey)) toggle_expanded(); // TODO: Clash with autocomplete!
         UPDATE_Sizing();
 
+        // Word deletion:
         if (is_pressed(keyboard?.ctrlKey) && was_pressed(keyboard?.backspaceKey)) input_delete_word(-1);
         if (is_pressed(keyboard?.ctrlKey) && was_pressed(keyboard?.deleteKey))    input_delete_word(1);
- 
     }
 }
