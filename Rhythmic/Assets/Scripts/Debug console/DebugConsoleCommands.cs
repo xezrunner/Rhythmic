@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using static Logging;
 
 public enum ConsoleCommandType { Function, Variable }
@@ -72,24 +73,29 @@ public partial class DebugConsole {
     public static bool register_command(ConsoleCommand command, string help_text = null, params string[] aliases) {
         return get_instance().register_command_internal(command, help_text, aliases);
     }
+
     public static bool COMMANDS_AlwaysAddFuncNames = true;
-    public static bool register_command(Action action, string help_text = null, params string[] aliases) {
+    public static string[] register_command_func_handle_aliases(MethodInfo info, string[] aliases) {
         if (COMMANDS_AlwaysAddFuncNames || aliases.Length == 0) {
+            // Allocate new space for the function name:
             string[] new_aliases = new string[aliases.Length + 1];
-            new_aliases[^1] = action.Method.Name;
+            // Add the function name as an alias:
+            new_aliases[^1] = info.Name;
+            // Remove the "cmd_" prefix if exists:
+            if (new_aliases[^1].StartsWith("cmd_")) new_aliases[^1] = new_aliases[^1][4 ..];
+            // Copy the remaining aliases:
             aliases.CopyTo(new_aliases, 0);
-            aliases = new_aliases;
+            return new_aliases;
         }
+        return aliases;
+    }
+    public static bool register_command(Action action, string help_text = null, params string[] aliases) {
+        aliases = register_command_func_handle_aliases(action.Method, aliases);
         ConsoleCommand_Func command = new(action, help_text, aliases);
         return get_instance().register_command_internal(command, help_text, command.aliases);
     }
     public static bool register_command(Action<string[]> action, string help_text = null, params string[] aliases) {
-        if (COMMANDS_AlwaysAddFuncNames || aliases.Length == 0) {
-            string[] new_aliases = new string[aliases.Length + 1];
-            new_aliases[^1] = action.Method.Name;
-            aliases.CopyTo(new_aliases, 0);
-            aliases = new_aliases;
-        }
+        aliases = register_command_func_handle_aliases(action.Method, aliases);
         ConsoleCommand_Func command = new(action, help_text, aliases);
         return get_instance().register_command_internal(command, help_text, command.aliases);
     }
@@ -97,8 +103,10 @@ public partial class DebugConsole {
     // ----- //
 
     void register_builtin_commands() {
-        register_command(cmd_help, "Lists all commands.", "help");
-        register_command(cmd_clear, "Deletes all of the text from the console.", "clear");
+        register_command(cmd_help, "Lists all commands.");
+        register_command(cmd_clear, "Deletes all of the text from the console.");
+        register_command(cmd_toggle_line_categories, "Toggles the category button visibility next to console lines.");
+        register_command(cmd_filter, "Filter by a log level category.");
     }
 
     void cmd_clear() {
@@ -155,4 +163,30 @@ public partial class DebugConsole {
             prev_hash = cmd_hash;
         }
     }
+    void cmd_toggle_line_categories() => get_instance().CONSOLE_ShowLineCategories = !get_instance().CONSOLE_ShowLineCategories;
+    void cmd_filter(string[] args) {
+        if (args.Length == 0) {
+            write_line("current filter: %".interp(current_filter), LogLevel._ConsoleInternal);
+            return;
+        }
+        if (args[0] == "?") {
+            write_line("-------------------------------------------------------------------");
+            write_line("[filter ?]     :: print help for the filter command");
+            write_line("[filter level] :: filter the console entries by a specific log level\n" + 
+                       "                  (case-insensitive, accepts partial input - ex. \"warn\", \"err\")");
+            write_line("valid levels: [%]".interp(string.Join(", ", Enum.GetNames(typeof(LogLevel)))));
+            return;
+        }
+
+        string s_level = args[0].ToLower();
+        string s_match = null;
+        foreach (string s in Enum.GetNames(typeof(LogLevel))) {
+            if (s.ToLower().Contains(s_level)) s_match = s;
+        }
+        if (s_match.is_empty() && log_error("invalid log level: %".interp(s_level))) return;
+
+        LogLevel level = (LogLevel)Enum.Parse(typeof(LogLevel), s_match);
+        filter(level);
+    }
+
 }

@@ -65,8 +65,7 @@ public partial class DebugConsole : MonoBehaviour {
     [SerializeField] RectTransform  ui_autocomplete_text_rect;
 
     [Header("Prefabs")]
-    [SerializeField] TMP_Text prefab_ui_line;
-
+    [SerializeField] DebugConsole_UILine prefab_ui_line;
     
     [Header("Options")]
     [Tooltip("The default height of the console. [Do not change dynamically!]")]
@@ -77,6 +76,8 @@ public partial class DebugConsole : MonoBehaviour {
              "Use -1 or below to allow infinite entries.")]
     public int     CONSOLE_MaxLines              = 300;
 
+    [Tooltip("Controls whether to repeat the last submitted entry when submitting an empty input.")]
+    public bool    CONSOLE_RepeatOnEmptySubmit   = true;
     [Tooltip("Controls whether the console should write the input into itself upon submission.")]
     public bool    CONSOLE_EchoBack              = true;
     [Tooltip("Controls how many input submissions we want to store in the history buffer." + 
@@ -97,9 +98,10 @@ public partial class DebugConsole : MonoBehaviour {
     public float   CONSOLE_AnimSpeed       = 3f;
     [Tooltip("Controls the animation speed for scrolling (when the scroll animation is requested).")]
     public float   CONSOLE_ScrollAnimSpeed = 3f;
-    
-    List<TMP_Text> ui_lines                = new();
 
+    [Tooltip("Controls the visibility of the category filter button on each line.")]
+    public bool    CONSOLE_ShowLineCategories = true;
+    
     public void open(bool anim = true) {
         if (is_open) {
             focus_input_field();
@@ -200,25 +202,6 @@ public partial class DebugConsole : MonoBehaviour {
     }
     public void scroll_to_top(bool anim = true)    => scroll_console(SCROLL_TOP, anim);
     public void scroll_to_bottom(bool anim = true) => scroll_console(SCROLL_BOTTOM, anim);
-
-    // Lines:
-    TMP_Text add_new_line(string text) {
-        TMP_Text com = Instantiate(prefab_ui_line);
-        com.transform.SetParent(ui_text_container, false);
-
-        com.SetText(text);
-        ui_lines.Add(com);
-
-        if (ui_lines.Count > CONSOLE_MaxLines) destroy_line(0);
-
-        return com;
-    }
-
-    void destroy_line(int index) {
-        if ((index < 0 || index >= ui_lines.Count) && log_error("invalid index!")) return;
-        Destroy(ui_lines[0].gameObject);
-        ui_lines.RemoveAt(0);
-    }
 
     // Input field:
     public void focus_input_field() {
@@ -360,9 +343,37 @@ public partial class DebugConsole : MonoBehaviour {
         ui_autocomplete_text.SetText($":: {string.Join("; ", autocomplete_list)}");
     }
 
+    // Lines:
+    List<DebugConsole_UILine> ui_lines = new();
+
+    DebugConsole_UILine add_new_line(string text, LogLevel level = LogLevel.Info) {
+        DebugConsole_UILine com = Instantiate(prefab_ui_line);
+        com.trans.SetParent(ui_text_container, false);
+
+        com.set_text(text);
+        com.category = level;
+        com.category_button_clicked_event += category_button_clicked;
+
+        ui_lines.Add(com);
+        if (ui_lines.Count > CONSOLE_MaxLines) destroy_line(0);
+
+        return com;
+    }
+    void destroy_line(int index) {
+        if ((index < 0 || index >= ui_lines.Count) && log_error("invalid index!")) return;
+        ui_lines[0].category_button_clicked_event -= category_button_clicked;
+        Destroy(ui_lines[0].gameobject);
+        ui_lines.RemoveAt(0);
+    }
+    void category_button_clicked(object sender, LogLevel category) {
+        write_line("pressed!  cat: %".interp(category));
+        if (current_filter == category) category = LogLevel.None;
+        filter(category);
+    }
+
     // Processing & commands:
     void write_line_internal(string message, LogLevel level) {
-        add_new_line(message);
+        add_new_line(message, level);
     }
 
     // TODO: TODO: TODO:
@@ -381,7 +392,7 @@ public partial class DebugConsole : MonoBehaviour {
         get_instance()?.write_line_internal(message, level);
     }
     
-    static bool submit_debug = true;
+    static bool submit_debug = false;
     void submit(string input = null) {
         // Assume we want to submit the input field text when not given a parameter:
         if (input == null) {
@@ -391,7 +402,9 @@ public partial class DebugConsole : MonoBehaviour {
             // If submit repetition is not allowed, clear the input field upon submit:
             if (!CONSOLE_AllowSubmitRepetition) clear_input_field();
         }
-        if (CONSOLE_EchoBack) write_line("> %".interp(input));
+
+        if (input.is_empty() && CONSOLE_RepeatOnEmptySubmit && history.Count != 0) input = history.Last();
+        if (CONSOLE_EchoBack) write_line("> %".interp(input), LogLevel._ConsoleInternal);
         history_add(input);
         history_index = -1;
         scroll_to_bottom();
@@ -400,12 +413,10 @@ public partial class DebugConsole : MonoBehaviour {
         string   s_cmd  = split[0];
         string[] s_args = split[1 ..];
 
-        if (submit_debug) {
-            write_line("[submit] s_cmd: % :: s_args: [%]".interp(s_cmd, s_args.Length == 0 ? "none" : string.Join("; ", s_args)));
-        }
+        if (submit_debug) write_line("[submit] s_cmd: % :: s_args: [%]".interp(s_cmd, s_args.Length == 0 ? "none" : string.Join("; ", s_args)));
         
         if (!registered_commands.ContainsKey(s_cmd)) {
-            write_line("Could not find command: %".interp(input));
+            write_line("Could not find command: %".interp(input), LogLevel._ConsoleInternal);
             return;
         }
 
@@ -437,6 +448,19 @@ public partial class DebugConsole : MonoBehaviour {
         }
     }
     
+    // Filtering (categories):
+    public LogLevel current_filter = LogLevel.None;
+    void filter(LogLevel category = LogLevel.None) {
+        if (current_filter == category) return;
+
+        // write_line("Filtering console by %".interp(category), LogLevel._IgnoreFiltering);
+        foreach (var line in ui_lines) {
+            bool new_state = category.HasFlag(LogLevel._IgnoreFiltering) || category == LogLevel.None || line.category == category;
+            line.set_state(new_state);
+        }
+        current_filter = category;
+    }
+
     void Update() {
         UPDATE_Openness();
 
@@ -473,5 +497,7 @@ public partial class DebugConsole : MonoBehaviour {
 
         // Delete on [Ctrl+C]:
         if (is_held(keyboard?.ctrlKey) && was_pressed(keyboard?.cKey)) set_input_field_text(null);
+
+        filter(current_filter);
     }
 }

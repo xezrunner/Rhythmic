@@ -72,4 +72,12 @@ public static class TextExtensions {
     public static bool is_empty(this string text) {
         return text == null || text == "";
     }
+
+#if UNITY
+    public static UnityEngine.Color hex_to_unity_color(this string hex) {
+        UnityEngine.Color color = new(1f, 0f, 0f, 1f);
+        UnityEngine.ColorUtility.TryParseHtmlString(hex, out color);
+        return color;
+    }
+#endif
 }
