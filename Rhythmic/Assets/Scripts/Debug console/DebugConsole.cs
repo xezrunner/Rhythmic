@@ -54,20 +54,31 @@ public partial class DebugConsole : MonoBehaviour {
     public bool is_open     = false;
     public bool is_expanded = false;
 
-    [Header("UI objects")]
+    [Header("UI objects:")]
+    [Header("  - Self")]
     [SerializeField] RectTransform  ui_panel;
-    [SerializeField] Transform      ui_text_container;
+
+    [Header("  - Content")]
+    [SerializeField] RectTransform  ui_text_container;
+    [SerializeField] RectTransform  ui_scroll_rect_trans;
     [SerializeField] ScrollRect     ui_scroll_rect;
 
+    [Header("  - Filter warning panel")]
+    [SerializeField] GameObject     ui_filter_warning_panel_gameobject;
+    [SerializeField] RectTransform  ui_filter_warning_panel_rect;
+    [SerializeField] Image          ui_filter_warning_panel_image;
+    [SerializeField] TMP_Text       ui_filter_warning_panel_text;
+
+    [Header("  - Input field")]
     [SerializeField] TMP_InputField ui_input_field;
     [SerializeField] TMP_Text       ui_input_field_text;
     [SerializeField] TMP_Text       ui_autocomplete_text;
     [SerializeField] RectTransform  ui_autocomplete_text_rect;
 
-    [Header("Prefabs")]
+    [Header("Prefabs:")]
     [SerializeField] DebugConsole_UILine prefab_ui_line;
     
-    [Header("Options")]
+    [Header("Options:")]
     [Tooltip("The default height of the console. [Do not change dynamically!]")]
     public float   CONSOLE_DefaultHeight         = 270f;
     [Tooltip("The current height of the console. Used in openness and sizing.")]
@@ -441,6 +452,7 @@ public partial class DebugConsole : MonoBehaviour {
         if (current_filter == category) return;
         // log("Filtering console by %".interp(category), LogLevel._IgnoreFiltering);
         current_filter = category;
+        set_ui_filter_warning_panel(category);
     }
     void UPDATE_Filtering() {
         foreach (DebugConsole_UILine line in ui_lines) {
@@ -448,6 +460,19 @@ public partial class DebugConsole : MonoBehaviour {
                               line.category == current_filter;
             line.set_state(new_state);
         }
+    }
+    // TODO: Unify this into some helper class:
+    public Color copy_color_add(Color color, float add) => new(color.r + add, color.g + add, color.b + add, color.a);
+    void set_ui_filter_warning_panel(LogLevel category) {
+        if (category == LogLevel.None /*|| category == LogLevel.Info*/) {
+            ui_filter_warning_panel_gameobject.SetActive(false);
+            ui_scroll_rect_trans.offsetMax = new(ui_scroll_rect_trans.offsetMax.x, 0);
+            return;
+        }
+        ui_filter_warning_panel_image.color = copy_color_add(XZ_GetColorForLogLevel(category), -0.2f);
+        ui_filter_warning_panel_text.SetText("Filter active: %".interp(category.ToString()));
+        ui_scroll_rect_trans.offsetMax = new(ui_scroll_rect_trans.offsetMax.x, -ui_filter_warning_panel_rect.sizeDelta.y);
+        ui_filter_warning_panel_gameobject.SetActive(true);
     }
 
     void Update() {
@@ -461,8 +486,10 @@ public partial class DebugConsole : MonoBehaviour {
         
         // Input submission:
         if (was_pressed (keyboard?.enterKey, keyboard?.numpadEnterKey)) submit();
-        if (CONSOLE_AllowSubmitRepetition && was_released(keyboard?.enterKey, keyboard?.numpadEnterKey))
+        if (CONSOLE_AllowSubmitRepetition && was_released(keyboard?.enterKey, keyboard?.numpadEnterKey)) {
             clear_input_field();
+            focus_input_field();
+        }
         UPDATE_HandleSubmitRepetition();
 
         // Sizing:
