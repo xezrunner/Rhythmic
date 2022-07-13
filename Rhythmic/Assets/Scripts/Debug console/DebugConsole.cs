@@ -372,24 +372,11 @@ public partial class DebugConsole : MonoBehaviour {
     }
 
     // Processing & commands:
-    void write_line_internal(string message, LogLevel level) {
-        add_new_line(message, level);
+    void write_line_internal(string message) {
+        add_new_line(message, LogLevel._ConsoleInternal);
     }
-
-    // TODO: TODO: TODO:
-    // We're going to want to make a param here that will let us tag certain lines as different "categories".
-    // Let's say we want to print some console-internal debug information to the console.
-    // The line would be displayed as follows:
-    // [M] [submit] s_cmd: test :: s_args: [none]
-    //  ^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // cat.         [     text     ]
-    // The "cat." tag could have icons or labels (ex. [M] for 'meta', not the company), on which we could click
-    // and (temp-)filter the console for just those categories.
-    // We could also have an interface to the right of the input field to completely (non-temp) filter the lines
-    // for given categories.
-    // Console commands would be nice as well (ex. [filter meta] to filter by meta category)
     public static void write_line(string message, LogLevel level = LogLevel.Info) {
-        get_instance()?.write_line_internal(message, level);
+        get_instance()?.add_new_line(message, level);
     }
     
     static bool submit_debug = false;
@@ -452,13 +439,15 @@ public partial class DebugConsole : MonoBehaviour {
     public LogLevel current_filter = LogLevel.None;
     void filter(LogLevel category = LogLevel.None) {
         if (current_filter == category) return;
-
-        // write_line("Filtering console by %".interp(category), LogLevel._IgnoreFiltering);
-        foreach (var line in ui_lines) {
-            bool new_state = category.HasFlag(LogLevel._IgnoreFiltering) || category == LogLevel.None || line.category == category;
+        // log("Filtering console by %".interp(category), LogLevel._IgnoreFiltering);
+        current_filter = category;
+    }
+    void UPDATE_Filtering() {
+        foreach (DebugConsole_UILine line in ui_lines) {
+            bool new_state =  current_filter == LogLevel.None || line.category.HasFlag(LogLevel._IgnoreFiltering) ||
+                              line.category == current_filter;
             line.set_state(new_state);
         }
-        current_filter = category;
     }
 
     void Update() {
@@ -474,22 +463,22 @@ public partial class DebugConsole : MonoBehaviour {
         if (was_pressed (keyboard?.enterKey, keyboard?.numpadEnterKey)) submit();
         if (CONSOLE_AllowSubmitRepetition && was_released(keyboard?.enterKey, keyboard?.numpadEnterKey))
             clear_input_field();
-
         UPDATE_HandleSubmitRepetition();
-
-        // History navigation:
-        if (was_pressed(keyboard?.upArrowKey))   history_next(-1);
-        if (was_pressed(keyboard?.downArrowKey)) history_next(1);
-        
-        UPDATE_ScrollRequest();
-
-        // Autocomplete:
-        int autocomplete_dir = is_held(keyboard?.shiftKey) ? -1 : 1;
-        if (ui_input_field.text.Length > 0 && was_pressed(keyboard?.tabKey)) autocomplete_next(autocomplete_dir);
 
         // Sizing:
         if (ui_input_field.text.Length == 0 && was_pressed(keyboard?.tabKey)) toggle_expanded();
         UPDATE_Sizing();
+
+        // Scrolling animations:
+        UPDATE_ScrollRequest();
+
+        // History navigation:
+        if (was_pressed(keyboard?.upArrowKey))   history_next(-1);
+        if (was_pressed(keyboard?.downArrowKey)) history_next(1);
+
+        // Autocomplete:
+        int autocomplete_dir = is_held(keyboard?.shiftKey) ? -1 : 1;
+        if (ui_input_field.text.Length > 0 && was_pressed(keyboard?.tabKey)) autocomplete_next(autocomplete_dir);
 
         // Word deletion:
         if (is_held(keyboard?.ctrlKey) && was_pressed(keyboard?.backspaceKey)) input_delete_word(-1);
@@ -498,6 +487,7 @@ public partial class DebugConsole : MonoBehaviour {
         // Delete on [Ctrl+C]:
         if (is_held(keyboard?.ctrlKey) && was_pressed(keyboard?.cKey)) set_input_field_text(null);
 
-        filter(current_filter);
+        // Filtering:
+        UPDATE_Filtering();
     }
 }

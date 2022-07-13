@@ -121,23 +121,30 @@ public partial class DebugConsole {
                 if      (s.Contains("?") || s.Contains("help")) is_help = true;
                 else if (s.Contains("hash"))  show_hashes = true;
                 else if (s.Contains("alias")) show_aliases = true;
-                else     write_line("invalid option: %".interp(s));
+                // Clashes with command help:
+                //else     write_line_internal("invalid option: %".interp(s));
             }
         }
 
         if (is_help) {
-            write_line("-------------------------------------------------------------------");
-            write_line("[help ?]             :: print help for the help command");
-            write_line("[help command]       :: print the help text for a specific command");
-            write_line("[help]               :: lists out all of the registered commands");
-            write_line("[help opt1 opt2 ...] :: same as above, but prints additional details");
-            write_line("options: ");
-            write_line("  - alias: prints out possible aliases for commands (limited to 3)");
-            write_line("  - hash:  prints out the hash for each registered command entry");
+            write_line_internal("--------------------------------------------------------------------");
+            write_line_internal("[help ?]             :: print help for the help command");
+            write_line_internal("[help command]       :: print the help text for a specific command");
+            write_line_internal("[help]               :: lists out all of the registered commands");
+            write_line_internal("[help opt1 opt2 ...] :: same as above, but prints additional details");
+            write_line_internal("options: ");
+            write_line_internal("  - alias: prints out possible aliases for commands (limited to 3)");
+            write_line_internal("  - hash:  prints out the hash for each registered command entry");
+            return;
+        }
+
+        if (args.Length >= 1) {
+            // write_line_internal("attempting to invoke command '%' with the parameter '?'...".interp(args[0]));
+            submit("% %".interp(args[0], "?"));
             return;
         }
         
-        write_line("Listing all commands: (%)".interp(registered_command_count));
+        write_line_internal("Listing all commands: (%)".interp(registered_command_count));
         int prev_hash = -1;
         foreach (var kv in registered_commands) {
             ConsoleCommand cmd = kv.Value;
@@ -150,15 +157,15 @@ public partial class DebugConsole {
             if (!cmd.help_text.is_empty()) s_help_text = $" :: {cmd.help_text}";
 
             int longest_key_length = registered_commands.Keys.Max(k => k.Length);
-            string s_alias   = cmd.aliases[0].PadRight(longest_key_length);
             string s_aliases = null;
+            string s_alias   = cmd.aliases[0].PadRight(longest_key_length);
             if (show_aliases && cmd.aliases.Length > 1) {
                 s_aliases = $" :: aliases: [{string.Join("; ", cmd.aliases, 1, cmd.aliases.Length - 1)}]";
             }
 
             string s_hash = show_hashes ? $" [{cmd_hash:X8}]" : null;
 
-            write_line("  - %%%".interp(s_alias, s_hash, !show_aliases ? s_help_text : null, s_aliases));
+            write_line_internal("  - %%%".interp(s_alias, s_hash, !show_aliases ? s_help_text : null, s_aliases));
 
             prev_hash = cmd_hash;
         }
@@ -170,11 +177,11 @@ public partial class DebugConsole {
             return;
         }
         if (args[0] == "?") {
-            write_line("-------------------------------------------------------------------");
-            write_line("[filter ?]     :: print help for the filter command");
-            write_line("[filter level] :: filter the console entries by a specific log level\n" + 
-                       "                  (case-insensitive, accepts partial input - ex. \"warn\", \"err\")");
-            write_line("valid levels: [%]".interp(string.Join(", ", Enum.GetNames(typeof(LogLevel)))));
+            write_line_internal("------------------------------------------------------------------------------------");
+            write_line_internal("[filter ?]     :: print help for the filter command");
+            write_line_internal("[filter level] :: filter the console entries by a specific log level");
+            write_line_internal("                  (case-insensitive, accepts partial input - ex. \"warn\", \"err\")");
+            write_line_internal("valid levels: [%]".interp(string.Join(", ", Enum.GetNames(typeof(LogLevel)))));
             return;
         }
 

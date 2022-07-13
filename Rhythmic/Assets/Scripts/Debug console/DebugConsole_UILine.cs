@@ -77,9 +77,8 @@ public class DebugConsole_UILine : MonoBehaviour
         bool new_state = self_is_active;
         if (!console.CONSOLE_ShowLineCategories)   new_state = false;
         if (category == LogLevel.None)             new_state = false;
-        // TODO: Hide _ConsoleInternal temporarily.
-        // Preferably, we'll want to have a list (UI) where we can select it, while not having the 
-        // line button visible for this specific and other internal categories.
+        // TODO: Preferably, we'll want to have a list/panel (UI) where we can select _ConsoleInternal,
+        // while not having the line button visible for this specific and other internal categories.
         if (category == LogLevel._ConsoleInternal) new_state = false;
 
         ui_category_button_gameobject.SetActive(new_state);
