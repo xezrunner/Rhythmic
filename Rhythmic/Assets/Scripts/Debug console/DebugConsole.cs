@@ -393,6 +393,7 @@ public partial class DebugConsole : MonoBehaviour {
         }
         if (CONSOLE_EchoBack) write_line("> %".interp(input));
         history_add(input);
+        history_index = -1;
         scroll_to_bottom();
 
         string[] split  = input.Split(' ');
