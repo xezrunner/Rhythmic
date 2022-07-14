@@ -114,6 +114,7 @@ public partial class DebugConsole {
     }
     void cmd_help(string[] args) {
         bool is_help      = false;
+        bool is_cmd_help  = false;
         bool show_hashes  = false;
         bool show_aliases = false;
         if (args != null) {
@@ -123,6 +124,7 @@ public partial class DebugConsole {
                 else if (s.Contains("alias")) show_aliases = true;
                 // Clashes with command help:
                 //else     write_line_internal("invalid option: %".interp(s));
+                else is_cmd_help = true;
             }
         }
 
@@ -133,12 +135,12 @@ public partial class DebugConsole {
             write_line_internal("[help]               :: lists out all of the registered commands");
             write_line_internal("[help opt1 opt2 ...] :: same as above, but prints additional details");
             write_line_internal("options: ");
-            write_line_internal("  - alias: prints out possible aliases for commands (limited to 3)");
+            write_line_internal("  - alias: prints out possible aliases for commands");
             write_line_internal("  - hash:  prints out the hash for each registered command entry");
             return;
         }
 
-        if (args.Length >= 1) {
+        if (is_cmd_help && args.Length >= 1) {
             // write_line_internal("attempting to invoke command '%' with the parameter '?'...".interp(args[0]));
             submit("% %".interp(args[0], "?"));
             return;
