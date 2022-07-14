@@ -226,14 +226,11 @@ public partial class DebugConsole : MonoBehaviour {
         set_input_field_text(null); // @Optimization
     }
 
-    void input_delete_word(int dir) // -1: left | 1: right
-        {
+    void input_delete_word(int dir) { // -1: left | 1: right
         if (ui_input_field.text == "") return;
         if (ui_input_field.text.Length == 1) return;
 
-        // TODO: Do we still need to fiddle with the caret?
         int caret_position = ui_input_field.caretPosition;
-
         string s0 = ui_input_field.text[.. caret_position]; // 0 -> *| ...
         string s1 = ui_input_field.text[caret_position ..];
 
@@ -245,8 +242,7 @@ public partial class DebugConsole : MonoBehaviour {
             if (tokens.Length > 0) tokens[^1] = "";
 
             s0 = string.Join(" ", tokens);
-            if (!s0.is_empty() && s0[^1] == ' ') s0 = s0[..^1];
-            caret_position = s0.Length;
+            if (!s0.is_empty() && s0[^1] == ' ') s0 = s0[.. ^1];
         } else if (dir == 1) {
             if (caret_position == ui_input_field.text.Length - 1) return;
 
@@ -321,11 +317,11 @@ public partial class DebugConsole : MonoBehaviour {
     }
 
     bool autocomplete_list_debug = false;
-    void build_autocomplete_list(string input = null) {
-        if (!CONSOLE_EnableAutocomplete) return;
+    List<string> build_autocomplete_list(string input = null) {
+        if (!CONSOLE_EnableAutocomplete) return null;
 
         if (input == null) input = ui_input_field.text;
-        if (input.is_empty()) return;
+        if (input.is_empty()) return null;
 
         autocomplete_list.Clear();
         
@@ -338,6 +334,7 @@ public partial class DebugConsole : MonoBehaviour {
         }
 
         if (autocomplete_list_debug) write_line("Autocomplete: [%]".interp(string.Join("; ", autocomplete_list)));
+        return autocomplete_list;
     }
     void build_autocomplete_ui() {
         ui_autocomplete_text.SetText("");
