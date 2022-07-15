@@ -74,6 +74,23 @@ public static class TextExtensions {
     }
 
 #if UNITY
+    public static string bold     (this string text) => $"<b>{text}</b>";
+    public static string underline(this string text) => $"<u>{text}</u>";
+    public static string italic   (this string text) => $"<i>{text}</i>";
+    public static string color    (this string text, string color_hex) {
+        if (color_hex[0] != '#') color_hex.Insert(0, "#");
+        return $"<color={color_hex}>{text}</color>";
+    }
+    public static string color    (this string text, UnityEngine.Color unity_color, float alpha = -1f) {
+        if (alpha >= 0f) unity_color.a = alpha;
+        string hex = unity_color_to_hex(unity_color);
+        return color(text, hex);
+    }
+
+    public static string unity_color_to_hex(this UnityEngine.Color color) {
+        string result = UnityEngine.ColorUtility.ToHtmlStringRGBA(color);
+        return $"#{result}";
+    }
     public static UnityEngine.Color hex_to_unity_color(this string hex) {
         UnityEngine.Color color = new(1f, 0f, 0f, 1f);
         UnityEngine.ColorUtility.TryParseHtmlString(hex, out color);
