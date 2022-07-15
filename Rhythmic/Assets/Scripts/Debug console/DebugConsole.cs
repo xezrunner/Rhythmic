@@ -9,6 +9,7 @@ using static QuickInput;
 using static AnimEasing;
 using System.Linq;
 using System.Text;
+using System;
 
 public partial class DebugConsole : MonoBehaviour {
     static DebugConsole instance;
@@ -431,6 +432,19 @@ public partial class DebugConsole : MonoBehaviour {
         if (cmd.command_type == ConsoleCommandType.Function) {
             ConsoleCommand_Func cmd_func = (ConsoleCommand_Func)cmd;
             cmd_func.invoke(s_args);
+        }
+        else if (cmd.command_type == ConsoleCommandType.Variable) {
+            ConsoleCommand_Variable cmd_var = (ConsoleCommand_Variable)cmd;
+            Ref var_ref = cmd_var.var_ref;
+            if (s_args.Length == 0) write_line_internal("% (%): %".interp(s_cmd, var_ref.var_type.Name, var_ref.get_value()));
+            else {
+                object value_to_set;
+                try {
+                    value_to_set = Convert.ChangeType(s_args[0], var_ref.var_type);
+                } catch (Exception ex) { write_line("Could not set value: %".interp(ex.Message), LogLevel.Error); return; }
+                
+                var_ref.set_value(value_to_set);
+            }
         }
     }
 

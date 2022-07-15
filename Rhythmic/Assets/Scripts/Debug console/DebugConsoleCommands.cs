@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using Unity.VisualScripting.Dependencies.Sqlite;
 using static Logging;
 
 public enum ConsoleCommandType { Function, Variable }
@@ -38,15 +41,32 @@ public class ConsoleCommand_Func : ConsoleCommand {
         else action_params.Invoke(args);
     }
 }
-public class ConsoleCommand_Value<T> : ConsoleCommand {
-    public ConsoleCommand_Value(T value) {
-        command_type = ConsoleCommandType.Variable;
-        this.value = value;
-        type = value.GetType();
+
+public class Ref {
+    public Ref() { }
+    public Ref(Func<object> getter, Action<object> setter) {
+        this.getter = getter;
+        this.setter = setter;
+        var_type = get_value().GetType();
     }
-    // TODO: REF!!!
-    public T value;
-    public Type type;
+    public Type  var_type;
+    public Func  <object> getter;
+    public Action<object> setter;
+    public object get_value()             => getter.Invoke();
+    public void   set_value(object value) => setter.Invoke(value);
+}
+public class Ref<T> : Ref {
+    public new T get_value()        => (T)base.get_value();
+    public void  set_value(T value) =>    base.set_value(value);
+}
+public class ConsoleCommand_Variable : ConsoleCommand {
+    public ConsoleCommand_Variable(Ref var_ref) {
+        command_type = ConsoleCommandType.Variable;
+        this.var_ref = var_ref;
+    }
+    public Ref var_ref;
+    public object get_value() => var_ref.get_value();
+    public void   set_value(object value) => var_ref.set_value(value);
 }
 
 public partial class DebugConsole {
@@ -74,8 +94,13 @@ public partial class DebugConsole {
         return get_instance().register_command_internal(command, help_text, aliases);
     }
 
+    public static bool register_command(Ref var_ref, string help_text = null, params string[] aliases) {
+        ConsoleCommand_Variable command = new(var_ref);
+        return get_instance().register_command_internal(command, help_text, aliases);
+    }
+
     public static bool COMMANDS_AlwaysAddFuncNames = true;
-    public static string[] register_command_func_handle_aliases(MethodInfo info, string[] aliases) {
+    static string[] register_command_func_handle_aliases(MethodInfo info, string[] aliases) {
         if (COMMANDS_AlwaysAddFuncNames || aliases.Length == 0) {
             // Allocate new space for the function name:
             string[] new_aliases = new string[aliases.Length + 1];
@@ -107,6 +132,7 @@ public partial class DebugConsole {
         register_command(cmd_clear, "Deletes all of the text from the console.");
         register_command(cmd_toggle_line_categories, "Toggles the category button visibility next to console lines.");
         register_command(cmd_filter, "Filter by a log level category.");
+        register_command(print_cmd_info, "Print debug information about a registered command.");
     }
 
     void cmd_clear() {
@@ -196,6 +222,25 @@ public partial class DebugConsole {
 
         LogLevel level = (LogLevel)Enum.Parse(typeof(LogLevel), s_match);
         filter(level);
+    }
+
+    void print_cmd_info(string[] args) {
+        if (args.Length == 0) write_line_internal("missing command arg!");
+        var cmd_kv = registered_commands.Where(kv => kv.Key == args[0]).FirstOrDefault();
+        ConsoleCommand cmd = cmd_kv.Value;
+        if (cmd == null) write_line_internal("commad not found!");
+
+        write_line_internal("type:             %".interp(cmd.command_type));
+        write_line_internal("help_text:        %".interp(cmd.help_text));
+        write_line_internal("is_cheat_command: %".interp(cmd.is_cheat_command));
+        write_line_internal("aliases: [%]".interp(cmd.aliases != null ? string.Join("; ", cmd.aliases) : null));
+        if (cmd.command_type == ConsoleCommandType.Function) {
+
+        }
+        else if (cmd.command_type == ConsoleCommandType.Variable) {
+            ConsoleCommand_Variable cmd_var = (ConsoleCommand_Variable)cmd;
+            write_line_internal("var_type: % (base: %)".interp(cmd_var.var_ref.var_type.Name, cmd_var.var_ref.var_type.BaseType.Name));
+        }
     }
 
 }
