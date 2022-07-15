@@ -8,6 +8,7 @@ using static Logging;
 using static QuickInput;
 using static AnimEasing;
 using System.Linq;
+using System.Text;
 
 public partial class DebugConsole : MonoBehaviour {
     static DebugConsole instance;
@@ -348,7 +349,18 @@ public partial class DebugConsole : MonoBehaviour {
         Vector2 last_c_pos   = ui_input_field_text.rectTransform.TransformPoint(last_c_info.bottomRight);
         ui_autocomplete_text_rect.position = new Vector2(last_c_pos.x + CONSOLE_AutocompletePaddingX, ui_autocomplete_text_rect.position.y);
 
-        ui_autocomplete_text.SetText($":: {string.Join("; ", autocomplete_list)}");
+        StringBuilder builder = new(); // TODO: Is a StringBuilder beneficial here?
+        for (int i = 0; i < autocomplete_list.Count; ++i) {
+            string to_add = autocomplete_list[i];
+            if (i == autocomplete_index) {
+                to_add = to_add.color("#03A9F4");
+                to_add = to_add.bold();
+                to_add = to_add.underline();
+            }
+            if (i != autocomplete_list.Count - 1) to_add += "; ";
+            builder.Append(to_add);
+        }
+        ui_autocomplete_text.SetText($":: {builder}");
     }
 
     // Lines:
@@ -374,7 +386,7 @@ public partial class DebugConsole : MonoBehaviour {
         ui_lines.RemoveAt(0);
     }
     void category_button_clicked(object sender, LogLevel category) {
-        write_line("pressed!  cat: %".interp(category));
+        // write_line("pressed!  cat: %".interp(category));
         if (current_filter == category) category = LogLevel.None;
         filter(category);
     }

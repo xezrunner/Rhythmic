@@ -10,5 +10,5 @@ public class Test : MonoBehaviour {
     }
     void test_log()  => log("test!");
     void test_log_warn() => log_warn("test!");
-    void test_log_error() => log_error("test!");
+    void test_log_error() => log_error("test!".color(Color.red));
 }
