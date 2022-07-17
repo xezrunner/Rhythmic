@@ -73,13 +73,14 @@ public class DebugConsole_UILine : MonoBehaviour
         return new_state;
     }
 
+    public static Enum[] category_buttons_hide_flags = { LogLevel._ConsoleInternal, LogLevel._IgnoreFiltering };
     void update_category_button_state() {
         bool new_state = self_is_active;
         if (!console.CONSOLE_ShowLineCategories)   new_state = false;
         if (category == LogLevel.None)             new_state = false;
         // TODO: Preferably, we'll want to have a list/panel (UI) where we can select _ConsoleInternal,
         // while not having the line button visible for this specific and other internal categories.
-        if (category == LogLevel._ConsoleInternal) new_state = false;
+        if (category.HasFlag_Any(category_buttons_hide_flags)) new_state = false;
 
         ui_category_button_gameobject.SetActive(new_state);
         ui_text.margin = !new_state ? Vector4.zero : new(ui_category_button_rect.sizeDelta.x + 6f,0f,0f,0f);

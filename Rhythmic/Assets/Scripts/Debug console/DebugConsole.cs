@@ -43,7 +43,7 @@ public partial class DebugConsole : MonoBehaviour {
         ui_lines = new(capacity: CONSOLE_MaxLines);
         history = new(CONSOLE_MaxHistoryEntries);
 
-        register_builtin_commands();
+        register_commands_from_assembly();
 
         write_line("[console] initialized");
     }

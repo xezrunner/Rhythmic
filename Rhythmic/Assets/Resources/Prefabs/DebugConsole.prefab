@@ -1268,7 +1268,7 @@ MonoBehaviour:
     type: 3}
   CONSOLE_DefaultHeight: 270
   CONSOLE_Height: 270
-  CONSOLE_MaxLines: 300
+  CONSOLE_MaxLines: 1000
   CONSOLE_RepeatOnEmptySubmit: 1
   CONSOLE_EchoBack: 1
   CONSOLE_MaxHistoryEntries: 100

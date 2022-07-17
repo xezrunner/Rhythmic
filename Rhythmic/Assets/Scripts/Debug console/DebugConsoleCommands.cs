@@ -66,6 +66,17 @@ public class ConsoleCommand_Variable : ConsoleCommand {
     public void   set_value(object value) => var_ref.set_value(value);
 }
 
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
+public class ConsoleCommandAttribute : Attribute {
+    public ConsoleCommandAttribute(string help_text = null, bool is_cheat_command = false, params string[] aliases) {
+        this.is_cheat_command = is_cheat_command;
+        this.aliases = aliases;
+    }
+    public bool     is_cheat_command;
+    public string   help_text;
+    public string[] aliases;
+}
+
 public partial class DebugConsole {
     public Dictionary<string, ConsoleCommand> registered_commands = new();
 
@@ -73,10 +84,12 @@ public partial class DebugConsole {
     public bool register_command_internal(ConsoleCommand command, string help_text, string[] aliases) {
         if (command == null && log_warn("attempting to register null command!")) return false;
         if ((aliases == null || aliases.Length == 0) && log_warn("no aliases!")) return false;
+        command.aliases = new string[aliases.Length];
         command.help_text = help_text;
-        foreach (string alias in aliases) {
+        for (int i = 0, j = -1; i < aliases.Length; ++i) {
+            string alias = aliases[i];
             if (alias.is_empty()) continue;
-            
+            command.aliases[++j] = alias;
             if (registered_commands.ContainsKey(alias)) {
                 log_warn("The alias '%' is already registered. Ignoring!".interp(alias));
                 continue;
@@ -124,18 +137,58 @@ public partial class DebugConsole {
 
     // ----- //
 
-    void register_builtin_commands() {
-        register_command(cmd_help, "Lists all commands.");
-        register_command(cmd_clear, "Deletes all of the text from the console.");
-        register_command(cmd_toggle_line_categories, "Toggles the category button visibility next to console lines.");
-        register_command(cmd_filter, "Filter by a log level category.");
-        register_command(print_cmd_info, "Print debug information about a registered command.");
+    void register_commands_from_assembly() {
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        Type[] types = assembly.GetTypes();
+
+        // NOTE: only static methods and fields can be used as console commands!
+        
+        // Methods:
+        foreach (Type type in types) {
+            MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            foreach (MethodInfo info in methods) {
+                if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
+                
+                ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
+
+                bool is_params = false;
+                ParameterInfo[] parameters = info.GetParameters();
+                if (parameters.Length > 0 && parameters[0].ParameterType == typeof(string[])) is_params = true;
+
+                if (!is_params) {
+                    Action action = (Action)info.CreateDelegate(typeof(Action));
+                    register_command(action, attrib.help_text, attrib.aliases);
+                } else {
+                    Action<string[]> action = (Action<string[]>)info.CreateDelegate(typeof(Action<string[]>));
+                    register_command(action, attrib.help_text, attrib.aliases);
+                }
+            }
+        }
+
+        // Fields:
+        foreach (Type type in types) {
+            FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            foreach (FieldInfo info in fields) {
+                if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
+                
+                ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
+                string[] aliases = attrib.aliases.Length > 0 ? attrib.aliases : new string[1] { info.Name };
+                register_command(new Ref(() => info.GetValue(null), (v) => info.SetValue(null, v)), attrib.help_text, aliases);
+            }
+        }
     }
 
-    void cmd_clear() {
-        for (int i = ui_lines.Count - 1; i >= 0; --i) destroy_line(i);
+    [ConsoleCommand("Deletes all of the text from the console.")]
+    static void cmd_clear() {
+        DebugConsole console = get_instance();
+        if (!console && log_error("no console!")) return;
+        for (int i = console.ui_lines.Count - 1; i >= 0; --i) console.destroy_line(i);
     }
-    void cmd_help(string[] args) {
+    [ConsoleCommand("Lists all commands.")]
+    static void cmd_help(string[] args) {
+        DebugConsole console = get_instance();
+        if (!console && log_error("no console!")) return;
+
         bool is_help      = false;
         bool is_cmd_help  = false;
         bool show_hashes  = false;
@@ -152,26 +205,26 @@ public partial class DebugConsole {
         }
 
         if (is_help) {
-            write_line_internal("--------------------------------------------------------------------");
-            write_line_internal("[help ?]             :: print help for the help command");
-            write_line_internal("[help command]       :: print the help text for a specific command");
-            write_line_internal("[help]               :: lists out all of the registered commands");
-            write_line_internal("[help opt1 opt2 ...] :: same as above, but prints additional details");
-            write_line_internal("options: ");
-            write_line_internal("  - alias: prints out possible aliases for commands");
-            write_line_internal("  - hash:  prints out the hash for each registered command entry");
+            console.write_line_internal("--------------------------------------------------------------------");
+            console.write_line_internal("[help ?]             :: print help for the help command");
+            console.write_line_internal("[help command]       :: print the help text for a specific command");
+            console.write_line_internal("[help]               :: lists out all of the registered commands");
+            console.write_line_internal("[help opt1 opt2 ...] :: same as above, but prints additional details");
+            console.write_line_internal("options: ");
+            console.write_line_internal("  - alias: prints out possible aliases for commands");
+            console.write_line_internal("  - hash:  prints out the hash for each registered command entry");
             return;
         }
 
         if (is_cmd_help && args.Length >= 1) {
             // write_line_internal("attempting to invoke command '%' with the parameter '?'...".interp(args[0]));
-            submit("% %".interp(args[0], "?"));
+            console.submit("% %".interp(args[0], "?"));
             return;
         }
         
-        write_line_internal("Listing all commands: (%)".interp(registered_command_count));
+        console.write_line_internal("Listing all commands: (%)".interp(console.registered_command_count));
         int prev_hash = -1;
-        foreach (var kv in registered_commands) {
+        foreach (var kv in console.registered_commands) {
             ConsoleCommand cmd = kv.Value;
             int cmd_hash = cmd.GetHashCode();
 
@@ -181,32 +234,45 @@ public partial class DebugConsole {
             string s_help_text = null;
             if (!cmd.help_text.is_empty()) s_help_text = $" :: {cmd.help_text}";
 
-            int longest_key_length = registered_commands.Keys.Max(k => k.Length);
+            int longest_key_length = console.registered_commands.Keys.Max(k => k.Length);
             string s_aliases = null;
-            string s_alias   = cmd.aliases[0].PadRight(longest_key_length);
-            if (show_aliases && cmd.aliases.Length > 1) {
+            string s_alias   = cmd.aliases?[0].PadRight(longest_key_length);
+            if (show_aliases && cmd.aliases?.Length > 1) {
                 s_aliases = $" :: aliases: [{string.Join("; ", cmd.aliases, 1, cmd.aliases.Length - 1)}]";
             }
 
             string s_hash = show_hashes ? $" [{cmd_hash:X8}]" : null;
 
-            write_line_internal("  - %%%".interp(s_alias, s_hash, !show_aliases ? s_help_text : null, s_aliases));
+            console.write_line_internal("  - %%%".interp(s_alias, s_hash, !show_aliases ? s_help_text : null, s_aliases));
 
             prev_hash = cmd_hash;
         }
     }
-    void cmd_toggle_line_categories() => get_instance().CONSOLE_ShowLineCategories = !get_instance().CONSOLE_ShowLineCategories;
-    void cmd_filter(string[] args) {
+    [ConsoleCommand("Toggles the category button visibility next to console lines.")]
+    static void cmd_toggle_line_categories()   => get_instance().CONSOLE_ShowLineCategories = !get_instance().CONSOLE_ShowLineCategories;
+    [ConsoleCommand("Toggles the ability to submit a console command continuously by holding down the submit button.")]
+    static void cmd_toggle_submit_repetition() {
+        DebugConsole console = get_instance();
+        if (!console && log_error("no console!")) return;
+
+        console.CONSOLE_AllowSubmitRepetition = !console.CONSOLE_AllowSubmitRepetition;
+        console.write_line_internal("new state: %".interp(get_instance().CONSOLE_AllowSubmitRepetition));
+    }
+    [ConsoleCommand("Filter by a log level category.")]
+    static void cmd_filter(string[] args) {
+        DebugConsole console = get_instance();
+        if (!console && log_error("no console!")) return;
+        
         if (args.Length == 0) {
-            write_line("current filter: %".interp(current_filter), LogLevel._ConsoleInternal);
+            write_line("current filter: %".interp(console.current_filter), LogLevel._ConsoleInternal);
             return;
         }
         if (args[0] == "?") {
-            write_line_internal("------------------------------------------------------------------------------------");
-            write_line_internal("[filter ?]     :: print help for the filter command");
-            write_line_internal("[filter level] :: filter the console entries by a specific log level");
-            write_line_internal("                  (case-insensitive, accepts partial input - ex. \"warn\", \"err\")");
-            write_line_internal("valid levels: [%]".interp(string.Join(", ", Enum.GetNames(typeof(LogLevel)))));
+            console.write_line_internal("------------------------------------------------------------------------------------");
+            console.write_line_internal("[filter ?]     :: print help for the filter command");
+            console.write_line_internal("[filter level] :: filter the console entries by a specific log level");
+            console.write_line_internal("                  (case-insensitive, accepts partial input - ex. \"warn\", \"err\")");
+            console.write_line_internal("valid levels: [%]".interp(string.Join(", ", Enum.GetNames(typeof(LogLevel)))));
             return;
         }
 
@@ -218,25 +284,28 @@ public partial class DebugConsole {
         if (s_match.is_empty() && log_error("invalid log level: %".interp(s_level))) return;
 
         LogLevel level = (LogLevel)Enum.Parse(typeof(LogLevel), s_match);
-        filter(level);
+        console.filter(level);
     }
+    [ConsoleCommand("Print debug information about a registered command.")]
+    static void cmd_print_cmd_info(string[] args) {
+        DebugConsole console = get_instance();
+        if (!console && log_error("no console!")) return;
 
-    void print_cmd_info(string[] args) {
-        if (args.Length == 0) write_line_internal("missing command arg!");
-        var cmd_kv = registered_commands.Where(kv => kv.Key == args[0]).FirstOrDefault();
+        if (args.Length == 0) console.write_line_internal("missing command arg!");
+        var cmd_kv = console.registered_commands.Where(kv => kv.Key == args[0]).FirstOrDefault();
         ConsoleCommand cmd = cmd_kv.Value;
-        if (cmd == null) write_line_internal("commad not found!");
+        if (cmd == null) console.write_line_internal("commad not found!");
 
-        write_line_internal("type:             %".interp(cmd.command_type));
-        write_line_internal("help_text:        %".interp(cmd.help_text));
-        write_line_internal("is_cheat_command: %".interp(cmd.is_cheat_command));
-        write_line_internal("aliases: [%]".interp(cmd.aliases != null ? string.Join("; ", cmd.aliases) : null));
+        console.write_line_internal("type:             %".interp(cmd.command_type));
+        console.write_line_internal("help_text:        %".interp(cmd.help_text));
+        console.write_line_internal("is_cheat_command: %".interp(cmd.is_cheat_command));
+        console.write_line_internal("aliases: [%]".interp(cmd.aliases != null ? string.Join("; ", cmd.aliases) : null));
         if (cmd.command_type == ConsoleCommandType.Function) {
-
+            console.write_line_internal("TODO: print function info!");
         }
         else if (cmd.command_type == ConsoleCommandType.Variable) {
             ConsoleCommand_Variable cmd_var = (ConsoleCommand_Variable)cmd;
-            write_line_internal("var_type: % (base: %)".interp(cmd_var.var_ref.var_type.Name, cmd_var.var_ref.var_type.BaseType.Name));
+            console.write_line_internal("var_type: % (base: %)".interp(cmd_var.var_ref.var_type.Name, cmd_var.var_ref.var_type.BaseType.Name));
         }
     }
 
