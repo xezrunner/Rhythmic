@@ -452,6 +452,7 @@ public partial class DebugConsole : MonoBehaviour {
     float submit_hold_timer_ms = 0f;
     void UPDATE_HandleSubmitRepetition() {
         if (!CONSOLE_AllowSubmitRepetition) return;
+
         // If we keep holding a submit key, repeatedly submit after a delay:
         if (is_held(keyboard?.enterKey, keyboard?.numpadEnterKey)) {
             if (submit_hold_timer_ms < CONSOLE_RepeatHoldTime) submit_hold_timer_ms += Time.unscaledDeltaTime * 1000f;
@@ -462,10 +463,12 @@ public partial class DebugConsole : MonoBehaviour {
             }
         }
         if (was_released(keyboard?.enterKey, keyboard?.numpadEnterKey)) {
-            if (repeated_submits_count > 0)
-                log("repeatedly submitted % times.".interp(repeated_submits_count));
+            if (repeated_submits_count > 0) log("repeatedly submitted % times.".interp(repeated_submits_count));
             repeated_submits_count = 0;
             submit_hold_timer_ms = 0f;
+
+            clear_input_field();
+            focus_input_field();
         }
     }
     
@@ -509,10 +512,6 @@ public partial class DebugConsole : MonoBehaviour {
         
         // Input submission:
         if (was_pressed (keyboard?.enterKey, keyboard?.numpadEnterKey)) submit();
-        if (CONSOLE_AllowSubmitRepetition && was_released(keyboard?.enterKey, keyboard?.numpadEnterKey)) {
-            clear_input_field();
-            focus_input_field();
-        }
         UPDATE_HandleSubmitRepetition();
 
         // Sizing:

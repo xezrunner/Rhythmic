@@ -257,6 +257,12 @@ public partial class DebugConsole {
 
         console.CONSOLE_AllowSubmitRepetition = !console.CONSOLE_AllowSubmitRepetition;
         console.write_line_internal("new state: %".interp(get_instance().CONSOLE_AllowSubmitRepetition));
+
+        // We clear the input field in submit() when submit repetition is off.
+        // Since submit() invoked this function while submit repetition was off, it has not cleared the input field, 
+        // so let's do it ourselves:
+        console.clear_input_field();
+        console.focus_input_field();
     }
     [ConsoleCommand("Filter by a log level category.")]
     static void cmd_filter(string[] args) {
