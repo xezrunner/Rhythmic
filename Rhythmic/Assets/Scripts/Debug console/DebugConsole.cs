@@ -31,6 +31,10 @@ public partial class DebugConsole : MonoBehaviour {
 
         // Disable Unity's SRP Debug canvas:
         UnityEngine.Rendering.DebugManager.instance.enableRuntimeUI = false; // @SRPDebugCanvas @WordDeleteClash
+
+        ui_lines = new(capacity: CONSOLE_MaxLines);
+        history = new(CONSOLE_MaxHistoryEntries);
+        register_commands_from_assembly();
     }
     void Start() {
         // Start closed:
@@ -40,11 +44,6 @@ public partial class DebugConsole : MonoBehaviour {
         }
         
         sizing_y = (CONSOLE_Height, CONSOLE_Height);
-        ui_lines = new(capacity: CONSOLE_MaxLines);
-        history = new(CONSOLE_MaxHistoryEntries);
-
-        register_commands_from_assembly();
-
         write_line("[console] initialized");
     }
 
@@ -474,11 +473,18 @@ public partial class DebugConsole : MonoBehaviour {
     
     // Filtering (categories):
     public LogLevel current_filter = LogLevel.None;
+    float  filter_last_scroll_location = -1f;
     void filter(LogLevel category = LogLevel.None) {
         if (current_filter == category) return;
         // log("Filtering console by %".interp(category), LogLevel._IgnoreFiltering);
         current_filter = category;
         set_ui_filter_warning_panel(category);
+        
+        if (filter_last_scroll_location != -1f && category == LogLevel.None) {
+            scroll_console(filter_last_scroll_location);
+            filter_last_scroll_location = -1f;
+        }
+        filter_last_scroll_location = ui_scroll_rect.verticalNormalizedPosition;
     }
     void UPDATE_Filtering() {
         foreach (DebugConsole_UILine line in ui_lines) {
