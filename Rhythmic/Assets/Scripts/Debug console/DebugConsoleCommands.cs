@@ -12,21 +12,17 @@ public abstract class ConsoleCommand {
     public bool     is_cheat_command = false;
 }
 
-// <!> CLEANUP REQUIRED:
 public class ConsoleCommand_Func : ConsoleCommand {
-    public ConsoleCommand_Func(Action action, string help_text = null, string[] aliases = null) {
+    ConsoleCommand_Func() {
         command_type = ConsoleCommandType.Function;
+    }
+    public ConsoleCommand_Func(Action action) : this() {
         is_params = false;
         action_empty = action;
-        this.help_text = help_text;
-        this.aliases = aliases;
     }
-    public ConsoleCommand_Func(Action<string[]> action, string help_text = null, string[] aliases = null) {
-        command_type = ConsoleCommandType.Function;
+    public ConsoleCommand_Func(Action<string[]> action) : this() {
         is_params = true;
         action_params = action;
-        this.help_text = help_text;
-        this.aliases = aliases;
     }
 
     public bool is_params = false; // @Hack  This controls whether the function accepts parameters.
@@ -37,6 +33,16 @@ public class ConsoleCommand_Func : ConsoleCommand {
         if (!is_params) action_empty.Invoke();
         else action_params.Invoke(args);
     }
+}
+
+public class ConsoleCommand_Variable : ConsoleCommand {
+    public ConsoleCommand_Variable(Ref var_ref) {
+        command_type = ConsoleCommandType.Variable;
+        this.var_ref = var_ref;
+    }
+    public Ref var_ref;
+    public object get_value() => var_ref.get_value();
+    public void   set_value(object value) => var_ref.set_value(value);
 }
 
 public class Ref {
@@ -56,20 +62,12 @@ public class Ref<T> : Ref {
     public new T get_value()        => (T)base.get_value();
     public void  set_value(T value) =>    base.set_value(value);
 }
-public class ConsoleCommand_Variable : ConsoleCommand {
-    public ConsoleCommand_Variable(Ref var_ref) {
-        command_type = ConsoleCommandType.Variable;
-        this.var_ref = var_ref;
-    }
-    public Ref var_ref;
-    public object get_value() => var_ref.get_value();
-    public void   set_value(object value) => var_ref.set_value(value);
-}
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
 public class ConsoleCommandAttribute : Attribute {
     public ConsoleCommandAttribute(string help_text = null, bool is_cheat_command = false, params string[] aliases) {
         this.is_cheat_command = is_cheat_command;
+        this.help_text = help_text;
         this.aliases = aliases;
     }
     public bool     is_cheat_command;
@@ -81,33 +79,35 @@ public partial class DebugConsole {
     public Dictionary<string, ConsoleCommand> registered_commands = new();
 
     int registered_command_count = 0;
-    public bool register_command_internal(ConsoleCommand command, string help_text, string[] aliases) {
-        if (command == null && log_warn("attempting to register null command!")) return false;
-        if ((aliases == null || aliases.Length == 0) && log_warn("no aliases!")) return false;
-        command.aliases = new string[aliases.Length];
-        command.help_text = help_text;
-        for (int i = 0, j = -1; i < aliases.Length; ++i) {
-            string alias = aliases[i];
-            if (alias.is_empty()) continue;
-            command.aliases[++j] = alias;
-            if (registered_commands.ContainsKey(alias)) {
-                log_warn("The alias '%' is already registered. Ignoring!".interp(alias));
-                continue;
+    bool register_command_internal(ConsoleCommand command, params string[] aliases) {
+        if (command == null     && log_error("null command!")) return false;
+
+        // TODO: Should we just use a List<string> within ConsoleCommand as well?
+        // What are the performance implications?
+
+        List<string> temp_aliases = new();
+        if (aliases != null)          foreach (string s in aliases)          temp_aliases.Add(s);
+        if (command?.aliases != null) foreach (string s in command?.aliases) temp_aliases.Add(s);
+        if (temp_aliases.Count == 0 && log_error("no aliases!")) return false;
+
+        foreach (string key in registered_commands.Keys) {
+            if (temp_aliases.Contains(key)) {
+                log_warn("the alias '%' is already registered. Ignoring!".interp(key));
+                temp_aliases.Remove(key);
             }
-            registered_commands.Add(alias, command);
         }
+        command.aliases = temp_aliases.ToArray();
+
+        foreach (string alias in command.aliases) registered_commands.Add(alias, command);
         ++registered_command_count;
+
         return true;
     }
 
-    public static bool register_command(ConsoleCommand command, string help_text = null, params string[] aliases) {
-        return get_instance().register_command_internal(command, help_text, aliases);
-    }
-
-    public static bool register_command(Ref var_ref, string help_text = null, params string[] aliases) {
-        ConsoleCommand_Variable command = new(var_ref);
-        return get_instance().register_command_internal(command, help_text, aliases);
-    }
+    public static bool register_command(ConsoleCommand command, params string[] aliases) => get_instance().register_command_internal(command, aliases);
+    public static bool register_command(Ref var_ref, params string[] aliases) => get_instance().register_command_internal(new ConsoleCommand_Variable(var_ref), aliases);
+    public static bool register_command(Action action, params string[] aliases) => get_instance().register_command_internal(new ConsoleCommand_Func(action), aliases);
+    public static bool register_command(Action<string[]> action, params string[] aliases) => get_instance().register_command_internal(new ConsoleCommand_Func(action), aliases);
 
     public static bool COMMANDS_AlwaysAddFuncNames = true;
     static string[] register_command_func_handle_aliases(MethodInfo info, string[] aliases) {
@@ -123,16 +123,6 @@ public partial class DebugConsole {
             return new_aliases;
         }
         return aliases;
-    }
-    public static bool register_command(Action action, string help_text = null, params string[] aliases) {
-        aliases = register_command_func_handle_aliases(action.Method, aliases);
-        ConsoleCommand_Func command = new(action, help_text, aliases);
-        return get_instance().register_command_internal(command, help_text, command.aliases);
-    }
-    public static bool register_command(Action<string[]> action, string help_text = null, params string[] aliases) {
-        aliases = register_command_func_handle_aliases(action.Method, aliases);
-        ConsoleCommand_Func command = new(action, help_text, aliases);
-        return get_instance().register_command_internal(command, help_text, command.aliases);
     }
 
     // ----- //
@@ -157,10 +147,12 @@ public partial class DebugConsole {
 
                 if (!is_params) {
                     Action action = (Action)info.CreateDelegate(typeof(Action));
-                    register_command(action, attrib.help_text, attrib.aliases);
+                    string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
+                    register_command(action, aliases);
                 } else {
                     Action<string[]> action = (Action<string[]>)info.CreateDelegate(typeof(Action<string[]>));
-                    register_command(action, attrib.help_text, attrib.aliases);
+                    string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
+                    register_command(action, aliases);
                 }
             }
         }
@@ -173,7 +165,7 @@ public partial class DebugConsole {
                 
                 ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
                 string[] aliases = attrib.aliases.Length > 0 ? attrib.aliases : new string[1] { info.Name };
-                register_command(new Ref(() => info.GetValue(null), (v) => info.SetValue(null, v)), attrib.help_text, aliases);
+                register_command(new Ref(() => info.GetValue(null), (v) => info.SetValue(null, v)), aliases);
             }
         }
     }
