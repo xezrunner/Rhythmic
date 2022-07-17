@@ -1,8 +1,12 @@
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 using static Logging;
 
 public class Test : MonoBehaviour {
+    void Awake() {
+        SceneManager.LoadSceneAsync("_CoreScene", LoadSceneMode.Additive);
+    }
+    
     void Start() {
         DebugConsole.register_command(test_log, "Logs a message.");
         DebugConsole.register_command(test_log_warn, "Logs a warning message.");

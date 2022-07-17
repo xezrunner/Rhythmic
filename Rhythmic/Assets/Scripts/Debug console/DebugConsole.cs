@@ -15,7 +15,7 @@ public partial class DebugConsole : MonoBehaviour {
     static DebugConsole instance;
     public static DebugConsole get_instance() {
         if (instance) return instance;
-        log_warn("DebugConsole does not have an instance!");
+        Debug.LogWarning("DebugConsole does not have an instance!");
         return null;
     }
 

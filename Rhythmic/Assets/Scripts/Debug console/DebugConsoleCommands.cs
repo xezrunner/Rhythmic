@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using Unity.VisualScripting.Dependencies.Sqlite;
 using static Logging;
 
 public enum ConsoleCommandType { Function, Variable }

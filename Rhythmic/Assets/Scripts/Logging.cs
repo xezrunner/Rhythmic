@@ -110,7 +110,7 @@ public static class Logging {
 
     static List<XZ_LogFunction_Signature> XZ_GetLogFunctions(LogTarget targets, LogLevel level) {
         List<XZ_LogFunction_Signature> list = new();
-        if (targets.HasFlag(LogTarget.IngameConsole)) list.Add(DebugConsole.write_line);
+        if (targets.HasFlag(LogTarget.IngameConsole) && DebugConsole.get_instance()) list.Add(DebugConsole.write_line);
 
         return list;
     }
