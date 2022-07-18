@@ -364,7 +364,7 @@ public partial class DebugConsole : MonoBehaviour {
     }
 
     // Lines:
-    List<DebugConsole_Line> ui_lines = new();
+    List<DebugConsole_Line> ui_lines;
 
     DebugConsole_Line add_new_line(string text, LogLevel level = LogLevel.Info) {
         DebugConsole_Line com = Instantiate(prefab_ui_line);
