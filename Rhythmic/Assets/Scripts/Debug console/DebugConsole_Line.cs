@@ -20,7 +20,7 @@ public class DebugConsole_Line : MonoBehaviour
 
     // Cache:
     public Transform  trans;
-    public GameObject gameobject;
+    public GameObject self;
 
     public TMP_Text   ui_text;
 
@@ -32,7 +32,7 @@ public class DebugConsole_Line : MonoBehaviour
 
     public LogLevel category = LogLevel.Info;
 
-    public void set_state(bool state) => gameobject.SetActive(state);
+    public void set_state(bool state) => self.SetActive(state);
 
     public string get_text()                   => ui_text.text;
     public void   set_text(string text = null) => ui_text.SetText(text);

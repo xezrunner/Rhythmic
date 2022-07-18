@@ -61,7 +61,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trans: {fileID: 3082736618949708055}
-  gameobject: {fileID: 3082736618949708054}
+  self: {fileID: 3082736618949708054}
   ui_text: {fileID: 4174328520501402553}
   ui_category_button: {fileID: 8275116412199468988}
   ui_category_button_gameobject: {fileID: 6843131118791220911}
