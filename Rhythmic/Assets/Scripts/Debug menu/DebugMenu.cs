@@ -203,9 +203,11 @@ public class DebugMenu : MonoBehaviour
 
         if (!is_open) return;
 
-        if (was_pressed(keyboard?.jKey)) select_next(-1);
-        if (was_pressed(keyboard?.kKey)) select_next( 1);
-        if (was_pressed(keyboard?.lKey)) invoke_selection();
+        // TODO: was_pressed_or_held()
+        if (was_pressed(keyboard?.oKey, keyboard?.upArrowKey))   select_next(-1);
+        if (was_pressed(keyboard?.uKey, keyboard?.downArrowKey)) select_next( 1);
+        if (was_pressed(keyboard?.jKey, keyboard?.yKey, keyboard?.zKey, keyboard?.spaceKey, keyboard?.enterKey))
+            invoke_selection();
     }
 
     // Debugging commands:
