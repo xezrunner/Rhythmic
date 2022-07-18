@@ -389,10 +389,10 @@ public partial class DebugConsole : MonoBehaviour {
         return com;
     }
     void destroy_line(int index) {
-        if ((index < 0 || index >= ui_lines.Count) && log_error("invalid index!")) return;
-        ui_lines[0].category_button_clicked_event -= category_button_clicked;
-        Destroy(ui_lines[0].gameobject);
-        ui_lines.RemoveAt(0);
+        if ((index < 0 || index >= ui_lines.Count) && log_error("invalid index (%)!".interp(index))) return;
+        ui_lines[index].category_button_clicked_event -= category_button_clicked;
+        Destroy(ui_lines[index].self);
+        ui_lines.RemoveAt(index);
     }
     void category_button_clicked(object sender, LogLevel category) {
         // write_line("pressed!  cat: %".interp(category));
