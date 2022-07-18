@@ -331,10 +331,16 @@ public partial class DebugConsole : MonoBehaviour {
         
         // Check whether the whole input itself is contained in the registered commands list:
         if (registered_commands.Keys.Contains(input)) autocomplete_list.Add(input);
-        // Find all other entries:
+        // Find all other entries that start with input:
         foreach (string key in registered_commands.Keys) {
             if (key == input) continue;
             if (key.StartsWith(input)) autocomplete_list.Add(key);
+        }
+        // Find all other entries that contain the input:
+        foreach (string key in registered_commands.Keys) {
+            if (key == input) continue;
+            if (autocomplete_list.Contains(key)) continue;
+            if (key.Contains(input)) autocomplete_list.Add(key);
         }
 
         if (autocomplete_list_debug) write_line("Autocomplete: [%]".interp(string.Join("; ", autocomplete_list)));
