@@ -9,6 +9,7 @@ public class Test : MonoBehaviour {
     }
     
     void Start() {
+        log("DebugStats disabled while the DebugMenu testing track is active.");
     }
 
     void maybe_load_core_scene() {
