@@ -24,14 +24,14 @@ public class Core : MonoBehaviour
 
     void Awake() {
         instance = this;
-    }
 
-    void Start() {
         console = DebugConsole.get_instance();
         if (!console) log_warn("no debug console!");
 
-
-
         DebugConsole.write_line("[core] initialized");
+    }
+
+    void Start() {
+        
     }
 }

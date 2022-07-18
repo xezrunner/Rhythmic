@@ -204,6 +204,7 @@ public class DebugMenu : MonoBehaviour
         if (!is_open) return;
 
         // TODO: was_pressed_or_held()
+        // TODO: cheat keys in internal builds!
         if (was_pressed(keyboard?.oKey, keyboard?.upArrowKey))   select_next(-1);
         if (was_pressed(keyboard?.uKey, keyboard?.downArrowKey)) select_next( 1);
         if (was_pressed(keyboard?.jKey, keyboard?.yKey, keyboard?.zKey, keyboard?.spaceKey, keyboard?.enterKey))
@@ -219,7 +220,7 @@ public class DebugMenu : MonoBehaviour
     [ConsoleCommand] public static void cmd_debugmenu_main_page() => get_instance()?.set_page(typeof(DebugMenu_Pages.MainPage));
 
     [ConsoleCommand("Prints all cached (loaded) pages of the debug menu.")]
-    static void cmd_print_debugmenu_page_cache() {
+    static void cmd_debugmenu_print_page_cache() {
         DebugMenu inst = get_instance();
         if (!inst && log_warn("no debugmenu instance!")) return;
         DebugConsole.write_line("Listing cached pages: (%)".interp(inst.cached_pages.Count), LogLevel._ConsoleInternal);

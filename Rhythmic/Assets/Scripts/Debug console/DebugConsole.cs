@@ -11,6 +11,8 @@ using System.Linq;
 using System.Text;
 using System;
 
+// TODO: Redirect Unity's logging to the in-game debug console (as an option)
+
 public partial class DebugConsole : MonoBehaviour {
     static DebugConsole instance;
     public static DebugConsole get_instance() {
