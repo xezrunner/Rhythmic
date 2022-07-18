@@ -41,7 +41,7 @@ public class ConsoleCommand_Var : ConsoleCommand {
         this.var_ref = var_ref;
     }
     public Ref var_ref;
-    public object get_value() => var_ref.get_value();
+    public object get_value()             => var_ref.get_value();
     public void   set_value(object value) => var_ref.set_value(value);
 }
 

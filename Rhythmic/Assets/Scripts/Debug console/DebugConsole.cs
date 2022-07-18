@@ -30,21 +30,24 @@ public partial class DebugConsole : MonoBehaviour {
         if (!ui_canvas) log_error("no ui_canvas!");
 
         // Disable Unity's SRP Debug canvas:
-        UnityEngine.Rendering.DebugManager.instance.enableRuntimeUI = false; // @SRPDebugCanvas @WordDeleteClash
+        UnityEngine.Rendering.DebugManager.instance.enableRuntimeUI = false; // @WordDeleteClash
 
         ui_lines = new(capacity: CONSOLE_MaxLines);
         history = new(CONSOLE_MaxHistoryEntries);
         register_commands_from_assembly();
+
+        write_line("[console] initialized");
+        
     }
     void Start() {
-        // Start closed:
+        // UI setup:
         if (!is_open) {
+            // Close the console at startup:
             is_open = true;
             close(false);
         }
-        
+        // Ensure that the opening animation already has the height fully animated:
         sizing_y = (CONSOLE_Height, CONSOLE_Height);
-        write_line("[console] initialized");
     }
 
     RectTransform ui_canvas;
