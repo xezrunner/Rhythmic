@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 using static Logging;
 
-public class DebugConsole_UILine : MonoBehaviour
+public class DebugConsole_Line : MonoBehaviour
 {
     void Awake() {
         console = DebugConsole.get_instance();

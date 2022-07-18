@@ -77,7 +77,7 @@ public partial class DebugConsole : MonoBehaviour {
     [SerializeField] RectTransform  ui_autocomplete_text_rect;
 
     [Header("Prefabs:")]
-    [SerializeField] DebugConsole_UILine prefab_ui_line;
+    [SerializeField] DebugConsole_Line prefab_ui_line;
     
     [Header("Options:")]
     [Tooltip("The default height of the console. [Do not change dynamically!]")]
@@ -364,10 +364,10 @@ public partial class DebugConsole : MonoBehaviour {
     }
 
     // Lines:
-    List<DebugConsole_UILine> ui_lines = new();
+    List<DebugConsole_Line> ui_lines = new();
 
-    DebugConsole_UILine add_new_line(string text, LogLevel level = LogLevel.Info) {
-        DebugConsole_UILine com = Instantiate(prefab_ui_line);
+    DebugConsole_Line add_new_line(string text, LogLevel level = LogLevel.Info) {
+        DebugConsole_Line com = Instantiate(prefab_ui_line);
         com.trans.SetParent(ui_text_container, false);
 
         com.set_text(text);
@@ -487,7 +487,7 @@ public partial class DebugConsole : MonoBehaviour {
         filter_last_scroll_location = ui_scroll_rect.verticalNormalizedPosition;
     }
     void UPDATE_Filtering() {
-        foreach (DebugConsole_UILine line in ui_lines) {
+        foreach (DebugConsole_Line line in ui_lines) {
             bool new_state =  current_filter == LogLevel.None || line.category.HasFlag(LogLevel._IgnoreFiltering) ||
                               line.category == current_filter;
             line.set_state(new_state);
