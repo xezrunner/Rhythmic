@@ -376,17 +376,17 @@ public partial class DebugConsole : MonoBehaviour {
     List<DebugConsole_Line> ui_lines;
 
     DebugConsole_Line add_new_line(string text, LogLevel level = LogLevel.Info) {
-        DebugConsole_Line com = Instantiate(prefab_ui_line);
-        com.trans.SetParent(ui_text_container, false);
+        DebugConsole_Line line = Instantiate(prefab_ui_line);
+        line.trans.SetParent(ui_text_container, false);
 
-        com.set_text(text);
-        com.category = level;
-        com.category_button_clicked_event += category_button_clicked;
+        line.set_text(text);
+        line.category = level;
+        line.category_button_clicked_event += category_button_clicked;
 
-        ui_lines.Add(com);
+        ui_lines.Add(line);
         if (ui_lines.Count > CONSOLE_MaxLines) destroy_line(0);
 
-        return com;
+        return line;
     }
     void destroy_line(int index) {
         if ((index < 0 || index >= ui_lines.Count) && log_error("invalid index (%)!".interp(index))) return;
