@@ -433,7 +433,7 @@ public partial class DebugConsole : MonoBehaviour {
             cmd_func.invoke(s_args);
         }
         else if (cmd.command_type == ConsoleCommandType.Variable) {
-            ConsoleCommand_Variable cmd_var = (ConsoleCommand_Variable)cmd;
+            ConsoleCommand_Var cmd_var = (ConsoleCommand_Var)cmd;
             Ref var_ref = cmd_var.var_ref;
             if (s_args.Length == 0) write_line_internal("% (%): %".interp(s_cmd, var_ref.var_type.Name, var_ref.get_value()));
             else {

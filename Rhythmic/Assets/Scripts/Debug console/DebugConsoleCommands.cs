@@ -35,8 +35,8 @@ public class ConsoleCommand_Func : ConsoleCommand {
     }
 }
 
-public class ConsoleCommand_Variable : ConsoleCommand {
-    public ConsoleCommand_Variable(Ref var_ref) {
+public class ConsoleCommand_Var : ConsoleCommand {
+    public ConsoleCommand_Var(Ref var_ref) {
         command_type = ConsoleCommandType.Variable;
         this.var_ref = var_ref;
     }
@@ -105,7 +105,7 @@ public partial class DebugConsole {
     }
 
     public static bool register_command(ConsoleCommand command, params string[] aliases) => get_instance().register_command_internal(command, aliases);
-    public static bool register_command(Ref var_ref, params string[] aliases) => get_instance().register_command_internal(new ConsoleCommand_Variable(var_ref), aliases);
+    public static bool register_command(Ref var_ref, params string[] aliases) => get_instance().register_command_internal(new ConsoleCommand_Var(var_ref), aliases);
     public static bool register_command(Action action, params string[] aliases) => get_instance().register_command_internal(new ConsoleCommand_Func(action), aliases);
     public static bool register_command(Action<string[]> action, params string[] aliases) => get_instance().register_command_internal(new ConsoleCommand_Func(action), aliases);
 
@@ -302,7 +302,7 @@ public partial class DebugConsole {
             console.write_line_internal("TODO: print function info!");
         }
         else if (cmd.command_type == ConsoleCommandType.Variable) {
-            ConsoleCommand_Variable cmd_var = (ConsoleCommand_Variable)cmd;
+            ConsoleCommand_Var cmd_var = (ConsoleCommand_Var)cmd;
             console.write_line_internal("var_type: % (base: %)".interp(cmd_var.var_ref.var_type.Name, cmd_var.var_ref.var_type.BaseType.Name));
         }
     }
