@@ -230,7 +230,7 @@ public partial class DebugConsole : MonoBehaviour {
         set_input_field_text(null); // @Optimization
     }
 
-    void input_delete_word(int dir) { // -1: left | 1: right
+    void input_word_delete(int dir) { // -1: left | 1: right
         if (ui_input_field.text == "") return;
         if (ui_input_field.text.Length == 1) return;
 
@@ -246,7 +246,7 @@ public partial class DebugConsole : MonoBehaviour {
             if (tokens.Length > 0) tokens[^1] = "";
 
             s0 = string.Join(" ", tokens);
-            if (!s0.is_empty() && s0[^1] == ' ') s0 = s0[.. ^1];
+            //if (!s0.is_empty() && s0[^1] == ' ') s0 = s0[.. ^1]; // Eat last space
         } else if (dir == 1) {
             if (caret_position == ui_input_field.text.Length - 1) return;
 
@@ -539,8 +539,8 @@ public partial class DebugConsole : MonoBehaviour {
         if (ui_input_field.text.Length > 0 && was_pressed(keyboard?.tabKey)) autocomplete_next(autocomplete_dir);
 
         // Word deletion:
-        if (is_held(keyboard?.ctrlKey) && was_pressed(keyboard?.backspaceKey)) input_delete_word(-1);
-        if (is_held(keyboard?.ctrlKey) && was_pressed(keyboard?.deleteKey))    input_delete_word(1);
+        if (is_held(keyboard?.ctrlKey) && was_pressed(keyboard?.backspaceKey)) input_word_delete(-1);
+        if (is_held(keyboard?.ctrlKey) && was_pressed(keyboard?.deleteKey))    input_word_delete(1);
 
         // Delete on [Ctrl+C]:
         if (is_held(keyboard?.ctrlKey) && was_pressed(keyboard?.cKey)) set_input_field_text(null);
