@@ -38,9 +38,12 @@ public partial class DebugConsole : MonoBehaviour {
         history = new(CONSOLE_MaxHistoryEntries);
         register_commands_from_assembly();
 
+        Application.logMessageReceivedThreaded += handle_unity_redirect;
+
         write_line("[console] initialized");
         
     }
+
     void Start() {
         // UI setup:
         if (!is_open) {
@@ -403,11 +406,13 @@ public partial class DebugConsole : MonoBehaviour {
     }
 
     // Processing & commands:
-    void write_line_internal(string message) {
-        add_new_line(message, LogLevel._ConsoleInternal);
+    public static bool write_line_internal(string message) {
+        get_instance()?.add_new_line(message, LogLevel._ConsoleInternal);
+        return true;
     }
-    public static void write_line(string message, LogLevel level = LogLevel.Info) {
+    public static bool write_line(string message, LogLevel level = LogLevel.Info) {
         get_instance()?.add_new_line(message, level);
+        return true;
     }
     
     static bool submit_debug = false;
@@ -516,6 +521,14 @@ public partial class DebugConsole : MonoBehaviour {
         ui_filter_warning_panel_text.SetText("Filter active: %".interp(category.ToString()));
         ui_scroll_rect_trans.offsetMax = new(ui_scroll_rect_trans.offsetMax.x, -ui_filter_warning_panel_rect.sizeDelta.y);
         ui_filter_warning_panel_gameobject.SetActive(true);
+    }
+    
+    // Unity Log redirection:
+    public static bool CONSOLE_RedirectUnityLogging = true;
+    void handle_unity_redirect(string logString, string stackTrace, LogType type) {
+        if (CONSOLE_RedirectUnityLogging) {
+            log_nocaller(logString, LogTarget.XZConsoles, loglevel_from_unity_logtype(type));
+        }
     }
 
     void Update() {

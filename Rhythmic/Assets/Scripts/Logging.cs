@@ -2,14 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-using XZ_LogFunction_Signature = System.Action<string, Logging.LogLevel>;
+using XZ_LogFunction_Signature = System.Func<string, Logging.LogLevel, bool>;
 
 public static class Logging {
     public enum LogTarget {
-        Unity = 0,
-        IngameConsole = 1 << 0, IngameQuickline = 1 << 1,
-        ExternalConsole = 1 << 2,
-        All = 0x11111111 // TODO: Look up how long this should be!
+        None = 0,
+        Unity = 1 << 0,
+        IngameConsole = 1 << 1, IngameQuickline = 1 << 2,
+        ExternalConsole = 1 << 3,
+        All = Unity | XZConsoles,
+        XZConsoles = IngameConsole | IngameQuickline | ExternalConsole
     }
     [Flags] public enum LogLevel {
         None = 0,
@@ -19,7 +21,7 @@ public static class Logging {
         // ...
     }
     
-    public record Logging_Options {
+    public class Logging_Options {
         public LogLevel  default_level   = LogLevel.Info;
         public LogTarget default_targets = LogTarget.All;
 
@@ -42,8 +44,19 @@ public static class Logging {
         return log(message_obj.ToString(), targets, level, caller_file_path, caller_proc_name, caller_line_num);
     }
 
+    public static bool log_nocaller(string message, LogTarget targets, LogLevel level) {
+        log_to_targets(message, targets, level);
+        return true;
+    }
+    public static bool log_nocaller(object message_obj, LogTarget targets, LogLevel level) => log(message_obj.ToString(), targets, level);
+
     static void log_to_targets(string s, LogTarget targets, LogLevel level) {
-        if (targets.HasFlag(LogTarget.Unity)) UNITY_Log(s, level);
+        if (targets.HasFlag(LogTarget.Unity)) {
+            UNITY_Log(s, level);
+            // If we are redirecting Unity's logging to the console, there's no need to handle this log message
+            // ourselves - the redirection takes care of that:
+            if (DebugConsole.CONSOLE_RedirectUnityLogging) return;
+        }
 
         List<XZ_LogFunction_Signature> functions_to_call = XZ_GetLogFunctions(targets, level);
         foreach (var func in functions_to_call) func.Invoke(s, level);
@@ -60,6 +73,7 @@ public static class Logging {
                           [CallerMemberName] string caller_proc_name = null,
                           [CallerLineNumber] int caller_line_num = -1) => log(message, options.default_targets, options.default_level, 
                                                                             caller_file_path, caller_proc_name, caller_line_num);
+    public static bool log_nocaller(string message) => log_nocaller(message, options.default_targets, options.default_level);
 
     public static bool log_warn(object message_obj,
     [CallerFilePath]   string caller_file_path = null,
@@ -71,6 +85,7 @@ public static class Logging {
                           [CallerMemberName] string caller_proc_name = null,
                           [CallerLineNumber] int caller_line_num = -1) => log(message, options.default_targets, LogLevel.Warning,
                                                                             caller_file_path, caller_proc_name, caller_line_num);
+    public static bool log_warn_nocaller(string message) => log_nocaller(message, options.default_targets, LogLevel.Warning);
 
     public static bool log_error(object message_obj,
     [CallerFilePath]   string caller_file_path = null,
@@ -82,20 +97,24 @@ public static class Logging {
                           [CallerMemberName] string caller_proc_name = null,
                           [CallerLineNumber] int caller_line_num = -1) => log(message, options.default_targets, LogLevel.Error,
                                                                             caller_file_path, caller_proc_name, caller_line_num);
+    public static bool log_error_nocaller(string message) => log_nocaller(message, options.default_targets, LogLevel.Error);
 
     // LogLevel arg:
-    public static bool log(object message_obj, LogLevel level, 
-                          [CallerFilePath]   string caller_file_path = null,
-                          [CallerMemberName] string caller_proc_name = null,
-                          [CallerLineNumber] int caller_line_num = -1) =>
-    log(message_obj, options.default_targets, level, 
-                          caller_file_path, caller_proc_name, caller_line_num);
     public static bool log(string message, LogLevel level, 
                           [CallerFilePath]   string caller_file_path = null,
                           [CallerMemberName] string caller_proc_name = null,
                           [CallerLineNumber] int caller_line_num = -1) =>
         log(message, options.default_targets, level, 
                           caller_file_path, caller_proc_name, caller_line_num);
+    public static bool log(object message_obj, LogLevel level, 
+                          [CallerFilePath]   string caller_file_path = null,
+                          [CallerMemberName] string caller_proc_name = null,
+                          [CallerLineNumber] int caller_line_num = -1) =>
+    log(message_obj, options.default_targets, level, 
+                          caller_file_path, caller_proc_name, caller_line_num);
+
+    public static bool log_nocaller(string message, LogLevel level) => log_nocaller(message, options.default_targets, level);
+    public static bool log_nocaller(object message_obj, LogLevel level) => log_nocaller(message_obj, options.default_targets, level);
     #endregion
 
     #region XZShared
@@ -110,7 +129,7 @@ public static class Logging {
 
     static List<XZ_LogFunction_Signature> XZ_GetLogFunctions(LogTarget targets, LogLevel level) {
         List<XZ_LogFunction_Signature> list = new();
-        if (targets.HasFlag(LogTarget.IngameConsole) && DebugConsole.get_instance()) list.Add(DebugConsole.write_line);
+        if (targets.HasFlag(LogTarget.IngameConsole)) list.Add(DebugConsole.write_line);
 
         return list;
     }
@@ -119,6 +138,17 @@ public static class Logging {
 
     #region Unity
 #if UNITY
+    public static LogLevel loglevel_from_unity_logtype(UnityEngine.LogType unity_logtype) {
+        switch (unity_logtype) {
+            default:
+            case UnityEngine.LogType.Log: return LogLevel.Info;
+            case UnityEngine.LogType.Error:
+            case UnityEngine.LogType.Exception:
+            case UnityEngine.LogType.Assert: return LogLevel.Error;
+            case UnityEngine.LogType.Warning: return LogLevel.Warning;
+        }
+    }
+
     static Action<object> UNITY_GetLogLevelFunction(LogLevel level) {
         switch (level) {
             default:

@@ -203,7 +203,7 @@ public partial class DebugConsole {
         if (!console && log_error("no console!")) return;
 
         console.CONSOLE_AllowSubmitRepetition = !console.CONSOLE_AllowSubmitRepetition;
-        console.write_line_internal("new state: %".interp(get_instance().CONSOLE_AllowSubmitRepetition));
+        write_line_internal("new state: %".interp(get_instance().CONSOLE_AllowSubmitRepetition));
 
         // We clear the input field in submit() when submit repetition is off.
         // Since submit() invoked this function while submit repetition was off, it has not cleared the input field, 
@@ -232,14 +232,14 @@ public partial class DebugConsole {
         }
 
         if (is_help) {
-            console.write_line_internal("--------------------------------------------------------------------");
-            console.write_line_internal("[help ?]             :: print help for the help command");
-            console.write_line_internal("[help command]       :: print the help text for a specific command");
-            console.write_line_internal("[help]               :: lists out all of the registered commands");
-            console.write_line_internal("[help opt1 opt2 ...] :: same as above, but prints additional details");
-            console.write_line_internal("options: ");
-            console.write_line_internal("  - alias: prints out possible aliases for commands");
-            console.write_line_internal("  - hash:  prints out the hash for each registered command entry");
+            write_line_internal("--------------------------------------------------------------------");
+            write_line_internal("[help ?]             :: print help for the help command");
+            write_line_internal("[help command]       :: print the help text for a specific command");
+            write_line_internal("[help]               :: lists out all of the registered commands");
+            write_line_internal("[help opt1 opt2 ...] :: same as above, but prints additional details");
+            write_line_internal("options: ");
+            write_line_internal("  - alias: prints out possible aliases for commands");
+            write_line_internal("  - hash:  prints out the hash for each registered command entry");
             return;
         }
 
@@ -249,7 +249,7 @@ public partial class DebugConsole {
             return;
         }
         
-        console.write_line_internal("Listing all commands: (%)".interp(console.registered_command_count));
+        write_line_internal("Listing all commands: (%)".interp(console.registered_command_count));
         int prev_hash = -1;
         foreach (var kv in console.registered_commands) {
             ConsoleCommand cmd = kv.Value;
@@ -270,7 +270,7 @@ public partial class DebugConsole {
 
             string s_hash = show_hashes ? $" [{cmd_hash:X8}]" : null;
 
-            console.write_line_internal("  - %%%".interp(s_alias, s_hash, !show_aliases ? s_help_text : null, s_aliases));
+            write_line_internal("  - %%%".interp(s_alias, s_hash, !show_aliases ? s_help_text : null, s_aliases));
 
             prev_hash = cmd_hash;
         }
@@ -285,11 +285,11 @@ public partial class DebugConsole {
             return;
         }
         if (args[0] == "?") {
-            console.write_line_internal("------------------------------------------------------------------------------------");
-            console.write_line_internal("[filter ?]     :: print help for the filter command");
-            console.write_line_internal("[filter level] :: filter the console entries by a specific log level");
-            console.write_line_internal("                  (case-insensitive, accepts partial input - ex. \"warn\", \"err\")");
-            console.write_line_internal("valid levels: [%]".interp(string.Join(", ", Enum.GetNames(typeof(LogLevel)))));
+            write_line_internal("------------------------------------------------------------------------------------");
+            write_line_internal("[filter ?]     :: print help for the filter command");
+            write_line_internal("[filter level] :: filter the console entries by a specific log level");
+            write_line_internal("                  (case-insensitive, accepts partial input - ex. \"warn\", \"err\")");
+            write_line_internal("valid levels: [%]".interp(string.Join(", ", Enum.GetNames(typeof(LogLevel)))));
             return;
         }
 
@@ -308,22 +308,27 @@ public partial class DebugConsole {
         DebugConsole console = get_instance();
         if (!console && log_error("no console!")) return;
 
-        if (args.Length == 0) console.write_line_internal("missing command arg!");
+        if (args.Length == 0) write_line_internal("missing command arg!");
         var cmd_kv = console.registered_commands.Where(kv => kv.Key == args[0]).FirstOrDefault();
         ConsoleCommand cmd = cmd_kv.Value;
-        if (cmd == null) console.write_line_internal("commad not found!");
+        if (cmd == null) write_line_internal("commad not found!");
 
-        console.write_line_internal("type:             %".interp(cmd.command_type));
-        console.write_line_internal("help_text:        %".interp(cmd.help_text));
-        console.write_line_internal("is_cheat_command: %".interp(cmd.is_cheat_command));
-        console.write_line_internal("aliases: [%]".interp(cmd.aliases != null ? string.Join("; ", cmd.aliases) : null));
+        write_line_internal("type:             %".interp(cmd.command_type));
+        write_line_internal("help_text:        %".interp(cmd.help_text));
+        write_line_internal("is_cheat_command: %".interp(cmd.is_cheat_command));
+        write_line_internal("aliases: [%]".interp(cmd.aliases != null ? string.Join("; ", cmd.aliases) : null));
         if (cmd.command_type == ConsoleCommandType.Function) {
-            console.write_line_internal("TODO: print function info!");
+            write_line_internal("TODO: print function info!");
         }
         else if (cmd.command_type == ConsoleCommandType.Variable) {
             ConsoleCommand_Var cmd_var = (ConsoleCommand_Var)cmd;
-            console.write_line_internal("var_type: % (base: %)".interp(cmd_var.var_ref.var_type.Name, cmd_var.var_ref.var_type.BaseType.Name));
+            write_line_internal("var_type: % (base: %)".interp(cmd_var.var_ref.var_type.Name, cmd_var.var_ref.var_type.BaseType.Name));
         }
+    }
+    [ConsoleCommand("Controls whether log messages that come in for Unity should be redirected to the XZShared console.")]
+    static void cmd_set_unity_logging_redirection(string[] args) {
+        if (args.Length == 0 && write_line_internal("Current value: %".interp(CONSOLE_RedirectUnityLogging))) return;
+        CONSOLE_RedirectUnityLogging = args[0].as_bool();
     }
 
     [ConsoleCommand("Quits the game, or stops play mode in the editor.", aliases: "q")]

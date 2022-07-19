@@ -4,6 +4,8 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+using static Logging;
+
 public enum CallerDebugInfoFlags {
         None = 0,
         FileName   = 1 << 0,
@@ -73,10 +75,27 @@ public static class TextExtensions {
         return text == null || text == "";
     }
 
-    // TODO: Make these safe!
-    // TODO: Add boolean!
+    // TODO: Make these safe (?)
     public static int   as_int  (this string text) => int.Parse(text);
     public static float as_float(this string text) => float.Parse(text);
+    public static bool  as_bool (this string text) {
+        switch (text.ToLower()) {
+            case "0":
+            case "false":
+            case "n":
+            case "no":    
+                return false;
+            case "1":
+            case "true":
+            case "y":
+            case "yes":
+                return true;
+            default: {
+                log_warn("expected boolean - returning false.");
+                return false;
+            }
+        }
+    }
 
 #if UNITY
     public static string bold     (this string text) => $"<b>{text}</b>";
