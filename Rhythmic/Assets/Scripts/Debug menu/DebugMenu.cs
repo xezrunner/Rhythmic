@@ -239,6 +239,8 @@ public class DebugMenu : MonoBehaviour
     }
 
     bool invoke_selection(int dir = 0) {
+        if (ui_lines.Count == 0 && log_warn("no lines!")) return false;
+        
         DebugMenu_Line line = ui_lines[selection_index];
         DebugMenuEntry entry = line.entry;
         bool success = false;
