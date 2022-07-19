@@ -7,6 +7,7 @@ using static QuickInput;
 using static Logging;
 using TMPro;
 using System.Collections;
+using System.Linq;
 
 public class DebugMenu : MonoBehaviour
 {
@@ -110,7 +111,8 @@ public class DebugMenu : MonoBehaviour
         IDebugMenu_Page page_interface = (IDebugMenu_Page)current_page;
 
         clear_lines();
-        page_interface.draw_page();
+        page_interface.layout();
+        draw_current_page_lines();
 
         // TODO: BUG: If the amount of lines change, move the selection somewhere.
         if (!select_line(selection_index)) select_line(0);
@@ -120,17 +122,40 @@ public class DebugMenu : MonoBehaviour
     }
 
     // Lines:
+    List<DebugMenuEntry> entry_queue = new(); // @Naming
     List<DebugMenu_Line> ui_lines = new();
 
-    public DebugMenu_Line add_new_line(DebugMenuEntry entry) {
+    void draw_current_page_lines() {
+        var var_entries = entry_queue.Where(x => x.entry_type == DebugMenuEntryType.Variable);
+        int pad_length = var_entries.Count() != 0 ? var_entries.Max(x => x.text.Length) + 2 : 0;
+        
+        foreach (DebugMenuEntry entry in entry_queue) {
+            string text = entry.text;
+            string var_text = null;
+            if (entry.entry_type == DebugMenuEntryType.Variable) {
+                text = text.PadRight(pad_length);
+                DebugMenuEntry_Var entry_var = (DebugMenuEntry_Var)entry;
+                var_text = "%".interp(entry_var.var_ref.get_value().ToString());
+            }
+            add_new_line(entry, "%%".interp(text, var_text));
+        }
+        entry_queue.Clear();
+    }
+
+    public DebugMenu_Line add_new_line(DebugMenuEntry entry, string text) {
         DebugMenu_Line line = Instantiate(prefab_ui_line);
         line.trans.SetParent(ui_container, false);
 
-        line.set_from_entry(entry);
+        line.entry = entry;
+        line.set_text(text);
         line.clicked += line_clicked_event;
 
         ui_lines.Add(line);
         return line;
+    }
+    public DebugMenuEntry queue_entry(DebugMenuEntry entry) {
+        entry_queue.Add(entry);
+        return entry;
     }
     void destroy_line(int index) {
         if ((index < 0 || index > ui_lines.Count) && log_error("invalid index! (%)".interp(index))) return;
@@ -150,9 +175,9 @@ public class DebugMenu : MonoBehaviour
         return invoke_selection();
     }
     
-    public DebugMenu_Line write_line(string text)                => add_new_line(new DebugMenuEntry(text));
-    public DebugMenu_Line write_line(string text, Action action) => add_new_line(new DebugMenuEntry_Func(text, action));
-    public DebugMenu_Line write_line(string text, Ref var_ref)   => add_new_line(new DebugMenuEntry_Var(text, var_ref));
+    public DebugMenuEntry write_line(string text)                => queue_entry(new DebugMenuEntry(text));
+    public DebugMenuEntry write_line(string text, Action action) => queue_entry(new DebugMenuEntry_Func(text, action));
+    public DebugMenuEntry write_line(string text, Ref var_ref)   => queue_entry(new DebugMenuEntry_Var(text, var_ref));
 
     // Selection:
     int selection_index = 0;

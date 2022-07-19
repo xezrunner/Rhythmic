@@ -4,7 +4,7 @@ using static Logging;
 
 public interface IDebugMenu_Page
 {
-    public void draw_page();
+    public void layout();
 }
 
 public enum DebugMenuPageType { Static, Dynamic }
@@ -33,10 +33,10 @@ public class DebugMenu_Page {
     DebugMenu debugmenu_instance;
 
     // Lines API:
-    public DebugMenu_Line add_new_line(DebugMenuEntry entry)     => debugmenu_instance.add_new_line(entry);
-
-    public DebugMenu_Line write_line_separator() => debugmenu_instance.add_new_line(new(" ") { entry_type = DebugMenuEntryType.Separator });
-    public DebugMenu_Line write_line(string text)                => debugmenu_instance.write_line(text);
-    public DebugMenu_Line write_line(string text, Action action) => debugmenu_instance.write_line(text, action);
-    public DebugMenu_Line write_line(string text, Ref var_ref)   => debugmenu_instance.write_line(text, var_ref);
+    public DebugMenuEntry queue_new_line(DebugMenuEntry entry)     => debugmenu_instance.queue_entry(entry);
+    
+    public DebugMenuEntry write_line_separator() => debugmenu_instance.queue_entry(new(" ") { entry_type = DebugMenuEntryType.Separator });
+    public DebugMenuEntry write_line(string text)                => debugmenu_instance.write_line(text);
+    public DebugMenuEntry write_line(string text, Action action) => debugmenu_instance.write_line(text, action);
+    public DebugMenuEntry write_line(string text, Ref var_ref)   => debugmenu_instance.write_line(text, var_ref);
 }

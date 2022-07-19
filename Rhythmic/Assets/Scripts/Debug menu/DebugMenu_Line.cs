@@ -63,16 +63,6 @@ public class DebugMenu_Line : MonoBehaviour, IPointerUpHandler
     public bool is_selected = false;
 
     public DebugMenuEntry entry;
-    public void set_from_entry(DebugMenuEntry entry) {
-        this.entry = entry;
-        string text     = entry.text;
-        string var_text = null;
-        if (entry.entry_type == DebugMenuEntryType.Variable) {
-            DebugMenuEntry_Var entry_var = (DebugMenuEntry_Var)entry;
-            var_text = "  %".interp(entry_var.var_ref.get_value().ToString());
-        }
-        set_text("%%".interp(text, var_text));
-    }
 
     public void set_text(string text) => ui_text.SetText(text);
     public void set_selected(bool state) {
