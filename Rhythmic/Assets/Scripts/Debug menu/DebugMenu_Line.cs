@@ -2,7 +2,6 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using static Logging;
 
@@ -47,7 +46,7 @@ public class DebugMenuEntry_Var : DebugMenuEntry {
     public void   set_value(object value) => var_ref.set_value(value);
 }
 
-public class DebugMenu_Line : MonoBehaviour, IPointerUpHandler
+public class DebugMenu_Line : MonoBehaviour, IPointerUpHandler, IPointerDownHandler
 {
     public Transform  trans;
     public GameObject self;
@@ -72,7 +71,8 @@ public class DebugMenu_Line : MonoBehaviour, IPointerUpHandler
         is_selected = state;
     }
 
-    public event EventHandler<(DebugMenu_Line line, int dir)> clicked;
+    public event EventHandler<(DebugMenu_Line line, int dir)> pointer_up_event;
+    public event EventHandler<(DebugMenu_Line line, int dir)> pointer_down_event;
 
     // int click_counter = 0;
     public void OnPointerUp(PointerEventData eventData) {
@@ -81,6 +81,13 @@ public class DebugMenu_Line : MonoBehaviour, IPointerUpHandler
         int dir = 0;
         if      (eventData.button == PointerEventData.InputButton.Left)  dir =  1;
         else if (eventData.button == PointerEventData.InputButton.Right) dir = -1;
-        clicked?.Invoke(null, (this, dir));
+        pointer_up_event?.Invoke(null, (this, dir));
+    }
+
+    public void OnPointerDown(PointerEventData eventData) {
+        int dir = 0;
+        if      (eventData.button == PointerEventData.InputButton.Left)  dir =  1;
+        else if (eventData.button == PointerEventData.InputButton.Right) dir = -1;
+        pointer_down_event?.Invoke(null, (this, dir));
     }
 }

@@ -8,10 +8,11 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 using static Logging;
-using static QuickInput;
 using static AnimEasing;
+using static QuickInput;
 
-// TODO: Redirect Unity's logging to the in-game debug console (as an option)
+// - TODO: Pass a Logging_Info through with write_line()!
+//         This will be used for further filtering, not just by log level, but source as well (including caller debug info).
 
 public partial class DebugConsole : MonoBehaviour {
     static DebugConsole instance;
@@ -308,6 +309,9 @@ public partial class DebugConsole : MonoBehaviour {
     }
 
     // Autocomplete:
+
+    // BUG: When trying to select a single-letter command, the formatting doesn't change.
+
     bool is_autocompleting = false;
     int autocomplete_index = -1;
     List<string> autocomplete_list = new();

@@ -17,13 +17,14 @@ public static class Logging {
         None = 0,
         Info = 1 << 0, Warning = 1 << 1, Error = 1 << 2, // Unity supports these only.
         Gameplay = 1 << 3, IO = 1 << 4, Streaming = 1 << 5,
+        Debug = 1 << 6,
         _ConsoleInternal = 1 << 30, _IgnoreFiltering = 1 << 31
         // ...
     }
     
     public class Logging_Options {
         public LogLevel  default_level   = LogLevel.Info;
-        public LogTarget default_targets = LogTarget.All;
+        public LogTarget default_targets = LogTarget.XZConsoles;
 
         public CallerDebugInfoFlags caller_info = CallerDebugInfoFlags.FP;
     }
@@ -118,14 +119,17 @@ public static class Logging {
     #endregion
 
     #region XZShared
-#if XZSHARED
+#if XZSHARED && UNITY
     public static UnityEngine.Color XZ_GetColorForLogLevel(LogLevel level) {
         switch (level) {
             default:               return "#262626".hex_to_unity_color();
             case LogLevel.Warning: return "#FB8C00".hex_to_unity_color();
             case LogLevel.Error:   return "#EF5350".hex_to_unity_color();
+            case LogLevel.Debug:   return "#2196F3".hex_to_unity_color();
         }
     }
+#endif
+#if XZSHARED
 
     static List<XZ_LogFunction_Signature> XZ_GetLogFunctions(LogTarget targets, LogLevel level) {
         List<XZ_LogFunction_Signature> list = new();

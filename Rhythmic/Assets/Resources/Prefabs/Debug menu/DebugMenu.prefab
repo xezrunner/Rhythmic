@@ -66,6 +66,8 @@ MonoBehaviour:
   prefab_ui_line: {fileID: 2703621648955442925, guid: a9e019daa684e6c4a956c90eb40f2c45,
     type: 3}
   is_open: 0
+  DEBUGMENU_MouseHoldDelayMs: 500
+  DEBUGMENU_MouseRepeatDelayMs: 30
 --- !u!1 &5866492151386003356
 GameObject:
   m_ObjectHideFlags: 0

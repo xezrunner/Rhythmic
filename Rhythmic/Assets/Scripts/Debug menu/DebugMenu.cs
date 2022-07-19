@@ -101,16 +101,16 @@ public class DebugMenu : MonoBehaviour
         current_page = page;
         ui_temp_page_text.SetText("page: %".interp(page.GetType().Name)); // TODO: TEMP!
 
+        clear_lines();
         draw_current_page();
         select_line(0);
 
-        log("switched to page '%'".interp(page.GetType().Name));
+        log("switched to page '%'".interp(page.GetType().Name), LogLevel.Debug);
     }
 
     void draw_current_page() {
         IDebugMenu_Page page_interface = (IDebugMenu_Page)current_page;
 
-        clear_lines();
         page_interface.layout();
         draw_current_page_lines();
 
@@ -128,8 +128,9 @@ public class DebugMenu : MonoBehaviour
     void draw_current_page_lines() {
         var var_entries = entry_queue.Where(x => x.entry_type == DebugMenuEntryType.Variable);
         int pad_length = var_entries.Count() != 0 ? var_entries.Max(x => x.text.Length) + 2 : 0;
-        
-        foreach (DebugMenuEntry entry in entry_queue) {
+
+        for (int i = 0; i < entry_queue.Count; ++i) {
+            DebugMenuEntry entry = entry_queue[i];
             string text = entry.text;
             string var_text = null;
             if (entry.entry_type == DebugMenuEntryType.Variable) {
@@ -137,7 +138,13 @@ public class DebugMenu : MonoBehaviour
                 DebugMenuEntry_Var entry_var = (DebugMenuEntry_Var)entry;
                 var_text = "%".interp(entry_var.var_ref.get_value().ToString());
             }
-            add_new_line(entry, "%%".interp(text, var_text));
+            string final_text = "%%".interp(text, var_text);
+            // Re-use existing line:
+            if (i < ui_lines.Count) {
+                ui_lines[i].entry = entry;;
+                ui_lines[i].set_text(final_text);
+            }
+            else add_new_line(entry, final_text);
         }
         entry_queue.Clear();
     }
@@ -148,7 +155,8 @@ public class DebugMenu : MonoBehaviour
 
         line.entry = entry;
         line.set_text(text);
-        line.clicked += line_clicked_event;
+        line.pointer_up_event   += line_pointer_up_event;
+        line.pointer_down_event += line_pointer_down_event;
 
         ui_lines.Add(line);
         return line;
@@ -160,7 +168,8 @@ public class DebugMenu : MonoBehaviour
     void destroy_line(int index) {
         if ((index < 0 || index > ui_lines.Count) && log_error("invalid index! (%)".interp(index))) return;
 
-        ui_lines[index].clicked -= line_clicked_event;
+        ui_lines[index].pointer_up_event   -= line_pointer_up_event;
+        ui_lines[index].pointer_down_event -= line_pointer_down_event;
 
         Destroy(ui_lines[index].self);
         ui_lines.RemoveAt(index);
@@ -169,10 +178,49 @@ public class DebugMenu : MonoBehaviour
         for (int i = ui_lines.Count - 1; i >= 0; --i) destroy_line(i);
     }
 
-    void line_clicked_event(object sender, (DebugMenu_Line line, int dir) info) => select_and_invoke_from_click(info.line, info.dir);
+    void line_pointer_up_event(object sender, (DebugMenu_Line line, int dir) info) {
+        log("up", LogLevel.Debug);
+        // Since we now select the item on pointer down, this is useless:
+        //select_and_invoke_from_click(info.line, info.dir);
+        invoke_selection(info.dir);
+        is_holding = false;
+    }
+    void line_pointer_down_event(object sender, (DebugMenu_Line line, int dir) info) {
+        log("down", LogLevel.Debug);
+        select_line(info.line);
+        is_holding = true;
+        hold_dir = info.dir;
+        held_ms = 0f;
+        held_repeat_ms = -1f;
+    }
+
     bool select_and_invoke_from_click(DebugMenu_Line line, int dir = 0) {
         if (!select_line(line)) return false;
         return invoke_selection(dir);
+    }
+    
+    [Header("Options")]
+    [Tooltip("For how long should an entry be held with the mouse before it begins repeating invokation.")]
+    public float DEBUGMENU_MouseHoldDelayMs   = 500f;
+    [Tooltip("For how long should wait in-between repeating invokations.")]
+    public float DEBUGMENU_MouseRepeatDelayMs = 30f;
+    
+    bool is_holding = false;
+    int hold_dir = 0;
+    float held_ms;
+    float held_repeat_ms = -1; // -1 means allow once at start
+    void UPDATE_Holding() {
+        if (!is_holding) return;
+
+        held_ms += Time.unscaledDeltaTime * 1000f;
+        if (held_ms <= DEBUGMENU_MouseHoldDelayMs) return;
+
+        if (held_repeat_ms != -1 && held_repeat_ms < DEBUGMENU_MouseRepeatDelayMs) {
+            held_repeat_ms += Time.unscaledDeltaTime * 1000f;
+            return;
+        } else held_repeat_ms = 0f;
+
+        invoke_selection(hold_dir);
     }
     
     public DebugMenuEntry write_line(string text)                => queue_entry(new DebugMenuEntry(text));
@@ -305,6 +353,7 @@ public class DebugMenu : MonoBehaviour
         if (was_pressed(keyboard?.digit1Key, keyboard?.leftArrowKey))  invoke_selection(-1);
         if (was_pressed(keyboard?.digit2Key, keyboard?.rightArrowKey)) invoke_selection( 1);
 
+        UPDATE_Holding();
     }
 
     // Debugging commands:

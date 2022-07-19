@@ -120,11 +120,11 @@ public partial class DebugConsole {
             // Allocate new space for the function name:
             string[] new_aliases = new string[aliases.Length + 1];
             // Add the function name as an alias:
-            new_aliases[^1] = info.Name;
+            new_aliases[0] = info.Name;
             // Remove the "cmd_" prefix if exists:
-            if (new_aliases[^1].StartsWith("cmd_")) new_aliases[^1] = new_aliases[^1][4 ..];
+            if (new_aliases[0].StartsWith("cmd_")) new_aliases[0] = new_aliases[0][4 ..];
             // Copy the remaining aliases:
-            aliases.CopyTo(new_aliases, 0);
+            aliases.CopyTo(new_aliases, 1);
             return new_aliases;
         }
         return aliases;
@@ -337,7 +337,7 @@ public partial class DebugConsole {
 #if UNITY_EDITOR
         EditorApplication.isPlaying = false;
 #else
-        Application.isPlaying = false;
+        Application.Quit();
 #endif
     }
 }
