@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
+using UnityEngine;
+
 using static Logging;
 
 public enum ConsoleCommandType { Function, Variable }
@@ -239,6 +242,15 @@ public partial class DebugConsole {
 
             prev_hash = cmd_hash;
         }
+    }
+    [ConsoleCommand("Quits the game, or stops play mode in the editor.", aliases: "q")]
+    static void cmd_quit() {
+        log("quitting...");
+#if UNITY_EDITOR
+        EditorApplication.isPlaying = false;
+#else
+        Application.isPlaying = false;
+#endif
     }
     [ConsoleCommand("Toggles the category button visibility next to console lines.")]
     static void cmd_toggle_line_categories()   => get_instance().CONSOLE_ShowLineCategories = !get_instance().CONSOLE_ShowLineCategories;
