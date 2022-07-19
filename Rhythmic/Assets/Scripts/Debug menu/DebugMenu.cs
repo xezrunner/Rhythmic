@@ -169,10 +169,9 @@ public class DebugMenu : MonoBehaviour
         for (int i = ui_lines.Count - 1; i >= 0; --i) destroy_line(i);
     }
 
-    void line_clicked_event(object sender, DebugMenu_Line line) => select_and_invoke_from_click(line);
-    bool select_and_invoke_from_click(DebugMenu_Line line) {
-        select_line(line);
-        return invoke_selection();
+    void line_clicked_event(object sender, (DebugMenu_Line line, int dir) info) => select_and_invoke_from_click(info.line, info.dir);
+    bool select_and_invoke_from_click(DebugMenu_Line line, int dir = 0) {
+        return invoke_selection(dir);
     }
     
     public DebugMenuEntry write_line(string text)                => queue_entry(new DebugMenuEntry(text));
@@ -220,7 +219,7 @@ public class DebugMenu : MonoBehaviour
         return (success, index);
     }
 
-    void invoke_handle_variable(DebugMenuEntry_Var entry, int dir = 0) {
+    void invoke_handle_variable(DebugMenuEntry_Var entry, int dir = 1) {
         Ref var_ref = entry.var_ref;
         // TODO: can't use a switch here as types are not compile-time constants.
         // Can we do something about that? Anything better here? Factor out to another file? To Ref?

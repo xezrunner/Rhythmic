@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using static Logging;
 
@@ -71,12 +72,15 @@ public class DebugMenu_Line : MonoBehaviour, IPointerUpHandler
         is_selected = state;
     }
 
-    public event EventHandler<DebugMenu_Line> clicked;
+    public event EventHandler<(DebugMenu_Line line, int dir)> clicked;
 
-    int click_counter = 0;
+    // int click_counter = 0;
     public void OnPointerUp(PointerEventData eventData) {
-        if (click_counter < 10) set_text("I've been clicked % times.".interp(++click_counter));
-        else set_text("...what is this, Cookie Clicker? % times...".interp(++click_counter));
-        clicked?.Invoke(null, this);
+        // if (click_counter < 10) set_text("I've been clicked % times.".interp(++click_counter));
+        // else set_text("...what is this, Cookie Clicker? % times...".interp(++click_counter));
+        int dir = 0;
+        if      (eventData.button == PointerEventData.InputButton.Left)  dir =  1;
+        else if (eventData.button == PointerEventData.InputButton.Right) dir = -1;
+        clicked?.Invoke(null, (this, dir));
     }
 }
