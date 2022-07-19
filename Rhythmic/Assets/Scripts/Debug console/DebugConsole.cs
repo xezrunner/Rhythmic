@@ -528,6 +528,7 @@ public partial class DebugConsole : MonoBehaviour {
     }
     
     // Unity Log redirection:
+    [ConsoleCommand("Controls whether log messages that come in for Unity should be redirected to the XZShared console.", aliases: "unity_redirect_logging")]
     public static bool CONSOLE_RedirectUnityLogging = true;
     void handle_unity_redirect(string logString, string stackTrace, LogType type) {
         if (CONSOLE_RedirectUnityLogging) {

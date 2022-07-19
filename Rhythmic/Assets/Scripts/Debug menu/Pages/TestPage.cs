@@ -4,15 +4,15 @@ namespace DebugMenu_Pages {
         public void layout() {
             write_line("Switch to MainPage ...", DebugMenu.cmd_debugmenu_main_page);
             write_line_separator();
-            write_line($"{nameof(int_a)}", new Ref(() => int_a, (v) => int_a = (int)v));
-            write_line($"{nameof(float_b)}", new Ref(() => float_b, (v) => float_b = (float)v));
-            write_line($"{nameof(boolean_c)}", new Ref(() => boolean_c, (v) => boolean_c = (bool)v));
-            write_line($"{nameof(entry_type_d)}", new Ref(() => entry_type_d, (v) => entry_type_d = (DebugMenuEntryType)v));
+            write_line($"{nameof(integer_value)}", new Ref(() => integer_value, (v) => integer_value = (int)v));
+            write_line($"{nameof(float_value)}", new Ref(() => float_value, (v) => float_value = (float)v));
+            write_line($"{nameof(boolean_value)}", new Ref(() => boolean_value, (v) => boolean_value = (bool)v));
+            write_line($"{nameof(enum_value)}", new Ref(() => enum_value, (v) => enum_value = (DebugMenuEntryType)v));
         }
 
-        int   int_a = 15;
-        float float_b = 20;
-        bool  boolean_c = true;
-        DebugMenuEntryType entry_type_d = DebugMenuEntryType.Variable;
+        int   integer_value = 15;
+        float float_value   = 20;
+        bool  boolean_value = true;
+        DebugMenuEntryType enum_value = DebugMenuEntryType.Variable;
     }
 }

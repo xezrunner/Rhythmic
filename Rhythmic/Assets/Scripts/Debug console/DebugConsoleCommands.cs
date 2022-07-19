@@ -325,11 +325,13 @@ public partial class DebugConsole {
             write_line_internal("var_type: % (base: %)".interp(cmd_var.var_ref.var_type.Name, cmd_var.var_ref.var_type.BaseType.Name));
         }
     }
+#if false
     [ConsoleCommand("Controls whether log messages that come in for Unity should be redirected to the XZShared console.")]
-    static void cmd_set_unity_logging_redirection(string[] args) {
+    static void cmd_unity_logging_redirection(string[] args) {
         if (args.Length == 0 && write_line_internal("Current value: %".interp(CONSOLE_RedirectUnityLogging))) return;
         CONSOLE_RedirectUnityLogging = args[0].as_bool();
     }
+#endif
 
     [ConsoleCommand("Quits the game, or stops play mode in the editor.", aliases: "q")]
     static void cmd_quit() {

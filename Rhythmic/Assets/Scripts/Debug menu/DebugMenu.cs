@@ -199,6 +199,10 @@ public class DebugMenu : MonoBehaviour
         return invoke_selection(dir);
     }
     
+    // Repetition:
+
+    // TODO: allow repetition with the keyboard as well! Tie into invoke_selection()? 
+
     [Header("Options")]
     [Tooltip("For how long should an entry be held with the mouse before it begins repeating invokation.")]
     public float DEBUGMENU_MouseHoldDelayMs   = 500f;
@@ -268,6 +272,8 @@ public class DebugMenu : MonoBehaviour
         return (success, index);
     }
 
+    // TODO: could incorporate something like this into Ref generally, for use in DebugConsole also.
+    // Try setting the variable for the types we support natively, otherwise, fallback to Convert.ChangeType().
     void invoke_handle_variable(DebugMenuEntry_Var entry, int dir = 1) {
         Ref var_ref = entry.var_ref;
         // TODO: can't use a switch here as types are not compile-time constants.
