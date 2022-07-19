@@ -171,6 +171,7 @@ public class DebugMenu : MonoBehaviour
 
     void line_clicked_event(object sender, (DebugMenu_Line line, int dir) info) => select_and_invoke_from_click(info.line, info.dir);
     bool select_and_invoke_from_click(DebugMenu_Line line, int dir = 0) {
+        if (!select_line(line)) return false;
         return invoke_selection(dir);
     }
     
