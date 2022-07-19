@@ -9,6 +9,11 @@ using static Logging;
 
 public enum ConsoleCommandType { Function, Variable }
 public abstract class ConsoleCommand {
+    public ConsoleCommand(ConsoleCommandAttribute attrib = null) {
+        if (attrib == null) attrib = new();
+        help_text        = attrib.help_text;
+        is_cheat_command = attrib.is_cheat_command;
+    }
     public ConsoleCommandType command_type;
     public string[] aliases;
     public string   help_text;
@@ -16,14 +21,14 @@ public abstract class ConsoleCommand {
 }
 
 public class ConsoleCommand_Func : ConsoleCommand {
-    ConsoleCommand_Func() {
+    ConsoleCommand_Func(ConsoleCommandAttribute attrib = null) : base(attrib) {
         command_type = ConsoleCommandType.Function;
     }
-    public ConsoleCommand_Func(Action action) : this() {
+    public ConsoleCommand_Func(Action action, ConsoleCommandAttribute attrib = null) : this(attrib) {
         is_params = false;
         action_empty = action;
     }
-    public ConsoleCommand_Func(Action<string[]> action) : this() {
+    public ConsoleCommand_Func(Action<string[]> action, ConsoleCommandAttribute attrib = null) : this(attrib) {
         is_params = true;
         action_params = action;
     }
@@ -39,9 +44,10 @@ public class ConsoleCommand_Func : ConsoleCommand {
 }
 
 public class ConsoleCommand_Var : ConsoleCommand {
-    public ConsoleCommand_Var(Ref var_ref) {
+    public ConsoleCommand_Var(Ref var_ref, ConsoleCommandAttribute attrib = null) : base(attrib) {
         command_type = ConsoleCommandType.Variable;
         this.var_ref = var_ref;
+        
     }
     public Ref var_ref;
     public object get_value()             => var_ref.get_value();
@@ -147,11 +153,13 @@ public partial class DebugConsole {
                 if (!is_params) {
                     Action action = (Action)info.CreateDelegate(typeof(Action));
                     string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
-                    register_command(action, aliases);
+                    ConsoleCommand_Func cmd = new(action, attrib);
+                    register_command(cmd, aliases);
                 } else {
                     Action<string[]> action = (Action<string[]>)info.CreateDelegate(typeof(Action<string[]>));
                     string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
-                    register_command(action, aliases);
+                    ConsoleCommand_Func cmd = new(action, attrib);
+                    register_command(cmd, aliases);
                 }
             }
         }
@@ -164,7 +172,9 @@ public partial class DebugConsole {
                 
                 ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
                 string[] aliases = attrib.aliases.Length > 0 ? attrib.aliases : new string[1] { info.Name };
-                register_command(new Ref(() => info.GetValue(null), (v) => info.SetValue(null, v)), aliases);
+                Ref var_ref = new Ref(() => info.GetValue(null), (v) => info.SetValue(null, v));
+                ConsoleCommand_Var cmd = new(var_ref, attrib);
+                register_command(cmd, aliases);
             }
         }
     }
