@@ -97,19 +97,25 @@ public class DebugMenu : MonoBehaviour
         return (lookup.page, true);
     }
     void set_page_internal(DebugMenu_Page page = null) {
-        IDebugMenu_Page page_interface = (IDebugMenu_Page)page;
         current_page = page;
-
-        clear_lines();
         ui_temp_page_text.SetText("page: %".interp(page.GetType().Name)); // TODO: TEMP!
-        page_interface.draw_page();
+
+        draw_current_page();
         select_line(0);
 
-        // TODO: we want to update the layout any time something changes on the page.
-        // We'll need a procedure that draws the page, so that those requests will re-update the layout.
-        UPDATE_Layout(true);
-        
         log("switched to page '%'".interp(page.GetType().Name));
+    }
+
+    void draw_current_page() {
+        IDebugMenu_Page page_interface = (IDebugMenu_Page)current_page;
+
+        clear_lines();
+        page_interface.draw_page();
+
+        // TODO: BUG: If the amount of lines change, move the selection somewhere.
+        
+        // Force a layout update, in case the height of the debug menu has changed.
+        UPDATE_Layout(true);
     }
 
     // Lines:
