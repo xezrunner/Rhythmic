@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using static QuickInput;
 using static Logging;
 using TMPro;
+using System.Collections;
 
 public class DebugMenu : MonoBehaviour
 {
@@ -22,15 +23,19 @@ public class DebugMenu : MonoBehaviour
         keyboard = Keyboard.current;
         if (keyboard == null) log_warn("no keyboard!");
 
+        debugstats_instance = DebugStats.get_instance();
+        if (!debugstats_instance) log_warn("no debugstats instance!");
+
+        var page_0 = set_page(typeof(DebugMenu_Pages.MainPage));
+
         DebugConsole.write_line("[debugmenu] initialized");
     }
 
     void Start() {
         if (!is_open) close();
-        
-        var page_0 = set_page(typeof(DebugMenu_Pages.MainPage));
     }
 
+    DebugStats debugstats_instance;
     Keyboard keyboard;
 
     [Header("UI objects:")]
@@ -39,7 +44,7 @@ public class DebugMenu : MonoBehaviour
 
     [Header("  - Content")]
     [SerializeField] GameObject    ui_container_gameobject;
-    [SerializeField] RectTransform ui_container;
+    public RectTransform ui_container;
 
     [SerializeField] TMP_Text ui_temp_page_text; // TODO: TEMP!
 
@@ -88,6 +93,7 @@ public class DebugMenu : MonoBehaviour
         // else log_warn("page '%' was cached".interp(type.Name)); 
 
         set_page_internal(lookup.page);
+
         return (lookup.page, true);
     }
     void set_page_internal(DebugMenu_Page page = null) {
@@ -98,6 +104,10 @@ public class DebugMenu : MonoBehaviour
         ui_temp_page_text.SetText("page: %".interp(page.GetType().Name)); // TODO: TEMP!
         page_interface.draw_page();
         select_line(0);
+
+        // TODO: we want to update the layout any time something changes on the page.
+        // We'll need a procedure that draws the page, so that those requests will re-update the layout.
+        UPDATE_Layout(true);
         
         log("switched to page '%'".interp(page.GetType().Name));
     }
@@ -195,11 +205,39 @@ public class DebugMenu : MonoBehaviour
         }
     }
 
+    // Layout:
+    bool last_open_state = false;
+    void UPDATE_Layout(bool force = false) {
+        // Move DebugStats out of the way when we are active:
+        if (!debugstats_instance) return;
+        if (force || is_open != last_open_state) {
+            // We unfortunately have to use a coroutine to update the layout, since UI sizings only update
+            // at the end of a frame.
+            StartCoroutine(COROUTINE_Layout());
+            last_open_state = is_open;
+        }
+    }
+    IEnumerator COROUTINE_Layout() {
+        // NOTE: the size of UI elements are zero until they have been visible for one frame.
+        // We have to wait for a frame until the debug menu container size becomes non-zero:
+        yield return new WaitForEndOfFrame();
+
+        if (is_open) {
+            debugstats_instance.set_y(-25 - ui_container.sizeDelta.y);
+        } else {
+            debugstats_instance.set_y(-10);
+        }
+
+        // log("debugstats_instance.get_y(): %  ui_container.sizeDelta.y: %".interp(debugstats_instance.get_y(), ui_container.sizeDelta.y));
+    }
+
     // ----- //
 
     void Update() {
         if (was_pressed(keyboard?.f1Key)) open();
         if (was_pressed(keyboard?.f2Key)) close();
+
+        UPDATE_Layout();
 
         if (!is_open) return;
 
@@ -209,6 +247,7 @@ public class DebugMenu : MonoBehaviour
         if (was_pressed(keyboard?.uKey, keyboard?.downArrowKey)) select_next( 1);
         if (was_pressed(keyboard?.jKey, keyboard?.yKey, keyboard?.zKey, keyboard?.spaceKey, keyboard?.enterKey))
             invoke_selection();
+
     }
 
     // Debugging commands:

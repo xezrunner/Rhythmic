@@ -3,9 +3,22 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class DebugStats : MonoBehaviour
-{
+public class DebugStats : MonoBehaviour {
+    static DebugStats instance;
+    public static DebugStats get_instance() {
+        if (instance) return instance;
+        return null;
+    }
+    
+    void Awake() {
+        instance = this;
+    }
+
+    public RectTransform ui_panel;
     [SerializeField] TMP_Text ui_text;
+
+    public float get_y()        => ui_panel.anchoredPosition.y;
+    public void  set_y(float y) => ui_panel.anchoredPosition = new(ui_panel.anchoredPosition.x, y);
 
     StringBuilder builder = new StringBuilder(4096);
 
