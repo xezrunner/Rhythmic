@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -7,9 +10,6 @@ using UnityEngine.UI;
 using static Logging;
 using static QuickInput;
 using static AnimEasing;
-using System.Linq;
-using System.Text;
-using System;
 
 // TODO: Redirect Unity's logging to the in-game debug console (as an option)
 
@@ -167,7 +167,7 @@ public partial class DebugConsole : MonoBehaviour {
 
     // Sizing:
     public void change_size(bool expanded, float height = -1f) {
-        if (!expanded && height > 30f) CONSOLE_Height = height;
+        if (!expanded && height >= 30f) CONSOLE_Height = height;
         sizing_y = (ui_panel.sizeDelta.y, !expanded ? CONSOLE_Height : ui_canvas.rect.height);
 
         is_expanded = expanded;

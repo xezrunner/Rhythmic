@@ -75,8 +75,8 @@ public static class TextExtensions {
 
     // TODO: Make these safe!
     // TODO: Add boolean!
-    public static int   to_int  (this string text) => int.Parse(text);
-    public static float to_float(this string text) => float.Parse(text);
+    public static int   as_int  (this string text) => int.Parse(text);
+    public static float as_float(this string text) => float.Parse(text);
 
 #if UNITY
     public static string bold     (this string text) => $"<b>{text}</b>";

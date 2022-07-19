@@ -185,6 +185,32 @@ public partial class DebugConsole {
         if (!console && log_error("no console!")) return;
         for (int i = console.ui_lines.Count - 1; i >= 0; --i) console.destroy_line(i);
     }
+    [ConsoleCommand("Changes the compact mode size of the console.")]
+    static void cmd_change_console_size(string[] args) {
+        DebugConsole console = get_instance();
+        if (!console && log_error("no console!")) return;
+
+        float y = args[0].as_float();
+        // TODO: console width!
+        if (y <= 0) y = console.CONSOLE_DefaultHeight;
+        console.change_size(false, y);
+    }
+    [ConsoleCommand("Toggles the category button visibility next to console lines.")]
+    static void cmd_toggle_line_categories()   => get_instance().CONSOLE_ShowLineCategories = !get_instance().CONSOLE_ShowLineCategories;
+    [ConsoleCommand("Toggles the ability to submit a console command continuously by holding down the submit button.")]
+    static void cmd_toggle_submit_repetition() {
+        DebugConsole console = get_instance();
+        if (!console && log_error("no console!")) return;
+
+        console.CONSOLE_AllowSubmitRepetition = !console.CONSOLE_AllowSubmitRepetition;
+        console.write_line_internal("new state: %".interp(get_instance().CONSOLE_AllowSubmitRepetition));
+
+        // We clear the input field in submit() when submit repetition is off.
+        // Since submit() invoked this function while submit repetition was off, it has not cleared the input field, 
+        // so let's do it ourselves:
+        console.clear_input_field();
+        console.focus_input_field();
+    }
     [ConsoleCommand("Lists all commands.")]
     static void cmd_help(string[] args) {
         DebugConsole console = get_instance();
@@ -249,32 +275,7 @@ public partial class DebugConsole {
             prev_hash = cmd_hash;
         }
     }
-    [ConsoleCommand("Quits the game, or stops play mode in the editor.", aliases: "q")]
-    static void cmd_quit() {
-        log("quitting...");
-#if UNITY_EDITOR
-        EditorApplication.isPlaying = false;
-#else
-        Application.isPlaying = false;
-#endif
-    }
-    [ConsoleCommand("Toggles the category button visibility next to console lines.")]
-    static void cmd_toggle_line_categories()   => get_instance().CONSOLE_ShowLineCategories = !get_instance().CONSOLE_ShowLineCategories;
-    [ConsoleCommand("Toggles the ability to submit a console command continuously by holding down the submit button.")]
-    static void cmd_toggle_submit_repetition() {
-        DebugConsole console = get_instance();
-        if (!console && log_error("no console!")) return;
-
-        console.CONSOLE_AllowSubmitRepetition = !console.CONSOLE_AllowSubmitRepetition;
-        console.write_line_internal("new state: %".interp(get_instance().CONSOLE_AllowSubmitRepetition));
-
-        // We clear the input field in submit() when submit repetition is off.
-        // Since submit() invoked this function while submit repetition was off, it has not cleared the input field, 
-        // so let's do it ourselves:
-        console.clear_input_field();
-        console.focus_input_field();
-    }
-    [ConsoleCommand("Filter by a log level category.")]
+   [ConsoleCommand("Filter by a log level category.")]
     static void cmd_filter(string[] args) {
         DebugConsole console = get_instance();
         if (!console && log_error("no console!")) return;
@@ -325,4 +326,13 @@ public partial class DebugConsole {
         }
     }
 
+    [ConsoleCommand("Quits the game, or stops play mode in the editor.", aliases: "q")]
+    static void cmd_quit() {
+        log("quitting...");
+#if UNITY_EDITOR
+        EditorApplication.isPlaying = false;
+#else
+        Application.isPlaying = false;
+#endif
+    }
 }

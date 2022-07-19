@@ -240,7 +240,7 @@ public class DebugMenu : MonoBehaviour
 
     bool invoke_selection(int dir = 0) {
         if (ui_lines.Count == 0 && log_warn("no lines!")) return false;
-        
+
         DebugMenu_Line line = ui_lines[selection_index];
         DebugMenuEntry entry = line.entry;
         bool success = false;
@@ -308,7 +308,7 @@ public class DebugMenu : MonoBehaviour
     }
 
     // Debugging commands:
-    [ConsoleCommand] static void cmd_debugmenu_select(string[] args) => get_instance()?.select_line(args[0].to_int());
+    [ConsoleCommand] static void cmd_debugmenu_select(string[] args) => get_instance()?.select_line(args[0].as_int());
     
     [ConsoleCommand] static void cmd_debugmenu_clear() => get_instance()?.clear_lines();
     
