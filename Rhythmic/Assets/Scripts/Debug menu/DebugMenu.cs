@@ -113,7 +113,8 @@ public class DebugMenu : MonoBehaviour
         page_interface.draw_page();
 
         // TODO: BUG: If the amount of lines change, move the selection somewhere.
-        
+        if (!select_line(selection_index)) select_line(0);
+
         // Force a layout update, in case the height of the debug menu has changed.
         UPDATE_Layout(true);
     }
@@ -194,21 +195,42 @@ public class DebugMenu : MonoBehaviour
         return (success, index);
     }
 
+    void invoke_handle_variable(DebugMenuEntry_Var entry, int dir = 0) {
+        Ref var_ref = entry.var_ref;
+        // TODO: can't use a switch here as types are not compile-time constants.
+        // Can we do something about that? Anything better here? Factor out to another file? To Ref?
+        if (var_ref.var_type == typeof(int))        var_ref.set_value((int)var_ref.get_value()   + dir);
+        else if (var_ref.var_type == typeof(float)) var_ref.set_value((float)var_ref.get_value() + dir);
+        else if (var_ref.var_type == typeof(bool))  var_ref.set_value(!(bool)var_ref.get_value());
+        else if (var_ref.var_type.BaseType == typeof(Enum)) {
+            int value_count = Enum.GetValues(var_ref.var_type).Length;
+            int target      = (int)var_ref.get_value() + dir; // @Perf
+            if      (target >= value_count) target = 0;
+            else if (target < 0)            target = value_count - 1;
+
+            object final_enum = Enum.Parse(var_ref.var_type, target.ToString());
+            var_ref.set_value(final_enum);
+        }
+    }
+
     bool invoke_selection(int dir = 0) {
         DebugMenu_Line line = ui_lines[selection_index];
         DebugMenuEntry entry = line.entry;
+        bool success = false;
+
         if (entry.entry_type == DebugMenuEntryType.Function) {
             DebugMenuEntry_Func entry_func = (DebugMenuEntry_Func)entry;
             entry_func.invoke();
-            return true;
+            success = true;
         } else if (entry.entry_type == DebugMenuEntryType.Variable) {
-            log_warn("TODO: debug menu variable-type entries!");
-            return true;
+            invoke_handle_variable((DebugMenuEntry_Var)entry, dir);
+            success = true;
         }
-        else {
-            // log("empty entry invoked!");
-            return false;
-        }
+
+        // Re-draw page to show values properly.
+        draw_current_page();
+        
+        return success;
     }
 
     // Layout:
@@ -253,6 +275,8 @@ public class DebugMenu : MonoBehaviour
         if (was_pressed(keyboard?.uKey, keyboard?.downArrowKey)) select_next( 1);
         if (was_pressed(keyboard?.jKey, keyboard?.yKey, keyboard?.zKey, keyboard?.spaceKey, keyboard?.enterKey))
             invoke_selection();
+        if (was_pressed(keyboard?.digit1Key, keyboard?.leftArrowKey))  invoke_selection(-1);
+        if (was_pressed(keyboard?.digit2Key, keyboard?.rightArrowKey)) invoke_selection( 1);
 
     }
 

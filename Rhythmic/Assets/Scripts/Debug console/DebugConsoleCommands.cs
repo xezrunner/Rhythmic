@@ -61,10 +61,6 @@ public class Ref {
     public object get_value()             => getter.Invoke();
     public void   set_value(object value) => setter.Invoke(value);
 }
-public class Ref<T> : Ref {
-    public new T get_value()        => (T)base.get_value();
-    public void  set_value(T value) =>    base.set_value(value);
-}
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
 public class ConsoleCommandAttribute : Attribute {
