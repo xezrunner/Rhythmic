@@ -1,22 +1,11 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 using static Logging;
 
 public class Test : MonoBehaviour {
     void Awake() {
-        maybe_load_core_scene();
     }
     
     void Start() {
-    }
-
-    void maybe_load_core_scene() {
-        for (int i = 0; i < SceneManager.sceneCount; ++i) {
-            // Don't load the core scene if we have it in the editor already:
-            if (SceneManager.GetSceneAt(i).name == "_CoreScene") return;
-        }
-        SceneManager.LoadSceneAsync("_CoreScene", LoadSceneMode.Additive);
     }
 
     [ConsoleCommand("A test variable")]

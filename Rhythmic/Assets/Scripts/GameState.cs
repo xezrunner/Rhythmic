@@ -1,3 +1,7 @@
-public class GameState {
-    // int test_var = 30;
+using UnityEngine;
+
+public class GameState : MonoBehaviour {
+    void Awake() {
+
+    }
 }

@@ -27,7 +27,7 @@ public class DebugStats : MonoBehaviour {
 #if UNITY_EDITOR
         builder.Append(" | EDITOR");
 #endif
-        if (Core.IS_INTERNAL) builder.Append(" | INTERNAL");
+        // if (Core.IS_INTERNAL) builder.Append(" | INTERNAL");
         builder.Append("\n\n");
 
         var active_scene = SceneManager.GetActiveScene();
