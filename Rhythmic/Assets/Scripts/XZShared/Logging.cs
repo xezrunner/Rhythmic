@@ -53,7 +53,8 @@ public static class Logging {
 
     static void log_to_targets(string s, LogTarget targets, LogLevel level) {
         if (targets.HasFlag(LogTarget.Unity) || !DebugConsole.get_instance()) {
-            if (level != LogLevel.Info && level != LogLevel.Warning && level != LogLevel.Error) {
+            if (DebugConsole.CONSOLE_RedirectUnityLogging && 
+                level != LogLevel.Info && level != LogLevel.Warning && level != LogLevel.Error) {
                 // This is not an Unity-supported log level. Let's temporarily disable the console log redirection,
                 // let Unity log it with a default log level and meanwhile log it properly in our console:
                 DebugConsole.CONSOLE_RedirectUnityLogging = false;
