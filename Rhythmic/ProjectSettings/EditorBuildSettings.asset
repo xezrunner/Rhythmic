@@ -11,4 +11,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/XZShared/_XZCoreScene.unity
     guid: 2cc67933922f0f04798d5d26ff1bd566
+  - enabled: 1
+    path: Assets/Scenes/Startup.unity
+    guid: 66f116b8ba2b54340ad0f256ccf7b6a1
+  - enabled: 1
+    path: Assets/Scenes/MetaSystem.unity
+    guid: a09ddcd344e098b4995b3ab14bb775c6
+  - enabled: 1
+    path: Assets/Scenes/_RHXCoreScene.unity
+    guid: 0877b87a1beb8ea4a94d2b8ad1667d01
   m_configObjects: {}

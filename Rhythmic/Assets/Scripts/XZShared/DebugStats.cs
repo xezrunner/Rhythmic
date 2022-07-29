@@ -36,7 +36,10 @@ public class DebugStats : MonoBehaviour {
         for (int i = 0; i < SceneManager.sceneCount; ++i) {
             var scene = SceneManager.GetSceneAt(i);
             if (scene == active_scene) continue;
-            builder.AppendLine($" -{scene.name}");
+            
+            string s = scene.name;
+            if (s.StartsWith('_')) s = s.italic();
+            builder.AppendLine($" -{s}");
         }
         builder.AppendLine();
 
