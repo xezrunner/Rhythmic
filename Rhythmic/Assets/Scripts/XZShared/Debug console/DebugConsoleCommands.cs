@@ -132,49 +132,66 @@ public partial class DebugConsole {
 
     // ----- //
 
+    static string get_project_name() {
+        // TODO: Improve this!
+        string[] project_path_tokens = Application.dataPath.Split('/');
+        string   project_name = project_path_tokens[^2];
+        return project_name;
+    }
+
     void register_commands_from_assembly() {
-        Assembly assembly = Assembly.GetExecutingAssembly();
-        Type[] types = assembly.GetTypes();
+        foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
+            string module_name = assembly.FullName.Split(',')[0];
+            string proj_name = get_project_name();
 
-        // NOTE: only static methods and fields can be used as console commands!
-        
-        // Methods:
-        foreach (Type type in types) {
-            MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-            foreach (MethodInfo info in methods) {
-                if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
-                
-                ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
+            //log("module: |%|".interp(module_name));
+            // Ignore system and other Unity-related modules - those don't contain console commands for us:
+            if (!module_name.StartsWith("XZShared") && !module_name.StartsWith(proj_name)) continue;
 
-                bool is_params = false;
-                ParameterInfo[] parameters = info.GetParameters();
-                if (parameters.Length > 0 && parameters[0].ParameterType == typeof(string[])) is_params = true;
+            log("registering console commands from module '%'...".interp(module_name), LogLevel.Debug);
 
-                if (!is_params) {
-                    Action action = (Action)info.CreateDelegate(typeof(Action));
-                    string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
-                    ConsoleCommand_Func cmd = new(action, attrib);
-                    register_command(cmd, aliases);
-                } else {
-                    Action<string[]> action = (Action<string[]>)info.CreateDelegate(typeof(Action<string[]>));
-                    string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
-                    ConsoleCommand_Func cmd = new(action, attrib);
-                    register_command(cmd, aliases);
+            Type[] types = assembly.GetTypes();
+
+            // NOTE: only static methods and fields can be used as console commands!
+
+            // Methods:
+            foreach (Type type in types) {
+                MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                foreach (MethodInfo info in methods) {
+                    if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
+
+                    ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
+
+                    bool is_params = false;
+                    ParameterInfo[] parameters = info.GetParameters();
+                    if (parameters.Length > 0 && parameters[0].ParameterType == typeof(string[])) is_params = true;
+
+                    if (!is_params) {
+                        Action action = (Action)info.CreateDelegate(typeof(Action));
+                        string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
+                        ConsoleCommand_Func cmd = new(action, attrib);
+                        register_command(cmd, aliases);
+                    } else {
+                        Action<string[]> action = (Action<string[]>)info.CreateDelegate(typeof(Action<string[]>));
+                        string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
+                        ConsoleCommand_Func cmd = new(action, attrib);
+                        register_command(cmd, aliases);
+                    }
                 }
             }
-        }
 
-        // Fields:
-        foreach (Type type in types) {
-            FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-            foreach (FieldInfo info in fields) {
-                if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
-                
-                ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
-                string[] aliases = attrib.aliases.Length > 0 ? attrib.aliases : new string[1] { info.Name };
-                Ref var_ref = new Ref(() => info.GetValue(null), (v) => info.SetValue(null, v));
-                ConsoleCommand_Var cmd = new(var_ref, attrib);
-                register_command(cmd, aliases);
+            // Fields:
+            foreach (Type type in types) {
+                FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                foreach (FieldInfo info in fields) {
+                    if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
+
+                    ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
+                    string[] aliases = attrib.aliases.Length > 0 ? attrib.aliases : new string[1] { info.Name };
+                    Ref var_ref = new Ref(() => info.GetValue(null), (v) => info.SetValue(null, v));
+                    ConsoleCommand_Var cmd = new(var_ref, attrib);
+                    register_command(cmd, aliases);
+                }
             }
         }
     }
