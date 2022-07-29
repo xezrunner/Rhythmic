@@ -24,7 +24,7 @@ public static class Logging {
     
     public class Logging_Options {
         public LogLevel  default_level   = LogLevel.Info;
-        public LogTarget default_targets = LogTarget.XZConsoles;
+        public LogTarget default_targets = LogTarget.All;
 
         public CallerDebugInfoFlags caller_info = CallerDebugInfoFlags.FP;
     }
@@ -52,11 +52,19 @@ public static class Logging {
     public static bool log_nocaller(object message_obj, LogTarget targets, LogLevel level) => log(message_obj.ToString(), targets, level);
 
     static void log_to_targets(string s, LogTarget targets, LogLevel level) {
-        if (targets.HasFlag(LogTarget.Unity)) {
-            UNITY_Log(s, level);
-            // If we are redirecting Unity's logging to the console, there's no need to handle this log message
-            // ourselves - the redirection takes care of that:
-            if (DebugConsole.CONSOLE_RedirectUnityLogging) return;
+        if (targets.HasFlag(LogTarget.Unity) || !DebugConsole.get_instance()) {
+            if (level != LogLevel.Info && level != LogLevel.Warning && level != LogLevel.Error) {
+                // This is not an Unity-supported log level. Let's temporarily disable the console log redirection,
+                // let Unity log it with a default log level and meanwhile log it properly in our console:
+                DebugConsole.CONSOLE_RedirectUnityLogging = false;
+                UNITY_Log(s, LogLevel.Info);
+                DebugConsole.CONSOLE_RedirectUnityLogging = true;
+            } else {
+                UNITY_Log(s, level);
+                // If we are redirecting Unity's logging to the console, there's no need to handle this log message
+                // ourselves - the redirection takes care of that:
+                if (DebugConsole.CONSOLE_RedirectUnityLogging) return;
+            }
         }
 
         List<XZ_LogFunction_Signature> functions_to_call = XZ_GetLogFunctions(targets, level);
