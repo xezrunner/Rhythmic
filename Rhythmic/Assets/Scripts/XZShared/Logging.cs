@@ -1,6 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 // TODO:
 // - Provide different log_ variants where caller debug info is disabled, log_console and such...
@@ -33,19 +37,14 @@ public static class Logging {
     }
     public static Logging_Options options = new();
 
+    // string:
     public static bool log(string message, LogTarget targets, LogLevel level, 
                           [CallerFilePath]   string caller_file_path = null,
                           [CallerMemberName] string caller_proc_name = null,
-                          [CallerLineNumber] int caller_line_num = -1) {
+                          [CallerLineNumber] int    caller_line_num = -1) {
         message = message.add_caller_debug_info(options.caller_info, caller_file_path, caller_proc_name, caller_line_num);
         log_to_targets(message, targets, level);
         return true;
-    }
-    public static bool log(object message_obj, LogTarget targets, LogLevel level, 
-                          [CallerFilePath]   string caller_file_path = null,
-                          [CallerMemberName] string caller_proc_name = null,
-                          [CallerLineNumber] int caller_line_num = -1) {
-        return log(message_obj.ToString(), targets, level, caller_file_path, caller_proc_name, caller_line_num);
     }
 
     public static bool log_nocaller(string message, LogTarget targets, LogLevel level) {
@@ -75,7 +74,68 @@ public static class Logging {
         foreach (var func in functions_to_call) func.Invoke(s, level);
     }
 
+    static bool log_dump_obj_internal(object obj, string name,
+                                   [CallerFilePath]   string caller_file_path = null,
+                                   [CallerMemberName] string caller_proc_name = null,
+                                   [CallerLineNumber] int    caller_line_num = -1) {
+        if (obj == null)
+            log_error("null object!");
+
+        Type obj_type = obj.GetType();
+
+        BindingFlags flags           = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
+        FieldInfo[]  field_info      = obj_type.GetFields(flags);
+        int          name_length_pad = field_info.Length > 0 ? field_info.Max(i => i.Name.Length) : 0;
+
+        StringBuilder sb = new();
+        sb.Append("\ndumping % fields for object of ".interp(field_info.Length));
+        if (!name.is_empty()) sb.Append("name \"%\" and ".interp(name));
+        sb.AppendLine("type '%' ['%']:".interp(obj_type.Name, obj_type.BaseType));
+
+        foreach (FieldInfo info in field_info) {
+            // Field name:
+            sb.Append("%: ".interp(info.Name.PadRight(name_length_pad)));
+
+            object field_obj = info.GetValue(obj);
+
+            if (field_obj == null) sb.Append("(null)");
+            else if (info.FieldType == typeof(string)) {
+                // Print strings with quotation marks:
+                sb.Append("\"%\"".interp((string)info.GetValue(obj)));
+            } else if (typeof(IEnumerable).IsAssignableFrom(info.FieldType)) {
+                IEnumerable enumerable         = (IEnumerable)info.GetValue(obj);
+                List<string> values_as_strings = new();
+
+                foreach (object it in enumerable) {
+                    if      (it is string) values_as_strings.Add("\"%\"".interp((string)it));
+                    else if (it is char)   values_as_strings.Add("'%'"  .interp((char)  it));
+                    else                   values_as_strings.Add(it.ToString());
+                }
+
+                sb.Append("{ ");
+                sb.AppendJoin("; ", values_as_strings);
+                sb.Append(" }");
+            } else {
+                // Try printing the value with ToString():
+                sb.Append(info.GetValue(obj).ToString());
+            }
+
+            // Field type:
+            //sb.Append("  [type: %]".interp(info.FieldType.Name));
+            sb.AppendLine();
+        }
+
+        log(sb.ToString(), caller_file_path, caller_proc_name, caller_line_num);
+        return true;
+    }
+
     #region Overloads
+    public static bool log(object message_obj, LogTarget targets, LogLevel level,
+                          [CallerFilePath] string caller_file_path = null,
+                          [CallerMemberName] string caller_proc_name = null,
+                          [CallerLineNumber] int caller_line_num = -1) =>
+        log(message_obj.ToString(), targets, level, caller_file_path, caller_proc_name, caller_line_num);
+
     // No extra args:
     public static bool log(object message_obj, 
                           [CallerFilePath]   string caller_file_path = null,
@@ -128,6 +188,18 @@ public static class Logging {
 
     public static bool log_nocaller(string message, LogLevel level) => log_nocaller(message, options.default_targets, level);
     public static bool log_nocaller(object message_obj, LogLevel level) => log_nocaller(message_obj, options.default_targets, level);
+
+    public static bool log_dump_obj_with_name(object obj, string name,
+                                   [CallerFilePath] string caller_file_path = null,
+                                   [CallerMemberName] string caller_proc_name = null,
+                                   [CallerLineNumber] int caller_line_num = -1) =>
+        log_dump_obj_internal(obj, name, caller_file_path, caller_proc_name, caller_line_num);
+
+    public static bool log_dump_obj(object obj,
+                                   [CallerFilePath] string caller_file_path = null,
+                                   [CallerMemberName] string caller_proc_name = null,
+                                   [CallerLineNumber] int caller_line_num = -1) =>
+        log_dump_obj_internal(obj, null, caller_file_path, caller_proc_name, caller_line_num);
     #endregion
 
     #region XZShared
