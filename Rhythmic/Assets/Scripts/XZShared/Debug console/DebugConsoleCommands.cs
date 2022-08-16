@@ -8,6 +8,7 @@ using UnityEngine;
 using static Logging;
 
 public enum ConsoleCommandType { Function, Variable }
+
 public abstract class ConsoleCommand {
     public ConsoleCommand(ConsoleCommandAttribute attrib = null) {
         if (attrib == null) attrib = new();
@@ -15,6 +16,7 @@ public abstract class ConsoleCommand {
         is_cheat_command = attrib.is_cheat_command;
     }
     public ConsoleCommandType command_type;
+    public string   registered_from_module_name;
     public string[] aliases;
     public string   help_text;
     public bool     is_cheat_command = false;
@@ -68,7 +70,8 @@ public class Ref {
     public void   set_value(object value) => setter.Invoke(value);
 }
 
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
+// TODO: properties?
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false)]
 public class ConsoleCommandAttribute : Attribute {
     public ConsoleCommandAttribute(string help_text = null, bool is_cheat_command = false, params string[] aliases) {
         this.is_cheat_command = is_cheat_command;
@@ -85,7 +88,7 @@ public partial class DebugConsole {
 
     int registered_command_count = 0;
     bool register_command_internal(ConsoleCommand command, params string[] aliases) {
-        if (command == null     && log_error("null command!")) return false;
+        if (command == null && log_error("null command!")) return false;
 
         // TODO: Should we just use a List<string> within ConsoleCommand as well?
         // What are the performance implications?
@@ -135,30 +138,35 @@ public partial class DebugConsole {
     static string get_project_name() {
         // TODO: Improve this!
         string[] project_path_tokens = Application.dataPath.Split('/');
+#if UNITY_EDITOR
         string   project_name = project_path_tokens[^2];
+#else
+        // In non-editor builds, the dataPath is <proj>/Build/<proj>_Data - we have to go up one more:
+        string   project_name = project_path_tokens[^3];
+#endif
         return project_name;
     }
 
-    void register_commands_from_assembly() {
+    void register_commands_from_assemblies() {
+        string proj_name = get_project_name();
         foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
             string module_name = assembly.FullName.Split(',')[0];
-            string proj_name = get_project_name();
+            //log("module: |%|".interp(module_name), LogLevel.Debug);
 
-            //log("module: |%|".interp(module_name));
             // Ignore system and other Unity-related modules - those don't contain console commands for us:
             if (!module_name.StartsWith("XZShared") && !module_name.StartsWith(proj_name)) continue;
-
-            log("registering console commands from module '%'...".interp(module_name), LogLevel.Debug);
 
             Type[] types = assembly.GetTypes();
 
             // NOTE: only static methods and fields can be used as console commands!
 
             // Methods:
+            int method_count = 0;
             foreach (Type type in types) {
                 MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
                 foreach (MethodInfo info in methods) {
                     if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
+                    ++method_count;
 
                     ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
 
@@ -169,32 +177,40 @@ public partial class DebugConsole {
                     if (!is_params) {
                         Action action = (Action)info.CreateDelegate(typeof(Action));
                         string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
-                        ConsoleCommand_Func cmd = new(action, attrib);
+                        ConsoleCommand_Func cmd = new(action, attrib) {registered_from_module_name = module_name };
                         register_command(cmd, aliases);
                     } else {
                         Action<string[]> action = (Action<string[]>)info.CreateDelegate(typeof(Action<string[]>));
                         string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
-                        ConsoleCommand_Func cmd = new(action, attrib);
+                        ConsoleCommand_Func cmd = new(action, attrib) {registered_from_module_name = module_name };
                         register_command(cmd, aliases);
                     }
                 }
             }
 
             // Fields:
+            int field_count = 0;
             foreach (Type type in types) {
                 FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
                 foreach (FieldInfo info in fields) {
                     if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
+                    ++field_count;
 
                     ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
                     string[] aliases = attrib.aliases.Length > 0 ? attrib.aliases : new string[1] { info.Name };
                     Ref var_ref = new Ref(() => info.GetValue(null), (v) => info.SetValue(null, v));
-                    ConsoleCommand_Var cmd = new(var_ref, attrib);
+                    ConsoleCommand_Var cmd = new(var_ref, attrib) {registered_from_module_name = module_name };
                     register_command(cmd, aliases);
                 }
             }
+
+            log("functions: %  variables: %  module: %".interp(method_count.ToString().PadRight(2),
+                                                                           field_count.ToString().PadRight(2),
+                                                                           module_name), LogLevel.Debug);
         }
     }
+
+    // TODO: consolidate all the console checks!
 
     [ConsoleCommand("Deletes all of the text from the console.")]
     static void cmd_clear() {
@@ -206,6 +222,8 @@ public partial class DebugConsole {
     static void cmd_change_console_size(string[] args) {
         DebugConsole console = get_instance();
         if (!console && log_error("no console!")) return;
+
+        if (args.Length == 0 && write_line_internal("console size: %".interp(console.CONSOLE_DefaultHeight))) return;
 
         float y = args[0].as_float();
         // TODO: console width!
@@ -237,11 +255,16 @@ public partial class DebugConsole {
         bool is_cmd_help  = false;
         bool show_hashes  = false;
         bool show_aliases = false;
-        if (args != null) {
+        bool show_modules = false;
+
+
+        if (args != null && args.Length > 0) {
+            if (args[0] == "debug") args = new string[3] { "hash", "alias", "modules" }; // HACK: activate all debug prints
             foreach (string s in args) {
-                if      (s.Contains("?") || s.Contains("help")) is_help = true;
-                else if (s.Contains("hash"))  show_hashes = true;
+                if (s.Contains("?") || s.Contains("help")) is_help = true;
+                else if (s.Contains("hash")) show_hashes = true;
                 else if (s.Contains("alias")) show_aliases = true;
+                else if (s.Contains("modules")) show_modules = true;
                 // Clashes with command help:
                 //else     write_line_internal("invalid option: %".interp(s));
                 else is_cmd_help = true;
@@ -255,8 +278,10 @@ public partial class DebugConsole {
             write_line_internal("[help]               :: lists out all of the registered commands");
             write_line_internal("[help opt1 opt2 ...] :: same as above, but prints additional details");
             write_line_internal("options: ");
-            write_line_internal("  - alias: prints out possible aliases for commands");
-            write_line_internal("  - hash:  prints out the hash for each registered command entry");
+            write_line_internal("  - alias:   prints out possible aliases for commands");
+            write_line_internal("  - hash:    prints out the hash for each registered command entry");
+            write_line_internal("  - modules: prints out the module a command was registered from");
+            write_line_internal("  - debug:   all of the above");
             return;
         }
 
@@ -278,6 +303,8 @@ public partial class DebugConsole {
             string s_help_text = null;
             if (!cmd.help_text.is_empty()) s_help_text = $" :: {cmd.help_text}";
 
+            string s_module = show_modules ? $" [{cmd.registered_from_module_name}]" : null;
+
             int longest_key_length = console.registered_commands.Keys.Max(k => k.Length);
             string s_aliases = null;
             string s_alias   = cmd.aliases?[0].PadRight(longest_key_length);
@@ -287,7 +314,8 @@ public partial class DebugConsole {
 
             string s_hash = show_hashes ? $" [{cmd_hash:X8}]" : null;
 
-            write_line_internal("  - %%%".interp(s_alias, s_hash, !show_aliases ? s_help_text : null, s_aliases));
+
+            write_line_internal("  - %%%%".interp(s_alias, s_hash, s_module, !show_aliases ? s_help_text : null, s_aliases));
 
             prev_hash = cmd_hash;
         }
@@ -335,7 +363,9 @@ public partial class DebugConsole {
         write_line_internal("is_cheat_command: %".interp(cmd.is_cheat_command));
         write_line_internal("aliases: [%]".interp(cmd.aliases != null ? string.Join("; ", cmd.aliases) : null));
         if (cmd.command_type == ConsoleCommandType.Function) {
-            write_line_internal("TODO: print function info!");
+            ConsoleCommand_Func cmd_func = (ConsoleCommand_Func)cmd;
+            write_line_internal("function name:      %()".interp(cmd_func.is_params ? cmd_func.action_params.Method.Name : cmd_func.action_empty.Method.Name));
+            write_line_internal("declaring type:     %".interp(cmd_func.is_params ? cmd_func.action_params.Method.DeclaringType : cmd_func.action_empty.Method.DeclaringType));
         }
         else if (cmd.command_type == ConsoleCommandType.Variable) {
             ConsoleCommand_Var cmd_var = (ConsoleCommand_Var)cmd;

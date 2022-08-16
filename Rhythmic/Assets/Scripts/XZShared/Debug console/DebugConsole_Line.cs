@@ -34,6 +34,8 @@ public class DebugConsole_Line : MonoBehaviour
 
     public void set_state(bool state) => self.SetActive(state);
 
+    // TODO: remove getters!
+
     public string get_text()                   => ui_text.text;
     public void   set_text(string text = null) => ui_text.SetText(text);
 
