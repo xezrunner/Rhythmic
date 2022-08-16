@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
+// TODO:
+// - Provide different log_ variants where caller debug info is disabled, log_console and such...
+
 using XZ_LogFunction_Signature = System.Func<string, Logging.LogLevel, bool>;
 
 public static class Logging {
@@ -130,12 +133,13 @@ public static class Logging {
     #region XZShared
 #if XZSHARED && UNITY
     public static UnityEngine.Color XZ_GetColorForLogLevel(LogLevel level) {
-        switch (level) {
-            default:               return "#262626".hex_to_unity_color();
-            case LogLevel.Warning: return "#FB8C00".hex_to_unity_color();
-            case LogLevel.Error:   return "#EF5350".hex_to_unity_color();
-            case LogLevel.Debug:   return "#2196F3".hex_to_unity_color();
-        }
+        if (level.HasFlag(LogLevel.Error))   return "#EF5350".hex_to_unity_color();
+        if (level.HasFlag(LogLevel.Warning)) return "#FB8C00".hex_to_unity_color();
+
+        if (level.HasFlag(LogLevel.IO))      return "#388E3C".hex_to_unity_color();
+        if (level.HasFlag(LogLevel.Debug))   return "#2196F3".hex_to_unity_color();
+
+        return "#262626".hex_to_unity_color();
     }
 #endif
 #if XZSHARED
@@ -154,20 +158,20 @@ public static class Logging {
     public static LogLevel loglevel_from_unity_logtype(UnityEngine.LogType unity_logtype) {
         switch (unity_logtype) {
             default:
-            case UnityEngine.LogType.Log: return LogLevel.Info;
+            case UnityEngine.LogType.Log:       return LogLevel.Info;
             case UnityEngine.LogType.Error:
             case UnityEngine.LogType.Exception:
-            case UnityEngine.LogType.Assert: return LogLevel.Error;
-            case UnityEngine.LogType.Warning: return LogLevel.Warning;
+            case UnityEngine.LogType.Assert:    return LogLevel.Error;
+            case UnityEngine.LogType.Warning:   return LogLevel.Warning;
         }
     }
 
     static Action<object> UNITY_GetLogLevelFunction(LogLevel level) {
         switch (level) {
             default:
-            case LogLevel.Info: return UnityEngine.Debug.Log;
+            case LogLevel.Info:    return UnityEngine.Debug.Log;
             case LogLevel.Warning: return UnityEngine.Debug.LogWarning;
-            case LogLevel.Error: return UnityEngine.Debug.LogError;
+            case LogLevel.Error:   return UnityEngine.Debug.LogError;
         }
     }
     static bool UNITY_Log(string s, LogLevel level) {

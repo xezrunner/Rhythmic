@@ -41,14 +41,6 @@ public class DebugStats : MonoBehaviour {
             if (s.StartsWith('_')) s = s.italic();
             builder.AppendLine($" -{s}");
         }
-        builder.AppendLine();
-
-        builder.AppendLine("Printing test array with StringBuilder:");
-        string[] test_array = { "test1", "test2", "test3" };
-        builder.Append(" (");
-        builder.AppendJoin("; ", test_array);
-        builder.Append(')');
-        builder.AppendLine();
 
         ui_text.SetText(builder.ToString());
         builder.Clear();
