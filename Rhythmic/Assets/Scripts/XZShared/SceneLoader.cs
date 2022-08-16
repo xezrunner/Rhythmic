@@ -13,7 +13,7 @@ public static class SceneLoader {
         }
     }
     
-    public static (Scene scene, bool result) find_scene_by_name(string scene_name) {
+    public static (Scene scene, bool success) find_scene_by_name(string scene_name) {
         for (int i = 0; i < SceneManager.sceneCount; ++i) {
             Scene s = SceneManager.GetSceneAt(i);
             if (s.name == scene_name) return (s, true);
@@ -26,5 +26,9 @@ public static class SceneLoader {
         // TODO: checks!
         var operation = SceneManager.UnloadSceneAsync(scene_name);
         while (!operation.isDone) yield return null;
+    }
+
+    public static bool set_scene_as_active(string scene_name) {
+        return SceneManager.SetActiveScene(find_scene_by_name(scene_name).scene);
     }
 }

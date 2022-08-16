@@ -83,7 +83,19 @@ namespace AMP_2016 {
             }
 
             // Notes:
-
+            for (int i = 0; i < song_info.track_count; ++i) {
+                midi_track track = midi_info.tracks[i];
+                song_info.tracks[i].notes = new song_note[track.notes.Count];
+                for (int x = 0; x < track.notes.Count; ++x) {
+                    midi_note midi_note = track.notes[i];
+                    song_note note = new() {
+                        at_ticks = midi_note.on_ticks,
+                        duration_ticks = midi_note.duration_ticks,
+                        lane = AMP2016_Constants.get_lane_index_from_note_number(midi_note.note_number)
+                    };
+                    song_info.tracks[i].notes[x] = note;
+                }
+            }
 
             return song_info;
         }

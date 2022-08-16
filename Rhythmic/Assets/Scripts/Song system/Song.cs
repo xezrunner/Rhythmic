@@ -33,10 +33,12 @@ public struct song_track {
 }
 
 public struct song_note {
-    public int at_ticks;
-    public int duration_ticks;
+    public long at_ticks;
+    public int  duration_ticks;
+
+    public GameDifficulty for_difficulty;
     public int lane; // @Notelanes
-    public int type; // @Notetypes / powerups!
+    public int type; // @Powerups
 }
 
 public struct song_metadata {

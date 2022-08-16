@@ -14,6 +14,12 @@ public class DebugConsole_Line : MonoBehaviour
     }
     void Start() {
         set_category(category);
+
+        // HACK: position the category button onto the first line, in case of multi-line text:
+        // TODO: factor out into a function?
+        var     c_info  = ui_text.textInfo.characterInfo[0];
+        Vector2 c_pos   = ui_text.rectTransform.TransformPoint(c_info.topLeft);
+        ui_category_button_rect.position = new Vector2(ui_category_button_rect.position.x, c_pos.y);
     }
     
     DebugConsole console;
