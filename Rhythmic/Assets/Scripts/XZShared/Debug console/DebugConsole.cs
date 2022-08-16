@@ -198,7 +198,7 @@ public partial class DebugConsole : MonoBehaviour {
     }
 
     // Scrolling:
-    public const float SCROLL_TOP = 1f;
+    public const float SCROLL_TOP    = 1f;
     public const float SCROLL_BOTTOM = 0f;
 
     bool  is_scrolling = false;
@@ -226,12 +226,9 @@ public partial class DebugConsole : MonoBehaviour {
     public void scroll_to_bottom(bool anim = true) => scroll_console(SCROLL_BOTTOM, anim);
 
     // Input field:
-    public void focus_input_field() {
-        ui_input_field.ActivateInputField();
-    }
-    public void defocus_input_field() {
-        ui_input_field.DeactivateInputField();
-    }
+    public void focus_input_field()   => ui_input_field.ActivateInputField();
+    public void defocus_input_field() => ui_input_field.DeactivateInputField();
+
     void clear_input_field() {
         // TODO: Is this correct / any faster?
         set_input_field_text(null); // @Optimization
@@ -271,7 +268,8 @@ public partial class DebugConsole : MonoBehaviour {
 
     void set_input_field_text(string text, bool notify = true, int caret_pos = -1) {
         if (notify) ui_input_field.text = text;
-        else        ui_input_field.SetTextWithoutNotify(text);
+        else ui_input_field.SetTextWithoutNotify(text);
+        // BUG: the caret is not positioning itself correctly now for some reason.
         ui_input_field.caretPosition = (caret_pos == -1) ? ui_input_field.text.Length : caret_pos;
     }
 
@@ -310,25 +308,8 @@ public partial class DebugConsole : MonoBehaviour {
     }
 
     // Autocomplete:
-
     // BUG: When trying to select a single-letter command, the formatting doesn't change.
-
-    bool is_autocompleting = false;
-    int autocomplete_index = -1;
     List<string> autocomplete_list = new();
-    void autocomplete_next(int dir) {
-        if (!CONSOLE_EnableAutocomplete)  return;
-        if (autocomplete_list == null && log_error("autocomplete_list is null!")) return;
-        if (autocomplete_list.Count == 0) return;
-
-        autocomplete_index += dir;
-        if      (autocomplete_index >= autocomplete_list.Count) autocomplete_index = 0;
-        else if (autocomplete_index < 0) autocomplete_index = autocomplete_list.Count - 1;
-
-        is_autocompleting = true;
-
-        set_input_field_text(autocomplete_list[autocomplete_index]);
-    }
 
     bool autocomplete_list_debug = false;
     List<string> build_autocomplete_list(string input = null) {
@@ -380,6 +361,23 @@ public partial class DebugConsole : MonoBehaviour {
             builder.Append(to_add);
         }
         ui_autocomplete_text.SetText($":: {builder}");
+    }
+
+    bool is_autocompleting = false;
+    int autocomplete_index = -1;
+
+    void autocomplete_next(int dir) {
+        if (!CONSOLE_EnableAutocomplete)  return;
+        if (autocomplete_list == null && log_error("autocomplete_list is null!")) return;
+        if (autocomplete_list.Count == 0) return;
+
+        autocomplete_index += dir;
+        if      (autocomplete_index >= autocomplete_list.Count) autocomplete_index = 0;
+        else if (autocomplete_index < 0) autocomplete_index = autocomplete_list.Count - 1;
+
+        is_autocompleting = true;
+
+        set_input_field_text(autocomplete_list[autocomplete_index]);
     }
 
     // Lines:
@@ -493,6 +491,10 @@ public partial class DebugConsole : MonoBehaviour {
     }
     
     // Filtering (categories):
+
+    // TODO: Once we have a passable Logging_Info or similar data structure, we can specify a LogLevel and LogSource
+    // separately. This should make filtering categories and levels simulatneously possible.
+
     public LogLevel current_filter = LogLevel.None;
     float  filter_last_scroll_location = -1f;
     void filter(LogLevel category = LogLevel.None) {
@@ -500,17 +502,22 @@ public partial class DebugConsole : MonoBehaviour {
         // log("Filtering console by %".interp(category), LogLevel._IgnoreFiltering);
         current_filter = category;
         set_ui_filter_warning_panel(category);
-        
-        if (filter_last_scroll_location != -1f && category == LogLevel.None) {
-            scroll_console(filter_last_scroll_location);
-            filter_last_scroll_location = -1f;
-        }
+
+        // BUG: this doesn't quite restore us to the bottom of the console.
+        // Forcing a scroll to the bottom all the time for now:
+        //if (filter_last_scroll_location != -1f && category == LogLevel.None) {
+        //    scroll_console(filter_last_scroll_location);
+        //    filter_last_scroll_location = -1f;
+        //} else scroll_to_bottom();
+
+        scroll_to_bottom();
+
         filter_last_scroll_location = ui_scroll_rect.verticalNormalizedPosition;
     }
     void UPDATE_Filtering() {
         foreach (DebugConsole_Line line in ui_lines) {
-            bool new_state =  current_filter == LogLevel.None || line.category.HasFlag(LogLevel._IgnoreFiltering) ||
-                              line.category == current_filter;
+            bool new_state = current_filter == LogLevel.None || line.category.HasFlag(LogLevel._IgnoreFiltering) ||
+                             /*line.category == current_filter;*/ line.category.HasFlag(current_filter);
             line.set_state(new_state);
         }
     }
