@@ -26,6 +26,7 @@ public partial class DebugConsole : MonoBehaviour {
         instance = this;
         self = gameObject;
 
+        Application.quitting += on_quitting;
         keyboard = Keyboard.current;
         if (keyboard == null) log_warn("no keyboard!");
 
@@ -534,6 +535,11 @@ public partial class DebugConsole : MonoBehaviour {
         if (CONSOLE_RedirectUnityLogging) {
             log_nocaller(logString, LogTarget.XZConsoles, loglevel_from_unity_logtype(type));
         }
+    }
+
+    void on_quitting() {
+        // Unregister Unity logging redirection:
+        Application.logMessageReceivedThreaded -= handle_unity_redirect;
     }
 
     void Update() {
