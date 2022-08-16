@@ -261,6 +261,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd8c60dcf9f1a0241ae9d21918ad6920, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  default_song: allthetime
 --- !u!4 &866285956
 Transform:
   m_ObjectHideFlags: 0

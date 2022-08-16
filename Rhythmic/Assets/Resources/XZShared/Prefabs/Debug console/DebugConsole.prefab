@@ -1266,8 +1266,8 @@ MonoBehaviour:
   ui_autocomplete_text_rect: {fileID: 2991122186306178884}
   prefab_ui_line: {fileID: 5699597537976180994, guid: 703634d703788274d9ec82910285e3d5,
     type: 3}
-  CONSOLE_DefaultHeight: 270
-  CONSOLE_Height: 270
+  CONSOLE_DefaultHeight: 300
+  CONSOLE_Height: 300
   CONSOLE_MaxLines: 1000
   CONSOLE_RepeatOnEmptySubmit: 1
   CONSOLE_EchoBack: 1

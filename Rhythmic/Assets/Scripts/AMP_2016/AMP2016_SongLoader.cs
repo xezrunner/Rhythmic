@@ -1,0 +1,88 @@
+using Newtonsoft.Json;
+using System.IO;
+using static Logging;
+
+namespace AMP_2016 {
+    public class AMP2016_SongLoader : ISongLoader {
+        public const string MOGGSONG_FILE_EXT = ".moggsong";
+        public const string MIDI_FILE_EXT     = ".mid";
+
+        // This here should be used for development testing purposes only:
+        public static bool  ALLOW_JSON_FORMAT   = true;
+        public const string JSON_FILE_NAME      = "song.json";
+        public const string JSON_MIDI_FILE_NAME = "song.mid";
+        public const string JSON_AUDIO_EXT      = ".ogg";
+
+        public song_info load_song(string song_name, string lookup_path) {
+            song_info song_info = new() { name = song_name, lookup_path = lookup_path };
+
+            bool success = false;
+            if (ALLOW_JSON_FORMAT) {
+                log_warn("JSON support allowed. DO NOT SHIP!!!");
+
+                string path_to_json_file = Path.Combine(lookup_path, JSON_FILE_NAME);
+                log("path_to_json_file: %".interp(path_to_json_file), LogLevel.IO);
+
+                if (!File.Exists(path_to_json_file)) throw new ("JSON file doesn't exist!");
+
+                json_info json_info = load_info_from_json(path_to_json_file);
+                song_info.bpm = json_info.bpm;
+                song_info.section_start_bars = json_info.section_start_bars;
+                song_info.tunnel_scale = json_info.tunnel_scale;
+                // ..
+
+                success = true;
+            }
+
+            if (!success) {
+                string path_to_moggsong_file = Path.Combine(lookup_path, song_name, MOGGSONG_FILE_EXT);
+                log("path_to_moggsong_file: %".interp(path_to_moggsong_file));
+
+                if (!File.Exists(path_to_moggsong_file)) throw new("moggsong file doesn't exist!");
+
+                song_info info = MoggsongLoader.load_as_song_info(path_to_moggsong_file);
+                success = true;
+            }
+
+            string path_to_midi_file;
+            if (ALLOW_JSON_FORMAT && success) path_to_midi_file = Path.Combine(lookup_path, JSON_MIDI_FILE_NAME);
+            else                              path_to_midi_file = Path.Combine(lookup_path, song_name, MIDI_FILE_EXT);
+            if (!File.Exists(path_to_midi_file)) throw new("MIDI file doesn't exist!");
+
+            midi_info midi_info = MidiLoader.load_midi(path_to_midi_file);
+            // Load audio:
+            if (ALLOW_JSON_FORMAT) {
+                for (int i = 0; i < midi_info.track_count; ++i) {
+                    string track_name = midi_info.tracks[i].name;
+                    // Replace ':' with '_', as per JSON song standard:
+                    track_name = track_name.Replace(':', '_');
+                    // Add audio file extension:
+                    track_name += JSON_AUDIO_EXT;
+                    // Build full path to audio:
+                    string path = Path.Combine(lookup_path, "audio", track_name);
+                    bool path_exists = File.Exists(path);
+                    log("[%]: exists: %  path: %".interp(i, path_exists ? '1' : '0', path), path_exists ? LogLevel.IO : LogLevel.IO | LogLevel.Error);
+                }
+            } else log_error("We don't load .mogg files yet.");
+
+            log_warn("unimplemented");
+            return default;
+        }
+
+        public struct json_info {
+            public float tunnel_scale;
+            public int[] section_start_bars;
+            public float bpm;
+            public float preview_start_ms;
+            public float preview_length_ms;
+
+            public string title;
+            public string artist;
+            public string description;
+        }
+        public static json_info load_info_from_json(string file_path) {
+            string json_text = File.ReadAllText(file_path);
+            return JsonConvert.DeserializeObject<json_info>(json_text);
+        }
+    }
+}
