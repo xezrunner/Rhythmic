@@ -27,6 +27,8 @@ public partial class DebugConsole : MonoBehaviour {
         self = gameObject;
 
         Application.quitting += on_quitting;
+        Application.logMessageReceivedThreaded += handle_unity_redirect;
+
         keyboard = Keyboard.current;
         if (keyboard == null) log_warn("no keyboard!");
 
@@ -38,12 +40,10 @@ public partial class DebugConsole : MonoBehaviour {
 
         ui_lines = new(capacity: CONSOLE_MaxLines);
         history = new(CONSOLE_MaxHistoryEntries);
-        register_commands_from_assembly();
 
-        Application.logMessageReceivedThreaded += handle_unity_redirect;
+        register_commands_from_assemblies();
 
         write_line("[console] initialized");
-        
     }
 
     void Start() {
