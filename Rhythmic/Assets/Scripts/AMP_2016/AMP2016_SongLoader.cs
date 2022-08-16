@@ -44,13 +44,16 @@ namespace AMP_2016 {
                 success = true;
             }
 
+            // Load MIDI:
             string path_to_midi_file;
             if (ALLOW_JSON_FORMAT && success) path_to_midi_file = Path.Combine(lookup_path, JSON_MIDI_FILE_NAME);
             else                              path_to_midi_file = Path.Combine(lookup_path, song_name, MIDI_FILE_EXT);
             if (!File.Exists(path_to_midi_file)) throw new("MIDI file doesn't exist!");
 
             midi_info midi_info = MidiLoader.load_midi(path_to_midi_file);
-            // Load audio:
+
+            // Load audio info:
+            string[] audio_paths = new string[midi_info.track_count];
             if (ALLOW_JSON_FORMAT) {
                 for (int i = 0; i < midi_info.track_count; ++i) {
                     string track_name = midi_info.tracks[i].name;
@@ -60,13 +63,29 @@ namespace AMP_2016 {
                     track_name += JSON_AUDIO_EXT;
                     // Build full path to audio:
                     string path = Path.Combine(lookup_path, "audio", track_name);
+
                     bool path_exists = File.Exists(path);
                     log("[%]: exists: %  path: %".interp(i, path_exists ? '1' : '0', path), path_exists ? LogLevel.IO : LogLevel.IO | LogLevel.Error);
+
+                    audio_paths[i] = path;
                 }
             } else log_error("We don't load .mogg files yet.");
 
-            log_warn("unimplemented");
-            return default;
+            // Build tracks:
+            song_info.track_count = midi_info.track_count;
+            song_info.tracks = new song_track[song_info.track_count];
+            for (int i = 0; i < song_info.track_count; ++i) {
+                song_info.tracks[i] = new song_track() {
+                    name = $"T{i} (placeholder name!!!)",
+                    id = i,
+                    audio_path = audio_paths[i]
+                };
+            }
+
+            // Notes:
+
+
+            return song_info;
         }
 
         public struct json_info {

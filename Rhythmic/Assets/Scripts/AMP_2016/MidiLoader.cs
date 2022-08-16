@@ -1,14 +1,15 @@
 using NAudio.Midi;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using static Logging;
 
 namespace AMP_2016 {
     public struct midi_note {
-        public int on_ticks;
-        public int off_ticks;
-        public int duration_ticks;
-        public int note_type_id;
+        public long on_ticks;
+        public long off_ticks;
+        public int  duration_ticks;
+        public int  note_number;
     }
 
     public enum MidiTextEventType { GeneralText, Lyric, Comment, UNKNOWN = -1 }
@@ -20,8 +21,9 @@ namespace AMP_2016 {
 
     public struct midi_track {
         public string name;
-        public midi_note[]       notes;
-        public midi_text_event[] text_events;
+        public int    midi_id;
+        public List<midi_note>       notes;
+        public List<midi_text_event> text_events;
     }
 
     public struct midi_info {
@@ -31,6 +33,9 @@ namespace AMP_2016 {
 
         public int          track_count;
         public midi_track[] tracks;
+
+        public int         note_event_count;
+        public midi_note[] note_events;
     }
 
     public static class MidiLoader {
@@ -42,6 +47,7 @@ namespace AMP_2016 {
             MemoryStream stream = new(bytes);
             MidiFile midi_file = new(stream, false);
 
+            // Tracks:
             List<midi_track> tracks = new();
             for (int i = 0; i < midi_file.Tracks; ++i) {
                 // 0 SequenceTrackName Tx Catch:T:track name
@@ -52,8 +58,31 @@ namespace AMP_2016 {
                 if (!track_name.StartsWith("T") && !char.IsDigit(track_name[1])) continue;
                 // log("[%]: %".interp(i, track_name));
 
-                midi_track track = new() { name = track_name };
+                midi_track track = new() { name = track_name, midi_id = i, notes = new() };
                 tracks.Add(track);
+            }
+
+            // Notes:
+            // For each track (i):
+            for (int i = 0; i < tracks.Count; ++i) {
+                foreach (MidiEvent midi_event in midi_file.Events[tracks[i].midi_id]) {
+                    if (midi_event.CommandCode != MidiCommandCode.NoteOn) continue;
+
+                    NoteOnEvent note_event = (NoteOnEvent)midi_event;
+                    // TODO: tick correction?
+
+                    foreach (int note_num in AMP2016_Constants.note_numbers_for_difficulties) {
+                        if (note_event.NoteNumber != note_num) continue;
+                        midi_note note = new() {
+                            on_ticks = note_event.AbsoluteTime,
+                            off_ticks = -1,
+                            duration_ticks = note_event.NoteLength,
+                            note_number = note_event.NoteNumber
+                        };
+                        tracks[i].notes.Add(note);
+                        break;
+                    }
+                }
             }
 
             midi_info info = new() {
@@ -66,7 +95,9 @@ namespace AMP_2016 {
 
             log("listing T tracks from MIDI:");
             for (int i = 0; i < info.track_count; ++i)
-                log("track [%]: \"%\"".interp(i, info.tracks[i].name));
+                log("track [%]: \"%\"  note event count: %".interp(i, 
+                    info.tracks[i].name.PadRight(info.tracks.Max(t => t.name.Length)),
+                    info.tracks[i].notes.Count));
 
             return info;
         }

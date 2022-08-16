@@ -9,6 +9,7 @@ public struct song_info {
     public float  tunnel_scale;
 
     public song_track[] tracks;
+    public int track_count;
 
     public song_metadata metadata;
 }
@@ -26,6 +27,7 @@ public struct song_track {
     public string name;
     public int    id;
     public TrackInstrument instrument;
+    public string audio_path;
     
     public song_note[] notes;
 }
