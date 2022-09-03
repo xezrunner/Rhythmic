@@ -33,6 +33,9 @@ public class Test : MonoBehaviour {
     [ConsoleCommand("A test variable")]
     public static int var_a = 15;
 
+    [ConsoleCommand("A test property")]
+    public static int var_b { get; set; } = 25;
+
     [ConsoleCommand("Logs a test message")]
     static void test_log()  => log("test!");
     [ConsoleCommand("Logs a test warning message")]
