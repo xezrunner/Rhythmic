@@ -7,7 +7,7 @@ using UnityEngine;
 
 using static Logging;
 
-public enum ConsoleCommandType { Function, VariableOrProperty }
+public enum ConsoleCommandType { Function, Variable, Property }
 
 public abstract class ConsoleCommand {
     public ConsoleCommand(ConsoleCommandAttribute attrib = null) {
@@ -47,7 +47,7 @@ public class ConsoleCommand_Func : ConsoleCommand {
 
 public class ConsoleCommand_Var : ConsoleCommand {
     public ConsoleCommand_Var(Ref var_ref, ConsoleCommandAttribute attrib = null) : base(attrib) {
-        command_type = ConsoleCommandType.VariableOrProperty;
+        command_type = ConsoleCommandType.Variable;
         this.var_ref = var_ref;
     }
     public Ref var_ref;
@@ -55,19 +55,29 @@ public class ConsoleCommand_Var : ConsoleCommand {
     public void   set_value(object value) => var_ref.set_value(value);
 }
 
-// TODO: Make this <T>
 public class Ref {
     public Ref() { }
     public Ref(Func<object> getter, Action<object> setter) {
         this.getter = getter;
         this.setter = setter;
-        var_type = get_value().GetType();
+        var_type = get_value().GetType(); // HACK: 
     }
     public Type  var_type;
     public Func  <object> getter;
     public Action<object> setter;
     public object get_value()             => getter.Invoke();
     public void   set_value(object value) => setter.Invoke(value);
+}
+public class Ref<T> : Ref {
+    public Ref(Func<T> getter, Action<T> setter) {
+        this.getter = getter;
+        this.setter = setter;
+        var_type = typeof(T);
+    }
+    public new Func  <T> getter;
+    public new Action<T> setter;
+    public new T get_value()        => getter.Invoke();
+    public void  set_value(T value) => setter.Invoke(value);
 }
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
@@ -178,12 +188,12 @@ public partial class DebugConsole {
                     if (!is_params) {
                         Action action = (Action)info.CreateDelegate(typeof(Action));
                         string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
-                        ConsoleCommand_Func cmd = new(action, attrib) {registered_from_module_name = module_name };
+                        ConsoleCommand_Func cmd = new(action, attrib) { registered_from_module_name = module_name };
                         register_command(cmd, aliases);
                     } else {
                         Action<string[]> action = (Action<string[]>)info.CreateDelegate(typeof(Action<string[]>));
                         string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
-                        ConsoleCommand_Func cmd = new(action, attrib) {registered_from_module_name = module_name };
+                        ConsoleCommand_Func cmd = new(action, attrib) { registered_from_module_name = module_name };
                         register_command(cmd, aliases);
                     }
                 }
@@ -196,8 +206,10 @@ public partial class DebugConsole {
 
                     ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
                     string[] aliases = attrib.aliases.Length > 0 ? attrib.aliases : new string[1] { info.Name };
+
                     Ref var_ref = new Ref(() => info.GetValue(null), (v) => info.SetValue(null, v));
-                    ConsoleCommand_Var cmd = new(var_ref, attrib) {registered_from_module_name = module_name };
+
+                    ConsoleCommand_Var cmd = new(var_ref, attrib) { registered_from_module_name = module_name };
                     register_command(cmd, aliases);
                 }
 
@@ -209,78 +221,15 @@ public partial class DebugConsole {
 
                     ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
                     string[] aliases = attrib.aliases.Length > 0 ? attrib.aliases : new string[1] {info.Name };
+
                     Ref var_ref = new Ref(() => info.GetValue(null), (v) => info.SetValue(null, v));
-                    ConsoleCommand_Var cmd = new ConsoleCommand_Var(var_ref, attrib) {registered_from_module_name = module_name};
+
+                    ConsoleCommand_Var cmd = new ConsoleCommand_Var(var_ref, attrib) { command_type = ConsoleCommandType.Property, registered_from_module_name = module_name};
                     register_command(cmd, aliases);
                 }
             }
 
             log("functions: %  variables: %  module: %".interp(method_count.ToString().PadRight(2), field_count.ToString().PadRight(2), module_name), LogLevel.Debug);
-        }
-    }
-
-    void register_commands_from_assemblies_old() {
-        string proj_name = get_project_name();
-        foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
-            string module_name = assembly.FullName.Split(',')[0];
-            //log("module: |%|".interp(module_name), LogLevel.Debug);
-
-            // Ignore system and other Unity-related modules - those don't contain console commands for us:
-            if (!module_name.StartsWith("XZShared") && !module_name.StartsWith(proj_name)) continue;
-
-            Type[] types = assembly.GetTypes();
-
-            // NOTE: only static methods and fields can be used as console commands!
-
-            // Methods:
-            int method_count = 0;
-            foreach (Type type in types) {
-                MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                foreach (MethodInfo info in methods) {
-                    if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
-                    ++method_count;
-
-                    ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
-
-                    bool is_params = false;
-                    ParameterInfo[] parameters = info.GetParameters();
-                    if (parameters.Length > 0 && parameters[0].ParameterType == typeof(string[])) is_params = true;
-
-                    if (!is_params) {
-                        Action action = (Action)info.CreateDelegate(typeof(Action));
-                        string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
-                        ConsoleCommand_Func cmd = new(action, attrib) {registered_from_module_name = module_name };
-                        register_command(cmd, aliases);
-                    } else {
-                        Action<string[]> action = (Action<string[]>)info.CreateDelegate(typeof(Action<string[]>));
-                        string[] aliases = register_command_func_handle_aliases(action.Method, attrib.aliases);
-                        ConsoleCommand_Func cmd = new(action, attrib) {registered_from_module_name = module_name };
-                        register_command(cmd, aliases);
-                    }
-                }
-            }
-
-            // Fields:
-            int field_count = 0;
-            foreach (Type type in types) {
-                FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                foreach (FieldInfo info in fields) {
-                    if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
-                    ++field_count;
-
-                    ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
-                    string[] aliases = attrib.aliases.Length > 0 ? attrib.aliases : new string[1] { info.Name };
-                    Ref var_ref = new Ref(() => info.GetValue(null), (v) => info.SetValue(null, v));
-                    ConsoleCommand_Var cmd = new(var_ref, attrib) {registered_from_module_name = module_name };
-                    register_command(cmd, aliases);
-                }
-            }
-
-            // Properties:
-            int prop_count = 0;
-            
-
-            
         }
     }
 
@@ -439,7 +388,7 @@ public partial class DebugConsole {
             write_line_internal("function name:      %()".interp(cmd_func.is_params ? cmd_func.action_params.Method.Name : cmd_func.action_empty.Method.Name));
             write_line_internal("declaring type:     %".interp(cmd_func.is_params ? cmd_func.action_params.Method.DeclaringType : cmd_func.action_empty.Method.DeclaringType));
         }
-        else if (cmd.command_type == ConsoleCommandType.VariableOrProperty) {
+        else if (cmd.command_type == ConsoleCommandType.Variable) {
             ConsoleCommand_Var cmd_var = (ConsoleCommand_Var)cmd;
             write_line_internal("var_type: % (base: %)".interp(cmd_var.var_ref.var_type.Name, cmd_var.var_ref.var_type.BaseType.Name));
         }
