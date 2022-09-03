@@ -112,10 +112,10 @@ public partial class DebugConsole {
         return true;
     }
 
-    public static bool register_command(ConsoleCommand command, params string[] aliases) => get_instance().register_command_internal(command, aliases);
-    public static bool register_command(Ref var_ref, params string[] aliases) => get_instance().register_command_internal(new ConsoleCommand_Var(var_ref), aliases);
-    public static bool register_command(Action action, params string[] aliases) => get_instance().register_command_internal(new ConsoleCommand_Func(action), aliases);
+    public static bool register_command(ConsoleCommand command, params string[] aliases)  => get_instance().register_command_internal(command, aliases);
+    public static bool register_command(Action action, params string[] aliases)           => get_instance().register_command_internal(new ConsoleCommand_Func(action), aliases);
     public static bool register_command(Action<string[]> action, params string[] aliases) => get_instance().register_command_internal(new ConsoleCommand_Func(action), aliases);
+    public static bool register_command(Ref var_ref, params string[] aliases)             => get_instance().register_command_internal(new ConsoleCommand_Var(var_ref), aliases);
 
     public static bool COMMANDS_AlwaysAddFuncNames = true;
     static string[] register_command_func_handle_aliases(MethodInfo info, string[] aliases) {
@@ -378,7 +378,7 @@ public partial class DebugConsole {
     }
 #endif
 
-    [ConsoleCommand("Quits the game, or stops play mode in the editor.", aliases: "q")]
+    [ConsoleCommand("Quits the game, or stops play mode in the editor.", false, "q", "exit")]
     static void cmd_quit() {
         log("quitting...");
 #if UNITY_EDITOR

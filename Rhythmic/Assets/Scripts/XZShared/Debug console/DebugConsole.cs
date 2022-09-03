@@ -22,41 +22,6 @@ public partial class DebugConsole : MonoBehaviour {
         return null;
     }
 
-    void Awake() {
-        instance = this;
-        self = gameObject;
-
-        Application.quitting += on_quitting;
-        Application.logMessageReceivedThreaded += handle_unity_redirect;
-
-        keyboard = Keyboard.current;
-        if (keyboard == null) log_warn("no keyboard!");
-
-        ui_canvas = FindObjectOfType<Canvas>()?.GetComponent<RectTransform>();
-        if (!ui_canvas) log_error("no ui_canvas!");
-
-        // Disable Unity's SRP Debug canvas:
-        UnityEngine.Rendering.DebugManager.instance.enableRuntimeUI = false; // @WordDeleteClash
-
-        ui_lines = new(capacity: CONSOLE_MaxLines);
-        history  = new(CONSOLE_MaxHistoryEntries);
-
-        register_commands_from_assemblies();
-
-        write_line("[console] initialized");
-    }
-
-    void Start() {
-        // UI setup:
-        if (!is_open) {
-            // Close the console at startup:
-            is_open = true;
-            close(false);
-        }
-        // Ensure that the opening animation already has the height fully animated:
-        sizing_y = (CONSOLE_Height, CONSOLE_Height);
-    }
-
     RectTransform ui_canvas;
     GameObject self;
     Keyboard keyboard;
@@ -123,7 +88,47 @@ public partial class DebugConsole : MonoBehaviour {
 
     [Tooltip("Controls the visibility of the category filter button on each line.")]
     public bool    CONSOLE_ShowLineCategories = true;
-    
+
+    void Awake() {
+        instance = this;
+        self = gameObject;
+
+        Application.quitting += on_quitting;
+        Application.logMessageReceivedThreaded += handle_unity_redirect;
+
+        keyboard = Keyboard.current;
+        if (keyboard == null) log_warn("no keyboard!");
+
+        ui_canvas = FindObjectOfType<Canvas>()?.GetComponent<RectTransform>();
+        if (!ui_canvas) log_error("no ui_canvas!");
+
+        // Disable Unity's SRP Debug canvas:
+        UnityEngine.Rendering.DebugManager.instance.enableRuntimeUI = false; // @WordDeleteClash
+
+        ui_lines = new(capacity: CONSOLE_MaxLines);
+        history  = new(CONSOLE_MaxHistoryEntries);
+
+        register_commands_from_assemblies();
+
+        write_line("[console] initialized");
+    }
+
+    void Start() {
+        // UI setup:
+        if (!is_open) {
+            // Close the console at startup:
+            is_open = true;
+            close(false);
+        }
+        // Ensure that the opening animation already has the height fully animated:
+        sizing_y = (CONSOLE_Height, CONSOLE_Height);
+    }
+
+    void on_quitting() {
+        // Unregister Unity logging redirection:
+        Application.logMessageReceivedThreaded -= handle_unity_redirect;
+    }
+
     public void open(bool anim = true) {
         if (is_open) {
             focus_input_field();
@@ -465,7 +470,7 @@ public partial class DebugConsole : MonoBehaviour {
         }
     }
 
-    int repeated_submits_count = 0;
+    int   repeated_submits_count = 0;
     float submit_hold_timer_ms = 0f;
     void UPDATE_HandleSubmitRepetition() {
         if (!CONSOLE_AllowSubmitRepetition) return;
@@ -543,11 +548,6 @@ public partial class DebugConsole : MonoBehaviour {
         if (CONSOLE_RedirectUnityLogging) {
             log_nocaller(logString, LogTarget.XZConsoles, loglevel_from_unity_logtype(type));
         }
-    }
-
-    void on_quitting() {
-        // Unregister Unity logging redirection:
-        Application.logMessageReceivedThreaded -= handle_unity_redirect;
     }
 
     void Update() {
