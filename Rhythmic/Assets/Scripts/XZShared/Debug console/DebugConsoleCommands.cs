@@ -172,15 +172,17 @@ public partial class DebugConsole {
             int method_count = 0;
             int field_count  = 0;
             int prop_count   = 0;
+
+            BindingFlags binding_flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+
             foreach (Type type in types) {
                 // Methods:
-                MethodInfo[] method_infos = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                MethodInfo[] method_infos = type.GetMethods(binding_flags);
                 foreach (MethodInfo info in method_infos) {
                     if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
                     ++method_count;
 
                     ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
-
                     bool is_params = false;
                     ParameterInfo[] parameters = info.GetParameters();
                     if (parameters.Length > 0 && parameters[0].ParameterType == typeof(string[])) is_params = true;
@@ -199,7 +201,7 @@ public partial class DebugConsole {
                 }
 
                 // Fields:
-                FieldInfo[] field_infos = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                FieldInfo[] field_infos = type.GetFields(binding_flags);
                 foreach (FieldInfo info in field_infos) {
                     if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
                     ++field_count;
@@ -214,7 +216,7 @@ public partial class DebugConsole {
                 }
 
                 // Properties:
-                PropertyInfo[] prop_infos = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                PropertyInfo[] prop_infos = type.GetProperties(binding_flags);
                 foreach (PropertyInfo info in prop_infos) {
                     if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
                     ++prop_count;

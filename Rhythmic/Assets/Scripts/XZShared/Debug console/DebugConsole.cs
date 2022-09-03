@@ -90,6 +90,12 @@ public partial class DebugConsole : MonoBehaviour {
     public bool    CONSOLE_ShowLineCategories = true;
 
     void Awake() {
+        if (instance) {
+            log_error("A debug console instance already exists ('%'). Ignoring (destroying this new object)!".interp(instance.name));
+            Destroy(gameObject);
+            return;
+        }
+
         instance = this;
         self = gameObject;
 
