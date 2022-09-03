@@ -46,7 +46,7 @@ public static class TextExtensions {
     public static string remove_file_ext(this string text) => text[.. text.LastIndexOf('.')];
 
     public static char INTERP_CHAR = '%';
-    public const int INTERP_BUFFER = 256; // @ Optimization
+    public const int   INTERP_BUFFER = 256; // @ Optimization
 
     public static string interp(this string text, params object[] args) {
         string[] args_as_strings = new string[args.Length];

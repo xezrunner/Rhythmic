@@ -19,6 +19,10 @@ public class RHXCore : MonoBehaviour {
 
     SongController song_controller;
 
+    [Header("Default song to load into during development:")]
+    public string default_song = "allthetime";
+    public string requested_song;
+
     void Start() {
         log("RHX Startup");
 
@@ -32,9 +36,4 @@ public class RHXCore : MonoBehaviour {
         song_controller = obj.AddComponent<SongController>();
         song_controller.rhx_core = this;
     }
-
-    [Header("Default song to load into during development:")]
-    public string default_song = "allthetime";
-
-    public string requested_song;
 }

@@ -14,10 +14,11 @@ public struct song_info {
     public song_metadata metadata;
 }
 
+// TODO: for RHX, we want custom instruments:
 public enum TrackInstrument {
     Drums = 0, 
     Bass = 1,
-    Synth = 2,
+    Synth = 2, FX = 2,
     Guitar = 3,
     Vocals = 4,
     Freestyle = 5,

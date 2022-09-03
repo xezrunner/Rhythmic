@@ -39,7 +39,7 @@ public partial class DebugConsole : MonoBehaviour {
         UnityEngine.Rendering.DebugManager.instance.enableRuntimeUI = false; // @WordDeleteClash
 
         ui_lines = new(capacity: CONSOLE_MaxLines);
-        history = new(CONSOLE_MaxHistoryEntries);
+        history  = new(CONSOLE_MaxHistoryEntries);
 
         register_commands_from_assemblies();
 
@@ -164,6 +164,7 @@ public partial class DebugConsole : MonoBehaviour {
     public void UPDATE_Openness() {
         if (openness_t > 1f) return;
 
+        // BUG: clamp T, possibly in the easing code!
         float y_pos = ease_out_quadratic(openness_y_pos.from, openness_y_pos.to, openness_t);
         ui_panel.anchoredPosition = new(ui_panel.anchoredPosition.x, y_pos);
 
@@ -222,17 +223,14 @@ public partial class DebugConsole : MonoBehaviour {
         scroll_target = value;
         is_scrolling = true;
     }
-    public void scroll_to_top(bool anim = true)    => scroll_console(SCROLL_TOP, anim);
+    public void scroll_to_top   (bool anim = true) => scroll_console(SCROLL_TOP, anim);
     public void scroll_to_bottom(bool anim = true) => scroll_console(SCROLL_BOTTOM, anim);
 
     // Input field:
     public void focus_input_field()   => ui_input_field.ActivateInputField();
     public void defocus_input_field() => ui_input_field.DeactivateInputField();
 
-    void clear_input_field() {
-        // TODO: Is this correct / any faster?
-        set_input_field_text(null); // @Optimization
-    }
+    void clear_input_field() => set_input_field_text(null);
 
     void input_word_delete(int dir) { // -1: left | 1: right
         if (ui_input_field.text == "") return;
@@ -252,6 +250,7 @@ public partial class DebugConsole : MonoBehaviour {
             s0 = string.Join(" ", tokens);
             //if (!s0.is_empty() && s0[^1] == ' ') s0 = s0[.. ^1]; // Eat last space
         } else if (dir == 1) {
+            // BUG: there's a bug here!
             if (caret_position == ui_input_field.text.Length - 1) return;
 
             string[] tokens = s1.Split(' ');
@@ -263,13 +262,12 @@ public partial class DebugConsole : MonoBehaviour {
 
         string s = s0 + s1;
         set_input_field_text(s);
-        //InputField_ChangeText(s, caret_position);
     }
 
     void set_input_field_text(string text, bool notify = true, int caret_pos = -1) {
         if (notify) ui_input_field.text = text;
-        else ui_input_field.SetTextWithoutNotify(text);
-        // BUG: the caret is not positioning itself correctly now for some reason.
+        else        ui_input_field.SetTextWithoutNotify(text);
+        // BUG: the caret is not positioning itself correctly now for some reason:
         ui_input_field.caretPosition = (caret_pos == -1) ? ui_input_field.text.Length : caret_pos;
     }
 
@@ -320,14 +318,14 @@ public partial class DebugConsole : MonoBehaviour {
 
         autocomplete_list.Clear();
         
-        // Check whether the whole input itself is contained in the registered commands list:
+        // 1. Check whether the whole input itself is contained in the registered commands list:
         if (registered_commands.Keys.Contains(input)) autocomplete_list.Add(input);
-        // Find all other entries that start with input:
+        // 2. Find all other entries that start with input:
         foreach (string key in registered_commands.Keys) {
             if (key == input) continue;
             if (key.StartsWith(input)) autocomplete_list.Add(key);
         }
-        // Find all other entries that contain the input:
+        // 3. Find all other entries that contain the input:
         foreach (string key in registered_commands.Keys) {
             if (key == input) continue;
             if (autocomplete_list.Contains(key)) continue;
@@ -456,6 +454,7 @@ public partial class DebugConsole : MonoBehaviour {
             Ref var_ref = cmd_var.var_ref;
             if (s_args.Length == 0) write_line_internal("% (%): %".interp(s_cmd, var_ref.var_type.Name, var_ref.get_value()));
             else {
+                // TODO: shared Ref handling?
                 object value_to_set;
                 try {
                     value_to_set = Convert.ChangeType(s_args[0], var_ref.var_type);
@@ -515,6 +514,8 @@ public partial class DebugConsole : MonoBehaviour {
         filter_last_scroll_location = ui_scroll_rect.verticalNormalizedPosition;
     }
     void UPDATE_Filtering() {
+        // TODO: Performance!
+        // Should actually do this when we push some text into the console and within filter()!
         foreach (DebugConsole_Line line in ui_lines) {
             bool new_state = current_filter == LogLevel.None || line.category.HasFlag(LogLevel._IgnoreFiltering) ||
                              /*line.category == current_filter;*/ line.category.HasFlag(current_filter);

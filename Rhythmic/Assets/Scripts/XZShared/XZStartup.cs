@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class XZStartup : MonoBehaviour {
-    public const string  STARTUP_SCENE_NAME = "Startup";
+    public const  string STARTUP_SCENE_NAME = "Startup";
     public static string CORE_SCENE_NAME = "_XZCoreScene";
     
     void Awake() {
@@ -17,7 +17,7 @@ public class XZStartup : MonoBehaviour {
     }
 
     [Header("The scene to load to from Startup:")]
-    [SerializeField] public string target_scene;
+    [SerializeField] public string       target_scene;
     [SerializeField] public List<string> game_specific_core_scenes;
 
     IEnumerator COROUTINE_TransitionToTarget() {

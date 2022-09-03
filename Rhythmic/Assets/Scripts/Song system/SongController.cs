@@ -1,8 +1,4 @@
-﻿using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 using static Logging;
 
 public class SongController : MonoBehaviour {
@@ -27,7 +23,7 @@ public class SongController : MonoBehaviour {
         if (!rhx_core) log_error("failed to get an RHXCore instance!");
 
         if (!rhx_core.requested_song.is_empty()) {
-            log("song requested: %".interp(rhx_core.requested_song));
+            log("song requested at init: %".interp(rhx_core.requested_song));
             load_song(rhx_core.requested_song);
         } else log("no song requested - waiting for a song in rhx_core...");
     }

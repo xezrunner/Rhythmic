@@ -12,8 +12,8 @@ public enum ConsoleCommandType { Function, Variable }
 public abstract class ConsoleCommand {
     public ConsoleCommand(ConsoleCommandAttribute attrib = null) {
         if (attrib == null) attrib = new();
-        help_text        = attrib.help_text;
-        is_cheat_command = attrib.is_cheat_command;
+        help_text        =  attrib.help_text;
+        is_cheat_command =  attrib.is_cheat_command;
     }
     public ConsoleCommandType command_type;
     public string   registered_from_module_name;
@@ -36,7 +36,7 @@ public class ConsoleCommand_Func : ConsoleCommand {
     }
 
     public bool is_params = false; // @Hack  This controls whether the function accepts parameters.
-    public Action action_empty;
+    public Action           action_empty;
     public Action<string[]> action_params;
 
     public void invoke(string[] args = null) {
@@ -49,13 +49,13 @@ public class ConsoleCommand_Var : ConsoleCommand {
     public ConsoleCommand_Var(Ref var_ref, ConsoleCommandAttribute attrib = null) : base(attrib) {
         command_type = ConsoleCommandType.Variable;
         this.var_ref = var_ref;
-        
     }
     public Ref var_ref;
     public object get_value()             => var_ref.get_value();
     public void   set_value(object value) => var_ref.set_value(value);
 }
 
+// TODO: Make this <T>
 public class Ref {
     public Ref() { }
     public Ref(Func<object> getter, Action<object> setter) {
@@ -257,7 +257,6 @@ public partial class DebugConsole {
         bool show_aliases = false;
         bool show_modules = false;
 
-
         if (args != null && args.Length > 0) {
             if (args[0] == "debug") args = new string[3] { "hash", "alias", "modules" }; // HACK: activate all debug prints
             foreach (string s in args) {
@@ -314,13 +313,12 @@ public partial class DebugConsole {
 
             string s_hash = show_hashes ? $" [{cmd_hash:X8}]" : null;
 
-
             write_line_internal("  - %%%%".interp(s_alias, s_hash, s_module, !show_aliases ? s_help_text : null, s_aliases));
 
             prev_hash = cmd_hash;
         }
     }
-   [ConsoleCommand("Filter by a log level category.")]
+    [ConsoleCommand("Filter by a log level category.")]
     static void cmd_filter(string[] args) {
         DebugConsole console = get_instance();
         if (!console && log_error("no console!")) return;
