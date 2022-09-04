@@ -1,13 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 using static QuickInput;
 using static Logging;
-using TMPro;
-using System.Collections;
-using System.Linq;
 
 public class DebugMenu : MonoBehaviour
 {
@@ -276,9 +276,10 @@ public class DebugMenu : MonoBehaviour
     // Try setting the variable for the types we support natively, otherwise, fallback to Convert.ChangeType().
     void invoke_handle_variable(DebugMenuEntry_Var entry, int dir = 1) {
         Ref var_ref = entry.var_ref;
+
         // TODO: can't use a switch here as types are not compile-time constants.
         // Can we do something about that? Anything better here? Factor out to another file? To Ref?
-        if (var_ref.var_type == typeof(int))        var_ref.set_value((int)var_ref.get_value()   + dir);
+        if      (var_ref.var_type == typeof(int))   var_ref.set_value(  (int)var_ref.get_value() + dir);
         else if (var_ref.var_type == typeof(float)) var_ref.set_value((float)var_ref.get_value() + dir);
         else if (var_ref.var_type == typeof(bool))  var_ref.set_value(!(bool)var_ref.get_value());
         else if (var_ref.var_type.BaseType == typeof(Enum)) {

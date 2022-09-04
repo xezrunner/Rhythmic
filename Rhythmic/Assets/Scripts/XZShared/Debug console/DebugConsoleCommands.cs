@@ -70,14 +70,16 @@ public class Ref {
 }
 public class Ref<T> : Ref {
     public Ref(Func<T> getter, Action<T> setter) {
-        this.getter = getter;
-        this.setter = setter;
+        this.getter = ()  => getter.Invoke();
+        this.setter = (v) => setter.Invoke((T)v);
+        getter_typed = getter;
+        setter_typed = setter;
         var_type = typeof(T);
     }
-    public new Func  <T> getter;
-    public new Action<T> setter;
-    public new T get_value()        => getter.Invoke();
-    public void  set_value(T value) => setter.Invoke(value);
+    public Func  <T> getter_typed;
+    public Action<T> setter_typed;
+    public T     get_value_typed()        => getter_typed.Invoke();
+    public void  set_value_typed(T value) => setter_typed.Invoke(value);
 }
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]

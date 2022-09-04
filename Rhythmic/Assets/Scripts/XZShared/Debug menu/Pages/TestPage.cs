@@ -4,10 +4,10 @@ namespace DebugMenu_Pages {
         public void layout() {
             write_line("Switch to MainPage ...", DebugMenu.cmd_debugmenu_main_page);
             write_line_separator();
-            write_line($"{nameof(integer_value)}", new Ref(() => integer_value, (v) => integer_value = (int)v));
-            write_line($"{nameof(float_value)}",   new Ref(() => float_value,   (v) => float_value   = (float)v));
-            write_line($"{nameof(boolean_value)}", new Ref(() => boolean_value, (v) => boolean_value = (bool)v));
-            write_line($"{nameof(enum_value)}",    new Ref(() => enum_value,    (v) => enum_value    = (DebugMenuEntryType)v));
+            write_line($"{nameof(integer_value)}", new Ref<int>  (() => integer_value, (v) => integer_value = v));
+            write_line($"{nameof(float_value)}",   new Ref<float>(() => float_value,   (v) => float_value   = v));
+            write_line($"{nameof(boolean_value)}", new Ref<bool> (() => boolean_value, (v) => boolean_value = v));
+            write_line($"{nameof(enum_value)}",    new Ref<DebugMenuEntryType>(() => enum_value, (v) => enum_value = v));
         }
 
         int   integer_value = 15;
