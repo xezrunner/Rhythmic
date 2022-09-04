@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using XZShared;
 using static Logging;
 
 public enum DebugMenuEntryType { None = 0, Function = 1, Variable = 2, Separator = 3 }

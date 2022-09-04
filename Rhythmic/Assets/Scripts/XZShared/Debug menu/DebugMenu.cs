@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using XZShared;
 
 using static QuickInput;
 using static Logging;
@@ -210,7 +211,7 @@ public class DebugMenu : MonoBehaviour
     public float DEBUGMENU_MouseRepeatDelayMs = 30f;
     
     bool is_holding = false;
-    int hold_dir = 0;
+    double hold_dir = 0;
     float held_ms;
     float held_repeat_ms = -1; // -1 means allow once at start
     void UPDATE_Holding() {
@@ -272,28 +273,7 @@ public class DebugMenu : MonoBehaviour
         return (success, index);
     }
 
-    // TODO: could incorporate something like this into Ref generally, for use in DebugConsole also.
-    // Try setting the variable for the types we support natively, otherwise, fallback to Convert.ChangeType().
-    void invoke_handle_variable(DebugMenuEntry_Var entry, int dir = 1) {
-        Ref var_ref = entry.var_ref;
-
-        // TODO: can't use a switch here as types are not compile-time constants.
-        // Can we do something about that? Anything better here? Factor out to another file? To Ref?
-        if      (var_ref.var_type == typeof(int))   var_ref.set_value(  (int)var_ref.get_value() + dir);
-        else if (var_ref.var_type == typeof(float)) var_ref.set_value((float)var_ref.get_value() + dir);
-        else if (var_ref.var_type == typeof(bool))  var_ref.set_value(!(bool)var_ref.get_value());
-        else if (var_ref.var_type.BaseType == typeof(Enum)) {
-            int value_count = Enum.GetValues(var_ref.var_type).Length;
-            int target      = (int)var_ref.get_value() + dir; // @Perf
-            if      (target >= value_count) target = 0;
-            else if (target < 0)            target = value_count - 1;
-
-            object final_enum = Enum.Parse(var_ref.var_type, target.ToString());
-            var_ref.set_value(final_enum);
-        }
-    }
-
-    bool invoke_selection(int dir = 0) {
+    bool invoke_selection(double dir = 0) {
         if (ui_lines.Count == 0 && log_warn("no lines!")) return false;
 
         DebugMenu_Line line = ui_lines[selection_index];
@@ -305,8 +285,8 @@ public class DebugMenu : MonoBehaviour
             entry_func.invoke();
             success = true;
         } else if (entry.entry_type == DebugMenuEntryType.Variable) {
-            invoke_handle_variable((DebugMenuEntry_Var)entry, dir);
-            success = true;
+            var var_entry = (DebugMenuEntry_Var)entry;
+            success = var_entry.var_ref.nudge_value(dir);
         }
 
         // Re-draw page to show values properly.

@@ -1,3 +1,5 @@
+using XZShared;
+
 namespace DebugMenu_Pages {
     [DebugMenuPage]
     public class TestPage : DebugMenu_Page, IDebugMenu_Page {

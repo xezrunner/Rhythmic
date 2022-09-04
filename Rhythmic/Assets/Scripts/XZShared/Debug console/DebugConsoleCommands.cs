@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using XZShared;
 
 using static Logging;
 
@@ -53,33 +54,6 @@ public class ConsoleCommand_Var : ConsoleCommand {
     public Ref var_ref;
     public object get_value()             => var_ref.get_value();
     public void   set_value(object value) => var_ref.set_value(value);
-}
-
-public class Ref {
-    public Ref() { }
-    public Ref(Func<object> getter, Action<object> setter) {
-        this.getter = getter;
-        this.setter = setter;
-        var_type = get_value().GetType(); // HACK: 
-    }
-    public Type  var_type;
-    public Func  <object> getter;
-    public Action<object> setter;
-    public object get_value()             => getter.Invoke();
-    public void   set_value(object value) => setter.Invoke(value);
-}
-public class Ref<T> : Ref {
-    public Ref(Func<T> getter, Action<T> setter) {
-        this.getter = ()  => getter.Invoke();
-        this.setter = (v) => setter.Invoke((T)v);
-        getter_typed = getter;
-        setter_typed = setter;
-        var_type = typeof(T);
-    }
-    public Func  <T> getter_typed;
-    public Action<T> setter_typed;
-    public T     get_value_typed()        => getter_typed.Invoke();
-    public void  set_value_typed(T value) => setter_typed.Invoke(value);
 }
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
