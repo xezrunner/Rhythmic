@@ -73,7 +73,10 @@ public partial class DebugConsole {
 
     int registered_command_count = 0;
     bool register_command_internal(ConsoleCommand command, params string[] aliases) {
-        if (command == null && log_error("null command!")) return false;
+        if (command == null) {
+            log_error("null command!");
+            return false;
+        }
 
         // TODO: Should we just use a List<string> within ConsoleCommand as well?
         // What are the performance implications?
@@ -81,7 +84,10 @@ public partial class DebugConsole {
         List<string> temp_aliases = new();
         if (aliases != null)          foreach (string s in aliases)          temp_aliases.Add(s);
         if (command?.aliases != null) foreach (string s in command?.aliases) temp_aliases.Add(s);
-        if (temp_aliases.Count == 0 && log_error("no aliases!")) return false;
+        if (temp_aliases.Count == 0) {
+            log_error("no aliases!");
+            return false;
+        }
 
         foreach (string key in registered_commands.Keys) {
             if (temp_aliases.Contains(key)) {
@@ -216,13 +222,13 @@ public partial class DebugConsole {
     [ConsoleCommand("Deletes all of the text from the console.")]
     static void cmd_clear() {
         DebugConsole console = get_instance();
-        if (!console && log_error("no console!")) return;
+        if (!console) return;
         for (int i = console.ui_lines.Count - 1; i >= 0; --i) console.destroy_line(i);
     }
     [ConsoleCommand("Changes the compact mode size of the console.")]
     static void cmd_change_console_size(string[] args) {
         DebugConsole console = get_instance();
-        if (!console && log_error("no console!")) return;
+        if (!console) return;
 
         if (args.Length == 0 && write_line_internal("console size: %".interp(console.CONSOLE_DefaultHeight))) return;
 
@@ -236,7 +242,7 @@ public partial class DebugConsole {
     [ConsoleCommand("Toggles the ability to submit a console command continuously by holding down the submit button.")]
     static void cmd_toggle_submit_repetition() {
         DebugConsole console = get_instance();
-        if (!console && log_error("no console!")) return;
+        if (!console) return;
 
         console.CONSOLE_AllowSubmitRepetition = !console.CONSOLE_AllowSubmitRepetition;
         write_line_internal("new state: %".interp(get_instance().CONSOLE_AllowSubmitRepetition));
@@ -250,7 +256,7 @@ public partial class DebugConsole {
     [ConsoleCommand("Lists all commands.")]
     static void cmd_help(string[] args) {
         DebugConsole console = get_instance();
-        if (!console && log_error("no console!")) return;
+        if (!console) return;
 
         bool is_help      = false;
         bool is_cmd_help  = false;
@@ -322,7 +328,7 @@ public partial class DebugConsole {
     [ConsoleCommand("Filter by a log level category.")]
     static void cmd_filter(string[] args) {
         DebugConsole console = get_instance();
-        if (!console && log_error("no console!")) return;
+        if (!console) return;
         
         if (args.Length == 0) {
             write_line("current filter: %".interp(console.current_filter), LogLevel._ConsoleInternal);
@@ -342,7 +348,10 @@ public partial class DebugConsole {
         foreach (string s in Enum.GetNames(typeof(LogLevel))) {
             if (s.ToLower().Contains(s_level)) s_match = s;
         }
-        if (s_match.is_empty() && log_error("invalid log level: %".interp(s_level))) return;
+        if (s_match.is_empty()) {
+            log_error("invalid log level: %".interp(s_level));
+            return;
+        }
 
         LogLevel level = (LogLevel)Enum.Parse(typeof(LogLevel), s_match);
         console.filter(level);
@@ -350,7 +359,7 @@ public partial class DebugConsole {
     [ConsoleCommand("Print debug information about a registered command.")]
     static void cmd_print_cmd_info(string[] args) {
         DebugConsole console = get_instance();
-        if (!console && log_error("no console!")) return;
+        if (!console) return;
 
         if (args.Length == 0) write_line_internal("missing command arg!");
         var cmd_kv = console.registered_commands.Where(kv => kv.Key == args[0]).FirstOrDefault();

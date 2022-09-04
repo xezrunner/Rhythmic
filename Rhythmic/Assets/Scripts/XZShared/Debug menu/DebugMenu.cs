@@ -75,7 +75,10 @@ public class DebugMenu : MonoBehaviour
         DebugMenu_Page result;
         if (cached_pages.ContainsKey(type)) result = cached_pages[type];
         else {
-            if (!typeof(IDebugMenu_Page).IsAssignableFrom(type) && log_error("'%' does not implement IDebugMenu_Page. Failing caching!".interp(type.Name))) return (null, false);
+            if (!typeof(IDebugMenu_Page).IsAssignableFrom(type)) {
+                log_error("'%' does not implement IDebugMenu_Page. Failing caching!".interp(type.Name));
+                return (null, false);
+            }
 
             DebugMenu_Page page = (DebugMenu_Page)Activator.CreateInstance(type);
             cached_pages.Add(type, page);
@@ -90,7 +93,10 @@ public class DebugMenu : MonoBehaviour
             return (null, false);
         }
         var lookup = lookup_or_cache_page(type);
-        if (lookup.page == null && log_error("lookup/caching failed!")) return (null, false);
+        if (lookup.page == null) {
+            log_error("lookup/caching failed!");
+            return (null, false);
+        }
         // if (!lookup.was_cached) log_warn("page '%' wasn't cached".interp(type.Name));
         // else log_warn("page '%' was cached".interp(type.Name)); 
 
@@ -167,7 +173,10 @@ public class DebugMenu : MonoBehaviour
         return entry;
     }
     void destroy_line(int index) {
-        if ((index < 0 || index > ui_lines.Count) && log_error("invalid index! (%)".interp(index))) return;
+        if ((index < 0 || index > ui_lines.Count)) {
+            log_error("invalid index! (%)".interp(index));
+            return;
+        }
 
         ui_lines[index].pointer_up_event   -= line_pointer_up_event;
         ui_lines[index].pointer_down_event -= line_pointer_down_event;
@@ -236,8 +245,14 @@ public class DebugMenu : MonoBehaviour
     int selection_index = 0;
 
     bool select_line(DebugMenu_Line line) {
-        if (!line && log_error("null line!")) return false;
-        if (ui_lines.Count == 0 && log_warn("empty page!")) return false;
+        if (!line) {
+            log_error("null line!");
+            return false;
+        }
+        if (ui_lines.Count == 0) {
+            log_warn("empty page!");
+            return false;
+        }
         if (line.is_separator()) return false;
 
         for (int i = 0; i < ui_lines.Count; ++i) {
@@ -249,13 +264,22 @@ public class DebugMenu : MonoBehaviour
         return true;
     }
     bool select_line(int index) {
-        if (ui_lines.Count == 0 && log_warn("empty page!")) return false;
-        if ((index < 0 || index >= ui_lines.Count) && log_error("invalid index (%)!".interp(index))) return false;
+        if (ui_lines.Count == 0) {
+            log_warn("empty page!"); 
+            return false;
+        }
+        if ((index < 0 || index >= ui_lines.Count)) {
+            log_error("invalid index (%)!".interp(index));
+            return false;
+        }
 
         return select_line(ui_lines[index]);
     }
     (bool success, int index) select_next(int dir) {
-        if (ui_lines.Count == 0 && log_warn("empty page!")) return (false, -1);
+        if (ui_lines.Count == 0) {
+            log_warn("empty page!");
+            return (false, -1);
+        }
 
         int index = selection_index;
         int rollover_count = -1;
@@ -274,7 +298,10 @@ public class DebugMenu : MonoBehaviour
     }
 
     bool invoke_selection(double dir = 0) {
-        if (ui_lines.Count == 0 && log_warn("no lines!")) return false;
+        if (ui_lines.Count == 0) {
+            log_warn("no lines!");
+            return false;
+        }
 
         DebugMenu_Line line = ui_lines[selection_index];
         DebugMenuEntry entry = line.entry;
@@ -354,7 +381,10 @@ public class DebugMenu : MonoBehaviour
     [ConsoleCommand("Prints all cached (loaded) pages of the debug menu.")]
     static void cmd_debugmenu_print_page_cache() {
         DebugMenu inst = get_instance();
-        if (!inst && log_warn("no debugmenu instance!")) return;
+        if (!inst) {
+            log_warn("no debugmenu instance!");
+            return;
+        }
         DebugConsole.write_line("Listing cached pages: (%)".interp(inst.cached_pages.Count), LogLevel._ConsoleInternal);
         foreach (Type t in inst.cached_pages.Keys)
             DebugConsole.write_line("  - %".interp(t.Name), LogLevel._ConsoleInternal);

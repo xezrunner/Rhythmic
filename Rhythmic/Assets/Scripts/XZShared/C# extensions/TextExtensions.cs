@@ -1,48 +1,10 @@
 #undef DEBUG_CHECKS
 
-using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 using static Logging;
 
-public enum CallerDebugInfoFlags {
-        None = 0,
-        FileName   = 1 << 0,
-        ProcName   = 1 << 1,
-        LineNumber = 1 << 2,
-
-        FPL = FileName | ProcName | LineNumber,
-        FP  = FileName | ProcName,
-        FL  = FileName | LineNumber,
-}
-
-public static class TextExtensions {
-    public static bool CALLER_RemoveExtFromFilenames = true;
-    public static string add_caller_debug_info(this string text, CallerDebugInfoFlags flags, 
-                                              [CallerFilePath]   string caller_file_path = null,
-                                              [CallerMemberName] string caller_proc_name = null,
-                                              [CallerLineNumber] int caller_line_num = -1) {
-        if (flags == CallerDebugInfoFlags.None) return text;
-                                                
-        string s = null;
-        if (flags.HasFlag(CallerDebugInfoFlags.FileName)) {
-            string file_name = Path.GetFileName(caller_file_path);
-            if (CALLER_RemoveExtFromFilenames) file_name = file_name.remove_file_ext();
-            s += file_name;
-        }
-        if (flags.HasFlag(CallerDebugInfoFlags.ProcName)) {
-            if (flags.HasFlag(CallerDebugInfoFlags.FileName)) s += "/";
-            s += $"{caller_proc_name}()";
-        }
-        if (flags.HasFlag(CallerDebugInfoFlags.LineNumber)) {
-            s += $"@{caller_line_num}";
-        }
-
-        s += $": {text}";
-        return s;
-    }
-
+public static partial class TextExtensions {
     public static string remove_file_ext(this string text) => text[.. text.LastIndexOf('.')];
 
     public static char INTERP_CHAR = '%';

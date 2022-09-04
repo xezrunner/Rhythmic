@@ -39,7 +39,10 @@ public class SongController : MonoBehaviour {
     [ConsoleCommand]
     public static void print_song_info() {
         if (!get_instance()) return;
-        if (instance.waiting_for_song && log_warn("no song!")) return;
+        if (instance.waiting_for_song) {
+            log_warn("no song!");
+            return;
+        }
 
         log_dump_obj(instance.current_song_info);
     }

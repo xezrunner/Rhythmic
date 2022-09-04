@@ -2,7 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
+using XZShared;
 using static Logging;
 
 public class DebugConsole_Line : MonoBehaviour
@@ -13,7 +13,7 @@ public class DebugConsole_Line : MonoBehaviour
         set_category_button_state(false);
     }
     void Start() {
-        set_category(category);
+        set_category(info.level);
 
         // HACK: position the category button onto the first line, in case of multi-line text:
         // TODO: factor out into a function?
@@ -36,18 +36,22 @@ public class DebugConsole_Line : MonoBehaviour
     public TMP_Text      ui_category_button_text;
     public Image         ui_category_button_image;
 
-    public LogLevel category = LogLevel.Info;
+    public Logging_Info info;
 
     public void set_state(bool state) => self.SetActive(state);
 
     // TODO: remove getters!
 
     public string get_text()                   => ui_text.text;
-    public void   set_text(string text = null) => ui_text.SetText(text);
+    public void set_text(string text = null) {
+        // TODO: control!
+        if (info.caller_info.has_info) text = text.add_caller_debug_info(options.caller_format_flags, info.caller_info);
+        ui_text.SetText(text);
+    }
 
-    public LogLevel get_category() => category;
+    public LogLevel get_category() => info.level;
     public void     set_category(LogLevel level) {
-        set_category_button_text(category.ToString()[0].ToString()); // TODO: refine this!
+        set_category_button_text(info.level.ToString()[0].ToString()); // TODO: refine this!
         set_category_button_colors(XZ_GetColorForLogLevel(level));
         set_category_button_state(true);
     }
@@ -85,10 +89,10 @@ public class DebugConsole_Line : MonoBehaviour
     void update_category_button_state() {
         bool new_state = self_is_active;
         if (!console.CONSOLE_ShowLineCategories)   new_state = false;
-        if (category == LogLevel.None)             new_state = false;
+        if (info.level == LogLevel.None)             new_state = false;
         // TODO: Preferably, we'll want to have a list/panel (UI) where we can select _ConsoleInternal,
         // while not having the line button visible for this specific and other internal categories.
-        if (category.HasFlag_Any(category_buttons_hide_flags)) new_state = false;
+        if (info.level.HasFlag_Any(category_buttons_hide_flags)) new_state = false;
 
         ui_category_button_gameobject.SetActive(new_state);
         ui_text.margin = !new_state ? Vector4.zero : new(ui_category_button_rect.sizeDelta.x + 6f,0f,0f,0f);
@@ -96,7 +100,7 @@ public class DebugConsole_Line : MonoBehaviour
 
     public event EventHandler<LogLevel> category_button_clicked_event;
     public void category_button_clicked() {
-        category_button_clicked_event?.Invoke(null, category);
+        category_button_clicked_event?.Invoke(null, info.level);
     }
 
     void LateUpdate() {

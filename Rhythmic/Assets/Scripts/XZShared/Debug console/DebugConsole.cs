@@ -306,7 +306,10 @@ public partial class DebugConsole : MonoBehaviour {
 
     int history_index = -1;
     void history_next(int dir) {
-        if (history == null && log_error("input_history is null!")) return;
+        if (history == null) {
+            log_error("input_history is null!");
+            return;
+        }
         if (history.Count == 0) return;
         if (CONSOLE_MaxHistoryEntries == 0) return;
         
@@ -378,7 +381,10 @@ public partial class DebugConsole : MonoBehaviour {
 
     void autocomplete_next(int dir) {
         if (!CONSOLE_EnableAutocomplete)  return;
-        if (autocomplete_list == null && log_error("autocomplete_list is null!")) return;
+        if (autocomplete_list == null) {
+            log_error("autocomplete_list is null!");
+            return;
+        }
         if (autocomplete_list.Count == 0) return;
 
         autocomplete_index += dir;
@@ -393,12 +399,12 @@ public partial class DebugConsole : MonoBehaviour {
     // Lines:
     List<DebugConsole_Line> ui_lines;
 
-    DebugConsole_Line add_new_line(string text, LogLevel level = LogLevel.Info) {
+    DebugConsole_Line add_new_line(string text, Logging_Info info) {
         DebugConsole_Line line = Instantiate(prefab_ui_line);
         line.trans.SetParent(ui_text_container, false);
 
+        line.info = info;
         line.set_text(text);
-        line.category = level;
         line.category_button_clicked_event += category_button_clicked;
 
         ui_lines.Add(line);
@@ -407,7 +413,10 @@ public partial class DebugConsole : MonoBehaviour {
         return line;
     }
     void destroy_line(int index) {
-        if ((index < 0 || index >= ui_lines.Count) && log_error("invalid index (%)!".interp(index))) return;
+        if (index < 0 || index >= ui_lines.Count) {
+            log_error("invalid index (%)!".interp(index));
+            return;
+        }
         ui_lines[index].category_button_clicked_event -= category_button_clicked;
         Destroy(ui_lines[index].self);
         ui_lines.RemoveAt(index);
@@ -419,15 +428,16 @@ public partial class DebugConsole : MonoBehaviour {
     }
 
     // Processing & commands:
-    public static bool write_line_internal(string message) {
-        get_instance()?.add_new_line(message, LogLevel._ConsoleInternal);
+    static bool write_line_internal(string message) {
+        get_instance()?.add_new_line(message, new() { level = LogLevel._ConsoleInternal });
         return true;
     }
-    public static bool write_line(string message, LogLevel level = LogLevel.Info) {
-        get_instance()?.add_new_line(message, level);
+    public static bool write_line(string message, LogLevel level = LogLevel.Info) => write_line(message, new Logging_Info() { level = level });
+    public static bool write_line(string message, Logging_Info info) {
+        get_instance()?.add_new_line(message, info);
         return true;
     }
-    
+
     static bool submit_debug = false;
     void submit(string input = null) {
         // Assume we want to submit the input field text when not given a parameter:
@@ -529,8 +539,8 @@ public partial class DebugConsole : MonoBehaviour {
         // TODO: Performance!
         // Should actually do this when we push some text into the console and within filter()!
         foreach (DebugConsole_Line line in ui_lines) {
-            bool new_state = current_filter == LogLevel.None || line.category.HasFlag(LogLevel._IgnoreFiltering) ||
-                             /*line.category == current_filter;*/ line.category.HasFlag(current_filter);
+            bool new_state = current_filter == LogLevel.None || line.get_category().HasFlag(LogLevel._IgnoreFiltering) ||
+                             /*line.category == current_filter;*/ line.get_category().HasFlag(current_filter);
             line.set_state(new_state);
         }
     }
