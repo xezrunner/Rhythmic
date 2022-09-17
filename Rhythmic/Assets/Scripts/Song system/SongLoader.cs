@@ -10,13 +10,19 @@ public static class SongLoader {
     public enum GameType { RHX_2022, FREQ_2001, AMP_2003, AMP_2016 }
 
     [ConsoleCommand] public static void load_song(string[] args) => load_song(args[0]);
-    public static song_info load_song(string song_name) {
+    public static (bool success, song_info info) load_song(string song_name) {
         (GameType game_type, string song_path) lookup = lookup_song_by_name(song_name);
-        if (lookup.song_path.is_empty()) throw new("Can't load song '%'.".interp(song_name));
+        if (lookup.song_path.is_empty()) {
+            log_error("Can't load song '%'.".interp(song_name));
+            return (false, default);
+        }
 
         switch (lookup.game_type) {
-            default: throw new("Unimplemented.");
-            case GameType.AMP_2016: return new AMP_2016.AMP2016_SongLoader().load_song(song_name, lookup.song_path);
+            default: {
+                log_error("Unimplemented.");
+                return (false, default);
+            }
+            case GameType.AMP_2016: return (true, new AMP_2016.AMP2016_SongLoader().load_song(song_name, lookup.song_path));
         }
     }
 

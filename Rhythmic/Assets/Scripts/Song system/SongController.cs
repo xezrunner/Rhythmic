@@ -1,4 +1,8 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
+using UnityEngine.Networking;
 using static Logging;
 
 public class SongController : MonoBehaviour {
@@ -33,7 +37,90 @@ public class SongController : MonoBehaviour {
 
     public void load_song(string song_name) {
         waiting_for_song = false;
-        current_song_info = SongLoader.load_song(rhx_core.default_song);
+        (bool success, song_info info) result = SongLoader.load_song(rhx_core.default_song);
+        if (!result.success) {
+            log_error("Failed to load song '%'.".interp(song_name));
+            return;
+        }
+        current_song_info = result.info;
+
+        load_audio();
+    }
+
+    GameObject audio_container;
+    Dictionary<string, AudioSource> audio_sources = new();
+
+    void load_audio() {
+        if (!audio_container) {
+            audio_container = new GameObject("Audio container");
+            audio_container.transform.SetParent(transform);
+        }
+
+        foreach (var it in audio_sources.Values) Destroy(it);
+        audio_sources.Clear();
+
+        foreach (var info in current_song_info.tracks) {
+            // I hate using coroutines, but it is necessary here:
+            StartCoroutine(UNITY_LoadTrackAudioSourceAndClip(info, AudioType.OGGVORBIS));
+        }
+    }
+
+    IEnumerator UNITY_LoadTrackAudioSourceAndClip(song_track info, AudioType audio_type, bool stream_audio = true) {
+        if (!info.audio_exists) {
+            log_warn("skipping non-existent audio for track '%' at path '%')".interp(info.name, info.audio_path));
+            yield break;
+        }
+
+        AudioSource source = audio_container.AddComponent<AudioSource>();
+        audio_sources.Add(info.name, source);
+
+        AudioClip clip = null;
+
+        using (UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(info.audio_path, AudioType.OGGVORBIS)) {
+            ((DownloadHandlerAudioClip)request.downloadHandler).streamAudio = true;
+            yield return request.SendWebRequest();
+
+            // TODO: timeout!
+
+            if (request.result != UnityWebRequest.Result.Success) {
+                log_error("% for: '%'".interp(request.result, info.name));
+            } else 
+                clip = DownloadHandlerAudioClip.GetContent(request);
+        }
+
+        if (clip == null) {
+            log_error("clip is null for: '%'", info.name);
+            audio_sources.Remove(info.name);
+            yield break;
+        }
+
+        clip.name = "%".interp(info.name);
+        source.clip = clip;
+
+    }
+
+    [ConsoleCommand]
+    static void temp_play_audio_sources() {
+        var inst = get_instance(); if (!inst) return;
+
+        // NOTE: When we'll be playing back the audio sources later, we should use a smaller delay (such as 0.1).
+        // Prior versions didn't use a delay and could have theoretically led to desync during inital playback.
+        // TODO: Test desync / delay!
+        double audio_time = AudioSettings.dspTime + 0.5;
+
+        foreach (var source in inst.audio_sources.Values) {
+            log("starting playback with 0.5 delay (audio_time: %) for: '%'".interp(audio_time, source.clip.name));
+            source.PlayScheduled(audio_time);
+        }
+    }
+
+    [ConsoleCommand]
+    static void temp_stop_audio_sources() {
+        var inst = get_instance(); if (!inst) return;
+
+        foreach (var source in inst.audio_sources.Values) {
+            source.Stop();
+        }
     }
 
     [ConsoleCommand]
@@ -45,6 +132,9 @@ public class SongController : MonoBehaviour {
         }
 
         log_dump_obj(instance.current_song_info);
+        foreach (var track in instance.current_song_info.tracks)
+            log_dump_obj(track);
+        log("audio sources: %".interp(instance.audio_sources.Count));
     }
 
     void Update() {

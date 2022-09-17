@@ -68,7 +68,6 @@ MonoBehaviour:
   ui_category_button_rect: {fileID: 9157142796902109510}
   ui_category_button_text: {fileID: 7609935866361829938}
   ui_category_button_image: {fileID: 8057569766511147806}
-  category: 1
   self_is_active: 1
 --- !u!114 &4174328520501402553
 MonoBehaviour:
@@ -154,7 +153,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 31, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

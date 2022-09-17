@@ -28,7 +28,9 @@ public struct song_track {
     public string name;
     public int    id;
     public TrackInstrument instrument;
+
     public string audio_path;
+    public bool   audio_exists;
     
     public song_note[] notes;
 }

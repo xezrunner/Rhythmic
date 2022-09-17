@@ -89,8 +89,8 @@ namespace AMP_2016 {
                 midi_file_path = file_path,
                 delta_ticks_pqn = midi_file.DeltaTicksPerQuarterNote,
                 track_count = tracks.Count,
-                bpm = -1, // Read from moggsong instead
-                tracks = tracks.ToArray()
+                tracks = tracks.ToArray(),
+                bpm = -1 // Read from moggsong instead
             };
 
             log("listing T tracks from MIDI:");

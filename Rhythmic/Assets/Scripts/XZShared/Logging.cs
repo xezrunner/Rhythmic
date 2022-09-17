@@ -129,14 +129,26 @@ public static class Logging {
                 IEnumerable enumerable         = (IEnumerable)info.GetValue(obj);
                 List<string> values_as_strings = new();
 
+                Dictionary<Type, int> foreign_object_counts = new();
                 foreach (object it in enumerable) {
                     if      (it is string) values_as_strings.Add("\"%\"".interp((string)it));
-                    else if (it is char)   values_as_strings.Add("'%'"  .interp((char)  it));
-                    else                   values_as_strings.Add(it.ToString());
+                    else if (it is char) values_as_strings.Add("'%'".interp((char)it));
+                    else {
+                        // for foreign types, it is enough if we print how many types we have:
+                        if (!foreign_object_counts.ContainsKey(it.GetType())) foreign_object_counts.Add(it.GetType(), 1);
+                        else foreign_object_counts[it.GetType()] += 1;
+                    }
                 }
 
                 sb.Append("{ ");
                 sb.AppendJoin("; ", values_as_strings);
+                // Print foreign object counts:
+                for (int i = 0; i < foreign_object_counts.Count; ++i) {
+                    var kv = foreign_object_counts.ElementAt(i);
+                    sb.Append("[% of '%']".interp(kv.Value, kv.Key.Name));
+                    if (foreign_object_counts.Count - 1 > i)  sb.Append(';');
+                    if (i != foreign_object_counts.Count - 1) sb.Append(' ');
+                }
                 sb.Append(" }");
             } else {
                 // Try printing the value with ToString():

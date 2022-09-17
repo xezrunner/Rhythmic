@@ -32,7 +32,6 @@ public class RHXCore : MonoBehaviour {
         if (IS_INTERNAL) requested_song = default_song;
 
         // Create SongController:
-        return;
         GameObject obj = new GameObject("SongController");
         song_controller = obj.AddComponent<SongController>();
         song_controller.rhx_core = this;

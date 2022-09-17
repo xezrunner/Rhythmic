@@ -14,6 +14,7 @@ namespace AMP_2016 {
         public const string JSON_MIDI_FILE_NAME = "song.mid";
         public const string JSON_AUDIO_EXT      = ".ogg";
 
+        // TODO: should this be static?
         public song_info load_song(string song_name, string lookup_path) {
             song_info song_info = new() { name = song_name, lookup_path = lookup_path };
 
@@ -77,9 +78,10 @@ namespace AMP_2016 {
             song_info.tracks = new song_track[song_info.track_count];
             for (int i = 0; i < song_info.track_count; ++i) {
                 song_info.tracks[i] = new song_track() {
-                    name = $"T{i} (placeholder name!!!)",
+                    name = midi_info.tracks[i].name,
                     id = i,
-                    audio_path = audio_paths[i]
+                    audio_path = audio_paths[i],
+                    audio_exists = File.Exists(audio_paths[i])
                 };
             }
 

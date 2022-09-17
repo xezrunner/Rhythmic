@@ -21,16 +21,16 @@ namespace XZShared {
         public bool nudge_value(double nudge_by = 1, bool rollover_enums = true) {
             // We cannot easily use a switch here, as Types are not constant expressions in C#.
             // There are ways to use a switch, but it doesn't look as clean.
-            if      (var_type == typeof(int))    set_value((int)get_value()    + (int)nudge_by);
-            else if (var_type == typeof(float))  set_value((float)get_value()  + (float)nudge_by);
+            if      (var_type == typeof(int))    set_value((int)   get_value() + (int)nudge_by);
+            else if (var_type == typeof(float))  set_value((float) get_value() + (float)nudge_by);
             else if (var_type == typeof(double)) set_value((double)get_value() + nudge_by);
-            else if (var_type == typeof(bool))   set_value(!(bool)get_value());
+            else if (var_type == typeof(bool))   set_value(!(bool) get_value());
             else if (var_type.BaseType == typeof(Enum)) {
                 int count  = Enum.GetValues(var_type).Length;
                 int target = (int)get_value() + (int)nudge_by;
                 if (rollover_enums) {
-                    if (target >= count) target = 0;
-                    else if (target < 0) target = count - 1;
+                    if      (target >= count) target = 0;
+                    else if (target < 0)      target = count - 1;
                 } else if (target >= count || target < 0) {
                     log_warn("index under or overflow for type '%'! ignoring".interp(var_type.Name));
                     return false;
@@ -48,7 +48,7 @@ namespace XZShared {
 
     public class Ref<T> : Ref {
         public Ref(Func<T> getter, Action<T> setter) {
-            this.getter = () =>  getter.Invoke();
+            this.getter = ( ) => getter.Invoke();
             this.setter = (v) => setter.Invoke((T)v);
             getter_typed = getter;
             setter_typed = setter;
