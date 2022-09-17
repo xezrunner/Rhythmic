@@ -132,8 +132,12 @@ public class SongController : MonoBehaviour {
         }
 
         log_dump_obj(instance.current_song_info);
+
+        logging_options.indentation_level = 1;
         foreach (var track in instance.current_song_info.tracks)
             log_dump_obj(track);
+        logging_options.indentation_level = 0;
+
         log("audio sources: %".interp(instance.audio_sources.Count));
     }
 

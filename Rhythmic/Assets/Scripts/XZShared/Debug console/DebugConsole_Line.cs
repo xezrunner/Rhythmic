@@ -45,7 +45,7 @@ public class DebugConsole_Line : MonoBehaviour
     public string get_text()                   => ui_text.text;
     public void set_text(string text = null) {
         // TODO: control!
-        if (info.caller_info.has_info) text = text.add_caller_debug_info(options.caller_format_flags, info.caller_info);
+        if (info.caller_info.has_info) text = text.add_caller_debug_info(logging_options.caller_format_flags, info.caller_info);
         ui_text.SetText(text);
     }
 
