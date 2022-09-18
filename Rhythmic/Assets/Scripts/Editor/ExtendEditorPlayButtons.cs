@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEditor.SceneManagement;
 using UnityToolbarExtender;
 
@@ -16,16 +13,23 @@ public class ExtendEditorPlayButtons {
 
     static void OnToolbarGUI() {
         if (GUILayout.Button(new GUIContent("Startup", ""))) start_scene("Startup");
+        if (prev_scene_path != null && GUILayout.Button(new GUIContent($"restore: {prev_scene_path}", ""))) start_scene(prev_scene_path, false);
 
         GUILayout.FlexibleSpace();
     }
 
     static string target_scene_name = null;
-    static void start_scene(string scene_name) {
+    static void start_scene(string scene_name, bool play = true) {
         if (EditorApplication.isPlaying) EditorApplication.isPlaying = false;
+
         target_scene_name = scene_name;
+        should_play = play;
+
         EditorApplication.update += OnUpdate;
     }
+
+    static bool   should_play = false;
+    static string prev_scene_path = null;
 
     static void OnUpdate() {
         if (target_scene_name == null ||
@@ -41,9 +45,11 @@ public class ExtendEditorPlayButtons {
             if (guids.Length == 0) {
                 Debug.LogWarning("Couldn't find scene file");
             } else {
+                prev_scene_path = EditorSceneManager.GetActiveScene().name;
+
                 string scenePath = AssetDatabase.GUIDToAssetPath(guids[0]);
                 EditorSceneManager.OpenScene(scenePath);
-                EditorApplication.isPlaying = true;
+                if (should_play) EditorApplication.isPlaying = true;
             }
         }
         target_scene_name = null;
