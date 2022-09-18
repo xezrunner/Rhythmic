@@ -35,9 +35,12 @@ public class SongController : MonoBehaviour {
     public bool waiting_for_song = true;
     public song_info current_song_info;
 
+    [ConsoleCommand]
+    public static void cmd_load_song(string[] args) => get_instance()?.load_song(args[0]);
+
     public void load_song(string song_name) {
         waiting_for_song = false;
-        (bool success, song_info info) result = SongLoader.load_song(rhx_core.default_song);
+        (bool success, song_info info) result = SongLoader.load_song(song_name);
         if (!result.success) {
             log_error("Failed to load song '%'.".interp(song_name));
             return;
@@ -52,9 +55,10 @@ public class SongController : MonoBehaviour {
 
     void load_audio() {
         if (!audio_container) {
-            audio_container = new GameObject("Audio container");
+            audio_container = new GameObject();
             audio_container.transform.SetParent(transform);
         }
+        audio_container.name = "Audio container (%)".interp(current_song_info.name);
 
         foreach (var it in audio_sources.Values) Destroy(it);
         audio_sources.Clear();

@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 using System.IO;
-
+using System.Linq;
 using static Logging;
 
 namespace AMP_2016 {
@@ -35,6 +35,10 @@ namespace AMP_2016 {
 
                 success = true;
             }
+
+            // TODO: We're going to have to load pan information from the .moggsong, as the JSON file
+            // doesn't contain that information.
+            // This could just be a hack, since the game isn't meant to ship with JSON support for AMP_2016 mode.
 
             if (!success) {
                 string path_to_moggsong_file = Path.Combine(lookup_path, song_name, MOGGSONG_FILE_EXT);
@@ -80,6 +84,8 @@ namespace AMP_2016 {
                 song_info.tracks[i] = new song_track() {
                     name = midi_info.tracks[i].name,
                     id = i,
+                    is_playable = midi_info.tracks[i].is_playable_track,
+
                     audio_path = audio_paths[i],
                     audio_exists = File.Exists(audio_paths[i])
                 };

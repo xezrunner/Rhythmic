@@ -9,7 +9,6 @@ public interface ISongLoader {
 public static class SongLoader {
     public enum GameType { RHX_2022, FREQ_2001, AMP_2003, AMP_2016 }
 
-    [ConsoleCommand] public static void load_song(string[] args) => load_song(args[0]);
     public static (bool success, song_info info) load_song(string song_name) {
         (GameType game_type, string song_path) lookup = lookup_song_by_name(song_name);
         if (lookup.song_path.is_empty()) {

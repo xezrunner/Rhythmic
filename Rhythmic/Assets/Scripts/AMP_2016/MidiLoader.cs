@@ -22,6 +22,7 @@ namespace AMP_2016 {
     public struct midi_track {
         public string name;
         public int    midi_id;
+        public bool   is_playable_track;
         public List<midi_note>       notes;
         public List<midi_text_event> text_events;
     }
@@ -55,10 +56,17 @@ namespace AMP_2016 {
                 string[] split = track_name.Split(' ');
                 track_name = string.Join(' ', split, 2, split.Length - 2);
 
+                // TODO: bg_click!
                 if (!track_name.StartsWith("T") && !char.IsDigit(track_name[1])) continue;
                 // log("[%]: %".interp(i, track_name));
 
-                midi_track track = new() { name = track_name, midi_id = i, notes = new() };
+                midi_track track = new() {
+                    name = track_name,
+                    midi_id = i,
+                    notes = new(),
+                    is_playable_track = !track_name.ToLower().Contains("bg_click") && !track_name.ToLower().Contains("freestyle")
+                };
+
                 tracks.Add(track);
             }
 
@@ -88,8 +96,10 @@ namespace AMP_2016 {
             midi_info info = new() {
                 midi_file_path = file_path,
                 delta_ticks_pqn = midi_file.DeltaTicksPerQuarterNote,
+
                 track_count = tracks.Count,
                 tracks = tracks.ToArray(),
+
                 bpm = -1 // Read from moggsong instead
             };
 

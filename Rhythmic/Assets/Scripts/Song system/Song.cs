@@ -27,6 +27,7 @@ public enum TrackInstrument {
 public struct song_track {
     public string name;
     public int    id;
+    public bool   is_playable;
     public TrackInstrument instrument;
 
     public string audio_path;

@@ -162,12 +162,17 @@ public partial class DebugConsole {
                 MethodInfo[] method_infos = type.GetMethods(binding_flags);
                 foreach (MethodInfo info in method_infos) {
                     if (!info.IsDefined(typeof(ConsoleCommandAttribute))) continue;
-                    ++method_count;
 
                     ConsoleCommandAttribute attrib = (ConsoleCommandAttribute)info.GetCustomAttribute(typeof(ConsoleCommandAttribute));
                     bool is_params = false;
                     ParameterInfo[] parameters = info.GetParameters();
                     if (parameters.Length > 0 && parameters[0].ParameterType == typeof(string[])) is_params = true;
+                    else if (parameters.Length != 0) {
+                        log_error("function '%' has an incompatible argument type '%'!".interp(info.Name, parameters[0].ParameterType.Name));
+                        continue;
+                    }
+
+                    ++method_count;
 
                     if (!is_params) {
                         Action action = (Action)info.CreateDelegate(typeof(Action));
