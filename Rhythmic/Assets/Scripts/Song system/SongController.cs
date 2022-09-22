@@ -32,14 +32,14 @@ public class SongController : MonoBehaviour {
         } else log("no song requested - waiting for a song in rhx_core...");
     }
 
-    public bool waiting_for_song = true;
+    public bool      init_waiting_for_song = true;
     public song_info current_song_info;
 
     [ConsoleCommand]
     public static void cmd_load_song(string[] args) => get_instance()?.load_song(args[0]);
 
     public void load_song(string song_name) {
-        waiting_for_song = false;
+        init_waiting_for_song = false;
         (bool success, song_info info) result = SongLoader.load_song(song_name);
         if (!result.success) {
             log_error("Failed to load song '%'.".interp(song_name));
@@ -47,13 +47,23 @@ public class SongController : MonoBehaviour {
         }
         current_song_info = result.info;
 
+        load_tracks();
         load_audio();
+    }
+
+    void load_tracks() {
+        // TODO: Track streaming and controller (?)
+        // Should we entertain the idea of having one huge monolith class that will handle
+        // the gameplay code? (at least in terms of tracks)
     }
 
     GameObject audio_container;
     Dictionary<string, AudioSource> audio_sources = new();
 
+    bool is_audio_loaded = false;
     void load_audio() {
+        is_audio_loaded = false;
+
         if (!audio_container) {
             audio_container = new GameObject();
             audio_container.transform.SetParent(transform);
@@ -63,44 +73,46 @@ public class SongController : MonoBehaviour {
         foreach (var it in audio_sources.Values) Destroy(it);
         audio_sources.Clear();
 
-        foreach (var info in current_song_info.tracks) {
-            // I hate using coroutines, but it is necessary here:
-            StartCoroutine(UNITY_LoadTrackAudioSourceAndClip(info, AudioType.OGGVORBIS));
-        }
+        // I hate using coroutines, but it is necessary here:
+        StartCoroutine(RHX_UNITY_LoadAudioForTracks(AudioType.OGGVORBIS));
     }
 
-    IEnumerator UNITY_LoadTrackAudioSourceAndClip(song_track info, AudioType audio_type, bool stream_audio = true) {
-        if (!info.audio_exists) {
-            log_warn("skipping non-existent audio for track '%' at path '%')".interp(info.name, info.audio_path));
-            yield break;
+    IEnumerator RHX_UNITY_LoadAudioForTracks(AudioType audio_type, bool stream_audio = true) {
+        foreach (var info in current_song_info.tracks) {
+            if (!info.audio_exists) {
+                log_warn("skipping non-existent audio for track '%' at path '%')".interp(info.name, info.audio_path));
+                yield break;
+            }
+
+            AudioSource source = audio_container.AddComponent<AudioSource>();
+            audio_sources.Add(info.name, source);
+
+            AudioClip clip = null;
+
+            using (UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(info.audio_path, AudioType.OGGVORBIS)) {
+                ((DownloadHandlerAudioClip)request.downloadHandler).streamAudio = true;
+                yield return request.SendWebRequest();
+
+                // TODO: timeout!
+
+                if (request.result != UnityWebRequest.Result.Success) {
+                    log_error("% for: '%'".interp(request.result, info.name));
+                } else
+                    clip = DownloadHandlerAudioClip.GetContent(request);
+            }
+
+            if (clip == null) {
+                log_error("clip is null for: '%'", info.name);
+                audio_sources.Remove(info.name);
+                yield break;
+            }
+
+            clip.name = "%".interp(info.name);
+            source.clip = clip;
         }
 
-        AudioSource source = audio_container.AddComponent<AudioSource>();
-        audio_sources.Add(info.name, source);
-
-        AudioClip clip = null;
-
-        using (UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(info.audio_path, AudioType.OGGVORBIS)) {
-            ((DownloadHandlerAudioClip)request.downloadHandler).streamAudio = true;
-            yield return request.SendWebRequest();
-
-            // TODO: timeout!
-
-            if (request.result != UnityWebRequest.Result.Success) {
-                log_error("% for: '%'".interp(request.result, info.name));
-            } else 
-                clip = DownloadHandlerAudioClip.GetContent(request);
-        }
-
-        if (clip == null) {
-            log_error("clip is null for: '%'", info.name);
-            audio_sources.Remove(info.name);
-            yield break;
-        }
-
-        clip.name = "%".interp(info.name);
-        source.clip = clip;
-
+        is_audio_loaded = true;
+        yield break;
     }
 
     [ConsoleCommand]
@@ -130,7 +142,7 @@ public class SongController : MonoBehaviour {
     [ConsoleCommand]
     public static void print_song_info() {
         if (!get_instance()) return;
-        if (instance.waiting_for_song) {
+        if (instance.init_waiting_for_song) {
             log_warn("no song!");
             return;
         }
@@ -146,6 +158,6 @@ public class SongController : MonoBehaviour {
     }
 
     void Update() {
-        if (waiting_for_song && !rhx_core.requested_song.is_empty()) load_song(rhx_core.requested_song);
+        if (init_waiting_for_song && !rhx_core.requested_song.is_empty()) load_song(rhx_core.requested_song);
     }
 }
