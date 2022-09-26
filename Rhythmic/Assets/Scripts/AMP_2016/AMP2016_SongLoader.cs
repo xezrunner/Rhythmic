@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
 using System.IO;
-using System.Linq;
 using static Logging;
 
 namespace AMP_2016 {

@@ -17,7 +17,8 @@ public class RHXCore : MonoBehaviour {
         instance = this;
     }
 
-    SongController song_controller;
+    public SongController song_controller;
+    public TrackController track_controller;
 
     [Header("Default song to load into during development:")]
     public string default_song = "allthetime";
@@ -32,8 +33,15 @@ public class RHXCore : MonoBehaviour {
         if (IS_INTERNAL) requested_song = default_song;
 
         // Create SongController:
-        GameObject obj = new GameObject("SongController");
-        song_controller = obj.AddComponent<SongController>();
-        song_controller.rhx_core = this;
+        {
+            GameObject obj = new GameObject("SongController");
+            song_controller = obj.AddComponent<SongController>();
+        }
+
+        // Create TrackController:
+        {
+            GameObject obj = new GameObject("TrackController");
+            track_controller = obj.AddComponent<TrackController>();
+        }
     }
 }

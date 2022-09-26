@@ -20,11 +20,10 @@ public class SongController : MonoBehaviour {
     void Start() {
         log("initializing SongController...");
 
-        if (!rhx_core) {
-            log_warn("no rhx_core was passed at creation! trying to get it...");
-            rhx_core = RHXCore.get_instance();
-        }
+        if (!rhx_core) rhx_core = RHXCore.get_instance();
         if (!rhx_core) log_error("failed to get an RHXCore instance!");
+
+        rhx_core.song_controller = this;
 
         if (!rhx_core.requested_song.is_empty()) {
             log("song requested at init: %".interp(rhx_core.requested_song));
@@ -47,15 +46,23 @@ public class SongController : MonoBehaviour {
         }
         current_song_info = result.info;
 
-        load_tracks();
         load_audio();
+        load_tracks();
     }
 
     void load_tracks() {
-        // TODO: Track streaming and controller (?)
-        // Should we entertain the idea of having one huge monolith class that will handle
-        // the gameplay code? (at least in terms of tracks)
+        if (!rhx_core.track_controller) {
+            log_error("no track_controller in RHXCore! Failed init?");
+            return;
+        }
+        if (init_waiting_for_song) {
+            log_warn("not yet initialized with a song.");
+            return;
+        }
+        rhx_core.track_controller.init_from_song_info(current_song_info);
     }
+
+    // TODO: add editor information about audio sources
 
     GameObject audio_container;
     Dictionary<string, AudioSource> audio_sources = new();
