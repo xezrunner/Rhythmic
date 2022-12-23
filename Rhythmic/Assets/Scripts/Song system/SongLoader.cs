@@ -30,6 +30,11 @@ public static class SongLoader {
             GameType lookup_gametype = kv.Key;
             string   lookup_path     = kv.Value;
 
+            if (!Directory.Exists(lookup_path)) {
+                log_error("Lookup path doesn't exist: %".interp(lookup_path));
+                continue;
+            }
+            
             bool found = false;
             foreach (string dir in Directory.GetDirectories(lookup_path)) {
                 DirectoryInfo dir_info = new(dir); // @Perf!
