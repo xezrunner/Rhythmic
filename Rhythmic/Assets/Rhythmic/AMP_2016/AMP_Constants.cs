@@ -20,9 +20,9 @@ public enum AMP_NoteLane {
 }
 
 public static class AMP_Constants {
-    public static string MOGGSONG_PATH = @"G:\amp_ps3\songs";
+    public static string MOGGSONG_PATH = @"H:\HMXAMPLITUDE\Extractions\amplitude_ps4_extraction\ps4\songs";
     public static string MIDI_PATH = MOGGSONG_PATH;
-    public static string AUDIO_PATH = @"H:\HMXAMPLITUDE\ps4_songs";
+    public static string AUDIO_PATH = @"H:\HMXAMPLITUDE\Extractions\ps4_songs";
 
     public static int[][] DIFFICULTY_NOTE_LANES =
     {

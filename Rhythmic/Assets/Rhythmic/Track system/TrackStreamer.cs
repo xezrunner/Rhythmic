@@ -326,7 +326,7 @@ public class TrackStreamer : MonoBehaviour {
 
             for (int x = bar + horizon_id - 2; x >= 0; --x) {
                 TrackSection m = x < t.sections.Length ? t.sections[x] : null;
-                if (m && m.mesh_renderer.material != t.material) m.ChangeMaterial(t.material);
+                if (m && m.mesh_renderer.material != t.material) m.ChangeMaterial(!m.is_empty ? t.material : t.material_global);
                 else break;
             }
         }

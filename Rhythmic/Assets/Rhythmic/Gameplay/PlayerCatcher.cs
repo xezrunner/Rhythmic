@@ -16,14 +16,15 @@ public class PlayerCatcher : MonoBehaviour {
     Vector3 catch_anim_start;
     Vector3 catch_anim_target;
 
-    void Awake() {
-        player_trackswitch = PlayerTrackSwitching.Instance;
-        song_system = SongSystem.Instance;
-        song = song_system.song;
+    void Start() {
         clock = Clock.Instance;
         track_system = TrackSystem.Instance;
+        player_trackswitch = PlayerTrackSwitching.Instance;
 
+        song_system = SongSystem.Instance;
+        song = song_system.song;
     }
+
     public PlayerCatcher Setup(int id, Transform parent) {
         this.id = id;
         trans.SetParent(parent);

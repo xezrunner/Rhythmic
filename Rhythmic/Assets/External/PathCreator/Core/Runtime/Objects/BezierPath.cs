@@ -47,7 +47,7 @@ namespace PathCreation
         bool flipNormals;
 
         [SerializeField, HideInInspector]
-        List<float> per_anchor_funky_angles;
+        List<Vector2> per_anchor_funky_angles;
         [SerializeField, HideInInspector]
         public float funky_angle_global;
         [SerializeField, HideInInspector]
@@ -77,7 +77,7 @@ namespace PathCreation
                 };
 
             perAnchorNormalsAngle = new List<float>() { 0, 0 };
-            per_anchor_funky_angles = new List<float>() { 0, 0 };
+            per_anchor_funky_angles = new List<Vector2>() { Vector2.zero, Vector2.zero };
 
             Space = space;
             IsClosed = isClosed;
@@ -100,13 +100,13 @@ namespace PathCreation
                 controlMode = ControlMode.Automatic;
                 this.points = new List<Vector3> { pointsArray[0], Vector3.zero, Vector3.zero, pointsArray[1] };
                 perAnchorNormalsAngle =   new List<float>(new float[] { 0, 0 });
-                per_anchor_funky_angles = new List<float>(new float[] { 0, 0 });
+                per_anchor_funky_angles = new List<Vector2>(new Vector2[] { Vector2.zero, Vector2.zero });
 
                 for (int i = 2; i < pointsArray.Length; i++)
                 {
                     AddSegmentToEnd(pointsArray[i]);
                     perAnchorNormalsAngle.Add(0);
-                    per_anchor_funky_angles.Add(0);
+                    per_anchor_funky_angles.Add(Vector2.zero);
                 }
             }
 
@@ -378,10 +378,11 @@ namespace PathCreation
             perAnchorNormalsAngle.Insert(newAnchorAngleIndex, splitAngle);
 
             int new_funky_angle_index = (segmentIndex + 1) % per_anchor_funky_angles.Count;
-            float funky_prev = per_anchor_funky_angles[segmentIndex];
-            float funky_next = per_anchor_funky_angles[new_funky_angle_index];
-            float funky_split = Mathf.LerpAngle(funky_prev, funky_next, splitTime);
-            per_anchor_funky_angles.Insert(new_funky_angle_index, funky_split);
+            Vector2 funky_prev = per_anchor_funky_angles[segmentIndex];
+            Vector2 funky_next = per_anchor_funky_angles[new_funky_angle_index];
+            float funky_split_angle  = Mathf.LerpAngle(funky_prev.x, funky_next.x, splitTime);
+            float funky_split_offset = Mathf.LerpAngle(funky_prev.y, funky_next.y, splitTime);
+            per_anchor_funky_angles.Insert(new_funky_angle_index, new Vector2(funky_split_angle, funky_split_offset));
 
             NotifyPathModified();
         }
@@ -578,8 +579,8 @@ namespace PathCreation
             }
         }
 
-        public float GetFunkyAngle(int index) => per_anchor_funky_angles[index];
-        public void SetFunkyAngle(int index, float angle)
+        public Vector2 GetFunkyAngle(int index) => per_anchor_funky_angles[index];
+        public void SetFunkyAngle(int index, Vector2 angle)
         {
             //angle = (angle + 360) % 360;
             if (per_anchor_funky_angles[index] == angle) return;

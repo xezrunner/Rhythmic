@@ -63,12 +63,13 @@ public class TrackSection : MonoBehaviour {
         path_transform.pos.x = (-(track_system.track_count / 2f) + (track.info.id + 0.5f)) * path_transform.desired_size.x;
 
         // ...
-        ChangeMaterial(track.material_horizon);
+        if (!is_empty) ChangeMaterial(track.material_horizon); 
+        else           ChangeMaterial(track.material_global);
 
         path_transform.Deform();
 
         // Measure separators (temp!):
-        {
+        if (false) {
             if (!measure_separator) measure_separator = GameObject.CreatePrimitive(PrimitiveType.Cube);
             measure_separator.transform.SetParent(trans);
             measure_separator.transform.localScale = new Vector3(Variables.TRACK_Width, 0.1f, 0.1f);
@@ -86,7 +87,9 @@ public class TrackSection : MonoBehaviour {
         return this;
     }
 
-    public void ChangeMaterial(Material mat) => mesh_renderer.material = mat;
+    public void ChangeMaterial(Material mat) {
+        mesh_renderer.material = mat;
+    }
 
     // ----- //
 

@@ -18,7 +18,7 @@ namespace PathCreation
         public readonly Vector3[] localPoints;
         public readonly Vector3[] localTangents;
         public readonly Vector3[] localNormals;
-        public readonly float[] funky_angles;
+        public readonly Vector2[] funky_angles;
         public float funky_angle_global;
         public float funky_angle_global_offset;
         public float funky_angle_global_mult;
@@ -74,7 +74,7 @@ namespace PathCreation
             localPoints = new Vector3[numVerts];
             localNormals = new Vector3[numVerts];
             localTangents = new Vector3[numVerts];
-            funky_angles = new float[numVerts];
+            funky_angles = new Vector2[numVerts];
             funky_angle_global = bezierPath.funky_angle_global;
             funky_angle_global_offset = bezierPath.funky_angle_global_offset;
             funky_angle_global_mult = bezierPath.funky_angle_global_mult;
@@ -155,9 +155,9 @@ namespace PathCreation
                     float endAngle = bezierPath.GetAnchorNormalAngle(nextAnchorIndex) + bezierPath.GlobalNormalsAngle;
                     float deltaAngle = Mathf.DeltaAngle(startAngle, endAngle);
 
-                    float funky_start = bezierPath.GetFunkyAngle(anchorIndex);
-                    float funky_end = bezierPath.GetFunkyAngle(nextAnchorIndex);
-                    float funky_delta = funky_end - funky_start;
+                    Vector2 funky_start = bezierPath.GetFunkyAngle(anchorIndex);
+                    Vector2 funky_end = bezierPath.GetFunkyAngle(nextAnchorIndex);
+                    Vector2 funky_delta = funky_end - funky_start;
 
                     int startVertIndex = pathSplitData.anchorVertexMap[anchorIndex];
                     int endVertIndex = pathSplitData.anchorVertexMap[anchorIndex + 1];
@@ -255,28 +255,42 @@ namespace PathCreation
             float t = dst / length;
             return XZ_GetRotation(t, x);
         }
-        public float XZ_GetMultForRotOffset(float t, TimeOnPathData? p_data = null)
+        public Vector2 XZ_GetMultForRotOffset(float t, TimeOnPathData? p_data = null)
         {
-            if (t < 0f) return ((funky_angle_global * funky_angle_global_mult) + funky_angles[0]);
-            else if (t > 1f) return ((funky_angle_global * funky_angle_global_mult) + funky_angles[funky_angles.Length - 1]);
+            if (t < 0f) return funky_angles[0];
+            else if (t > 1f) return funky_angles[funky_angles.Length - 1];
 
             TimeOnPathData data = (p_data != null) ? p_data.Value : CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
-            return (funky_angle_global * funky_angle_global_mult) + Mathf.Lerp(funky_angles[data.previousIndex], funky_angles[data.nextIndex], data.percentBetweenIndices);
+            return Vector2.Lerp(funky_angles[data.previousIndex], funky_angles[data.nextIndex], data.percentBetweenIndices);
         }
         public Quaternion XZ_GetRotation(float t, float x = 0f, TimeOnPathData? p_data = null)
         {
-            //x *= XZ_GetMultForRotOffset(t, p_data);
+            Vector2 funky_angle = XZ_GetMultForRotOffset(t, p_data);
+
             //x *= 0.01f;
-            x += funky_angle_global_offset;
-            x *= funky_angle_global_mult;
+
+            //x += funky_angle_global_offset;
+            //x *= funky_angle_global_mult;
+
+            //x *= funky_angle;
 
             TimeOnPathData data = (p_data != null) ? p_data.Value : CalculatePercentOnPathData(t, EndOfPathInstruction.Stop);
             Vector3 direction = Vector3.Lerp(localTangents[data.previousIndex], localTangents[data.nextIndex], data.percentBetweenIndices);
-            Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices);
 
+            if (direction == Vector3.zero) return Quaternion.identity;
+
+            Vector3 normal = Vector3.Lerp(localNormals[data.previousIndex], localNormals[data.nextIndex], data.percentBetweenIndices);
             Vector3 right = Vector3.Cross(direction, normal);
-            normal += (right * x);
-            normal = normal.normalized;
+
+            //normal += (right * x);
+            //normal = normal.normalized;
+
+            normal = Quaternion.AngleAxis(funky_angle.y + (funky_angle.x * x), direction) * normal;
+
+            if (false) {
+                Vector3 origin = GetPointAtTime(t);
+                Debug.DrawLine(origin, origin + normal * 20f, Color.red, 200f);
+            }
 
 #if XZ_OPTIMIZE_TRANS
             return Quaternion.LookRotation(direction, normal);

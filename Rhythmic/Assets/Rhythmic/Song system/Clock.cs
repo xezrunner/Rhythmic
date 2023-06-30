@@ -47,7 +47,7 @@ public class Clock : MonoBehaviour {
     void Update() {
         // TEMP:
         if (Keyboard.current != null) {
-            if (Keyboard.current.jKey.wasPressedThisFrame) {
+            if (Keyboard.current.spaceKey.wasPressedThisFrame) {
                 audio_system.is_playing = !audio_system.is_playing;
 
                 if (audio_system.is_playing) audio_system.AUDIO_Play();

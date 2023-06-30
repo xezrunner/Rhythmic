@@ -20,9 +20,9 @@ public class Game : MonoBehaviour {
     // should move to XesignShared, as it is a core engine thing. We'll let it be
     // overrideable so that we can load our custom variables as needed.
     #region Variables
-    public static string VARIABLES_FilePath = @"H:\Repositories\Rhythmic-git\Rhythmic\Assets\Variables.conf";
-    public static bool VARIABLES_AllowHotReload = true;
-    public static bool VARIABLES_DebugPrintVars = false;
+    public static string VARIABLES_FilePath = Path.Combine(Application.dataPath, "Variables.conf"); //@"H:\Repositories\Rhythmic-git\Rhythmic\Assets\Variables.conf";
+    public static bool   VARIABLES_AllowHotReload = true;
+    public static bool   VARIABLES_DebugPrintVars = false;
 
     public DateTime VARIABLES_LastWriteTime;
     ConfigurationFile VARIABLES_ConfigFile = new ConfigurationFile(VARIABLES_FilePath, false);

@@ -18,6 +18,7 @@ public class Track {
 
         material = Object.Instantiate(material_resource);
         material_horizon = Object.Instantiate(material_resource);
+        material_global  = Object.Instantiate((Material)Resources.Load("Materials/Track/track_bottom_global"));
 
         // TODO: Global shader var for glow (emission)!
 
@@ -25,6 +26,9 @@ public class Track {
         material.SetColor("_Emission", info.instrument.color * 5f);
         material_horizon.SetColor("_Emission", info.instrument.color * 5f);
         material_horizon.SetInt("_PlaneEnabled", 1);
+
+        material_global.SetColor("_Emission", info.instrument.color * 5f);
+        material_global.SetInt("_PlaneEnabled", 1);
 
         /*
         Log("Printing notes for track %: ", info.name);
@@ -51,5 +55,6 @@ public class Track {
     public static Material material_resource = (Material)Resources.Load("Materials/Track/track_bottom");
     public Material material;
     public Material material_horizon;
+    public Material material_global;
 
 }
