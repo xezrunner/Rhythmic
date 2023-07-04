@@ -298,7 +298,11 @@ public partial class DebugConsole {
 
         if (is_cmd_help && args.Length >= 1) {
             // write_line_internal("attempting to invoke command '%' with the parameter '?'...".interp(args[0]));
-            console.submit("% %".interp(args[0], "?"));
+            //console.submit("% %".interp(args[0], "?"));
+            var cmd = console.registered_commands[args[0]];
+            if (!cmd.help_text.is_empty()) write_line_internal("help for command '%': \n%".interp(args[0], cmd.help_text));
+            else                           write_line_internal("no help text for command '%'!".interp(args[0]));
+            
             return;
         }
         
@@ -401,5 +405,28 @@ public partial class DebugConsole {
 #else
         Application.Quit();
 #endif
+    }
+
+    [ConsoleCommand("Sets the Unity vertical sync (QualitySettings.vSyncCount) value.")]
+    static void cmd_set_vsync(string[] args) {
+        if (args.Length == 0 && write_line("Current vsync value: %".interp(QualitySettings.vSyncCount))) return;
+        int new_value = args[0].as_int();
+        if (new_value < 0 || new_value > 2) log_error("A value of % is invalid for QualitySettings.vSyncCount!".interp(new_value));
+        else QualitySettings.vSyncCount = new_value;
+    }
+
+    [ConsoleCommand("Toggles vertical synchronization. Note: when toggling to a positive value, it's always 1!")]
+    static void cmd_toggle_vsync() {
+        QualitySettings.vSyncCount = (QualitySettings.vSyncCount > 0 ? 0 : 1);
+        write_line("Current vsync value: %".interp(QualitySettings.vSyncCount));
+    }
+
+    [ConsoleCommand("Sets the target framerate (Application.targetFrameRate). Unrestricted is -1.", aliases: "fps")]
+    static void cmd_set_fps(string[] args) {
+        if (args.Length == 0 && write_line("Current framerate limit: %".interp(Application.targetFrameRate))) return;
+        int new_value = args[0].as_int();
+        if (new_value == 0) log_error("Can't set target framerate to 0!");
+        if (new_value < -1) log_error("Can't set framerate to below -1!");
+        else                Application.targetFrameRate = new_value;
     }
 }
