@@ -106,7 +106,7 @@ public partial class DebugConsole : MonoBehaviour {
         keyboard = Keyboard.current;
         if (keyboard == null) log_warn("no keyboard!");
 
-        ui_canvas = FindObjectOfType<Canvas>()?.GetComponent<RectTransform>();
+        ui_canvas = FindFirstObjectByType<Canvas>()?.GetComponent<RectTransform>();
         if (!ui_canvas) log_error("no ui_canvas!");
 
         // Disable Unity's SRP Debug canvas:
@@ -571,7 +571,7 @@ public partial class DebugConsole : MonoBehaviour {
         UPDATE_Openness();
 
         // Do not allow toggling with the [0 / backtick] key - it would clash with wanting to input '0':
-        if      (!is_open && was_pressed(keyboard?.digit0Key, keyboard?.backquoteKey)) open();
+        if      (!is_open && was_pressed(keyboard?.digit0Key, keyboard?.backquoteKey, keyboard?.numpad0Key /*macOS*/)) open();
         else if  (is_open && was_pressed(keyboard?.escapeKey)) close();
 
         if (!is_open) return;

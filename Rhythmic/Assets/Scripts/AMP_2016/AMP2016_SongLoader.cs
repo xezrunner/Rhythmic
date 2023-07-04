@@ -1,5 +1,5 @@
-using Newtonsoft.Json;
 using System.IO;
+using UnityEngine;
 using static Logging;
 
 namespace AMP_2016 {
@@ -121,7 +121,7 @@ namespace AMP_2016 {
         }
         public static json_info load_info_from_json(string file_path) {
             string json_text = File.ReadAllText(file_path);
-            return JsonConvert.DeserializeObject<json_info>(json_text);
+            return JsonUtility.FromJson<json_info>(json_text);
         }
     }
 }
