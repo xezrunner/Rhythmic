@@ -30,6 +30,8 @@ public class RHXCore : MonoBehaviour {
     void Start() {
         log("RHX Startup");
 
+        log("Hello %!", args: "World");
+
         // Set RHX Core scene as active/default:
         SceneLoader.set_scene_as_active(CORE_SCENE_NAME);
 
