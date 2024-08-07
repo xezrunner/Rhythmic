@@ -30,9 +30,10 @@ public class RHXCore : MonoBehaviour {
     void Start() {
         log("RHX Startup");
 
-        // Set RHX Core scene as default:
+        // Set RHX Core scene as active/default:
         SceneLoader.set_scene_as_active(CORE_SCENE_NAME);
 
+        // TEMP: Immediately request a song during internal testing.
         if (IS_INTERNAL) requested_song = default_song;
 
         // Create SongController:

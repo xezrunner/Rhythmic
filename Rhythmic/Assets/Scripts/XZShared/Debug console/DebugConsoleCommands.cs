@@ -218,7 +218,7 @@ public partial class DebugConsole {
                 }
             }
 
-            log("functions: %  variables: %  module: %".interp(method_count.ToString().PadRight(2), field_count.ToString().PadRight(2), module_name), LogLevel.Debug);
+            log(LogLevel.Debug, "functions: %  variables: %  module: %".interp(method_count.ToString().PadRight(2), field_count.ToString().PadRight(2), module_name));
         }
     }
 

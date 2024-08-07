@@ -41,7 +41,7 @@ namespace AMP_2016 {
 
     public static class MidiLoader {
         public static midi_info load_midi(string file_path) {
-            log("loading midi file at '%'".interp(file_path), LogLevel.IO);
+            log(LogLevel.IO, "loading midi file at '%'".interp(file_path));
             if (!File.Exists(file_path)) throw new("MIDI file doesn't exist!");
 
             byte[] bytes  = File.ReadAllBytes(file_path);

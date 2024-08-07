@@ -563,7 +563,7 @@ public partial class DebugConsole : MonoBehaviour {
     public static bool CONSOLE_RedirectUnityLogging = true;
     void handle_unity_redirect(string logString, string stackTrace, LogType type) {
         if (CONSOLE_RedirectUnityLogging) {
-            log_nocaller(logString, LogTarget.XZConsoles, loglevel_from_unity_logtype(type));
+            log_nocaller(LogTarget.XZConsoles, loglevel_from_unity_logtype(type), logString);
         }
     }
 

@@ -112,7 +112,7 @@ public class DebugMenu : MonoBehaviour
         draw_current_page();
         select_line(0);
 
-        log("switched to page '%'".interp(page.GetType().Name), LogLevel.Debug);
+        log(LogLevel.Debug, "switched to page '%'".interp(page.GetType().Name));
     }
 
     void draw_current_page() {
@@ -189,14 +189,14 @@ public class DebugMenu : MonoBehaviour
     }
 
     void line_pointer_up_event(object sender, (DebugMenu_Line line, int dir) info) {
-        log("up", LogLevel.Debug);
+        log(LogLevel.Debug, "up");
         // Since we now select the item on pointer down, this is useless:
         //select_and_invoke_from_click(info.line, info.dir);
         invoke_selection(info.dir);
         is_holding = false;
     }
     void line_pointer_down_event(object sender, (DebugMenu_Line line, int dir) info) {
-        log("down", LogLevel.Debug);
+        log(LogLevel.Debug, "down");
         select_line(info.line);
         is_holding = true;
         hold_dir = info.dir;

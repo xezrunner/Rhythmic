@@ -22,7 +22,7 @@ namespace AMP_2016 {
                 log_warn("JSON support allowed. DO NOT SHIP!!!");
 
                 string path_to_json_file = Path.Combine(lookup_path, JSON_FILE_NAME);
-                log("path_to_json_file: %".interp(path_to_json_file), LogLevel.IO);
+                log(LogLevel.IO, "path_to_json_file: %".interp(path_to_json_file));
 
                 if (!File.Exists(path_to_json_file)) throw new ("JSON file doesn't exist!");
 
@@ -70,7 +70,8 @@ namespace AMP_2016 {
                     string path = Path.Combine(lookup_path, "audio", track_name);
 
                     bool path_exists = File.Exists(path);
-                    log("[%]: exists: %  path: %".interp(i, path_exists ? '1' : '0', path), path_exists ? LogLevel.IO : LogLevel.IO | LogLevel.Error);
+                    log(path_exists ? LogLevel.IO : LogLevel.IO | LogLevel.Error, 
+                        "[%]: exists: %  path: %".interp(i, path_exists ? '1' : '0', path));
 
                     audio_paths[i] = path;
                 }

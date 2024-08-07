@@ -46,12 +46,12 @@ public static class SongLoader {
             }
 
             if (found) {
-                log("found song '%' at path: %".interp(song_name, lookup_path), LogLevel.IO);
+                log(LogLevel.IO, "found song '%' at path: %".interp(song_name, lookup_path));
                 return (lookup_gametype, lookup_path);
             }
         }
 
-        log("failed to find song '%' at any of the lookup paths".interp(song_name), LogLevel.IO | LogLevel.Error);
+        log(LogLevel.IO | LogLevel.Error, "failed to find song '%' at any of the lookup paths".interp(song_name));
         return (GameType.RHX_2022, null);
     }
 }
