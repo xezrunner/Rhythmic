@@ -91,7 +91,7 @@ public partial class DebugConsole {
 
         foreach (string key in registered_commands.Keys) {
             if (temp_aliases.Contains(key)) {
-                log_warn("the alias '%' is already registered. Ignoring!".interp(key));
+                log_warning("the alias '%' is already registered. Ignoring!".interp(key));
                 temp_aliases.Remove(key);
             }
         }

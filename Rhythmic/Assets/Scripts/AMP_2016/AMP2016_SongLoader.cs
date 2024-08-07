@@ -19,7 +19,7 @@ namespace AMP_2016 {
 
             bool success = false;
             if (ALLOW_JSON_FORMAT) {
-                log_warn("JSON support allowed. DO NOT SHIP!!!");
+                log_warning("JSON support allowed. DO NOT SHIP!!!");
 
                 string path_to_json_file = Path.Combine(lookup_path, JSON_FILE_NAME);
                 log(LogLevel.IO, "path_to_json_file: %".interp(path_to_json_file));

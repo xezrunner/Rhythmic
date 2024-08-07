@@ -56,7 +56,7 @@ public class SongController : MonoBehaviour {
             return;
         }
         if (init_waiting_for_song) {
-            log_warn("not yet initialized with a song.");
+            log_warning("not yet initialized with a song.");
             return;
         }
         rhx_core.track_controller.init_from_song_info(current_song_info);
@@ -87,7 +87,7 @@ public class SongController : MonoBehaviour {
     IEnumerator RHX_UNITY_LoadAudioForTracks(AudioType audio_type, bool stream_audio = true) {
         foreach (var info in current_song_info.tracks) {
             if (!info.audio_exists) {
-                log_warn("skipping non-existent audio for track '%' at path '%')".interp(info.name, info.audio_path));
+                log_warning("skipping non-existent audio for track '%' at path '%')".interp(info.name, info.audio_path));
                 yield break;
             }
 
@@ -150,7 +150,7 @@ public class SongController : MonoBehaviour {
     public static void print_song_info() {
         if (!get_instance()) return;
         if (instance.init_waiting_for_song) {
-            log_warn("no song!");
+            log_warning("no song!");
             return;
         }
 

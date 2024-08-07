@@ -206,7 +206,7 @@ public static class Logging {
     }
 
     // log_warning(message)
-    public static Logging_Info log_warn(string message, 
+    public static Logging_Info log_warning(string message, 
                                 [CallerFilePath]   string caller_file_path = null,
                                 [CallerMemberName] string caller_proc_name = null,
                                 [CallerLineNumber] int caller_line_num = -1) {

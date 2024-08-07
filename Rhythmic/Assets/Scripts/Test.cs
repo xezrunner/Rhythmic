@@ -39,7 +39,7 @@ public class Test : MonoBehaviour {
     [ConsoleCommand("Logs a test message")]
     static void test_log()  => log("test!");
     [ConsoleCommand("Logs a test warning message")]
-    static void test_log_warn() => log_warn("test!");
+    static void test_log_warn() => log_warning("test!");
     [ConsoleCommand("Logs a test error message")]
     static void test_log_error() => log_error("test!".color(Color.red));
 }

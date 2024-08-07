@@ -53,7 +53,7 @@ public static partial class TextExtensions {
             case "yes":
                 return true;
             default: {
-                log_warn("expected boolean - returning false.");
+                log_warning("expected boolean - returning false.");
                 return false;
             }
         }

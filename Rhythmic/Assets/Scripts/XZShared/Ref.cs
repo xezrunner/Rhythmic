@@ -32,13 +32,13 @@ namespace XZShared {
                     if      (target >= count) target = 0;
                     else if (target < 0)      target = count - 1;
                 } else if (target >= count || target < 0) {
-                    log_warn("index under or overflow for type '%'! ignoring".interp(var_type.Name));
+                    log_warning("index under or overflow for type '%'! ignoring".interp(var_type.Name));
                     return false;
                 }
                 object result = Enum.Parse(var_type, target.ToString());
                 set_value(result);
             } else {
-                log_warn("unsupported type: '%'".interp(var_type.Name));
+                log_warning("unsupported type: '%'".interp(var_type.Name));
                 return false;
             }
 

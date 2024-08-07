@@ -15,7 +15,7 @@ public class DebugMenu : MonoBehaviour
     static DebugMenu instance;
     public static DebugMenu get_instance() {
         if (instance) return instance;
-        else log_warn("no debugmenu instance!");
+        else log_warning("no debugmenu instance!");
         return null;
     }
 
@@ -23,10 +23,10 @@ public class DebugMenu : MonoBehaviour
         instance = this;
 
         keyboard = Keyboard.current;
-        if (keyboard == null) log_warn("no keyboard!");
+        if (keyboard == null) log_warning("no keyboard!");
 
         debugstats_instance = DebugStats.get_instance();
-        if (!debugstats_instance) log_warn("no debugstats instance!");
+        if (!debugstats_instance) log_warning("no debugstats instance!");
 
         var page_0 = set_page(typeof(DebugMenu_Pages.MainPage));
 
@@ -250,7 +250,7 @@ public class DebugMenu : MonoBehaviour
             return false;
         }
         if (ui_lines.Count == 0) {
-            log_warn("empty page!");
+            log_warning("empty page!");
             return false;
         }
         if (line.is_separator()) return false;
@@ -265,7 +265,7 @@ public class DebugMenu : MonoBehaviour
     }
     bool select_line(int index) {
         if (ui_lines.Count == 0) {
-            log_warn("empty page!"); 
+            log_warning("empty page!"); 
             return false;
         }
         if ((index < 0 || index >= ui_lines.Count)) {
@@ -277,7 +277,7 @@ public class DebugMenu : MonoBehaviour
     }
     (bool success, int index) select_next(int dir) {
         if (ui_lines.Count == 0) {
-            log_warn("empty page!");
+            log_warning("empty page!");
             return (false, -1);
         }
 
@@ -299,7 +299,7 @@ public class DebugMenu : MonoBehaviour
 
     bool invoke_selection(double dir = 0) {
         if (ui_lines.Count == 0) {
-            log_warn("no lines!");
+            log_warning("no lines!");
             return false;
         }
 
@@ -382,7 +382,7 @@ public class DebugMenu : MonoBehaviour
     static void cmd_debugmenu_print_page_cache() {
         DebugMenu inst = get_instance();
         if (!inst) {
-            log_warn("no debugmenu instance!");
+            log_warning("no debugmenu instance!");
             return;
         }
         DebugConsole.write_line("Listing cached pages: (%)".interp(inst.cached_pages.Count), LogLevel._ConsoleInternal);

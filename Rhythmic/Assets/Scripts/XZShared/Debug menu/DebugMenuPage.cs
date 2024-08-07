@@ -24,7 +24,7 @@ public class DebugMenu_Page {
         Type type = GetType();
         attrib = (DebugMenuPageAttribute)Attribute.GetCustomAttribute(type, typeof(DebugMenuPageAttribute));
         if (attrib == null) {
-            log_warn("The debug menu page '%' does not bear a DebugMenuPage attribute! Adding default.".interp(type.Name));
+            log_warning("The debug menu page '%' does not bear a DebugMenuPage attribute! Adding default.".interp(type.Name));
             attrib = new();
         }
 

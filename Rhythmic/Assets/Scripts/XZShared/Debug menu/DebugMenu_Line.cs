@@ -31,7 +31,7 @@ public class DebugMenuEntry_Func : DebugMenuEntry {
     public Action action;
     public void invoke() {
         if (action == null) {
-            log_warn("no action for entry with text '%'.".interp(text));
+            log_warning("no action for entry with text '%'.".interp(text));
             return;
         }
         action.Invoke();

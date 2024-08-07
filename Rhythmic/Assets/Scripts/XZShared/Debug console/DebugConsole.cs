@@ -104,7 +104,7 @@ public partial class DebugConsole : MonoBehaviour {
         Application.logMessageReceivedThreaded += handle_unity_redirect;
 
         keyboard = Keyboard.current;
-        if (keyboard == null) log_warn("no keyboard!");
+        if (keyboard == null) log_warning("no keyboard!");
 
         ui_canvas = FindFirstObjectByType<Canvas>()?.GetComponent<RectTransform>();
         if (!ui_canvas) log_error("no ui_canvas!");
