@@ -1,6 +1,7 @@
 using UnityEngine;
 using static Logging;
 
+// TODO: This shouldn't be here! Probably belongs in SongController to be honest, perhaps Player, or some sort of [gameplay "Session"].
 public enum GameDifficulty { Easy = 0, Intermediate = 1, Advanced = 2, Expert = 3, Super = 4 }
 
 public class RHXCore : MonoBehaviour {
@@ -10,19 +11,21 @@ public class RHXCore : MonoBehaviour {
         return instance;
     }
 
-    public const string CORE_SCENE_NAME = "_RHXCoreScene";
-    public static bool IS_INTERNAL = true;
+    public const  string CORE_SCENE_NAME = "_RHXCoreScene";
+    public static bool   IS_INTERNAL = true;
 
     void Awake() {
         instance = this;
     }
 
-    public SongController song_controller;
-    public TrackController track_controller;
-
     [Header("Default song to load into during development:")]
     public string default_song = "allthetime";
     public string requested_song;
+
+    public SongController  song_controller;
+    public TrackController track_controller;
+
+    // TODO: players, sessions etc...
 
     void Start() {
         log("RHX Startup");
