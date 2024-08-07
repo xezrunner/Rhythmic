@@ -77,16 +77,14 @@ public static class Logging {
     public static Logging_Info log(LogTarget targets, LogLevel level, string message, 
                           [CallerFilePath]   string caller_file_path = null,
                           [CallerMemberName] string caller_proc_name = null,
-                          [CallerLineNumber] int    caller_line_num = -1,
-                          params string[] args) {
+                          [CallerLineNumber] int    caller_line_num = -1) {
         //message = message.add_caller_debug_info(options.caller_info, caller_file_path, caller_proc_name, caller_line_num); // TODO: cleanup?
         CallerDebugInfo caller_info = new CallerDebugInfo(caller_file_path, caller_proc_name, caller_line_num);
-        return log_to_targets(targets, level, message.interp(args), caller_info);
+        return log_to_targets(targets, level, message, caller_info);
     }
 
     // TODO: We use this in some places in XZShared. What should the public API for _nocaller be?
-    public static Logging_Info log_nocaller(LogTarget targets, LogLevel level, string message, params string[] args) =>
-        log_to_targets(targets, level, message.interp(args));
+    public static Logging_Info log_nocaller(LogTarget targets, LogLevel level, string message) => log_to_targets(targets, level, message);
 
     static Logging_Info log_to_targets(LogTarget targets, LogLevel level, string s, CallerDebugInfo caller_info = default) {
         Logging_Info info = new(s, targets, level, logging_options.indentation_level, caller_info);
@@ -187,71 +185,64 @@ public static class Logging {
     public static Logging_Info log(LogLevel level, string message,
                                 [CallerFilePath]   string caller_file_path = null,
                                 [CallerMemberName] string caller_proc_name = null,
-                                [CallerLineNumber] int caller_line_num = -1,
-                                params string[] args) {
+                                [CallerLineNumber] int caller_line_num = -1) {
         return log(logging_options.default_targets, level, message,
-            caller_file_path, caller_proc_name, caller_line_num, args);
+            caller_file_path, caller_proc_name, caller_line_num);
     }
     // log(message)
     public static Logging_Info log(string message,
                                 [CallerFilePath] string caller_file_path = null,
                                 [CallerMemberName] string caller_proc_name = null,
-                                [CallerLineNumber] int caller_line_num = -1,
-                                params string[] args) {
+                                [CallerLineNumber] int caller_line_num = -1) {
         return log(logging_options.default_targets, logging_options.default_level, message,
-            caller_file_path, caller_proc_name, caller_line_num, args);
+            caller_file_path, caller_proc_name, caller_line_num);
     }
 
     // log_error(message)
     public static Logging_Info log_error(string message, 
                                 [CallerFilePath]   string caller_file_path = null,
                                 [CallerMemberName] string caller_proc_name = null,
-                                [CallerLineNumber] int caller_line_num = -1,
-                                params string[] args) {
+                                [CallerLineNumber] int caller_line_num = -1) {
         return log(LogLevel.Error, message,
-            caller_file_path, caller_proc_name, caller_line_num, args);
+            caller_file_path, caller_proc_name, caller_line_num);
     }
 
     // log_warning(message)
     public static Logging_Info log_warning(string message, 
                                 [CallerFilePath]   string caller_file_path = null,
                                 [CallerMemberName] string caller_proc_name = null,
-                                [CallerLineNumber] int caller_line_num = -1,
-                                params string[] args) {
+                                [CallerLineNumber] int caller_line_num = -1) {
         return log(LogLevel.Warning, message,
-            caller_file_path, caller_proc_name, caller_line_num, args);
+            caller_file_path, caller_proc_name, caller_line_num);
     }
 
     // TODO: logging to the console directly probably shouldn't really be a thing, since
     // the output isn't supposed to show up in logs.
-    // TODO: custom logs?
     
     // log_console(level, message)
     public static Logging_Info log_console(LogLevel level, string message,
                                 [CallerFilePath]   string caller_file_path = null,
                                 [CallerMemberName] string caller_proc_name = null,
-                                [CallerLineNumber] int caller_line_num = -1,
-                                params string[] args) {
+                                [CallerLineNumber] int caller_line_num = -1) {
         return log(LogTarget.XZConsoles, level, message,
-            caller_file_path, caller_proc_name, caller_line_num, args);
+            caller_file_path, caller_proc_name, caller_line_num);
     }
     // log_console(message)
     public static Logging_Info log_console(string message,
                                 [CallerFilePath] string caller_file_path = null,
                                 [CallerMemberName] string caller_proc_name = null,
-                                [CallerLineNumber] int caller_line_num = -1,
-                                params string[] args) {
+                                [CallerLineNumber] int caller_line_num = -1) {
         return log(LogTarget.XZConsoles, logging_options.default_level, message,
-            caller_file_path, caller_proc_name, caller_line_num, args);
+            caller_file_path, caller_proc_name, caller_line_num);
     }
 
     // log_nocaller(level, message)
-    public static Logging_Info log_nocaller(LogLevel level, string message, params string[] args)    => 
-        log_nocaller(logging_options.default_targets, level, message, args);
+    public static Logging_Info log_nocaller(LogLevel level, string message )    => 
+        log_nocaller(logging_options.default_targets, level, message);
 
     // log_nocaller(message)
-    public static Logging_Info log_nocaller(string message, params string[] args)                    => 
-        log_nocaller(logging_options.default_targets, logging_options.default_level, message, args);
+    public static Logging_Info log_nocaller(string message )                    => 
+        log_nocaller(logging_options.default_targets, logging_options.default_level, message);
 
     // log_dump_obj(...
     public static Logging_Info log_dump_obj_with_name(object obj, string name,
