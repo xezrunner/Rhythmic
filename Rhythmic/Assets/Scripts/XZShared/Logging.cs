@@ -177,8 +177,11 @@ public static class Logging {
         return log(sb.ToString(), caller_file_path, caller_proc_name, caller_line_num);
     }
 
+    // TODO: I don't like how complex these look, but they have to be this disgusting,
+    // due to the caller info argument shenanigans.
+    // We could auto-gen these, but it's fine for now.
     #region Overloads
-    // log(LogLevel, string message)
+    // log(level, message)
     public static Logging_Info log(LogLevel level, string message,
                                 [CallerFilePath]   string caller_file_path = null,
                                 [CallerMemberName] string caller_proc_name = null,
@@ -186,7 +189,6 @@ public static class Logging {
         return log(logging_options.default_targets, level, message,
             caller_file_path, caller_proc_name, caller_line_num);
     }
-
     // log(message)
     public static Logging_Info log(string message,
                                 [CallerFilePath] string caller_file_path = null,
@@ -214,6 +216,23 @@ public static class Logging {
             caller_file_path, caller_proc_name, caller_line_num);
     }
 
+    // log_console(level, message)
+    public static Logging_Info log_console(LogLevel level, string message,
+                                [CallerFilePath]   string caller_file_path = null,
+                                [CallerMemberName] string caller_proc_name = null,
+                                [CallerLineNumber] int caller_line_num = -1) {
+        return log(LogTarget.XZConsoles, level, message,
+            caller_file_path, caller_proc_name, caller_line_num);
+    }
+    // log_console(message)
+    public static Logging_Info log_console(string message,
+                                [CallerFilePath] string caller_file_path = null,
+                                [CallerMemberName] string caller_proc_name = null,
+                                [CallerLineNumber] int caller_line_num = -1) {
+        return log(LogTarget.XZConsoles, logging_options.default_level, message,
+            caller_file_path, caller_proc_name, caller_line_num);
+    }
+
     // log_nocaller(level, message)
     public static Logging_Info log_nocaller(LogLevel level, string message )    => 
         log_nocaller(logging_options.default_targets, level, message);
@@ -222,6 +241,7 @@ public static class Logging {
     public static Logging_Info log_nocaller(string message )                    => 
         log_nocaller(logging_options.default_targets, logging_options.default_level, message);
 
+    // log_dump_obj(...
     public static Logging_Info log_dump_obj_with_name(object obj, string name,
                                    [CallerFilePath]   string caller_file_path = null,
                                    [CallerMemberName] string caller_proc_name = null,
