@@ -216,6 +216,9 @@ public static class Logging {
             caller_file_path, caller_proc_name, caller_line_num);
     }
 
+    // TODO: logging to the console directly probably shouldn't really be a thing, since
+    // the output isn't supposed to show up in logs.
+    
     // log_console(level, message)
     public static Logging_Info log_console(LogLevel level, string message,
                                 [CallerFilePath]   string caller_file_path = null,

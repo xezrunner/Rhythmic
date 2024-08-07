@@ -340,7 +340,7 @@ public partial class DebugConsole {
         if (!console) return;
         
         if (args.Length == 0) {
-            write_line("current filter: %".interp(console.current_filter), LogLevel._ConsoleInternal);
+            write_line_internal("current filter: %".interp(console.current_filter));
             return;
         }
         if (args[0] == "?") {
@@ -409,24 +409,30 @@ public partial class DebugConsole {
 
     [ConsoleCommand("Sets the Unity vertical sync (QualitySettings.vSyncCount) value.")]
     static void cmd_set_vsync(string[] args) {
-        if (args.Length == 0 && write_line("Current vsync value: %".interp(QualitySettings.vSyncCount))) return;
+        if (args.Length == 0) { log("Current vsync value: %".interp(QualitySettings.vSyncCount)); return; }
         int new_value = args[0].as_int();
         if (new_value < 0 || new_value > 2) log_error("A value of % is invalid for QualitySettings.vSyncCount!".interp(new_value));
-        else QualitySettings.vSyncCount = new_value;
+        else {
+            QualitySettings.vSyncCount = new_value;
+            log("New vsync value: %".interp(QualitySettings.vSyncCount));
+        }
     }
 
     [ConsoleCommand("Toggles vertical synchronization. Note: when toggling to a positive value, it's always 1!")]
     static void cmd_toggle_vsync() {
         QualitySettings.vSyncCount = (QualitySettings.vSyncCount > 0 ? 0 : 1);
-        write_line("Current vsync value: %".interp(QualitySettings.vSyncCount));
+        log("Vsync toggled - new value: %".interp(QualitySettings.vSyncCount));
     }
 
     [ConsoleCommand("Sets the target framerate (Application.targetFrameRate). Unrestricted is -1.", aliases: "fps")]
     static void cmd_set_fps(string[] args) {
-        if (args.Length == 0 && write_line("Current framerate limit: %".interp(Application.targetFrameRate))) return;
+        if (args.Length == 0) { log("Current framerate limit: %".interp(Application.targetFrameRate)); return; }
         int new_value = args[0].as_int();
         if (new_value == 0) log_error("Can't set target framerate to 0!");
         if (new_value < -1) log_error("Can't set framerate to below -1!");
-        else                Application.targetFrameRate = new_value;
+        else {
+            Application.targetFrameRate = new_value;
+            log("New target framerate: %".interp(new_value));
+        }
     }
 }

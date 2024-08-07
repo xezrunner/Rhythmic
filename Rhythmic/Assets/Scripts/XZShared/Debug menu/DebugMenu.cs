@@ -30,7 +30,7 @@ public class DebugMenu : MonoBehaviour
 
         var page_0 = set_page(typeof(DebugMenu_Pages.MainPage));
 
-        DebugConsole.write_line("[debugmenu] initialized");
+        log("[debugmenu] initialized");
     }
 
     void Start() {
@@ -385,8 +385,10 @@ public class DebugMenu : MonoBehaviour
             log_warning("no debugmenu instance!");
             return;
         }
-        DebugConsole.write_line("Listing cached pages: (%)".interp(inst.cached_pages.Count), LogLevel._ConsoleInternal);
+
+        // TODO: why are these of _ConsoleInternal level?
+        log(LogLevel._ConsoleInternal, "Listing cached pages: (%)".interp(inst.cached_pages.Count));
         foreach (Type t in inst.cached_pages.Keys)
-            DebugConsole.write_line("  - %".interp(t.Name), LogLevel._ConsoleInternal);
+            log(LogLevel._ConsoleInternal, "  - %".interp(t.Name));
     }
 }

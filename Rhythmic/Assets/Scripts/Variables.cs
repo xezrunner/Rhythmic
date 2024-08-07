@@ -8,6 +8,6 @@ public static class Variables {
     };
     [ConsoleCommand]
     static void cmd_list_song_lookup_paths() {
-        foreach (var kv in song_lookup_paths) DebugConsole.write_line("for: %  path: \"%\"".interp(kv.Key, kv.Value), LogLevel.Debug);
+        foreach (var kv in song_lookup_paths) log(LogLevel.Debug, "for: %  path: \"%\"".interp(kv.Key, kv.Value));
     }
 }

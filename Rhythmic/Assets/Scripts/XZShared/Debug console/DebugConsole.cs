@@ -19,7 +19,7 @@ public partial class DebugConsole : MonoBehaviour {
     static DebugConsole instance;
     public static DebugConsole get_instance() {
         if (instance) return instance;
-        Debug.LogWarning("DebugConsole does not have an instance!");
+        log_warning("DebugConsole does not have an instance!");
         return null;
     }
 
@@ -117,7 +117,7 @@ public partial class DebugConsole : MonoBehaviour {
 
         register_commands_from_assemblies();
 
-        write_line("[console] initialized");
+        log("[console] initialized");
     }
 
     void Start() {
@@ -450,7 +450,7 @@ public partial class DebugConsole : MonoBehaviour {
         }
 
         if (input.is_empty() && CONSOLE_RepeatOnEmptySubmit && history.Count != 0) input = history.Last();
-        if (CONSOLE_EchoBack) write_line("> %".interp(input), LogLevel._ConsoleInternal);
+        if (CONSOLE_EchoBack) write_line_internal($"> {input}");
         history_add(input);
         history_index = -1;
         scroll_to_bottom();
@@ -462,7 +462,7 @@ public partial class DebugConsole : MonoBehaviour {
         if (submit_debug) write_line("[submit] s_cmd: % :: s_args: [%]".interp(s_cmd, s_args.Length == 0 ? "none" : string.Join("; ", s_args)));
         
         if (!registered_commands.ContainsKey(s_cmd)) {
-            write_line("Could not find command: %".interp(input), LogLevel._ConsoleInternal);
+            write_line_internal("Could not find command: %".interp(input));
             return;
         }
 
@@ -480,7 +480,7 @@ public partial class DebugConsole : MonoBehaviour {
                 object value_to_set;
                 try {
                     value_to_set = Convert.ChangeType(s_args[0], var_ref.var_type);
-                } catch (Exception ex) { write_line("Could not set value: %".interp(ex.Message), LogLevel.Error); return; }
+                } catch (Exception ex) { log_error("Could not set value: %".interp(ex.Message)); return; }
                 
                 var_ref.set_value(value_to_set);
             }
