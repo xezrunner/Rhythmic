@@ -30,14 +30,24 @@ public class Catcher : MonoBehaviour
 
     public CatcherSide Side = CatcherSide.Center;
 
+    public Vector3 pressScale = new(0.6f, 0.6f, 0.6f);
+    public float scaleSpeed = 1f;
+
+    Transform trans;
+    Vector3 startScale;
+    void Awake() {
+        trans = transform;
+        startScale = trans.localScale;
+    }
+
     // ... //
-    // Visuals
-    // Animations
-    // Effects
-    // ... //
-    
-    // TODO TODO: This stuff is weird - we should be looking at time (Clock) rather than distance!
-    CatchResult GenerateFail(float dist)
+        // Visuals
+        // Animations
+        // Effects
+        // ... //
+
+        // TODO TODO: This stuff is weird - we should be looking at time (Clock) rather than distance!
+        CatchResult GenerateFail(float dist)
     {
         // Evaluate whether we are under a measure and return the appropriate fail catch result
         // for the scenario.
@@ -49,7 +59,7 @@ public class Catcher : MonoBehaviour
 
         float slopMs = RhythmicGame.SlopMs;
         float slopzPos = SongController.time_units.SecToPos(slopMs / 1000f);
-        
+
         float mStart = measure.Position.z;
         float mLength = measure.Length;
         float mFrac = (mStart - dist) / mLength; // Fraction (0-1) player distance in the measure
@@ -65,6 +75,11 @@ public class Catcher : MonoBehaviour
 
     public CatchResult Catch()
     {
+        pressed = true;
+        animT = 0f;
+
+        if (!TracksController) return new();
+
         // Handle empty catch
         Measure currentMeasure = TracksController.CurrentTrack.CurrentMeasure;
         if (!currentMeasure) return new CatchResult();
@@ -119,5 +134,20 @@ public class Catcher : MonoBehaviour
         // ----
 
         return new CatchResult();
+    }
+
+    float animT = 1f;
+    bool pressed = false;
+    void Update()
+    {
+        if (!pressed) return;
+        if (animT > 1f)
+        {
+            animT = 1f;
+            pressed = false;
+        }
+
+        trans.localScale = Vector3.Lerp(pressScale, startScale, animT);
+        animT += scaleSpeed * Time.deltaTime;
     }
 }

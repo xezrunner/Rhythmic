@@ -3,13 +3,13 @@
 [Flags]
 public enum PowerupType
 {
-    All = -2,
     UNKNOWN = -1,
     None = 0,
-    Generic = 1,
+    Generic = 1 << 0,
     Autocatch = 1 << 1,
     Slowmo = 1 << 2,
     Freestyle = 1 << 3,
+    All = 0xff,
 }
 
 public partial class PlayerPowerupManager
