@@ -14,36 +14,38 @@
             
             AddEntry("Dev worlds: ", false);
             {
-                AddEntry("  - DevScene", () => LoadWorld(        "DevScene/DevScene"));
-                AddEntry("  - DevScene_Demo", () => LoadWorld(   "DevScene/DevScene_Demo"));
-                AddEntry("  - DevScene_Sandbox", () => LoadWorld("DevScene/DevScene_Sandbox"));
-                AddEntry("  - TestScene", () => LoadWorld("TestScene/TestScene"), "Space-themed abstract background test (xezrunner)");
+                AddEntry("  - DevScene", () => LoadWorld(        "DevScene"));
+                AddEntry("  - DevScene_Demo", () => LoadWorld(   "DevScene_Demo"));
+                AddEntry("  - DevScene_Sandbox", () => LoadWorld("DevScene_Sandbox"));
+                AddEntry("  - TestScene", () => LoadWorld("TestScene"), "Space-themed abstract background test (xezrunner)");
             }
             AddEntry("Skybox: ", false);
             {
-                AddEntry("  - ColorLightsBackground", () => LoadWorld("Skybox/ColorLightsBackground"));
+                AddEntry("  - ColorLightsBackground", () => LoadWorld("ColorLightsBackground"));
             }
 
             AddEntry("Miscellaneous: ", false);
             
-            AddEntry("Loading", () => LoadWorld("Loading/Loading"));
+            AddEntry("Loading", () => LoadWorld("Loading"));
             AddEntry("PathTestScene", () => LoadWorld("PathTestScene"));
-            AddEntry("_Testing/TunnelTesting", () => LoadWorld("_TunnelTesting/TunnelTesting"));
-            AddEntry("Example/ssms_example", () => LoadWorld("Example/ssms_example"));
+            AddEntry("_Testing/TunnelTesting", () => LoadWorld("TunnelTesting"));
+            AddEntry("Example/ssms_example", () => LoadWorld("ssms_example"));
             
             AddEntry();
 
             AddEntry("MetaSystem/MetaSystem", () => LoadWorld("Meta/MetaSystem"));
             AddEntry("RH_Main", () => LoadWorld("RH_Main"), "New universe");
         }
-        
+
         // Functionality:
 
         public static void LoadWorld(string world)
         {
             DebugMenu.SetActive(false);
-            RhythmicGame.StartWorld = world;
-            RhythmicGame.Restart();
+            GameState.UnloadScene(world); // TEMP:
+            GameState.LoadScene(world, UnityEngine.SceneManagement.LoadSceneMode.Additive);
+            //RhythmicGame.StartWorld = world;
+            //RhythmicGame.Restart();
         }
     }
 }

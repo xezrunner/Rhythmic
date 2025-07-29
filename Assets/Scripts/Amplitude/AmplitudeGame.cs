@@ -11,7 +11,7 @@ public static class AmplitudeGame
     //public static string AMP_songFolder = string.Format("{0}//amp_songs", Application.dataPath);
     public enum AMP_FileExtension { mid, mogg, moggsong }
 
-    public static string song_ogg_path = "H:\\HMXAMPLITUDE\\Extractions\\ps4_songs";
+    public static string song_ogg_path = @"H:\Projects\Unity Engine\Archive\Rhythmic\Rhythmic-AmplitudeSongs\ogg";
 
     /*
     public static string AMP_songFolder
@@ -32,7 +32,7 @@ public static class AmplitudeGame
         }
     }
     */
-    public static string AMP_songFolder = @"H:/HMXAMPLITUDE/Extractions/amplitude_ps4_extraction/ps4/songs";
+    public static string AMP_songFolder = @"H:\Projects\Unity Engine\Archive\Rhythmic\Rhythmic-AmplitudeSongs\amp";
 
     public static string AMP_GetSongFilePath(string songName, AMP_FileExtension extension)
     {

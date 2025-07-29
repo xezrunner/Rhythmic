@@ -127,8 +127,8 @@ public static class AmplitudeMidiReader
                 list.Add(code);
             //else if (code.Contains("FREESTYLE"))
             //    list.Add("freestyle");
-            //else if (code.Contains("BG_CLICK"))
-            //    list.Add("bg_click");
+            else if (code.Contains("BG_CLICK"))
+               list.Add("bg_click");
         }
 
         return list;

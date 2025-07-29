@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static Logger;
 
 public class MetaMainMenu : MonoBehaviour
@@ -23,7 +24,10 @@ public class MetaMainMenu : MonoBehaviour
 
     public void DEBUG_StartGame()
     {
-        GameState.LoadScene("RH_Main");
+        SceneManager.LoadScene("TestScene");
+        GameState.UnloadScene("RH_Main"); // TEMP:
+        GameState.UnloadScene("MetaSystem"); // TEMP:
+        GameState.LoadScene("RH_Main", UnityEngine.SceneManagement.LoadSceneMode.Additive);
         MetaSystem.META_SetVisibility(false);
 
         SetVisibility(false);

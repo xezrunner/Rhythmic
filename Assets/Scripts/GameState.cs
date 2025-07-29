@@ -95,7 +95,11 @@ public class GameState : MonoBehaviour
     }
 
     // TODO: Move to a better place? Global game utilities-like (static) class?
-    public static void LoadScene(string scene_name) => SceneManager.LoadSceneAsync(scene_name, LoadSceneMode.Single);
+    public static void LoadScene(string scene_name, LoadSceneMode mode = LoadSceneMode.Single) => SceneManager.LoadSceneAsync(scene_name, mode);
+    public static void UnloadScene(string scene_name) {
+        try { SceneManager.UnloadSceneAsync(scene_name); }
+        catch (System.Exception ex) { LogWarning("UnloadScene(): %", ex.Message); }
+    }
 
     // ----------------------------------------
 

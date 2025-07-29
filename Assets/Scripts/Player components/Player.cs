@@ -32,7 +32,7 @@ public partial class Player : MonoBehaviour
         AudioClip clip = (AudioClip)Resources.Load(path);
 
         if (!clip) Logger.LogConsoleE("Failed to load sound clip %".M(), sound_name);
-        AudioSrc.PlayOneShot(clip);
+        AudioSrc.PlayOneShot(clip, 0.2f);
     }
 
     // Main loop:

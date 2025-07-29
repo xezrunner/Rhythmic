@@ -44,7 +44,7 @@ public class PlayerInputHandler : MonoBehaviour
     void OnCatchCenter() => Catching.TriggerCatcher(1);
     void OnCatchRight() => Catching.TriggerCatcher(2);
 
-    void OnPowerup() { }
+    void OnPowerup() { PlayerPowerupManager.Instance?.DeployCurrentPowerup(); }
     void OnChangeCamera() { }
 
     void OnPlayPause() => SongController.PlayPause();
